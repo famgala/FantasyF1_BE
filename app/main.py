@@ -19,3 +19,4 @@ async def health_check():
 async def root():
     """Root endpoint"""
     return {"message": "Fantasy F1 Backend API", "version": "0.1.0"}
+

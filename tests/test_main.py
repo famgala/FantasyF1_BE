@@ -28,3 +28,4 @@ def test_root_endpoint(client):
     data = response.json()
     assert "message" in data
     assert "version" in data
+
