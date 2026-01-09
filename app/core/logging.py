@@ -9,29 +9,29 @@ from app.core.config import settings
 
 def setup_logging() -> None:
     """Configure structured logging for the application"""
-    
+
     # Create formatters
     formatter = logging.Formatter(
         fmt="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
         datefmt="%Y-%m-%d %H:%M:%S",
     )
-    
+
     # Console handler
     console_handler = logging.StreamHandler(sys.stdout)
     console_handler.setLevel(getattr(logging, settings.LOG_LEVEL.upper()))
     console_handler.setFormatter(formatter)
-    
+
     # Get root logger
     root_logger = logging.getLogger()
     root_logger.setLevel(getattr(logging, settings.LOG_LEVEL.upper()))
     root_logger.handlers.clear()
     root_logger.addHandler(console_handler)
-    
+
     # Set less verbose logging for third-party loggers
     logging.getLogger("uvicorn.access").setLevel(logging.WARNING)
     logging.getLogger("sqlalchemy.engine").setLevel(logging.WARNING)
     logging.getLogger("alembic").setLevel(logging.INFO)
-    
+
     # Add file handler in production
     if not settings.DEBUG:
         file_handler = RotatingFileHandler(
