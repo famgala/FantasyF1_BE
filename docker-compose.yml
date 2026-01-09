@@ -38,8 +38,9 @@ services:
     networks:
       - fantasyf1_network
 
-  # FastAPI Application (placeholder - will be implemented in later phases)
+  # FastAPI Application
   app:
+    image: ${IMAGE:-famgala/fantasyf1-be:latest}
     build:
       context: .
       dockerfile: Dockerfile
@@ -56,13 +57,13 @@ services:
         condition: service_healthy
       redis:
         condition: service_healthy
-    volumes:
-      - .:/app
+    restart: unless-stopped
     networks:
       - fantasyf1_network
 
-  # Celery Worker (placeholder - will be implemented in later phases)
+  # Celery Worker
   celery_worker:
+    image: ${IMAGE:-famgala/fantasyf1-be:latest}
     build:
       context: .
       dockerfile: Dockerfile
@@ -78,13 +79,13 @@ services:
         condition: service_healthy
       redis:
         condition: service_healthy
-    volumes:
-      - .:/app
+    restart: unless-stopped
     networks:
       - fantasyf1_network
 
-  # Celery Beat Scheduler (placeholder - will be implemented in later phases)
+  # Celery Beat Scheduler
   celery_beat:
+    image: ${IMAGE:-famgala/fantasyf1-be:latest}
     build:
       context: .
       dockerfile: Dockerfile
@@ -100,13 +101,13 @@ services:
         condition: service_healthy
       redis:
         condition: service_healthy
-    volumes:
-      - .:/app
+    restart: unless-stopped
     networks:
       - fantasyf1_network
 
-  # Flower for Celery Monitoring (placeholder - will be implemented in later phases)
+  # Flower for Celery Monitoring
   flower:
+    image: ${IMAGE:-famgala/fantasyf1-be:latest}
     build:
       context: .
       dockerfile: Dockerfile
@@ -120,6 +121,7 @@ services:
     depends_on:
       redis:
         condition: service_healthy
+    restart: unless-stopped
     networks:
       - fantasyf1_network
 
