@@ -157,6 +157,29 @@ pytest tests/ --cov=app --cov-report=html
 pytest tests/
 ```
 
+### Running All CI Checks Locally
+
+**⚠️ IMPORTANT:** Before pushing your changes, run ALL CI checks locally to ensure they pass. This prevents failed pipelines.
+
+**On Windows:**
+```bash
+run_ci_checks.bat
+```
+
+**On Linux/Mac:**
+```bash
+chmod +x run_ci_checks.sh
+./run_ci_checks.sh
+```
+
+This script runs all the exact same checks that GitHub Actions will run:
+1. Black formatter check
+2. Ruff linter check
+3. mypy type checker
+4. pytest with coverage
+
+Only push if all checks pass locally!
+
 ### Code Quality Tools
 
 ```bash
@@ -253,6 +276,6 @@ See `.env.example` for all available environment variables. Key variables includ
 
 The CI/CD pipeline will automatically run all checks on your pull request.
 
-## 📄 License
+## � License
 
 See LICENSE file for details.
