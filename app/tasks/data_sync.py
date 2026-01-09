@@ -23,4 +23,3 @@ def sync_race_calendar_task():
 def sync_race_results_task():
     """Sync race results from external API"""
     return {"status": "success", "message": "Race results sync task placeholder"}
-

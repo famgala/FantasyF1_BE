@@ -1,2 +1,1 @@
 """Celery Tasks Module"""
-
