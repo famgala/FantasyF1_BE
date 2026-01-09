@@ -173,6 +173,8 @@ mypy app/
 black --check app/ tests/ && ruff check app/ tests/ && mypy app/
 ```
 
+**Note:** All Python files are formatted with Black and include trailing newlines to pass CI/CD checks.
+
 ### Project Structure
 
 ```
