@@ -83,6 +83,12 @@ jobs:
           if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
           if [ -f requirements-dev.txt ]; then pip install -r requirements-dev.txt; fi
 
+      - name: Run database migrations
+        run: |
+          alembic upgrade head
+        env:
+          DATABASE_URL: postgresql+asyncpg://fantasyf1_test:test_password@localhost:5432/fantasyf1_test
+
       - name: Run pytest with coverage
         run: |
           pytest tests/ --cov=app --cov-report=html --cov-report=xml

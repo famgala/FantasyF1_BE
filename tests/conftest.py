@@ -47,7 +47,7 @@ async def db_session():
 @pytest.fixture(scope="session")
 async def db(db_session):
     """Alias for db_session fixture for compatibility"""
-    return db_session
+    yield db_session
 
 
 @pytest.fixture(scope="session", autouse=True)

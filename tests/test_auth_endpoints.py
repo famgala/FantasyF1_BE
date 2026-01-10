@@ -71,7 +71,7 @@ async def test_register_weak_password(client: TestClient, db_session: AsyncSessi
         },
     )
 
-    assert response.status_code == 400
+    assert response.status_code == 422
 
 
 @pytest.mark.asyncio()
