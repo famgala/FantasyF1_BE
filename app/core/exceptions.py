@@ -3,7 +3,7 @@
 from typing import Any
 
 
-class FantasyF1Exception(Exception):
+class FantasyF1Error(Exception):
     """Base exception for Fantasy F1 application"""
 
     def __init__(self, message: str, details: dict[str, Any] | None = None):
@@ -12,37 +12,37 @@ class FantasyF1Exception(Exception):
         super().__init__(self.message)
 
 
-class NotFoundException(FantasyF1Exception):
+class NotFoundError(FantasyF1Error):
     """Exception raised when a resource is not found"""
 
     pass
 
 
-class BadRequestException(FantasyF1Exception):
+class BadRequestError(FantasyF1Error):
     """Exception raised for bad requests"""
 
     pass
 
 
-class UnauthorizedException(FantasyF1Exception):
+class UnauthorizedError(FantasyF1Error):
     """Exception raised for unauthorized access"""
 
     pass
 
 
-class ForbiddenException(FantasyF1Exception):
+class ForbiddenError(FantasyF1Error):
     """Exception raised for forbidden access"""
 
     pass
 
 
-class ConflictException(FantasyF1Exception):
+class ConflictError(FantasyF1Error):
     """Exception raised for conflicts (e.g., duplicate resources)"""
 
     pass
 
 
-class ValidationException(FantasyF1Exception):
+class ValidationError(FantasyF1Error):
     """Exception raised for validation errors"""
 
     pass

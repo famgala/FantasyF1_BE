@@ -4,7 +4,6 @@ import json
 import logging
 from typing import Any
 
-from redis import asyncio as aioredis
 from redis.exceptions import RedisError
 
 from app.cache.client import redis_client
