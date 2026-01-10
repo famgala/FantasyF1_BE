@@ -9,7 +9,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.core.security import oauth2_scheme, verify_token
 from app.db.session import get_db
 from app.models.user import User as UserModel
-from app.schemas.user import User
+from app.schemas.user import UserResponse
 
 
 async def get_current_db() -> AsyncGenerator[AsyncSession, None]:
@@ -25,9 +25,8 @@ async def get_async_db() -> AsyncGenerator[AsyncSession, None]:
 
 
 async def get_current_user(
-    token: str = Depends(oauth2_scheme),
-    db: AsyncSession = Depends(get_async_db),
-) -> User:
+    token: str = Depends(oauth2_scheme), db: AsyncSession = Depends(get_async_db)
+) -> UserResponse:
     """Get current authenticated user from JWT token.
 
     Args:
@@ -56,7 +55,7 @@ async def get_current_user(
     user_id = int(user_id_str)
 
     try:
-        result = await db.execute(select(UserModel).where(UserModel.id == int(user_id)))
+        result = await db.execute(select(UserModel).where(UserModel.id == user_id))
         user = result.scalar_one_or_none()
     except Exception:
         raise credentials_exception from None
@@ -64,12 +63,12 @@ async def get_current_user(
     if user is None:
         raise credentials_exception
 
-    return User.model_validate(user)
+    return UserResponse.model_validate(user)
 
 
 async def get_current_active_user(
-    current_user: User = Depends(get_current_user),
-) -> User:
+    current_user: UserResponse = Depends(get_current_user),
+) -> UserResponse:
     """Get current active user.
 
     Args:
@@ -87,8 +86,8 @@ async def get_current_active_user(
 
 
 async def get_current_superuser(
-    current_user: User = Depends(get_current_user),
-) -> User:
+    current_user: UserResponse = Depends(get_current_user),
+) -> UserResponse:
     """Get current superuser.
 
     Args:
@@ -102,6 +101,7 @@ async def get_current_superuser(
     """
     if not current_user.is_superuser:
         raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN, detail="The user doesn't have enough privileges"
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="The user doesn't have enough privileges",
         )
     return current_user

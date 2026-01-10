@@ -9,7 +9,19 @@ from app.db.base import Base
 
 
 class User(Base):
-    """User model for authentication."""
+    """User model for authentication.
+
+    Attributes:
+        id: Primary key
+        username: Unique username
+        email: Unique email address
+        hashed_password: Hashed password
+        full_name: User's full name
+        is_active: Whether user account is active
+        is_superuser: Whether user has superuser privileges
+        created_at: Timestamp when record was created
+        updated_at: Timestamp when record was last updated
+    """
 
     __tablename__ = "users"
 

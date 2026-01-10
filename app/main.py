@@ -6,7 +6,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.routing import APIRouter
 
-from app.api.v1.endpoints import auth, users
+from app.api.v1.endpoints import auth, constructors, drivers, leagues, races, users
 from app.cache.client import close_redis, init_redis
 from app.core.config import settings
 from app.core.logging import setup_logging
@@ -50,6 +50,10 @@ app.add_middleware(
 api_v1_router = APIRouter(prefix=settings.API_V1_PREFIX)
 api_v1_router.include_router(auth.router, prefix="/auth", tags=["Authentication"])
 api_v1_router.include_router(users.router, prefix="/users", tags=["Users"])
+api_v1_router.include_router(drivers.router, prefix="/drivers", tags=["Drivers"])
+api_v1_router.include_router(races.router, prefix="/races", tags=["Races"])
+api_v1_router.include_router(leagues.router, prefix="/leagues", tags=["Leagues"])
+api_v1_router.include_router(constructors.router, prefix="/constructors", tags=["Constructors"])
 
 # Include API v1 router
 app.include_router(api_v1_router)

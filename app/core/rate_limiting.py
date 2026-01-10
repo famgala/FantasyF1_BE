@@ -22,12 +22,12 @@ def get_user_id_from_request(request: Request) -> str:
     return get_remote_address(request)
 
 
-def rate_limit(_user_based: bool = False) -> Callable:
+def rate_limit(limit: str) -> Callable:  # noqa: ARG001
     """Rate limiting decorator.
 
     Args:
-        _user_based: If True, rate limit by user ID. Otherwise by IP address.
-                     Reserved for future implementation.
+        limit: Rate limit string (e.g., "100/hour", "10/minute").
+               Reserved for future implementation.
 
     Note:
         This is a placeholder implementation. Actual rate limiting logic

@@ -1,6 +1,5 @@
 """Application configuration settings using Pydantic Settings"""
 
-
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
@@ -65,3 +64,12 @@ class Settings(BaseSettings):
 
 # Global settings instance
 settings = Settings()
+
+
+def get_settings() -> Settings:
+    """Get the application settings instance.
+
+    Returns:
+        Settings: The global settings instance
+    """
+    return settings

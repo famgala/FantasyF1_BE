@@ -7,6 +7,18 @@ from logging.handlers import RotatingFileHandler
 from app.core.config import settings
 
 
+def get_logger(name: str) -> logging.Logger:
+    """Get a logger instance for the given module name.
+
+    Args:
+        name: Module or class name for the logger
+
+    Returns:
+        Configured logger instance
+    """
+    return logging.getLogger(name)
+
+
 def setup_logging() -> None:
     """Configure structured logging for the application"""
 

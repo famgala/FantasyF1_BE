@@ -51,7 +51,7 @@ class UserInDBBase(UserBase):
     model_config = ConfigDict(from_attributes=True)
 
 
-class User(UserInDBBase):
+class UserResponse(UserInDBBase):
     """Schema for user response."""
 
     pass
