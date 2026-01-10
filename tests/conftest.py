@@ -44,6 +44,12 @@ async def db_session():
         yield session
 
 
+@pytest.fixture(scope="session")
+async def db(db_session):
+    """Alias for db_session fixture for compatibility"""
+    return db_session
+
+
 @pytest.fixture(scope="session", autouse=True)
 async def _setup_redis():
     """Initialize Redis for testing"""
