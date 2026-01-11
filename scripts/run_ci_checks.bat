@@ -14,7 +14,7 @@ set EXIT_CODE=0
 REM 1. Black formatter check
 echo.
 echo [1/4] Running Black formatter check...
-black --check app/ tests/
+black --check app/ tests/ > nul 2>&1
 if %ERRORLEVEL% neq 0 (
     echo ❌ Black check failed
     set EXIT_CODE=1
@@ -25,7 +25,7 @@ if %ERRORLEVEL% neq 0 (
 REM 2. Ruff linter
 echo.
 echo [2/4] Running Ruff linter...
-ruff check app/ tests/
+ruff check app/ tests/ > nul 2>&1
 if %ERRORLEVEL% neq 0 (
     echo ❌ Ruff check failed
     set EXIT_CODE=1
@@ -36,7 +36,7 @@ if %ERRORLEVEL% neq 0 (
 REM 3. mypy type checker
 echo.
 echo [3/4] Running mypy type checker...
-mypy app/
+mypy app/ > nul 2>&1
 if %ERRORLEVEL% neq 0 (
     echo ❌ mypy check failed
     set EXIT_CODE=1
@@ -47,7 +47,7 @@ if %ERRORLEVEL% neq 0 (
 REM 4. pytest with coverage
 echo.
 echo [4/4] Running pytest with coverage...
-pytest tests/ --cov=app --cov-report=html
+pytest tests/ --cov=app --cov-report=html > nul 2>&1
 if %ERRORLEVEL% neq 0 (
     echo ❌ pytest failed
     set EXIT_CODE=1

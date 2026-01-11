@@ -1,0 +1,70 @@
+version: '3.8'
+
+services:
+  # Main development container
+  app:
+    build:
+      context: ..
+      dockerfile: .devcontainer/Dockerfile
+    volumes:
+      - ..:/workspace:cached
+    command: sleep infinity
+    networks:
+      - fantasyf1_network
+    environment:
+      - DATABASE_URL=postgresql+asyncpg://fantasyf1_test:test_password@postgres:5432/fantasyf1_test
+      - REDIS_URL=redis://redis:6379/0
+      - CELERY_BROKER_URL=redis://redis:6379/1
+      - CELERY_RESULT_BACKEND=redis://redis:6379/2
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+
+  # PostgreSQL Database (matching CI/CD)
+  postgres:
+    image: postgres:15-alpine
+    container_name: fantasyf1_postgres_devcontainer
+    environment:
+      POSTGRES_USER: fantasyf1_test
+      POSTGRES_PASSWORD: test_password
+      POSTGRES_DB: fantasyf1_test
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U fantasyf1_test"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - fantasyf1_network
+
+  # Redis Cache & Message Broker (matching CI/CD)
+  redis:
+    image: redis:7-alpine
+    container_name: fantasyf1_redis_devcontainer
+    command: redis-server --appendonly yes
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - fantasyf1_network
+
+volumes:
+  postgres_data:
+    driver: local
+  redis_data:
+    driver: local
+
+networks:
+  fantasyf1_network:
+    driver: bridge

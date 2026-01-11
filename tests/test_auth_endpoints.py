@@ -1,25 +1,18 @@
 """Integration tests for authentication endpoints."""
 
 import pytest
-from fastapi.testclient import TestClient
+from httpx import AsyncClient
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.security import verify_token
-from app.main import app
 from app.schemas.user import UserCreate
 from app.services.user_service import UserService
 
 
-@pytest.fixture()
-def client():
-    """Create test client."""
-    return TestClient(app)
-
-
 @pytest.mark.asyncio()
-async def test_register_success(client: TestClient, db_session: AsyncSession):
+async def test_register_success(client: AsyncClient, db_session: AsyncSession):
     """Test successful user registration."""
-    response = client.post(
+    response = await client.post(
         "/api/v1/auth/register",
         json={
             "username": "testuser",
@@ -39,14 +32,14 @@ async def test_register_success(client: TestClient, db_session: AsyncSession):
 
 
 @pytest.mark.asyncio()
-async def test_register_duplicate_username(client: TestClient, db_session: AsyncSession):
+async def test_register_duplicate_username(client: AsyncClient, db_session: AsyncSession):
     """Test registration with duplicate username."""
     # Create first user
     user_data = UserCreate(username="testuser", email="test@example.com", password="TestPass123")
     await UserService.create_user(db_session, user_data)
 
     # Try to register with same username
-    response = client.post(
+    response = await client.post(
         "/api/v1/auth/register",
         json={
             "username": "testuser",
@@ -60,9 +53,9 @@ async def test_register_duplicate_username(client: TestClient, db_session: Async
 
 
 @pytest.mark.asyncio()
-async def test_register_weak_password(client: TestClient, db_session: AsyncSession):
+async def test_register_weak_password(client: AsyncClient, db_session: AsyncSession):
     """Test registration with weak password."""
-    response = client.post(
+    response = await client.post(
         "/api/v1/auth/register",
         json={
             "username": "testuser",
@@ -75,14 +68,14 @@ async def test_register_weak_password(client: TestClient, db_session: AsyncSessi
 
 
 @pytest.mark.asyncio()
-async def test_login_success(client: TestClient, db_session: AsyncSession):
+async def test_login_success(client: AsyncClient, db_session: AsyncSession):
     """Test successful login."""
     # Create user
     user_data = UserCreate(username="testuser", email="test@example.com", password="TestPass123")
     await UserService.create_user(db_session, user_data)
 
     # Login
-    response = client.post(
+    response = await client.post(
         "/api/v1/auth/login",
         json={
             "username": "testuser",
@@ -108,14 +101,14 @@ async def test_login_success(client: TestClient, db_session: AsyncSession):
 
 
 @pytest.mark.asyncio()
-async def test_login_wrong_password(client: TestClient, db_session: AsyncSession):
+async def test_login_wrong_password(client: AsyncClient, db_session: AsyncSession):
     """Test login with wrong password."""
     # Create user
     user_data = UserCreate(username="testuser", email="test@example.com", password="TestPass123")
     await UserService.create_user(db_session, user_data)
 
     # Try to login with wrong password
-    response = client.post(
+    response = await client.post(
         "/api/v1/auth/login",
         json={
             "username": "testuser",
@@ -128,9 +121,9 @@ async def test_login_wrong_password(client: TestClient, db_session: AsyncSession
 
 
 @pytest.mark.asyncio()
-async def test_login_nonexistent_user(client: TestClient, db_session: AsyncSession):
+async def test_login_nonexistent_user(client: AsyncClient, db_session: AsyncSession):
     """Test login with non-existent user."""
-    response = client.post(
+    response = await client.post(
         "/api/v1/auth/login",
         json={
             "username": "nonexistent",
@@ -143,13 +136,13 @@ async def test_login_nonexistent_user(client: TestClient, db_session: AsyncSessi
 
 
 @pytest.mark.asyncio()
-async def test_refresh_token_success(client: TestClient, db_session: AsyncSession):
+async def test_refresh_token_success(client: AsyncClient, db_session: AsyncSession):
     """Test successful token refresh."""
     # Create user and login
     user_data = UserCreate(username="testuser", email="test@example.com", password="TestPass123")
     await UserService.create_user(db_session, user_data)
 
-    login_response = client.post(
+    login_response = await client.post(
         "/api/v1/auth/login",
         json={
             "username": "testuser",
@@ -159,7 +152,7 @@ async def test_refresh_token_success(client: TestClient, db_session: AsyncSessio
     tokens = login_response.json()
 
     # Refresh token
-    response = client.post(
+    response = await client.post(
         "/api/v1/auth/refresh",
         json={"refresh_token": tokens["refresh_token"]},
     )
@@ -172,9 +165,9 @@ async def test_refresh_token_success(client: TestClient, db_session: AsyncSessio
 
 
 @pytest.mark.asyncio()
-async def test_refresh_token_invalid(client: TestClient, db_session: AsyncSession):
+async def test_refresh_token_invalid(client: AsyncClient, db_session: AsyncSession):
     """Test refresh with invalid token."""
-    response = client.post(
+    response = await client.post(
         "/api/v1/auth/refresh",
         json={"refresh_token": "invalid_token"},
     )
@@ -184,7 +177,7 @@ async def test_refresh_token_invalid(client: TestClient, db_session: AsyncSessio
 
 
 @pytest.mark.asyncio()
-async def test_get_current_user_profile(client: TestClient, db_session: AsyncSession):
+async def test_get_current_user_profile(client: AsyncClient, db_session: AsyncSession):
     """Test getting current user profile."""
     # Create user and login
     user_data = UserCreate(
@@ -192,7 +185,7 @@ async def test_get_current_user_profile(client: TestClient, db_session: AsyncSes
     )
     await UserService.create_user(db_session, user_data)
 
-    login_response = client.post(
+    login_response = await client.post(
         "/api/v1/auth/login",
         json={
             "username": "testuser",
@@ -202,7 +195,7 @@ async def test_get_current_user_profile(client: TestClient, db_session: AsyncSes
     token = login_response.json()["access_token"]
 
     # Get profile
-    response = client.get(
+    response = await client.get(
         "/api/v1/users/me",
         headers={"Authorization": f"Bearer {token}"},
     )
@@ -215,15 +208,15 @@ async def test_get_current_user_profile(client: TestClient, db_session: AsyncSes
 
 
 @pytest.mark.asyncio()
-async def test_get_current_user_profile_unauthorized(client: TestClient):
+async def test_get_current_user_profile_unauthorized(client: AsyncClient):
     """Test getting profile without token."""
-    response = client.get("/api/v1/users/me")
+    response = await client.get("/api/v1/users/me")
 
     assert response.status_code == 401
 
 
 @pytest.mark.asyncio()
-async def test_update_current_user_profile(client: TestClient, db_session: AsyncSession):
+async def test_update_current_user_profile(client: AsyncClient, db_session: AsyncSession):
     """Test updating current user profile."""
     # Create user and login
     user_data = UserCreate(
@@ -231,7 +224,7 @@ async def test_update_current_user_profile(client: TestClient, db_session: Async
     )
     await UserService.create_user(db_session, user_data)
 
-    login_response = client.post(
+    login_response = await client.post(
         "/api/v1/auth/login",
         json={
             "username": "testuser",
@@ -241,7 +234,7 @@ async def test_update_current_user_profile(client: TestClient, db_session: Async
     token = login_response.json()["access_token"]
 
     # Update profile
-    response = client.put(
+    response = await client.put(
         "/api/v1/users/me",
         headers={"Authorization": f"Bearer {token}"},
         json={
@@ -257,13 +250,13 @@ async def test_update_current_user_profile(client: TestClient, db_session: Async
 
 
 @pytest.mark.asyncio()
-async def test_update_user_password(client: TestClient, db_session: AsyncSession):
+async def test_update_user_password(client: AsyncClient, db_session: AsyncSession):
     """Test updating user password."""
     # Create user and login
     user_data = UserCreate(username="testuser", email="test@example.com", password="TestPass123")
     await UserService.create_user(db_session, user_data)
 
-    login_response = client.post(
+    login_response = await client.post(
         "/api/v1/auth/login",
         json={
             "username": "testuser",
@@ -273,7 +266,7 @@ async def test_update_user_password(client: TestClient, db_session: AsyncSession
     token = login_response.json()["access_token"]
 
     # Update password
-    response = client.put(
+    response = await client.put(
         "/api/v1/users/me",
         headers={"Authorization": f"Bearer {token}"},
         json={
@@ -284,7 +277,7 @@ async def test_update_user_password(client: TestClient, db_session: AsyncSession
     assert response.status_code == 200
 
     # Verify new password works
-    new_login_response = client.post(
+    new_login_response = await client.post(
         "/api/v1/auth/login",
         json={
             "username": "testuser",
@@ -294,7 +287,7 @@ async def test_update_user_password(client: TestClient, db_session: AsyncSession
     assert new_login_response.status_code == 200
 
     # Old password should not work
-    old_login_response = client.post(
+    old_login_response = await client.post(
         "/api/v1/auth/login",
         json={
             "username": "testuser",

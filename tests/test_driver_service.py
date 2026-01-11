@@ -95,11 +95,16 @@ async def test_search_drivers(db: AsyncSession):
     """Test searching drivers by name."""
     # Create drivers
     await DriverService.create(
-        db, DriverCreate(external_id=13, name="Search Driver 1", number=5, country="D", team_name="Team D")
+        db,
+        DriverCreate(
+            external_id=13, name="Search Driver 1", number=5, country="D", team_name="Team D"
+        ),
     )
     await DriverService.create(
         db,
-        DriverCreate(external_id=14, name="Search Driver 2", number=6, country="E", team_name="Team E"),
+        DriverCreate(
+            external_id=14, name="Search Driver 2", number=6, country="E", team_name="Team E"
+        ),
     )
 
     results = await DriverService.search(db, search_term="Search", skip=0, limit=10)
@@ -157,10 +162,16 @@ async def test_count_drivers(db: AsyncSession):
 
     # Add drivers
     await DriverService.create(
-        db, DriverCreate(external_id=17, name="Count Driver 1", number=9, country="F", team_name="Team F")
+        db,
+        DriverCreate(
+            external_id=17, name="Count Driver 1", number=9, country="F", team_name="Team F"
+        ),
     )
     await DriverService.create(
-        db, DriverCreate(external_id=18, name="Count Driver 2", number=10, country="G", team_name="Team G")
+        db,
+        DriverCreate(
+            external_id=18, name="Count Driver 2", number=10, country="G", team_name="Team G"
+        ),
     )
 
     new_count = await DriverService.count(db)
