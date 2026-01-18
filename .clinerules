@@ -1,0 +1,120 @@
+#FantasyF1 AI Agent Development Rules
+
+##MANDATORY WORKFLOW
+
+ALWAYS start by reading: documentation/DEV_SPRINTS.md and documentation/DEV_PHASES.md
+Follow phase instructions exactly. Never skip phases or steps.
+
+##PRE-COMMIT REQUIREMENTS
+
+Before ANY git commit:
+1. cd FantasyF1_BE
+2. Run scripts\run_ci_checks.bat (Windows) or ./scripts/run_ci_checks.sh (Linux/Mac)
+3. ALL checks must pass 100% - Black, Ruff, MyPy, pytest
+4. Fix failures, re-run until 100% pass
+5. Only then commit and push
+
+##PHASE COMPLETION DEFINITION
+
+Phase is complete ONLY when:
+- All phase tasks implemented
+- All tests pass locally
+- Code committed to appropriate branch (dev_sprint_phaseX)
+- Code pushed to remote repository
+- DEV_SPRINTS.md updated with completion status
+
+##CODE STANDARDS
+
+Python 3.11+ required
+Use Black formatter: black app/ tests/ (line-length=100)
+Use Ruff linter: ruff check app/ tests/
+Use MyPy: mypy app/ (strict mode)
+Follow pyproject.toml configuration
+Double quotes for strings
+Trailing newlines in all files
+Type hints required (mypy must pass)
+Async/await for DB operations (SQLAlchemy async)
+
+##TESTING RULES
+
+Write tests for all new code in tests/ directory
+Use pytest with pytest-asyncio
+Coverage goal: >80%
+Test files: test_*.py
+Fixtures in tests/conftest.py
+Run tests: pytest tests/ --cov=app --cov-report=html
+Must have Postgres and Redis running (docker-compose up postgres redis)
+
+##DOCUMENTATION REQUIREMENTS
+
+Update DEV_SPRINTS.md with phase progress
+Update FantasyF1_BE/README.md if API/search changes
+Comment complex logic
+Docstrings for all functions/classes
+Keep documentation in sync with code
+
+##DIRECTORY STRUCTURE
+
+Backend code in: FantasyF1_BE/app/
+Tests in: FantasyF1_BE/tests/
+Documentation in: documentation/
+Migrations in: FantasyF1_BE/alembic/versions/
+Work from FantasyF1_BE directory for backend tasks
+
+##BRANCH STRATEGY
+
+Feature branches: dev_sprint_phase1-5
+Main branch: main
+Pull requests to main only
+Merge after all CI passes
+
+##CRITICAL RULES
+
+Never commit failing tests
+Never push without local CI pass
+Never skip code quality checks
+Never bypass phase requirements
+Always follow DEV_PHASES.md exactly
+Ask before changing tech stack or architecture
+
+##ENVIRONMENT
+
+Backend: FastAPI, PostgreSQL, Redis, Celery
+Docker for local development
+Python 3.11+
+Follow .env.example for config
+
+##COMMON COMMANDS
+
+Format: black app/ tests/
+Lint: ruff check app/ tests/ --fix
+Type check: mypy app/
+Test: pytest tests/ --cov=app
+CI check: scripts\run_ci_checks.bat (Windows) or ./scripts/run_ci_checks.sh (Linux/Mac)
+DB up: docker-compose up postgres redis
+DB down: docker-compose down
+
+##PROJECT CONTEXT
+
+This is F1 Fantasy game backend APIs
+Jolpica API for F1 data (https://jolpica.f1jersey.com/docs)
+5 development phases for MVP
+Phase 1 complete, ready for Phase 2
+Current workPhase status in DEV_SPRINTS.md
+
+##ERROR HANDLING
+
+Use app/core/exceptions.py for custom exceptions
+Log errors with app/core/logging.py
+Return meaningful error messages
+Handle edge cases in business logic
+
+##SECURITY
+
+Never commit .env files
+Never hardcode secrets
+Use app/core/security.py for auth
+Validate all inputs
+Sanitize all outputs
+
+When in doubt: Read documentation/ files, ask questions, follow patterns from existing code.
