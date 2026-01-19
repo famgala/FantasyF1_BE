@@ -36,6 +36,3 @@ ENV/
 # OS
 .DS_Store
 Thumbs.db
-
-# FantasyF1_BE subdirectory
-FantasyF1_BE/
