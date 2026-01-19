@@ -1,0 +1,60 @@
+"""Races API endpoints."""
+
+from typing import Annotated
+
+from fastapi import APIRouter, Depends, Query, status
+from sqlalchemy.ext.asyncio import AsyncSession
+
+from app.api.deps import get_current_user, get_db
+from app.core.exceptions import NotFoundError
+from app.models.user import User
+from app.schemas.race import RaceListResponse, RaceResponse, RaceUpdate
+from app.services.race_service import RaceService
+
+router = APIRouter()
+
+
+@router.get("", response_model=RaceListResponse, status_code=status.HTTP_200_OK)
+async def list_races(
+    db: Annotated[AsyncSession, Depends(get_db)],
+    skip: int = Query(default=0, ge=0),
+    limit: int = Query(default=100, ge=1, le=100),
+    current_user: Annotated[User | None, Depends(get_current_user)] = None,  # noqa: ARG001
+) -> RaceListResponse:
+    """List all races with optional filtering."""
+    races = await RaceService.get_all(db, skip=skip, limit=limit)
+    total = await RaceService.count(db)
+    return RaceListResponse(
+        races=[RaceResponse.model_validate(r) for r in races],
+        total=total,
+        skip=skip,
+        limit=limit,
+    )
+
+
+@router.get("/{race_id}", response_model=RaceResponse, status_code=status.HTTP_200_OK)
+async def get_race(
+    race_id: int,
+    db: Annotated[AsyncSession, Depends(get_db)],
+    current_user: Annotated[User | None, Depends(get_current_user)] = None,  # noqa: ARG001
+) -> RaceResponse:
+    """Get race by ID."""
+    race = await RaceService.get_by_id(db, race_id)
+    if race is None:
+        raise NotFoundError("Race not found")
+    return RaceResponse.model_validate(race)
+
+
+@router.patch("/{race_id}", response_model=RaceResponse, status_code=status.HTTP_200_OK)
+async def update_race(
+    race_id: int,
+    race_update: RaceUpdate,
+    db: Annotated[AsyncSession, Depends(get_db)],
+    current_user: Annotated[User, Depends(get_current_user)],  # noqa: ARG001
+) -> RaceResponse:
+    """Update race (admin only - placeholder)."""
+    race = await RaceService.get_by_id(db, race_id)
+    if race is None:
+        raise NotFoundError("Race not found")
+    updated = await RaceService.update(db, race, race_update)
+    return RaceResponse.model_validate(updated)

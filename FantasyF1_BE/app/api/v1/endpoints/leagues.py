@@ -1,0 +1,315 @@
+"""Leagues API endpoints."""
+
+from typing import Annotated
+
+from fastapi import APIRouter, Depends, HTTPException, Query, status
+from sqlalchemy.ext.asyncio import AsyncSession
+
+from app.api.deps import get_current_user, get_db
+from app.models.user import User
+from app.schemas.league import (
+    LeagueCreate,
+    LeagueDetailResponse,
+    LeagueListResponse,
+    LeagueResponse,
+    LeagueUpdate,
+)
+from app.schemas.team import TeamResponse as LeagueTeamResponse
+from app.services.fantasy_team_service import FantasyTeamService
+from app.services.league_service import LeagueService
+
+router = APIRouter()
+
+
+@router.get("/my-leagues", response_model=LeagueListResponse, status_code=status.HTTP_200_OK)
+async def list_my_leagues(
+    current_user: Annotated[User, Depends(get_current_user)],
+    db: Annotated[AsyncSession, Depends(get_db)],
+    skip: int = Query(default=0, ge=0),
+    limit: int = Query(default=100, ge=1, le=100),
+) -> LeagueListResponse:
+    """List leagues created by current user."""
+    leagues = await LeagueService.get_by_creator(db, current_user.id, skip=skip, limit=limit)
+    total = await LeagueService.count_by_creator(db, current_user.id)
+    return LeagueListResponse(
+        leagues=[LeagueResponse.model_validate(lg) for lg in leagues],
+        total=total,
+        skip=skip,
+        limit=limit,
+    )
+
+
+@router.get("", response_model=LeagueListResponse, status_code=status.HTTP_200_OK)
+async def list_leagues(
+    db: Annotated[AsyncSession, Depends(get_db)],
+    search: str | None = None,
+    skip: int = Query(default=0, ge=0),
+    limit: int = Query(default=100, ge=1, le=100),
+    current_user: Annotated[User | None, Depends(get_current_user)] = None,  # noqa: ARG001
+) -> LeagueListResponse:
+    """List all leagues with optional search."""
+    if search:
+        leagues = await LeagueService.search(db, search, skip=skip, limit=limit)
+        total = len(leagues)
+    else:
+        leagues = await LeagueService.get_all(db, skip=skip, limit=limit)
+        total = await LeagueService.count(db)
+    return LeagueListResponse(
+        leagues=[LeagueResponse.model_validate(lg) for lg in leagues],
+        total=total,
+        skip=skip,
+        limit=limit,
+    )
+
+
+@router.get("/search", response_model=LeagueListResponse, status_code=status.HTTP_200_OK)
+async def search_leagues(
+    db: Annotated[AsyncSession, Depends(get_db)],
+    query: str = Query(min_length=1),
+    skip: int = Query(default=0, ge=0),
+    limit: int = Query(default=20, ge=1, le=100),
+    current_user: Annotated[User | None, Depends(get_current_user)] = None,  # noqa: ARG001
+) -> LeagueListResponse:
+    """Search leagues by name."""
+    leagues = await LeagueService.search(db, query, skip=skip, limit=limit)
+    total = len(leagues)
+    return LeagueListResponse(
+        leagues=[LeagueResponse.model_validate(lg) for lg in leagues],
+        total=total,
+        skip=skip,
+        limit=limit,
+    )
+
+
+@router.get("/{league_id}", response_model=LeagueDetailResponse, status_code=status.HTTP_200_OK)
+async def get_league(
+    league_id: int,
+    db: Annotated[AsyncSession, Depends(get_db)],
+    current_user: Annotated[User | None, Depends(get_current_user)] = None,  # noqa: ARG001
+) -> LeagueDetailResponse:
+    """Get league by ID with full details."""
+    league = await LeagueService.get(db, league_id)
+    return LeagueDetailResponse.model_validate(league)
+
+
+@router.get("/code/{code}", response_model=LeagueDetailResponse, status_code=status.HTTP_200_OK)
+async def get_league_by_code(
+    code: str,
+    db: Annotated[AsyncSession, Depends(get_db)],
+    current_user: Annotated[User | None, Depends(get_current_user)] = None,  # noqa: ARG001
+) -> LeagueDetailResponse:
+    """Get league by join code."""
+    league = await LeagueService.get_by_code(db, code)
+    if not league:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="League not found")
+    return LeagueDetailResponse.model_validate(league)
+
+
+@router.post("", response_model=LeagueResponse, status_code=status.HTTP_201_CREATED)
+async def create_league(
+    league_create: LeagueCreate,
+    current_user: Annotated[User, Depends(get_current_user)],
+    db: Annotated[AsyncSession, Depends(get_db)],
+) -> LeagueResponse:
+    """Create a new league."""
+    league = await LeagueService.create(db, league_create, current_user.id)
+    return LeagueResponse.model_validate(league)
+
+
+@router.patch("/{league_id}", response_model=LeagueResponse, status_code=status.HTTP_200_OK)
+async def update_league(
+    league_id: int,
+    league_update: LeagueUpdate,
+    db: Annotated[AsyncSession, Depends(get_db)],
+    current_user: Annotated[User, Depends(get_current_user)],
+) -> LeagueResponse:
+    """Update league (creator only)."""
+    league = await LeagueService.get(db, league_id)
+    if league.creator_id != current_user.id and not current_user.is_superuser:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Only league creator can update",
+        )
+    updated = await LeagueService.update(db, league, league_update)
+    return LeagueResponse.model_validate(updated)
+
+
+@router.delete("/{league_id}", status_code=status.HTTP_204_NO_CONTENT)
+async def delete_league(
+    league_id: int,
+    db: Annotated[AsyncSession, Depends(get_db)],
+    current_user: Annotated[User, Depends(get_current_user)],
+) -> None:
+    """Delete league (creator only)."""
+    league = await LeagueService.get(db, league_id)
+    if league.creator_id != current_user.id and not current_user.is_superuser:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Only league creator can delete",
+        )
+    await LeagueService.delete(db, league)
+
+
+@router.get("/{league_id}/members", status_code=status.HTTP_200_OK)
+async def list_league_members(
+    league_id: int,
+    db: Annotated[AsyncSession, Depends(get_db)],
+    current_user: Annotated[User, Depends(get_current_user)],  # noqa: ARG001
+    skip: int = Query(default=0, ge=0),
+    limit: int = Query(default=100, ge=1, le=100),
+):
+    """List all members (teams) in a league."""
+    await LeagueService.get(db, league_id)
+
+    # Get all teams in the league
+    teams = await FantasyTeamService.get_user_teams(session=db, user_id=None, league_id=league_id)
+
+    total = len(teams)
+    items = teams[skip : skip + limit]
+
+    # Extract unique user IDs from teams
+    members_data = []
+    for team in items:
+        members_data.append(
+            {
+                "user_id": team.user_id,
+                "team_id": team.id,
+                "team_name": team.name,
+                "joined_at": team.created_at,
+            }
+        )
+
+    return {
+        "items": members_data,
+        "total": total,
+        "skip": skip,
+        "limit": limit,
+    }
+
+
+@router.get("/{league_id}/teams", status_code=status.HTTP_200_OK)
+async def list_league_teams(
+    league_id: int,
+    db: Annotated[AsyncSession, Depends(get_db)],
+    current_user: Annotated[User, Depends(get_current_user)],  # noqa: ARG001
+    skip: int = Query(default=0, ge=0),
+    limit: int = Query(default=100, ge=1, le=100),
+) -> dict:
+    """List all teams in a league."""
+    # Verify league exists
+    await LeagueService.get(db, league_id)
+
+    # Get all teams in the league
+    teams = await FantasyTeamService.get_user_teams(session=db, user_id=None, league_id=league_id)
+
+    total = len(teams)
+    items = [LeagueTeamResponse.model_validate(t) for t in teams[skip : skip + limit]]
+
+    return {
+        "items": items,
+        "total": total,
+        "skip": skip,
+        "limit": limit,
+    }
+
+
+@router.post(
+    "/{league_id}/join", response_model=LeagueTeamResponse, status_code=status.HTTP_201_CREATED
+)
+async def join_league(
+    league_id: int,
+    db: Annotated[AsyncSession, Depends(get_db)],
+    current_user: Annotated[User, Depends(get_current_user)],
+    team_name: str = Query(..., min_length=3, max_length=100, description="Team name"),
+) -> LeagueTeamResponse:
+    """Join a league by creating a team in it.
+
+    This endpoint creates a new team for the user in the specified league,
+    effectively joining the league.
+    """
+    league = await LeagueService.get(db, league_id)
+
+    # Check if league is private (optional check depending on requirements)
+    if league.is_private and league.code:
+        # For private leagues, you might require the code to be verified
+        # This is a placeholder for future enhancement
+        pass
+
+    # Check if user already has a team in this league
+    existing_teams = await FantasyTeamService.get_user_teams(
+        session=db,
+        user_id=current_user.id,
+        league_id=league_id,
+    )
+
+    if existing_teams:
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT,
+            detail="You already have a team in this league",
+        )
+
+    # Check if league is full
+    all_teams = await FantasyTeamService.get_user_teams(
+        session=db, user_id=None, league_id=league_id
+    )
+    if len(all_teams) >= league.max_teams:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=f"League is full (max {league.max_teams} teams)",
+        )
+
+    from app.core.exceptions import ConflictError, NotFoundError
+
+    try:
+        team = await FantasyTeamService.create_team(
+            session=db,
+            user_id=current_user.id,
+            league_id=league_id,
+            name=team_name,
+        )
+        return LeagueTeamResponse.model_validate(team)
+    except ConflictError as e:
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT,
+            detail=str(e),
+        ) from e
+    except (NotFoundError, ValueError) as e:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=str(e),
+        ) from e
+
+
+@router.delete("/{league_id}/leave", status_code=status.HTTP_204_NO_CONTENT)
+async def leave_league(
+    league_id: int,
+    db: Annotated[AsyncSession, Depends(get_db)],
+    current_user: Annotated[User, Depends(get_current_user)],
+):
+    """Leave a league by deleting your team in it.
+
+    This endpoint finds and deletes the user's team in the specified league.
+    """
+    # Verify league exists
+    await LeagueService.get(db, league_id)
+
+    # Find user's team in this league
+    teams = await FantasyTeamService.get_user_teams(
+        session=db,
+        user_id=current_user.id,
+        league_id=league_id,
+    )
+
+    if not teams:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="You don't have a team in this league",
+        )
+
+    # Delete the team (first/only team since one per user per league)
+    team = teams[0]
+    await FantasyTeamService.delete_team(
+        session=db,
+        team_id=team.id,
+        user_id=current_user.id,
+    )

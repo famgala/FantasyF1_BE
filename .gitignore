@@ -36,3 +36,12 @@ ENV/
 # OS
 .DS_Store
 Thumbs.db
+
+# Build artifacts
+.coverage
+.coverage.*
+htmlcov/
+.pytest_cache/
+
+# Logs
+*.log

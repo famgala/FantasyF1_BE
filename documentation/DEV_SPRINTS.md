@@ -17,8 +17,8 @@ This document tracks progress through the Fantasy F1 Backend development phases.
 | Phase 1 | Completed | dev_sprint_phase1 | 2026-01-09 | 2026-01-09 |
 | Phase 2 | Completed | dev_sprint_phase2 | 2026-01-09 | 2026-01-09 |
 | Phase 3 | Completed | dev_sprint_phase3 | 2026-01-09 | 2026-01-09 |
-| Phase 4 | Not Started | dev_sprint_phase4 | - | - |
-| Phase 5 | Not Started | dev_sprint_phase5 | - | - |
+| Phase 4 | In Progress | dev_sprint_phase4 | 2026-01-17 | - |
+| Phase 5 | In Progress | dev_sprint_phase5 | 2026-01-17 | - |
 
 ---
 
@@ -155,6 +155,103 @@ This document tracks progress through the Fantasy F1 Backend development phases.
 - ✅ DEV_SPRINTS.md updated with completion status
 
 **Next Steps:** Begin Phase 4 (Jolpica Data Integration & Celery Tasks)
+
+---
+
+## Current Phase: Phase 4 - In Progress 🚧
+
+**Status:** 🚧 In Progress
+
+**Branch:** `dev_sprint_phase4`
+
+**Started:** 2026-01-17
+
+**Work Items:** See [DEV_PHASES.md - Phase 4](DEV_PHASES.md#phase-4)
+
+**Progress:**
+- ✅ Created FantasyTeam model with all required fields
+- ✅ Created Draft model with all required fields
+- ✅ Created DriverStats model with all required fields
+- ✅ Created RaceResult model with all required fields
+- ✅ Created Team schemas (create, update, response, list, detail)
+- ✅ Created Draft schemas (create, update, response, list, detail, pick)
+- ✅ Created DriverStats schemas
+- ✅ Created RaceResult schemas
+- ✅ Created migration for fantasy game models (alembic/versions/005_add_fantasy_game_models.py)
+- ✅ Implemented FantasyTeam service with all CRUD operations
+- ✅ Implemented Draft service with all CRUD operations
+- ✅ Implemented Scoring service with points calculation
+- ✅ Created Teams API endpoints (list, get, create, update, delete, count, by-league, by-user)
+- ✅ Created Drafts API endpoints (list, get, create, update, delete, pick-status, make-pick, auto-draft, by-league-by-race)
+- ✅ Added league membership endpoints (join, leave, my-leagues)
+- ✅ Fixed all Ruff linting errors (initially 42 errors, fixed with auto-fix)
+- ✅ Fixed all Ruff errors in service files (scoring_service.py, fantasy_team_service.py, draft_service.py)
+- ✅ Fixed all Ruff errors in API endpoint files (leagues.py, teams.py, drafts.py)
+- ✅ Formatted all code with Black
+- ⏳ Run CI checks (MyPy type checking)
+- ⏳ Run CI checks (pytest)
+- ⏳ Update documentation
+
+**Remaining Tasks:**
+- [ ] Run and pass MyPy type checking
+- [ ] Run and pass pytest with coverage
+- [ ] Write unit tests for draft service
+- [ ] Write unit tests for scoring service
+- [ ] Write integration tests for teams API
+- [ ] Write integration tests for drafts API
+- [ ] Create Celery background tasks for draft automation
+- [ ] Implement draft strategy pattern (sequential, snake)
+- [ ] Commit changes to dev_sprint_phase4 branch
+- [ ] Push changes to remote repository
+- [ ] Update DEV_SPRINTS.md with completion status
+
+**Next Steps:** Run CI checks and remaining tasks
+
+---
+
+## Current Phase: Phase 5 - In Progress 🚧
+
+**Status:** 🚧 In Progress
+
+**Branch:** `dev_sprint_phase5`
+
+**Started:** 2026-01-17
+
+**Work Items:** See [DEV_PHASES.md - Phase 5](DEV_PHASES.md#phase-5)
+
+**Progress:**
+- ✅ RaceResult model created (part of Phase 4 migration)
+- ✅ RaceResult schemas created
+- ✅ Scoring service created with points calculation logic
+- ⏳ Implement leaderboard generation
+- ⏳ Create notification model and service
+- ⏳ Create notification endpoints
+- ⏳ Create Celery background tasks for scoring and notifications
+- ⏳ Implement caching for leaderboards
+- ⏳ Write unit tests for scoring service
+- ⏳ Write unit tests for notification service
+- ⏳ Write integration tests for leaderboards
+- ⏳ Write integration tests for notifications
+- ⏳ Write end-to-end tests
+
+**Remaining Tasks:**
+- [ ] Generate race-specific leaderboard
+- [ ] Generate overall leaderboard
+- [ ] Create Notification model and migration
+- [ ] Create Notification schemas
+- [ ] Implement notification service
+- [ ] Create notification endpoints
+- [ ] Create Celery tasks for scoring calculations
+- [ ] Create Celery tasks for notifications
+- [ ] Implement leaderboard caching
+- [ ] Write comprehensive unit tests
+- [ ] Write integration tests
+- [ ] Write end-to-end tests
+- [ ] Commit changes to dev_sprint_phase5 branch
+- [ ] Push changes to remote repository
+- [ ] Update DEV_SPRINTS.md with completion status
+
+**Next Steps:** Complete Phase 4 tasks first, then proceed with Phase 5
 
 ---
 
