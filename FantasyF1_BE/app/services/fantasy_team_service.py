@@ -16,7 +16,10 @@ from app.core.exceptions import (
 from app.models.constructor import Constructor
 from app.models.driver import Driver
 from app.models.fantasy_team import FantasyTeam, TeamPick
+from app.models.league_role import LeagueRole
 from app.models.race import Race
+from app.schemas.league_role import UserRole
+from app.services.league_role_service import LeagueRoleService
 from app.services.scoring_service import ScoringService
 
 
@@ -70,6 +73,23 @@ class FantasyTeamService:
         )
 
         session.add(team)
+        await session.flush()
+
+        # Create member role for the user (if they don't already have one)
+        existing_role = await LeagueRoleService.get_user_role(
+            session=session,
+            league_id=league_id,
+            user_id=user_id,
+        )
+
+        if not existing_role:
+            member_role = LeagueRole(
+                league_id=league_id,
+                user_id=user_id,
+                role=UserRole.MEMBER.value,
+            )
+            session.add(member_role)
+
         await session.commit()
         await session.refresh(team)
 

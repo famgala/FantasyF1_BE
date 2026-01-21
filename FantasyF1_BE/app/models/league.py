@@ -1,11 +1,15 @@
 """League model for F1 Fantasy game."""
 
 from datetime import datetime
+from typing import TYPE_CHECKING
 
 from sqlalchemy import Boolean, ForeignKey, Integer, String, Text
-from sqlalchemy.orm import Mapped, mapped_column
+from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.db.base import Base
+
+if TYPE_CHECKING:
+    from app.models.league_role import LeagueRole
 
 
 class League(Base):
@@ -45,6 +49,11 @@ class League(Base):
     created_at: Mapped[datetime] = mapped_column(default=datetime.utcnow, nullable=False)
     updated_at: Mapped[datetime] = mapped_column(
         default=datetime.utcnow, onupdate=datetime.utcnow, nullable=False
+    )
+
+    # Relationships
+    roles: Mapped[list["LeagueRole"]] = relationship(
+        back_populates="league", cascade="all, delete-orphan"
     )
 
     def __repr__(self) -> str:

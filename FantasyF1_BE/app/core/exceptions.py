@@ -46,3 +46,9 @@ class ValidationError(FantasyF1Error):
     """Exception raised for validation errors"""
 
     pass
+
+
+class PermissionError(FantasyF1Error):
+    """Exception raised for permission errors"""
+
+    pass

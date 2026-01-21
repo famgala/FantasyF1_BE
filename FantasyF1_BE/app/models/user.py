@@ -1,11 +1,15 @@
 """User model for authentication and user management."""
 
 from datetime import datetime
+from typing import TYPE_CHECKING
 
 from sqlalchemy import Boolean, String
-from sqlalchemy.orm import Mapped, mapped_column
+from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.db.base import Base
+
+if TYPE_CHECKING:
+    from app.models.league_role import LeagueRole
 
 
 class User(Base):
@@ -37,6 +41,11 @@ class User(Base):
         default=datetime.utcnow,
         onupdate=datetime.utcnow,
         nullable=False,
+    )
+
+    # Relationships
+    league_roles: Mapped[list["LeagueRole"]] = relationship(
+        back_populates="user", cascade="all, delete-orphan"
     )
 
     def __repr__(self) -> str:

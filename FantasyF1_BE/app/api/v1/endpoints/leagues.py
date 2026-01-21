@@ -16,6 +16,7 @@ from app.schemas.league import (
 )
 from app.schemas.team import TeamResponse as LeagueTeamResponse
 from app.services.fantasy_team_service import FantasyTeamService
+from app.services.invitation_service import InvitationService
 from app.services.league_service import LeagueService
 
 router = APIRouter()
@@ -85,10 +86,34 @@ async def search_leagues(
 async def get_league(
     league_id: int,
     db: Annotated[AsyncSession, Depends(get_db)],
-    current_user: Annotated[User | None, Depends(get_current_user)] = None,  # noqa: ARG001
+    current_user: Annotated[User | None, Depends(get_current_user)] = None,
 ) -> LeagueDetailResponse:
-    """Get league by ID with full details."""
+    """Get league by ID with full details.
+
+    For private leagues, only league members can access the details.
+    """
     league = await LeagueService.get(db, league_id)
+
+    # Check access control for private leagues
+    if league.is_private and current_user:
+        # If logged in, check if user is a member (has a team in the league)
+        user_teams = await FantasyTeamService.get_user_teams(
+            session=db,
+            user_id=current_user.id,
+            league_id=league_id,
+        )
+        if not user_teams and not current_user.is_superuser:
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail="You must be a member to view this private league",
+            )
+    elif league.is_private and not current_user:
+        # Anonymous users cannot access private leagues
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="You must be logged in to view private leagues",
+        )
+
     return LeagueDetailResponse.model_validate(league)
 
 
@@ -96,12 +121,36 @@ async def get_league(
 async def get_league_by_code(
     code: str,
     db: Annotated[AsyncSession, Depends(get_db)],
-    current_user: Annotated[User | None, Depends(get_current_user)] = None,  # noqa: ARG001
+    current_user: Annotated[User | None, Depends(get_current_user)] = None,
 ) -> LeagueDetailResponse:
-    """Get league by join code."""
+    """Get league by join code.
+
+    For private leagues, only league members can access the details.
+    """
     league = await LeagueService.get_by_code(db, code)
     if not league:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="League not found")
+
+    # Check access control for private leagues
+    if league.is_private and current_user:
+        # If logged in, check if user is a member (has a team in the league)
+        user_teams = await FantasyTeamService.get_user_teams(
+            session=db,
+            user_id=current_user.id,
+            league_id=league.id,
+        )
+        if not user_teams and not current_user.is_superuser:
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail="You must be a member to view this private league",
+            )
+    elif league.is_private and not current_user:
+        # Anonymous users cannot access private leagues
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="You must be logged in to view private leagues",
+        )
+
     return LeagueDetailResponse.model_validate(league)
 
 
@@ -220,20 +269,50 @@ async def join_league(
     league_id: int,
     db: Annotated[AsyncSession, Depends(get_db)],
     current_user: Annotated[User, Depends(get_current_user)],
-    team_name: str = Query(..., min_length=3, max_length=100, description="Team name"),
+    team_name: str = Query(
+        ...,
+        min_length=3,
+        max_length=100,
+        description="Team name",
+    ),
+    invite_code: str | None = Query(
+        None,
+        description="Invite code for private leagues",
+    ),
 ) -> LeagueTeamResponse:
     """Join a league by creating a team in it.
+
+    For public leagues: Anyone can join
+    For private leagues: Must provide valid invite code or have pending invitation
 
     This endpoint creates a new team for the user in the specified league,
     effectively joining the league.
     """
     league = await LeagueService.get(db, league_id)
 
-    # Check if league is private (optional check depending on requirements)
-    if league.is_private and league.code:
-        # For private leagues, you might require the code to be verified
-        # This is a placeholder for future enhancement
-        pass
+    # Check if league is private
+    if league.is_private:
+        # Check if user has a valid invite code
+        code_valid = False
+        if invite_code and league.code:
+            code_valid = invite_code == league.code
+
+        # Check if user has a pending invitation
+        has_invitation = False
+        if invite_code and not code_valid:
+            try:
+                invitation = await InvitationService.get_by_code(db, invite_code)
+                if invitation and invitation.league_id == league_id:
+                    has_invitation = True
+            except Exception:
+                has_invitation = False
+
+        if not code_valid and not has_invitation:
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail="Invalid invite code. Please get a valid invite code "
+                "from the league creator.",
+            )
 
     # Check if user already has a team in this league
     existing_teams = await FantasyTeamService.get_user_teams(
@@ -267,6 +346,21 @@ async def join_league(
             league_id=league_id,
             name=team_name,
         )
+
+        # If user joined via invite code, invalidate the invitation
+        if invite_code and league.is_private:
+            try:
+                invitation = await InvitationService.get_by_code(db, invite_code)
+                if invitation and invitation.status == "pending":
+                    await InvitationService.accept_invitation(
+                        db=db,
+                        invitation=invitation,
+                        user_id=current_user.id,
+                        team_name=team_name,
+                    )
+            except Exception:
+                pass  # Silently fail if invitation update fails
+
         return LeagueTeamResponse.model_validate(team)
     except ConflictError as e:
         raise HTTPException(
