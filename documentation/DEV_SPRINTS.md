@@ -158,6 +158,62 @@ This document tracks progress through the Fantasy F1 Backend development phases.
 
 ---
 
+### Additional Enhancement: League Invitation System & Co-manager Roles - COMPLETED ✅
+
+**Status:** ✅ Completed
+
+**Branch:** `backend-dev`
+
+**Started:** 2026-01-20
+
+**Completed:** 2026-01-20
+
+**Progress:**
+- ✅ Created LeagueInvitation model with email, user_id, username, invite_code, and status
+- ✅ Created LeagueRole model with role hierarchy (creator, co_manager, member)
+- ✅ Updated League model with roles relationship
+- ✅ Updated User model with league_roles relationship
+- ✅ Created invitation schemas (create, response, list)
+- ✅ Created league role schemas (user role enum, response, list, promote request)
+- ✅ Implemented Invitation service with CRUD and validation
+- ✅ Implemented League Role service with permission checks and hierarchy
+- ✅ Created invitation endpoints (create, list, accept, reject, invite by user)
+- ✅ Created league role endpoints (get roles, promote to co-manager, demote to member)
+- ✅ Enhanced races endpoint with date filtering (upcoming, past, by date range)
+- ✅ Added private league access control to league endpoints
+- ✅ Updated main.py to register invitations and league_roles routers
+- ✅ Added database migration for invitation system (alembic/versions/006_add_invitation_system.py)
+- ✅ Added database migration for league roles (alembic/versions/007_add_league_roles.py)
+- ✅ Updated league service to create creator role on league creation
+- ✅ Updated fantasy team service to create member role on league join
+- ✅ Fixed all CI issues (Black, Ruff, MyPy, pytest)
+- ✅ All 43 tests passed
+- ✅ Changes committed and pushed to backend-dev branch
+- ✅ DEV_SPRINTS.md updated
+
+**New API Endpoints:**
+- POST /api/v1/invitations/ - Create invitation (email, user_id, or username)
+- GET /api/v1/invitations/ - List my invitations
+- GET /api/v1/invitations/{invitation_id} - Get invitation details
+- POST /api/v1/invitations/{invitation_id}/accept - Accept invitation
+- POST /api/v1/invitations/{invitation_id}/reject - Reject invitation
+- POST /api/v1/invitations/invite-by-user - Invite by user search
+- GET /api/v1/leagues/{league_id}/roles - List league roles
+- POST /api/v1/leagues/{league_id}/roles/promote - Promote to co-manager
+- POST /api/v1/leagues/{league_id}/roles/demote - Demote to member
+- GET /api/v1/races?status=upcoming - Get upcoming races
+- GET /api/v1/races?status=past - Get past races
+- GET /api/v1/races?from_date&to_date - Get races by date range
+
+**Security Improvements:**
+- Private league access now properly restricted to members only
+- Role-based permission checks for sensitive operations
+- Proper invite code validation for private league joins
+- Co-managers can promote/demote other members (except creator)
+- Only creator can demote co-managers
+
+---
+
 ## Current Phase: Phase 4 - In Progress 🚧
 
 **Status:** 🚧 In Progress
@@ -166,7 +222,7 @@ This document tracks progress through the Fantasy F1 Backend development phases.
 
 **Started:** 2026-01-17
 
-**Work Items:** See [DEV_PHASES.md - Phase 4](DEV_PHASES.md#phase-4)
+**Work Items:** See [DEV_PHASES.md](DEV_PHASES.md#phase-4)
 
 **Progress:**
 - ✅ Created FantasyTeam model with all required fields
@@ -188,9 +244,13 @@ This document tracks progress through the Fantasy F1 Backend development phases.
 - ✅ Fixed all Ruff errors in service files (scoring_service.py, fantasy_team_service.py, draft_service.py)
 - ✅ Fixed all Ruff errors in API endpoint files (leagues.py, teams.py, drafts.py)
 - ✅ Formatted all code with Black
-- ⏳ Run CI checks (MyPy type checking)
-- ⏳ Run CI checks (pytest)
-- ⏳ Update documentation
+- ✅ Added league invitation system (see enhancement above)
+- ✅ Added co-manager role system (see enhancement above)
+- ✅ Enhanced race data with date filtering (see enhancement above)
+- ⏳ Write unit tests for draft service
+- ⏳ Write unit tests for scoring service
+- ⏳ Write integration tests for teams API
+- ⏳ Write integration tests for drafts API
 
 **Remaining Tasks:**
 - [ ] Run and pass MyPy type checking
