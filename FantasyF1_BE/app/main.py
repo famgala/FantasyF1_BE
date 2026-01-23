@@ -1,5 +1,6 @@
 """FastAPI Application Entry Point"""
 
+from collections.abc import AsyncGenerator
 from contextlib import asynccontextmanager
 
 from fastapi import FastAPI
@@ -28,7 +29,7 @@ setup_logging()
 
 
 @asynccontextmanager
-async def lifespan(_: FastAPI):
+async def lifespan(_: FastAPI) -> AsyncGenerator[None, None]:
     """Application lifespan manager"""
     # Startup
     await init_redis()

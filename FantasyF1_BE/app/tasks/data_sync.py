@@ -11,9 +11,9 @@ from datetime import datetime, timedelta
 from typing import TYPE_CHECKING, Any
 
 try:
-    from celery import signals  # type: ignore[import-untyped]
+    from celery import signals  # type: ignore
 
-    task_postrun = signals.task_postrun  # type: ignore[misc]
+    task_postrun = signals.task_postrun
 except ImportError:
     task_postrun = None
 from sqlalchemy import create_engine

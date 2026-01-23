@@ -3,7 +3,7 @@
 import os
 from datetime import timedelta
 
-from celery.schedules import crontab  # type: ignore[import-untyped]
+from celery.schedules import crontab  # type: ignore
 
 from app.core.config import settings
 

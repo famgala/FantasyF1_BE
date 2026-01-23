@@ -297,8 +297,8 @@ class DraftService:
             )
         )
         result = await session.execute(count_query)
-        scalar_val = result.scalar()  # type: ignore[assignment]
-        pick_count = 0 if scalar_val is None else int(scalar_val)  # type: ignore[arg-type]
+        scalar_val = result.scalar()
+        pick_count = 0 if scalar_val is None else int(scalar_val)
 
         # Check if all picks are made
         total_teams = len(order_list)

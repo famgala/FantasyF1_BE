@@ -12,7 +12,7 @@ from app.core.config import settings
 logger = logging.getLogger(__name__)
 
 
-async def get_cache(key: str) -> str | None:
+async def get_cache(key: str) -> bytes | str | None:
     """Get value from cache"""
     try:
         if redis_client:

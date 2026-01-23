@@ -1,6 +1,6 @@
 """Celery Application Configuration."""
 
-from celery import Celery  # type: ignore[import-untyped]
+from celery import Celery  # type: ignore
 
 from app.tasks.celery_config import (
     beat_schedule,

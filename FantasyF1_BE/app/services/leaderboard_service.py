@@ -1,6 +1,6 @@
 """Service for league leaderboard calculations and caching."""
 
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING, Any, cast
 
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -104,7 +104,7 @@ class LeaderboardService:
                 if cached_data:
                     import json
 
-                    return json.loads(cached_data)
+                    return cast(list[dict[str, Any]], json.loads(cached_data))
         except Exception as e:
             logger.warning(f"Failed to get cached leaderboard: {e}")
 

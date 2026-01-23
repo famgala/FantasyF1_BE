@@ -11,7 +11,7 @@ from app.core.config import settings
 retry_policy = Retry(ExponentialBackoff(), retries=3)
 
 
-async def get_redis_client() -> aioredis.Redis:
+async def get_redis_client() -> aioredis.Redis[bytes]:
     """Get Redis client instance"""
     return aioredis.from_url(
         settings.REDIS_URL,
@@ -25,7 +25,7 @@ async def get_redis_client() -> aioredis.Redis:
 
 
 # Global Redis client instance (will be initialized on startup)
-redis_client: aioredis.Redis | None = None
+redis_client: aioredis.Redis[bytes] | None = None
 
 
 async def init_redis() -> None:
