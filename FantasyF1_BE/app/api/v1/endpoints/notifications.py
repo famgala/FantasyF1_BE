@@ -1,10 +1,10 @@
 """Notification endpoints for managing user notifications."""
 
 from fastapi import APIRouter, Depends, HTTPException, Query, status
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.api.deps import get_current_user_id, get_db
 from app.core.logging import get_logger
-from app.models.notification import Notification
 from app.schemas.notification import NotificationResponse
 from app.services.notification_service import NotificationService
 
@@ -19,9 +19,9 @@ async def get_notifications(
     limit: int = Query(50, ge=1, le=100, description="Maximum number of notifications to return"),
     unread_only: bool = Query(False, description="If true, only return unread notifications"),
     notification_type: str | None = Query(None, description="Filter by notification type"),
-    db=Depends(get_db),
+    db: AsyncSession = Depends(get_db),
     user_id: int = Depends(get_current_user_id),
-):
+) -> list[NotificationResponse]:
     """Get notifications for the current user.
 
     Args:
@@ -43,12 +43,12 @@ async def get_notifications(
         unread_only=unread_only,
         notification_type=notification_type,
     )
-    return notifications
+    return [NotificationResponse.model_validate(notif) for notif in notifications]
 
 
 @router.get("/summary")
 async def get_notification_summary(
-    db=Depends(get_db),
+    db: AsyncSession = Depends(get_db),
     user_id: int = Depends(get_current_user_id),
 ) -> dict[str, int]:
     """Get a summary of notifications for the current user.
@@ -70,9 +70,9 @@ async def get_notification_summary(
 @router.get("/{notification_id}", response_model=NotificationResponse)
 async def get_notification_by_id(
     notification_id: int,
-    db=Depends(get_db),
+    db: AsyncSession = Depends(get_db),
     user_id: int = Depends(get_current_user_id),
-) -> Notification:
+) -> NotificationResponse:
     """Get a specific notification by ID.
 
     Args:
@@ -96,15 +96,15 @@ async def get_notification_by_id(
             status_code=status.HTTP_404_NOT_FOUND,
             detail="Notification not found",
         )
-    return notification
+    return NotificationResponse.model_validate(notification)
 
 
 @router.patch("/{notification_id}/read", response_model=NotificationResponse)
 async def mark_notification_as_read(
     notification_id: int,
-    db=Depends(get_db),
+    db: AsyncSession = Depends(get_db),
     user_id: int = Depends(get_current_user_id),
-) -> Notification:
+) -> NotificationResponse:
     """Mark a notification as read.
 
     Args:
@@ -128,15 +128,15 @@ async def mark_notification_as_read(
             status_code=status.HTTP_404_NOT_FOUND,
             detail="Notification not found",
         )
-    return notification
+    return NotificationResponse.model_validate(notification)
 
 
 @router.patch("/{notification_id}/unread", response_model=NotificationResponse)
 async def mark_notification_as_unread(
     notification_id: int,
-    db=Depends(get_db),
+    db: AsyncSession = Depends(get_db),
     user_id: int = Depends(get_current_user_id),
-) -> Notification:
+) -> NotificationResponse:
     """Mark a notification as unread.
 
     Args:
@@ -160,12 +160,12 @@ async def mark_notification_as_unread(
             status_code=status.HTTP_404_NOT_FOUND,
             detail="Notification not found",
         )
-    return notification
+    return NotificationResponse.model_validate(notification)
 
 
 @router.post("/read-all", response_model=dict[str, int])
 async def mark_all_notifications_as_read(
-    db=Depends(get_db),
+    db: AsyncSession = Depends(get_db),
     user_id: int = Depends(get_current_user_id),
 ) -> dict[str, int]:
     """Mark all notifications for the current user as read.
@@ -184,7 +184,7 @@ async def mark_all_notifications_as_read(
 @router.delete("/{notification_id}", status_code=status.HTTP_204_NO_CONTENT)
 async def delete_notification(
     notification_id: int,
-    db=Depends(get_db),
+    db: AsyncSession = Depends(get_db),
     user_id: int = Depends(get_current_user_id),
 ) -> None:
     """Delete a notification.

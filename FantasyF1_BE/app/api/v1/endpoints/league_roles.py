@@ -1,6 +1,6 @@
 """League roles API endpoints for co-manager support."""
 
-from typing import Annotated
+from typing import Annotated, Any
 
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -25,7 +25,7 @@ async def list_league_roles(
     db: Annotated[AsyncSession, Depends(get_db)],
     skip: int = 0,
     limit: int = 100,
-):
+) -> dict[str, Any]:
     """List all roles in a league.
 
     Only league members can view roles.

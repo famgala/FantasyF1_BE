@@ -77,7 +77,7 @@ app.include_router(api_v1_router)
 
 
 @app.get("/health")
-async def health_check():
+async def health_check() -> dict[str, str | bool]:
     """Health check endpoint"""
     return {
         "status": "healthy",
@@ -87,7 +87,7 @@ async def health_check():
 
 
 @app.get("/")
-async def root():
+async def root() -> dict[str, str]:
     """Root endpoint"""
     return {
         "message": settings.APP_NAME,

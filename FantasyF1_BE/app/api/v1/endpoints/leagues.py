@@ -1,6 +1,6 @@
 """Leagues API endpoints."""
 
-from typing import Annotated
+from typing import Annotated, Any
 
 from fastapi import APIRouter, Depends, HTTPException, Query, status
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -209,7 +209,7 @@ async def list_league_members(
     current_user: Annotated[User, Depends(get_current_user)],  # noqa: ARG001
     skip: int = Query(default=0, ge=0),
     limit: int = Query(default=100, ge=1, le=100),
-):
+) -> dict[str, Any]:
     """List all members (teams) in a league."""
     await LeagueService.get(db, league_id)
 
@@ -246,7 +246,7 @@ async def list_league_teams(
     current_user: Annotated[User, Depends(get_current_user)],  # noqa: ARG001
     skip: int = Query(default=0, ge=0),
     limit: int = Query(default=100, ge=1, le=100),
-) -> dict:
+) -> dict[str, Any]:
     """List all teams in a league."""
     # Verify league exists
     await LeagueService.get(db, league_id)
