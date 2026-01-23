@@ -6,6 +6,7 @@ on:
       - main
       - 'dev_sprint_phase**'
       - develop
+      - 'backend-dev'
     paths:
       - 'FantasyF1_BE/**'
       - 'docker-compose*.yml'
