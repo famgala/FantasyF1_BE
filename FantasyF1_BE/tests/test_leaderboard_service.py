@@ -327,7 +327,7 @@ class TestLeaderboardService:
         self,
         db,
         test_league: League,
-        test_teams,
+        test_teams,  # noqa: ARG002
     ) -> None:
         """Test leaderboard entry contains all expected properties."""
         leaderboard = await LeaderboardService.get_leaderboard(

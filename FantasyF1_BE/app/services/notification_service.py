@@ -1,6 +1,6 @@
 """Service for notification management."""
 
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from typing import TYPE_CHECKING
 
 from sqlalchemy import select
@@ -78,8 +78,9 @@ class NotificationService:
         Returns:
             Tuple of (notifications list, total count)
         """
-        from app.models.notification import Notification
         from sqlalchemy import func
+
+        from app.models.notification import Notification
 
         # Build base query
         query = select(Notification).filter(Notification.user_id == user_id)
@@ -145,12 +146,10 @@ class NotificationService:
         Returns:
             Updated notification or None if not found
         """
-        notification = await NotificationService.get_notification(
-            db, notification_id, user_id
-        )
+        notification = await NotificationService.get_notification(db, notification_id, user_id)
         if notification:
             notification.is_read = True
-            notification.read_at = datetime.now(timezone.utc)
+            notification.read_at = datetime.now(UTC)
             await db.commit()
             await db.refresh(notification)
 
@@ -172,9 +171,7 @@ class NotificationService:
         Returns:
             Updated notification or None if not found
         """
-        notification = await NotificationService.get_notification(
-            db, notification_id, user_id
-        )
+        notification = await NotificationService.get_notification(db, notification_id, user_id)
         if notification:
             notification.is_read = False
             notification.read_at = None
@@ -198,6 +195,7 @@ class NotificationService:
             Number of notifications marked as read
         """
         from sqlalchemy import update
+
         from app.models.notification import Notification
 
         stmt = (
@@ -208,7 +206,7 @@ class NotificationService:
             )
             .values(
                 is_read=True,
-                read_at=datetime.now(timezone.utc),
+                read_at=datetime.now(UTC),
             )
         )
         result = await db.execute(stmt)
@@ -264,6 +262,7 @@ class NotificationService:
             Number of unread notifications
         """
         from sqlalchemy import func
+
         from app.models.notification import Notification
 
         query = (

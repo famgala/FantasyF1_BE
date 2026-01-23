@@ -16,15 +16,9 @@ router = APIRouter()
 @router.get("", response_model=list[NotificationResponse])
 async def get_notifications(
     skip: int = Query(0, ge=0, description="Number of notifications to skip"),
-    limit: int = Query(
-        50, ge=1, le=100, description="Maximum number of notifications to return"
-    ),
-    unread_only: bool = Query(
-        False, description="If true, only return unread notifications"
-    ),
-    notification_type: str | None = Query(
-        None, description="Filter by notification type"
-    ),
+    limit: int = Query(50, ge=1, le=100, description="Maximum number of notifications to return"),
+    unread_only: bool = Query(False, description="If true, only return unread notifications"),
+    notification_type: str | None = Query(None, description="Filter by notification type"),
     db=Depends(get_db),
     user_id: int = Depends(get_current_user_id),
 ):

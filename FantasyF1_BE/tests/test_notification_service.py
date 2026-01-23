@@ -113,9 +113,7 @@ class TestNotificationService:
         assert notification.is_read is False or notification.is_read == 0
         assert notification.read_at is None
 
-        updated = await NotificationService.mark_as_read(
-            db_session, notification.id, user_id
-        )
+        updated = await NotificationService.mark_as_read(db_session, notification.id, user_id)
 
         assert updated is not None
         assert updated.is_read is True or updated.is_read == 1
@@ -166,9 +164,7 @@ class TestNotificationService:
         assert deleted is True
 
         # Verify it's deleted
-        found = await NotificationService.get_notification(
-            db_session, notification.id, user_id
-        )
+        found = await NotificationService.get_notification(db_session, notification.id, user_id)
         assert found is None
 
     @pytest.mark.asyncio()
@@ -209,9 +205,7 @@ class TestNotificationService:
             message="Message",
         )
 
-        found = await NotificationService.get_notification(
-            db_session, notification.id, user_id
-        )
+        found = await NotificationService.get_notification(db_session, notification.id, user_id)
 
         assert found is not None
         assert found.id == notification.id

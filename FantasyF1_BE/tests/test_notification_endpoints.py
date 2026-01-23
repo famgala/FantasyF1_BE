@@ -1,5 +1,7 @@
 """Tests for Notification endpoints."""
 
+from datetime import UTC
+
 import pytest
 import pytest_asyncio
 from fastapi.testclient import TestClient
@@ -50,7 +52,7 @@ async def test_league(db_session, test_user: User) -> League:
 @pytest_asyncio.fixture()
 async def test_race(db_session) -> Race:
     """Create a test race."""
-    from datetime import datetime, timedelta, timezone
+    from datetime import datetime, timedelta
 
     race = Race(
         external_id=1,
@@ -58,7 +60,7 @@ async def test_race(db_session) -> Race:
         name="Test Grand Prix",
         circuit_name="Test Circuit",
         country="Test Country",
-        race_date=datetime.now(timezone.utc) + timedelta(days=7),
+        race_date=datetime.now(UTC) + timedelta(days=7),
         status="upcoming",
     )
     db_session.add(race)
@@ -133,9 +135,7 @@ class TestNotificationEndpoints:
             link="/drafts/1",
         )
 
-        updated = await NotificationService.mark_as_read(
-            db_session, notification.id, test_user.id
-        )
+        updated = await NotificationService.mark_as_read(db_session, notification.id, test_user.id)
         assert updated is not None
         assert updated.is_read is True or updated.is_read == 1
 
@@ -240,9 +240,7 @@ class TestNotificationIntegration:
         assert retrieved.title == "Your turn"
 
         # Mark as read
-        marked = await NotificationService.mark_as_read(
-            db_session, notification.id, test_user.id
-        )
+        marked = await NotificationService.mark_as_read(db_session, notification.id, test_user.id)
         assert marked is not None
         assert marked.is_read is True or marked.is_read == 1
 
@@ -272,9 +270,7 @@ class TestNotificationIntegration:
             notification_ids.append(notification.id)
 
         # Verify unread count
-        unread_before = await NotificationService.get_unread_count(
-            db_session, test_user.id
-        )
+        unread_before = await NotificationService.get_unread_count(db_session, test_user.id)
         assert unread_before == 3
 
         # Mark all as read
@@ -282,9 +278,7 @@ class TestNotificationIntegration:
         assert count == 3
 
         # Verify all are now read
-        unread_after = await NotificationService.get_unread_count(
-            db_session, test_user.id
-        )
+        unread_after = await NotificationService.get_unread_count(db_session, test_user.id)
         assert unread_after == 0
 
     @pytest.mark.asyncio()
