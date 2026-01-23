@@ -1,0 +1,380 @@
+name: CI/CD Pipeline
+
+on:
+  push:
+    branches: 
+      - main
+      - 'dev_sprint_phase**'
+      - develop
+    paths:
+      - 'FantasyF1_BE/**'
+      - 'docker-compose*.yml'
+      - '.github/workflows/**'
+      - 'FantasyF1_BE/requirements.txt'
+      - 'scripts/**'
+      - 'FantasyF1_BE/Dockerfile*'
+  pull_request:
+    branches: [ main ]
+    paths:
+      - 'FantasyF1_BE/**'
+      - 'docker-compose*.yml'
+      - '.github/workflows/**'
+      - 'FantasyF1_BE/requirements.txt'
+      - 'scripts/**'
+      - 'FantasyF1_BE/Dockerfile*'
+
+env:
+  REGISTRY: docker.io
+  IMAGE_NAME: famgala/fantasyf1-be
+
+jobs:
+  detect-changes:
+    runs-on: ubuntu-latest
+    outputs:
+      backend_changed: ${{ steps.changes.outputs.backend }}
+      dockerfile_changed: ${{ steps.changes.outputs.dockerfile }}
+      compose_changed: ${{ steps.changes.outputs.compose }}
+      tests_changed: ${{ steps.changes.outputs.tests }}
+      workflow_changed: ${{ steps.changes.outputs.workflow }}
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Detect file changes
+        id: changes
+        uses: dorny/paths-filter@v2
+        with:
+          filters: |
+            backend:
+              - 'FantasyF1_BE/**'
+              - '!FantasyF1_BE/tests/**'
+              - 'FantasyF1_BE/requirements.txt'
+            dockerfile:
+              - 'Dockerfile*'
+              - 'FantasyF1_BE/Dockerfile*'
+            compose:
+              - 'docker-compose*.yml'
+            tests:
+              - 'FantasyF1_BE/tests/**'
+            workflow:
+              - '.github/workflows/**'
+
+  test:
+    runs-on: ubuntu-latest
+    needs: detect-changes
+    if: |
+      (needs.detect-changes.outputs.backend_changed == 'true' || 
+       needs.detect-changes.outputs.tests_changed == 'true' ||
+       needs.detect-changes.outputs.workflow_changed == 'true' ||
+       needs.detect-changes.outputs.dockerfile_changed == 'true' ||
+       needs.detect-changes.outputs.compose_changed == 'true')
+    
+    permissions:
+      contents: read
+    
+    env:
+      SECRET_KEY: test_secret_key_for_ci_cd_only_change_in_production_1234567890abcdef
+      JWT_SECRET_KEY: test_jwt_secret_key_for_ci_cd_only_change_in_production_1234567890abcdef
+      POSTGRES_DB: test_fantasyf1_db
+      POSTGRES_USER: test_fantasyf1_user
+      POSTGRES_PASSWORD: test_password_ci_cd_2024
+      REDIS_PASSWORD: test_redis_password_ci_cd_2024
+      MQTT_USERNAME: test_mqtt_user
+      MQTT_PASSWORD: test_mqtt_password_ci
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+    
+    - name: Log in to Docker Hub
+      uses: docker/login-action@v3
+      with:
+        username: ${{ secrets.DOCKER_HUB_USERNAME }}
+        password: ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }}
+
+    - name: Build backend image locally for testing
+      run: |
+        echo "🔨 Building backend image locally for CI/CD testing..."
+        
+        # Build the image
+        docker build -t famgala/fantasyf1-be:dev FantasyF1_BE/ || {
+          echo "❌ Build failed"
+          exit 1
+        }
+        
+        echo "✅ Backend image built successfully"
+    
+    - name: Create .env file for docker-compose
+      run: |
+        echo "🚀 Creating .env file for docker-compose.test.yml..."
+        
+        # Create .env file with CI configuration
+        echo "SECRET_KEY=test_secret_key_for_ci_cd_only_change_in_production_1234567890abcdef" > .env
+        echo "JWT_SECRET_KEY=test_jwt_secret_key_for_ci_cd_only_change_in_production_1234567890abcdef" >> .env
+        echo "JWT_ACCESS_TOKEN_EXPIRE_MINUTES=30" >> .env
+        echo "JWT_REFRESH_TOKEN_EXPIRE_DAYS=7" >> .env
+        echo "DATABASE_URL=postgresql+asyncpg://test_fantasyf1_user:test_password_ci_cd_2024@postgres:5432/test_fantasyf1_db" >> .env
+        echo "POSTGRES_DB=test_fantasyf1_db" >> .env
+        echo "POSTGRES_USER=test_fantasyf1_user" >> .env
+        echo "POSTGRES_PASSWORD=test_password_ci_cd_2024" >> .env
+        echo "MQTT_BROKER_HOST=mosquitto" >> .env
+        echo "MQTT_BROKER_PORT=1883" >> .env
+        echo "MQTT_USERNAME=test_mqtt_user" >> .env
+        echo "MQTT_PASSWORD=test_mqtt_password_ci" >> .env
+        echo "REDIS_PASSWORD=test_redis_password_ci_cd_2024" >> .env
+        echo "REDIS_URL=redis://:test_redis_password_ci_cd_2024@redis:6379/0" >> .env
+        echo "ENVIRONMENT=testing" >> .env
+        echo "DEBUG=false" >> .env
+        echo "CORS_ORIGINS=http://localhost:3000,http://localhost:8000" >> .env
+        
+        echo "✅ .env file created successfully"
+    
+    - name: Start services with docker-compose
+      run: |
+        echo "🚀 Starting services with docker-compose.test.yml..."
+        
+        # Start services using docker-compose
+        docker compose -f docker-compose.test.yml up -d
+        
+        echo "✅ Services started with docker-compose"
+    
+    - name: Wait for services to be ready
+      run: |
+        echo "Waiting for services to be healthy..."
+        
+        # Display container status
+        echo "📊 Initial container status:"
+        docker compose -f docker-compose.test.yml ps
+        
+        # Wait for PostgreSQL
+        echo "⏳ Waiting for PostgreSQL..."
+        timeout 120 bash -c 'until docker compose -f docker-compose.test.yml exec -T postgres pg_isready -U test_fantasyf1_user -d test_fantasyf1_db; do sleep 2; done'
+        echo "✅ PostgreSQL is ready!"
+        
+        # Wait for Redis
+        echo "⏳ Waiting for Redis..."
+        timeout 180 bash -c 'until docker compose -f docker-compose.test.yml exec -T redis redis-cli -a test_redis_password_ci_cd_2024 ping 2>/dev/null; do sleep 5; done'
+        echo "✅ Redis is ready!"
+        
+        # Wait for backend
+        echo "⏳ Waiting for Backend..."
+        timeout 120 bash -c 'until curl -f http://localhost:8000/health > /dev/null 2>&1; do sleep 2; done'
+        echo "✅ Backend is ready!"
+        
+        # Display final container status
+        echo "📊 Final container status:"
+        docker compose -f docker-compose.test.yml ps
+    
+    - name: Show service logs if healthy
+      if: always()
+      run: |
+        echo "📋 Container logs for debugging:"
+        echo "================================"
+        echo ""
+        
+        echo "📊 Docker Compose status:"
+        docker compose -f docker-compose.test.yml ps
+        
+        echo ""
+        echo "🗄️  PostgreSQL logs (last 50 lines):"
+        docker compose -f docker-compose.test.yml logs --tail=50 postgres || echo "No PostgreSQL logs"
+        
+        echo ""
+        echo "📨 MQTT logs (last 50 lines):"
+        docker compose -f docker-compose.test.yml logs --tail=50 mosquitto || echo "No MQTT logs"
+        
+        echo ""
+        echo "🔴 Redis logs (last 50 lines):"
+        docker compose -f docker-compose.test.yml logs --tail=50 redis || echo "No Redis logs"
+        
+        echo ""
+        echo "🖥️  Backend logs (last 100 lines):"
+        docker compose -f docker-compose.test.yml logs --tail=100 backend || echo "No backend logs"
+    
+    - name: Run linting (Black)
+      run: |
+        echo "🔍 Running Black formatter check..."
+        docker compose -f docker-compose.test.yml exec -T backend black app/ tests/ --check --line-length=100 || {
+          echo "⚠️ Black check failed or fix needed"
+          exit 1
+        }
+        echo "✅ Black check passed"
+    
+    - name: Run linting (Ruff)
+      run: |
+        echo "🔍 Running Ruff linter check..."
+        docker compose -f docker-compose.test.yml exec -T backend ruff check app/ tests/ --exit-zero || {
+          echo "⚠️ Ruff check found issues"
+        }
+        echo "✅ Ruff check completed"
+    
+    - name: Run type checking (MyPy)
+      run: |
+        echo "🔍 Running MyPy type checking..."
+        docker compose -f docker-compose.test.yml exec -T backend mypy app/ --strict || {
+          echo "⚠️ MyPy check failed or found issues"
+          exit 1
+        }
+        echo "✅ MyPy check passed"
+    
+    - name: Run backend tests
+      run: |
+        echo "🧪 Running backend tests..."
+        docker compose -f docker-compose.test.yml exec -T backend pytest tests/ -v --cov=app --cov-report=xml --tb=short || {
+          echo "❌ Tests failed"
+          exit 1
+        }
+        echo "✅ All tests passed"
+    
+    - name: Upload coverage reports
+      uses: codecov/codecov-action@v3
+      with:
+        file: FantasyF1_BE/coverage.xml
+        fail_ci_if_error: false
+    
+    - name: Cleanup test containers
+      run: |
+        echo "🧹 Cleaning up test containers..."
+        docker compose -f docker-compose.test.yml down -v || true
+        echo "✅ Cleanup complete"
+
+  build:
+    needs: [detect-changes, test]
+    runs-on: ubuntu-latest
+    if: |
+      github.event_name == 'push' && 
+      (needs.detect-changes.outputs.backend_changed == 'true' || 
+       needs.detect-changes.outputs.dockerfile_changed == 'true' ||
+       needs.detect-changes.outputs.compose_changed == 'true')
+    
+    permissions:
+      contents: read
+      packages: write
+    
+    outputs:
+      image: ${{ steps.image.outputs.image }}
+      digest: ${{ steps.build.outputs.digest }}
+      version: ${{ steps.version.outputs.version }}
+    
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+    
+    - name: Generate version
+      id: version
+      run: |
+        # Determine build type based on branch
+        if [[ "${{ github.ref_name }}" == "main" ]]; then
+          BUILD_TYPE="prod"
+        elif [[ "${{ github.ref_name }}" == "develop" ]]; then
+          BUILD_TYPE="staging"
+        else
+          BUILD_TYPE="dev"
+        fi
+        
+        echo "📋 Build type: $BUILD_TYPE"
+        
+        # Generate version using CalVer format
+        VERSION=$(date +%Y.%m.%d)
+        if [ "$BUILD_TYPE" != "prod" ]; then
+          VERSION="${VERSION}-${BUILD_TYPE}"
+        fi
+        
+        SHA_SHORT="${GITHUB_SHA::7}"
+        VERSION="${VERSION}-${SHA_SHORT}"
+        
+        echo "🔖 Generated version: $VERSION"
+        echo "version=$VERSION" >> $GITHUB_OUTPUT
+    
+    - name: Set up Docker Buildx
+      uses: docker/setup-buildx-action@v3
+    
+    - name: Log in to Docker Hub
+      uses: docker/login-action@v3
+      with:
+        username: ${{ secrets.DOCKER_HUB_USERNAME }}
+        password: ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }}
+  
+    - name: Extract metadata
+      id: meta
+      uses: docker/metadata-action@v5
+      with:
+        images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
+        tags: |
+          type=ref,event=branch
+          type=ref,event=pr
+          type=sha,prefix={{branch}}-
+          type=raw,value=latest,enable={{is_default_branch}}
+          type=raw,value=${{ steps.version.outputs.version }}
+    
+    - name: Build and push Docker image
+      id: build
+      uses: docker/build-push-action@v5
+      with:
+        context: FantasyF1_BE
+        file: FantasyF1_BE/Dockerfile
+        push: true
+        tags: ${{ steps.meta.outputs.tags }}
+        labels: ${{ steps.meta.outputs.labels }}
+        cache-from: type=gha
+        cache-to: type=gha,mode=max
+        build-args: |
+          VCS_REF=${{ github.sha }}
+          BUILD_DATE=${{ github.event.head_commit.timestamp }}
+          VERSION=${{ steps.version.outputs.version }}
+    
+    - name: Print image summary
+      run: |
+        echo "📦 Image built and pushed successfully!"
+        echo "Image: ${{ steps.meta.outputs.tags }}"
+        echo "Version: ${{ steps.version.outputs.version }}"
+        echo "Digest: ${{ steps.build.outputs.digest }}"
+
+  security-scan:
+    needs: [detect-changes, build]
+    runs-on: ubuntu-latest
+    if: |
+      github.event_name == 'push' && 
+      (needs.detect-changes.outputs.backend_changed == 'true' || 
+       needs.detect-changes.outputs.dockerfile_changed == 'true')
+    
+    permissions:
+      contents: read
+    
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+    
+    - name: Pull Docker image for scanning
+      run: |
+        echo "🔍 Pulling Docker image for security scanning..."
+        docker pull ${{ needs.build.outputs.image }}@${{ needs.build.outputs.digest }}
+        echo "✅ Image pulled successfully"
+    
+    - name: Run Trivy vulnerability scanner
+      uses: aquasecurity/trivy-action@master
+      with:
+        image-ref: ${{ needs.build.outputs.image }}@${{ needs.build.outputs.digest }}
+        format: 'sarif'
+        output: 'trivy-results.sarif'
+        severity: 'CRITICAL,HIGH'
+    
+    - name: Upload Trivy scan results as artifacts
+      uses: actions/upload-artifact@v4
+      with:
+        name: trivy-security-scan
+        path: trivy-results.sarif
+        retention-days: 30
+    
+    - name: Display Trivy summary
+      run: |
+        echo "🔒 Security Scan Summary"
+        echo "======================="
+        if [ -f trivy-results.sarif ]; then
+          echo "✅ SARIF file generated successfully"
+          echo "📦 Available as artifact: trivy-security-scan"
+          echo "📅 Retention: 30 days"
+        else
+          echo "❌ No SARIF file found"
+          exit 1
+        fi

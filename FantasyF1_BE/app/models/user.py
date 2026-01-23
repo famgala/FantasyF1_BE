@@ -10,6 +10,7 @@ from app.db.base import Base
 
 if TYPE_CHECKING:
     from app.models.league_role import LeagueRole
+    from app.models.notification import Notification
 
 
 class User(Base):
@@ -45,6 +46,9 @@ class User(Base):
 
     # Relationships
     league_roles: Mapped[list["LeagueRole"]] = relationship(
+        back_populates="user", cascade="all, delete-orphan"
+    )
+    notifications: Mapped[list["Notification"]] = relationship(
         back_populates="user", cascade="all, delete-orphan"
     )
 

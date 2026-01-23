@@ -40,7 +40,7 @@ def event_loop() -> Generator[asyncio.AbstractEventLoop, None, None]:
 
 
 @pytest_asyncio.fixture()
-async def db() -> AsyncSession:
+async def db() -> AsyncGenerator[AsyncSession, None]:
     """Create database session for testing.
 
     This fixture creates a session that can be used for test operations.
@@ -51,10 +51,8 @@ async def db() -> AsyncSession:
         yield session
 
 
-@pytest_asyncio.fixture()
-async def db_session(db: AsyncSession) -> AsyncSession:
-    """Alias for db fixture for compatibility"""
-    return db
+# Alias for db fixture
+db_session = db
 
 
 @pytest_asyncio.fixture()
@@ -97,7 +95,6 @@ async def _setup_database(event_loop):
     from app.db.base import Base
 
     # Import all models to ensure they're registered with Base
-    from app.models import constructor, driver, league, race, user  # noqa: F401
 
     # Create all tables
     async with test_engine.begin() as conn:

@@ -31,6 +31,11 @@ from app.schemas.invitation import (
     InvitationReject,
     InvitationResponse,
 )
+from app.schemas.leaderboard import (
+    LeaderboardEntry,
+    LeaderboardResponse,
+    UserRankResponse,
+)
 from app.schemas.league import (
     LeagueBase,
     LeagueCreate,
@@ -39,6 +44,14 @@ from app.schemas.league import (
     LeagueListResponse,
     LeagueResponse,
     LeagueUpdate,
+)
+from app.schemas.notification import (
+    MarkAsReadRequest,
+    NotificationCreate,
+    NotificationListResponse,
+    NotificationResponse,
+    NotificationType,
+    NotificationUpdate,
 )
 from app.schemas.race import (
     RaceBase,
@@ -94,6 +107,17 @@ __all__ = [
     "LeagueListResponse",
     "LeagueResponse",
     "LeagueUpdate",
+    # Leaderboard
+    "LeaderboardEntry",
+    "LeaderboardResponse",
+    "UserRankResponse",
+    # Notification
+    "MarkAsReadRequest",
+    "NotificationCreate",
+    "NotificationListResponse",
+    "NotificationResponse",
+    "NotificationType",
+    "NotificationUpdate",
     # Auth
     "LoginRequest",
     # Race

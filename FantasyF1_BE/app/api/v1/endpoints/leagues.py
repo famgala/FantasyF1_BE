@@ -6,7 +6,9 @@ from fastapi import APIRouter, Depends, HTTPException, Query, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.api.deps import get_current_user, get_db
+from app.models.race import Race
 from app.models.user import User
+from app.schemas.leaderboard import LeaderboardEntry, LeaderboardResponse
 from app.schemas.league import (
     LeagueCreate,
     LeagueDetailResponse,
@@ -17,6 +19,7 @@ from app.schemas.league import (
 from app.schemas.team import TeamResponse as LeagueTeamResponse
 from app.services.fantasy_team_service import FantasyTeamService
 from app.services.invitation_service import InvitationService
+from app.services.leaderboard_service import LeaderboardService
 from app.services.league_service import LeagueService
 
 router = APIRouter()
@@ -275,7 +278,8 @@ async def join_league(
         max_length=100,
         description="Team name",
     ),
-    invite_code: str | None = Query(
+    invite_code: str
+    | None = Query(
         None,
         description="Invite code for private leagues",
     ),
@@ -374,12 +378,99 @@ async def join_league(
         ) from e
 
 
+@router.get(
+    "/{league_id}/leaderboard", response_model=LeaderboardResponse, status_code=status.HTTP_200_OK
+)
+async def get_leaderboard(
+    league_id: int,
+    db: Annotated[AsyncSession, Depends(get_db)],
+    current_user: Annotated[User, Depends(get_current_user)],  # noqa: ARG001
+    race_id: int | None = Query(None, description="Optional race ID for race-specific leaderboard"),
+    use_cache: bool = Query(True, description="Whether to use cached data"),
+    skip: int = Query(default=0, ge=0, description="Number of entries to skip"),
+    limit: int = Query(
+        default=100, ge=1, le=100, description="Maximum number of entries to return"
+    ),
+) -> LeaderboardResponse:
+    """Get the leaderboard for a league.
+
+    Returns sorted standings with tie-breaking based on:
+    1. Total points (primary)
+    2. Number of wins (secondary)
+    3. Number of podiums (tertiary)
+    4. Alphabetical team name (final)
+
+    Args:
+        league_id: League ID
+        db: Database session
+        current_user: Current authenticated user
+        race_id: Optional race ID for race-specific leaderboard
+        use_cache: Whether to use cached data if available
+        skip: Number of entries to skip for pagination
+        limit: Maximum number of entries to return
+
+    Returns:
+        Leaderboard response with entries sorted by rank
+
+    Raises:
+        HTTPException: If league not found
+    """
+    from sqlalchemy import select
+
+    from app.core.exceptions import NotFoundError
+
+    # Get league
+    try:
+        league = await LeagueService.get(db, league_id)
+    except NotFoundError as e:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="League not found",
+        ) from e
+
+    # Get race if specified
+    race_name = None
+    if race_id:
+        result = await db.execute(select(Race).where(Race.id == race_id))
+        race = result.scalar_one_or_none()
+        if not race:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="Race not found",
+            )
+        race_name = race.name
+
+    # Get leaderboard
+    entries_dict = await LeaderboardService.get_leaderboard(
+        db=db,
+        league_id=league_id,
+        race_id=race_id,
+        use_cache=use_cache,
+    )
+
+    # Apply pagination
+    total_entries = len(entries_dict)
+    paginated_entries_dict = entries_dict[skip : skip + limit]
+
+    # Convert to LeaderboardEntry objects
+    entries = [LeaderboardEntry(**entry) for entry in paginated_entries_dict]
+
+    return LeaderboardResponse(
+        league_id=league_id,
+        league_name=league.name,
+        race_id=race_id,
+        race_name=race_name,
+        entries=entries,
+        total_entries=total_entries,
+    )
+
+
 @router.delete("/{league_id}/leave", status_code=status.HTTP_204_NO_CONTENT)
 async def leave_league(
     league_id: int,
     db: Annotated[AsyncSession, Depends(get_db)],
     current_user: Annotated[User, Depends(get_current_user)],
-):
+) -> None:
     """Leave a league by deleting your team in it.
 
     This endpoint finds and deletes the user's team in the specified league.

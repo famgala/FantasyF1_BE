@@ -6,17 +6,17 @@ Create Date: 2026-01-20
 
 """
 
-from typing import Sequence, Union
+from collections.abc import Sequence
 
-from alembic import op
 import sqlalchemy as sa
 
+from alembic import op
 
 # revision identifiers, used by Alembic.
 revision: str = "006"
-down_revision: Union[str, None] = "005"
-branch_labels: Union[str, Sequence[str], None] = None
-depends_on: Union[str, Sequence[str], None] = None
+down_revision: str | None = "005"
+branch_labels: str | Sequence[str] | None = None
+depends_on: str | Sequence[str] | None = None
 
 
 def upgrade() -> None:
@@ -74,15 +74,9 @@ def upgrade() -> None:
         sa.PrimaryKeyConstraint("id"),
     )
     op.create_index(op.f("ix_league_invitations_id"), "league_invitations", ["id"])
-    op.create_index(
-        op.f("ix_league_invitations_league_id"), "league_invitations", ["league_id"]
-    )
-    op.create_index(
-        op.f("ix_league_invitations_inviter_id"), "league_invitations", ["inviter_id"]
-    )
-    op.create_index(
-        op.f("ix_league_invitations_invitee_id"), "league_invitations", ["invitee_id"]
-    )
+    op.create_index(op.f("ix_league_invitations_league_id"), "league_invitations", ["league_id"])
+    op.create_index(op.f("ix_league_invitations_inviter_id"), "league_invitations", ["inviter_id"])
+    op.create_index(op.f("ix_league_invitations_invitee_id"), "league_invitations", ["invitee_id"])
     op.create_index(
         op.f("ix_league_invitations_invitee_email"),
         "league_invitations",
@@ -99,9 +93,7 @@ def upgrade() -> None:
         ["invite_code"],
         unique=True,
     )
-    op.create_index(
-        op.f("ix_league_invitations_status"), "league_invitations", ["status"]
-    )
+    op.create_index(op.f("ix_league_invitations_status"), "league_invitations", ["status"])
     op.create_index(
         op.f("ix_league_invitations_expires_at"),
         "league_invitations",
@@ -114,16 +106,10 @@ def downgrade() -> None:
     op.drop_index(op.f("ix_league_invitations_expires_at"), table_name="league_invitations")
     op.drop_index(op.f("ix_league_invitations_status"), table_name="league_invitations")
     op.drop_index(op.f("ix_league_invitations_invite_code"), table_name="league_invitations")
-    op.drop_index(
-        op.f("ix_league_invitations_invitee_username"), table_name="league_invitations"
-    )
-    op.drop_index(
-        op.f("ix_league_invitations_invitee_email"), table_name="league_invitations"
-    )
+    op.drop_index(op.f("ix_league_invitations_invitee_username"), table_name="league_invitations")
+    op.drop_index(op.f("ix_league_invitations_invitee_email"), table_name="league_invitations")
     op.drop_index(op.f("ix_league_invitations_invitee_id"), table_name="league_invitations")
-    op.drop_index(
-        op.f("ix_league_invitations_inviter_id"), table_name="league_invitations"
-    )
+    op.drop_index(op.f("ix_league_invitations_inviter_id"), table_name="league_invitations")
     op.drop_index(op.f("ix_league_invitations_league_id"), table_name="league_invitations")
     op.drop_index(op.f("ix_league_invitations_id"), table_name="league_invitations")
     op.drop_table("league_invitations")

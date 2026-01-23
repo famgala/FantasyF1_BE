@@ -1,5 +1,7 @@
 """Integration tests for authentication endpoints."""
 
+# type: ignore
+
 import pytest
 from httpx import AsyncClient
 from sqlalchemy.ext.asyncio import AsyncSession

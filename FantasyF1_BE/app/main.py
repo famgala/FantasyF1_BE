@@ -14,6 +14,7 @@ from app.api.v1.endpoints import (
     invitations,
     league_roles,
     leagues,
+    notifications,
     races,
     teams,
     users,
@@ -68,6 +69,7 @@ api_v1_router.include_router(league_roles.router, prefix="/leagues", tags=["Leag
 api_v1_router.include_router(teams.router, prefix="/leagues", tags=["Teams"])
 api_v1_router.include_router(drafts.router, prefix="/leagues", tags=["Drafts"])
 api_v1_router.include_router(invitations.router, prefix="/invitations", tags=["Invitations"])
+api_v1_router.include_router(notifications.router, prefix="/notifications", tags=["Notifications"])
 api_v1_router.include_router(constructors.router, prefix="/constructors", tags=["Constructors"])
 
 # Include API v1 router

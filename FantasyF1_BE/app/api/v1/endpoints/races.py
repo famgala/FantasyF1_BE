@@ -5,7 +5,7 @@ from typing import Annotated
 from fastapi import APIRouter, Depends, Query, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.api.deps import get_current_user, get_db
+from app.api.deps import get_current_superuser, get_current_user, get_db
 from app.core.exceptions import NotFoundError
 from app.models.user import User
 from app.schemas.race import RaceListResponse, RaceResponse, RaceUpdate
@@ -85,9 +85,9 @@ async def update_race(
     race_id: int,
     race_update: RaceUpdate,
     db: Annotated[AsyncSession, Depends(get_db)],
-    current_user: Annotated[User, Depends(get_current_user)],  # noqa: ARG001
+    current_user: Annotated[User, Depends(get_current_superuser)],  # noqa: ARG001
 ) -> RaceResponse:
-    """Update race (admin only - placeholder)."""
+    """Update race (admin only)."""
     race = await RaceService.get_by_id(db, race_id)
     if race is None:
         raise NotFoundError("Race not found")

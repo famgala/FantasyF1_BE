@@ -31,12 +31,18 @@ class RaceUpdate(BaseModel):
 
     status: str | None = Field(None, max_length=50)
     race_date: datetime | None = None
+    winning_constructor_id: int | None = Field(None, description="Constructor ID of race winner")
 
 
 class RaceResponse(RaceBase):
     """Schema for Race response."""
 
     id: int
+    fp1_date: datetime | None = Field(None, description="Practice session 1 date/time")
+    fp2_date: datetime | None = Field(None, description="Practice session 2 date/time")
+    fp3_date: datetime | None = Field(None, description="Practice session 3 date/time")
+    qualifying_date: datetime | None = Field(None, description="Qualifying session date/time")
+    winning_constructor_id: int | None = Field(None, description="Constructor ID of race winner")
     created_at: datetime
     updated_at: datetime
 

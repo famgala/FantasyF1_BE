@@ -210,6 +210,7 @@ class ExternalDataService:
                     update_data = RaceUpdate(
                         status=race_data.get("status", "upcoming"),
                         race_date=race_data.get("date"),
+                        winning_constructor_id=None,  # Will be set by scoring service after results
                     )
                     await RaceService.update(db, existing, update_data)
                     logger.info(f"Updated race: {existing.name}")

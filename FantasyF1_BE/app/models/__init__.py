@@ -12,6 +12,7 @@ from app.models.league_invitation import (
     LeagueInvitation,
 )
 from app.models.league_role import LeagueRole
+from app.models.notification import Notification, NotificationType
 from app.models.race import Race
 from app.models.race_result import RaceResult
 from app.models.user import User
@@ -29,6 +30,8 @@ __all__ = [
     "LeagueRole",
     "InvitationStatus",
     "InvitationType",
+    "Notification",
+    "NotificationType",
     "Race",
     "RaceResult",
     "User",
