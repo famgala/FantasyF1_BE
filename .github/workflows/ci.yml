@@ -253,7 +253,6 @@ jobs:
       packages: write
     
     outputs:
-      image: docker.io/${{ env.IMAGE_NAME }}
       digest: ${{ steps.build.outputs.digest }}
       version: ${{ steps.version.outputs.version }}
     
@@ -324,12 +323,14 @@ jobs:
           BUILD_DATE=${{ github.event.head_commit.timestamp }}
           VERSION=${{ steps.version.outputs.version }}
     
+    
     - name: Print image summary
       run: |
-        echo "📦 Image built and pushed successfully!"
+        echo "� Image built and pushed successfully!"
         echo "Image: ${{ steps.meta.outputs.tags }}"
         echo "Version: ${{ steps.version.outputs.version }}"
         echo "Digest: ${{ steps.build.outputs.digest }}"
+        echo "Full Image Ref: docker.io/famgala/fantasyf1-be@${{ steps.build.outputs.digest }}"
 
   security-scan:
     needs: [detect-changes, build]
@@ -349,13 +350,13 @@ jobs:
     - name: Pull Docker image for scanning
       run: |
         echo "🔍 Pulling Docker image for security scanning..."
-        docker pull ${{ needs.build.outputs.image }}@${{ needs.build.outputs.digest }}
+        docker pull docker.io/famgala/fantasyf1-be@${{ needs.build.outputs.digest }}
         echo "✅ Image pulled successfully"
     
     - name: Run Trivy vulnerability scanner
       uses: aquasecurity/trivy-action@master
       with:
-        image-ref: ${{ needs.build.outputs.image }}@${{ needs.build.outputs.digest }}
+        image-ref: docker.io/famgala/fantasyf1-be@${{ needs.build.outputs.digest }}
         format: 'sarif'
         output: 'trivy-results.sarif'
         severity: 'CRITICAL,HIGH'
@@ -374,7 +375,7 @@ jobs:
         if [ -f trivy-results.sarif ]; then
           echo "✅ SARIF file generated successfully"
           echo "📦 Available as artifact: trivy-security-scan"
-          echo "📅 Retention: 30 days"
+          echo "� Retention: 30 days"
         else
           echo "❌ No SARIF file found"
           exit 1
