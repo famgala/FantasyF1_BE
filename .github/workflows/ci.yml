@@ -253,7 +253,7 @@ jobs:
       packages: write
     
     outputs:
-      image: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
+      image: docker.io/${{ env.IMAGE_NAME }}
       digest: ${{ steps.build.outputs.digest }}
       version: ${{ steps.version.outputs.version }}
     
@@ -300,7 +300,7 @@ jobs:
       id: meta
       uses: docker/metadata-action@v5
       with:
-        images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
+        images: docker.io/${{ env.IMAGE_NAME }}
         tags: |
           type=ref,event=branch
           type=ref,event=pr
