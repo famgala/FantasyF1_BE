@@ -253,7 +253,7 @@ jobs:
       packages: write
     
     outputs:
-      image: ${{ steps.image.outputs.image }}
+      image: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
       digest: ${{ steps.build.outputs.digest }}
       version: ${{ steps.version.outputs.version }}
     
