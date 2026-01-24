@@ -1,9 +1,11 @@
 """Schema definitions for League model."""
 
 from datetime import datetime
+from typing import Annotated
 
 from pydantic import BaseModel, Field
 
+from app.models.league import DraftCloseCondition
 from app.schemas.user import UserResponse
 
 
@@ -15,6 +17,14 @@ class LeagueBase(BaseModel):
     max_teams: int = Field(default=10, ge=2, le=50, description="Maximum number of teams")
     is_private: bool = Field(default=False, description="Whether league is private")
     draft_method: str = Field(default="sequential", max_length=50)
+    draft_close_condition: Annotated[
+        DraftCloseCondition,
+        Field(default=DraftCloseCondition.MANUAL, description="When to close the draft"),
+    ]
+    scoring_settings: str | None = Field(
+        default=None,
+        description="JSON string for custom scoring rules per league",
+    )
 
 
 class LeagueCreate(LeagueBase):
@@ -31,6 +41,12 @@ class LeagueUpdate(BaseModel):
     max_teams: int | None = Field(None, ge=2, le=50)
     is_private: bool | None = None
     draft_method: str | None = Field(None, max_length=50)
+    draft_close_condition: DraftCloseCondition | None = Field(
+        None, description="When to close the draft"
+    )
+    scoring_settings: str | None = Field(
+        None, description="JSON string for custom scoring rules per league"
+    )
 
 
 class LeagueResponse(LeagueBase):
@@ -38,7 +54,8 @@ class LeagueResponse(LeagueBase):
 
     id: int
     code: str = Field(..., max_length=10)
-    creator_id: int
+    creator_id: int | None
+    draft_date: datetime | None = Field(None, description="When draft is scheduled")
     created_at: datetime
     updated_at: datetime
 

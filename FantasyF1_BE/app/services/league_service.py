@@ -13,6 +13,7 @@ from app.core.exceptions import ValidationError
 from app.core.logging import get_logger
 from app.models.league import League
 from app.schemas.league import LeagueCreate, LeagueUpdate
+from app.services.league_role_service import LeagueRoleService
 
 logger = get_logger(__name__)
 
@@ -251,6 +252,11 @@ class LeagueService:
             is_private=int(league_data.is_private),
         )
         db.add(league)
+        await db.flush()
+
+        # Create creator role for the league creator
+        await LeagueRoleService.create_creator_role(db, league.id, creator_id)
+
         await db.commit()
         await db.refresh(league)
 

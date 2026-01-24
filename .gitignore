@@ -45,3 +45,31 @@ htmlcov/
 
 # Logs
 *.log
+temp_logs/
+
+# Docker Compose Example Files (temporary reference for local development)
+ci-cd.example.yml
+docker-compose.example.yml
+
+# Environment variables
+.env
+.env.local
+.env.dev
+.env.dev.local
+
+# Data volumes
+postgres-data/
+redis-data/
+mosquitto_data/
+mosquitto_logs/
+fantasyf1_dev_*
+
+# Dev container specific
+.vscode/*
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/extensions.json
+
+# local doc
+documentation/

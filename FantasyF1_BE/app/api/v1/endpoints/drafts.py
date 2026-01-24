@@ -4,6 +4,7 @@ This module provides endpoints for managing the draft process,
 including draft order, picks, and draft status.
 """
 
+from typing import Any
 
 from fastapi import APIRouter, Depends, HTTPException, Query, status
 from sqlalchemy import select
@@ -26,7 +27,7 @@ async def get_draft_order(
     race_id: int = Query(..., description="Race ID for the draft"),
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(get_current_user),  # noqa: ARG001
-):
+) -> dict[str, Any]:
     """
     Get the draft order for a league and race.
 
@@ -92,7 +93,7 @@ async def create_draft_order(
     ),
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(get_current_user),
-):
+) -> dict[str, Any]:
     """
     Create a draft order for a league and race.
 
@@ -157,7 +158,7 @@ async def get_draft_picks(
     team_id: int | None = Query(None, description="Filter by team ID"),
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(get_current_user),  # noqa: ARG001
-):
+) -> dict[str, Any]:
     """
     Get draft picks for a league and race.
 
@@ -236,7 +237,7 @@ async def make_draft_pick(
     driver_id: int = Query(..., description="ID of the driver to draft"),
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(get_current_user),
-):
+) -> dict[str, Any]:
     """
     Make a draft pick for the current user's team in a league.
 
@@ -315,7 +316,7 @@ async def get_draft_status(
     race_id: int = Query(..., description="Race ID for the draft"),
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(get_current_user),  # noqa: ARG001
-):
+) -> dict[str, Any]:
     """
     Get draft status and current turn for a league.
 
@@ -422,7 +423,7 @@ async def get_available_drivers(
     race_id: int = Query(..., description="Race ID for the draft"),
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(get_current_user),  # noqa: ARG001
-):
+) -> dict[str, Any]:
     """
     Get all available drivers for a draft.
 

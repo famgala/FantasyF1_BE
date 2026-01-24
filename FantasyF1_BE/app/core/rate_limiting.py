@@ -2,10 +2,13 @@
 
 from collections.abc import Callable
 from functools import wraps
+from typing import Any, TypeVar, cast
 
 from fastapi import Request
 from slowapi import Limiter
 from slowapi.util import get_remote_address
+
+F = TypeVar("F", bound=Callable[..., Any])
 
 # Create limiter instance
 limiter = Limiter(key_func=get_remote_address)
@@ -22,7 +25,7 @@ def get_user_id_from_request(request: Request) -> str:
     return get_remote_address(request)
 
 
-def rate_limit(limit: str) -> Callable:  # noqa: ARG001
+def rate_limit(limit: str) -> Callable[[F], F]:  # noqa: ARG001
     """Rate limiting decorator.
 
     Args:
@@ -34,11 +37,11 @@ def rate_limit(limit: str) -> Callable:  # noqa: ARG001
         will be implemented in a future phase using Redis backend with slowapi.
     """
 
-    def decorator(func: Callable) -> Callable:
+    def decorator(func: F) -> F:
         @wraps(func)
-        async def wrapper(*args, **kwargs):
+        async def wrapper(*args: Any, **kwargs: Any) -> Any:
             return await func(*args, **kwargs)
 
-        return wrapper
+        return cast(F, wrapper)
 
     return decorator

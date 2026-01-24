@@ -9,6 +9,7 @@ Create Date: 2026-01-18
 from collections.abc import Sequence
 
 import sqlalchemy as sa
+
 from alembic import op
 
 # revision identifiers, used by Alembic.
@@ -49,9 +50,13 @@ def upgrade() -> None:
     )
     op.create_index(op.f("ix_fantasy_teams_id"), "fantasy_teams", ["id"])
     op.create_index(op.f("ix_fantasy_teams_user_id"), "fantasy_teams", ["user_id"], unique=False)
-    op.create_index(op.f("ix_fantasy_teams_league_id"), "fantasy_teams", ["league_id"], unique=False)
+    op.create_index(
+        op.f("ix_fantasy_teams_league_id"), "fantasy_teams", ["league_id"], unique=False
+    )
     op.create_index(op.f("ix_fantasy_teams_name"), "fantasy_teams", ["name"], unique=False)
-    op.create_index(op.f("ix_fantasy_teams_total_points"), "fantasy_teams", ["total_points"], unique=False)
+    op.create_index(
+        op.f("ix_fantasy_teams_total_points"), "fantasy_teams", ["total_points"], unique=False
+    )
 
     # ========================================
     # CREATE TEAM_PICKS TABLE
@@ -79,15 +84,23 @@ def upgrade() -> None:
             nullable=False,
         ),
         sa.ForeignKeyConstraint(["race_id"], ["races.id"], name="fk_team_pick_race"),
-        sa.ForeignKeyConstraint(["constructor_id"], ["constructors.id"], name="fk_team_pick_constructor"),
+        sa.ForeignKeyConstraint(
+            ["constructor_id"], ["constructors.id"], name="fk_team_pick_constructor"
+        ),
         sa.ForeignKeyConstraint(["driver_id"], ["drivers.id"], name="fk_team_pick_driver"),
-        sa.ForeignKeyConstraint(["fantasy_team_id"], ["fantasy_teams.id"], name="fk_team_pick_fantasy_team"),
+        sa.ForeignKeyConstraint(
+            ["fantasy_team_id"], ["fantasy_teams.id"], name="fk_team_pick_fantasy_team"
+        ),
         sa.PrimaryKeyConstraint("id"),
     )
     op.create_index(op.f("ix_team_picks_id"), "team_picks", ["id"])
-    op.create_index(op.f("ix_team_picks_fantasy_team_id"), "team_picks", ["fantasy_team_id"], unique=False)
+    op.create_index(
+        op.f("ix_team_picks_fantasy_team_id"), "team_picks", ["fantasy_team_id"], unique=False
+    )
     op.create_index(op.f("ix_team_picks_driver_id"), "team_picks", ["driver_id"], unique=False)
-    op.create_index(op.f("ix_team_picks_constructor_id"), "team_picks", ["constructor_id"], unique=False)
+    op.create_index(
+        op.f("ix_team_picks_constructor_id"), "team_picks", ["constructor_id"], unique=False
+    )
     op.create_index(op.f("ix_team_picks_race_id"), "team_picks", ["race_id"], unique=False)
 
     # ========================================
@@ -98,7 +111,9 @@ def upgrade() -> None:
         sa.Column("id", sa.Integer(), autoincrement=True, nullable=False),
         sa.Column("league_id", sa.Integer(), nullable=False),
         sa.Column("race_id", sa.Integer(), nullable=False),
-        sa.Column("draft_method", sa.String(length=20), server_default="sequential", nullable=False),
+        sa.Column(
+            "draft_method", sa.String(length=20), server_default="sequential", nullable=False
+        ),
         sa.Column("order_data", sa.String(length=1000), nullable=False),
         sa.Column("is_manual", sa.Boolean(), server_default="false", nullable=False),
         sa.Column("last_modified_by", sa.Integer(), nullable=True),
@@ -122,7 +137,9 @@ def upgrade() -> None:
     op.create_index(op.f("ix_draft_orders_id"), "draft_orders", ["id"])
     op.create_index(op.f("ix_draft_orders_league_id"), "draft_orders", ["league_id"], unique=False)
     op.create_index(op.f("ix_draft_orders_race_id"), "draft_orders", ["race_id"], unique=False)
-    op.create_index(op.f("ix_draft_orders_last_modified_by"), "draft_orders", ["last_modified_by"], unique=False)
+    op.create_index(
+        op.f("ix_draft_orders_last_modified_by"), "draft_orders", ["last_modified_by"], unique=False
+    )
 
     # ========================================
     # CREATE DRAFT_PICKS TABLE
@@ -157,7 +174,9 @@ def upgrade() -> None:
             nullable=False,
         ),
         sa.ForeignKeyConstraint(["driver_id"], ["drivers.id"], name="fk_draft_pick_driver"),
-        sa.ForeignKeyConstraint(["fantasy_team_id"], ["fantasy_teams.id"], name="fk_draft_pick_fantasy_team"),
+        sa.ForeignKeyConstraint(
+            ["fantasy_team_id"], ["fantasy_teams.id"], name="fk_draft_pick_fantasy_team"
+        ),
         sa.ForeignKeyConstraint(["race_id"], ["races.id"], name="fk_draft_pick_race"),
         sa.ForeignKeyConstraint(["league_id"], ["leagues.id"], name="fk_draft_pick_league"),
         sa.PrimaryKeyConstraint("id"),
@@ -165,7 +184,9 @@ def upgrade() -> None:
     op.create_index(op.f("ix_draft_picks_id"), "draft_picks", ["id"])
     op.create_index(op.f("ix_draft_picks_league_id"), "draft_picks", ["league_id"], unique=False)
     op.create_index(op.f("ix_draft_picks_race_id"), "draft_picks", ["race_id"], unique=False)
-    op.create_index(op.f("ix_draft_picks_fantasy_team_id"), "draft_picks", ["fantasy_team_id"], unique=False)
+    op.create_index(
+        op.f("ix_draft_picks_fantasy_team_id"), "draft_picks", ["fantasy_team_id"], unique=False
+    )
     op.create_index(op.f("ix_draft_picks_driver_id"), "draft_picks", ["driver_id"], unique=False)
     op.create_index(op.f("ix_draft_picks_picked_at"), "draft_picks", ["picked_at"], unique=False)
 
@@ -207,7 +228,12 @@ def upgrade() -> None:
     )
     op.create_index(op.f("ix_race_results_id"), "race_results", ["id"])
     op.create_index(op.f("ix_race_results_race_id"), "race_results", ["race_id"], unique=False)
-    op.create_index(op.f("ix_race_results_driver_external_id"), "race_results", ["driver_external_id"], unique=False)
+    op.create_index(
+        op.f("ix_race_results_driver_external_id"),
+        "race_results",
+        ["driver_external_id"],
+        unique=False,
+    )
     op.create_index(op.f("ix_race_results_position"), "race_results", ["position"], unique=False)
 
     # ========================================
@@ -259,7 +285,7 @@ def upgrade() -> None:
 
 def downgrade() -> None:
     """Reverse the migration - drop all new tables."""
-    
+
     # Drop tables in reverse order of creation (to respect foreign key constraints)
     op.drop_index(op.f("ix_driver_stats_season"), table_name="driver_stats")
     op.drop_index(op.f("ix_driver_stats_driver_id"), table_name="driver_stats")

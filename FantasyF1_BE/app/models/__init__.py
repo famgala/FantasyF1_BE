@@ -6,6 +6,13 @@ from app.models.driver import Driver
 from app.models.driver_stats import DriverStats
 from app.models.fantasy_team import FantasyTeam, TeamPick
 from app.models.league import League
+from app.models.league_invitation import (
+    InvitationStatus,
+    InvitationType,
+    LeagueInvitation,
+)
+from app.models.league_role import LeagueRole
+from app.models.notification import Notification, NotificationType
 from app.models.race import Race
 from app.models.race_result import RaceResult
 from app.models.user import User
@@ -19,6 +26,12 @@ __all__ = [
     "FantasyTeam",
     "TeamPick",
     "League",
+    "LeagueInvitation",
+    "LeagueRole",
+    "InvitationStatus",
+    "InvitationType",
+    "Notification",
+    "NotificationType",
     "Race",
     "RaceResult",
     "User",

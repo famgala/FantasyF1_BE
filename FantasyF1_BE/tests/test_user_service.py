@@ -1,5 +1,7 @@
 """Unit tests for UserService."""
 
+# type: ignore
+
 import pytest
 from sqlalchemy.ext.asyncio import AsyncSession
 
