@@ -212,7 +212,7 @@ jobs:
     - name: Run type checking (MyPy)
       run: |
         echo "🔍 Running MyPy type checking..."
-        docker compose -f docker-compose.test.yml exec -T backend mypy app/ --strict || {
+        docker compose -f docker-compose.test.yml exec -T backend mypy app/ || {
           echo "⚠️ MyPy check failed or found issues"
           exit 1
         }

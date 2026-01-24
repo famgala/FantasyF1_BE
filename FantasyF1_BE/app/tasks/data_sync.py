@@ -4,8 +4,6 @@ This module contains Celery tasks for syncing data from external APIs
 and handling scheduled operations like drafts and race result polling.
 """
 
-# type: ignore[misc]  # celery doesn't have type stubs
-
 import json
 from datetime import datetime, timedelta
 from typing import TYPE_CHECKING, Any
@@ -26,6 +24,7 @@ from app.tasks.celery_app import celery_app
 
 if TYPE_CHECKING:
     from app.models.league import League
+    from celery import Task
 
 logger = get_logger(__name__)
 settings = get_settings()
@@ -50,7 +49,7 @@ def get_sync_db() -> Session:
     default_retry_delay=3600,  # 1 hour retry delay
     name="tasks.sync_drivers",
 )
-def sync_drivers_task(self, year: int | None = None) -> dict[str, Any]:
+def sync_drivers_task(self: "Task", year: int | None = None) -> dict[str, Any]:
     """Sync driver data from external API.
 
     Args:
@@ -87,7 +86,7 @@ def sync_drivers_task(self, year: int | None = None) -> dict[str, Any]:
 
 
 @celery_app.task(bind=True, max_retries=3, name="tasks.sync_race_calendar")
-def sync_race_calendar_task(self, year: int | None = None) -> dict[str, Any]:
+def sync_race_calendar_task(self: "Task", year: int | None = None) -> dict[str, Any]:
     """Sync race calendar from external API.
 
     Args:
@@ -123,7 +122,7 @@ def sync_race_calendar_task(self, year: int | None = None) -> dict[str, Any]:
 
 
 @celery_app.task(bind=True, max_retries=5, name="tasks.sync_race_results")
-def sync_race_results_task(self) -> dict[str, Any]:
+def sync_race_results_task(self: "Task") -> dict[str, Any]:
     """Sync race results from external API with retry logic.
 
     This task runs every 2 hours after race start until results are successfully pulled.
@@ -616,7 +615,7 @@ def cleanup_old_notifications_task() -> dict[str, Any]:
     default_retry_delay=3600,
     name="app.tasks.data_sync.sync_external_data",
 )
-def sync_external_data_task(self, year: int | None = None) -> dict[str, Any]:
+def sync_external_data_task(self: "Task", year: int | None = None) -> dict[str, Any]:
     """Sync external data (drivers, constructors, races) from Jolpica API.
 
     This task runs daily at 3 AM ET to ensure external data is up to date.
