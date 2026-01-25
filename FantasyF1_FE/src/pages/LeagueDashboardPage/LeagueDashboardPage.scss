@@ -1,0 +1,621 @@
+@import "../../styles/variables";
+
+.league-dashboard-page {
+  min-height: 100vh;
+  padding: 2rem;
+  max-width: 1200px;
+  margin: 0 auto;
+
+  &--loading {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+  }
+
+  &--error {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 60vh;
+  }
+
+  .skeleton {
+    background: linear-gradient(90deg, $surface-tertiary 25%, $surface-quaternary 50%, $surface-tertiary 75%);
+    background-size: 200% 100%;
+    animation: skeleton-loading 1.5s infinite;
+    border-radius: 8px;
+
+    &--header {
+      height: 120px;
+    }
+
+    &--content {
+      height: 200px;
+    }
+
+    &--table {
+      height: 400px;
+    }
+  }
+
+  .error-container {
+    text-align: center;
+    color: $text-primary;
+    background: $surface-secondary;
+    padding: 2rem;
+    border-radius: 8px;
+
+    h2 {
+      color: $danger;
+      margin-bottom: 0.5rem;
+    }
+
+    p {
+      margin-bottom: 1.5rem;
+      color: $text-secondary;
+    }
+  }
+
+  // League Header
+  .league-header {
+    margin-bottom: 2rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 2rem;
+
+    @media (max-width: 768px) {
+      flex-direction: column;
+    }
+
+    &__info {
+      flex: 1;
+    }
+
+    &__title {
+      font-size: 2.5rem;
+      font-weight: 700;
+      color: $text-primary;
+      margin: 0 0 0.5rem 0;
+      background: linear-gradient(135deg, $primary 0%, $primary-shade 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    &__description {
+      font-size: 1rem;
+      color: $text-secondary;
+      margin: 0 0 1rem 0;
+      line-height: 1.5;
+    }
+
+    &__badges {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+    }
+
+    &__actions {
+      display: flex;
+      gap: 1rem;
+      flex-shrink: 0;
+
+      @media (max-width: 768px) {
+        width: 100%;
+
+        .btn {
+          flex: 1;
+        }
+      }
+    }
+  }
+
+  .badge {
+    display: inline-block;
+    padding: 0.25rem 0.75rem;
+    font-size: 0.875rem;
+    font-weight: 600;
+    border-radius: 16px;
+
+    &--private {
+      background-color: $warning;
+      color: $text-primary;
+    }
+
+    &--code {
+      background-color: $surface-tertiary;
+      color: $text-primary;
+    }
+
+    &--manager {
+      background-color: $primary;
+      color: #ffffff;
+    }
+  }
+
+  // Draft Status Section
+  .draft-status-section {
+    margin-bottom: 2rem;
+  }
+
+  .draft-status-card {
+    background: $surface-tertiary;
+    border-radius: 12px;
+    padding: 1.5rem;
+    border: 1px solid $border-color;
+
+    &__header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 1.5rem;
+    }
+
+    &__title {
+      font-size: 1.5rem;
+      font-weight: 600;
+      color: $text-primary;
+      margin: 0;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    &__icon {
+      font-size: 1.75rem;
+    }
+
+    &__status {
+      padding: 0.5rem 1rem;
+      border-radius: 20px;
+      font-size: 0.875rem;
+      font-weight: 700;
+      color: #ffffff;
+      text-transform: uppercase;
+    }
+
+    &__details {
+      display: grid;
+      gap: 1rem;
+      margin-bottom: 1.5rem;
+    }
+
+    &__picks {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 1rem;
+      padding-top: 1.5rem;
+      border-top: 1px solid $border-color;
+
+      @media (max-width: 640px) {
+        flex-direction: column;
+        align-items: stretch;
+      }
+    }
+
+    &__actions {
+      padding-top: 1.5rem;
+      border-top: 1px solid $border-color;
+    }
+  }
+
+  .detail-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.75rem 1rem;
+    background: $surface-quaternary;
+    border-radius: 8px;
+
+    &--highlight {
+      background: rgba($primary, 0.1);
+      border: 1px solid $primary;
+    }
+
+    &__label {
+      font-size: 0.875rem;
+      color: $text-secondary;
+      font-weight: 500;
+    }
+
+    &__value {
+      font-size: 0.875rem;
+      color: $text-primary;
+      font-weight: 600;
+    }
+  }
+
+  .picks-info {
+    font-size: 1rem;
+    color: $text-secondary;
+    margin: 0;
+  }
+
+  // Standings Section
+  .standings-section {
+    margin-bottom: 2rem;
+  }
+
+  .section-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+
+    &__title {
+      font-size: 1.5rem;
+      font-weight: 600;
+      color: $text-primary;
+      margin: 0;
+    }
+  }
+
+  .standings-table-container {
+    background: $surface-tertiary;
+    border-radius: 12px;
+    overflow: hidden;
+    border: 1px solid $border-color;
+  }
+
+  .standings-table {
+    width: 100%;
+    border-collapse: collapse;
+
+    &__header {
+      background: $surface-quaternary;
+      padding: 1rem;
+      font-size: 0.875rem;
+      font-weight: 600;
+      color: $text-secondary;
+      text-align: left;
+
+      &--rank {
+        width: 80px;
+        text-align: center;
+      }
+
+      &--team {
+        padding: 1rem 1rem 1rem 1.5rem;
+      }
+
+      &--manager {
+        width: 150px;
+      }
+
+      &--points {
+        text-align: right;
+        padding: 1rem 1.5rem 1rem 1rem;
+      }
+    }
+
+    &__row {
+      border-bottom: 1px solid $border-color;
+      cursor: pointer;
+      transition: background-color 0.2s ease;
+
+      &:last-child {
+        border-bottom: none;
+      }
+
+      &:hover {
+        background: $surface-quaternary;
+      }
+
+      &--highlight {
+        background: rgba($primary, 0.1);
+
+        &:hover {
+          background: rgba($primary, 0.15);
+        }
+      }
+    }
+
+    &__cell {
+      padding: 1rem;
+      font-size: 0.875rem;
+      color: $text-primary;
+
+      &--rank {
+        text-align: center;
+        padding: 1rem 0.5rem;
+      }
+
+      &--team {
+        padding: 1rem;
+      }
+
+      &--manager {
+        color: $text-secondary;
+      }
+
+      &--points {
+        text-align: right;
+        font-weight: 600;
+        padding: 1rem 1.5rem 1rem 1rem;
+      }
+    }
+  }
+
+  .rank-badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    font-weight: 700;
+    font-size: 0.875rem;
+
+    &--gold {
+      background: linear-gradient(135deg, #ffd700 0%, #ffec8b 100%);
+      color: #1a1a2e;
+      box-shadow: 0 2px 8px rgba(255, 215, 0, 0.3);
+    }
+
+    &--silver {
+      background: linear-gradient(135deg, #c0c0c0 0%, #e8e8e8 100%);
+      color: #1a1a2e;
+      box-shadow: 0 2px 8px rgba(192, 192, 192, 0.3);
+    }
+
+    &--bronze {
+      background: linear-gradient(135deg, #cd7f32 0%, #e8a862 100%);
+      color: #1a1a2e;
+      box-shadow: 0 2px 8px rgba(205, 127, 50, 0.3);
+    }
+
+    &--default {
+      background: $surface-quaternary;
+      color: $text-secondary;
+    }
+  }
+
+  .team-info {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+
+    &__name {
+      font-weight: 600;
+    }
+  }
+
+  .manager-badge {
+    font-size: 0.75rem;
+    color: $primary;
+    background: rgba($primary, 0.1);
+    padding: 0.125rem 0.5rem;
+    border-radius: 12px;
+  }
+
+  // Modal
+  .modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.7);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+    padding: 1rem;
+  }
+
+  .modal {
+    background: $surface-secondary;
+    border-radius: 12px;
+    max-width: 500px;
+    width: 100%;
+    max-height: 90vh;
+    overflow-y: auto;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
+
+    &--invite {
+      max-width: 600px;
+    }
+
+    &__header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 1.5rem;
+      border-bottom: 1px solid $border-color;
+    }
+
+    &__title {
+      font-size: 1.25rem;
+      font-weight: 600;
+      color: $text-primary;
+      margin: 0;
+    }
+
+    &__body {
+      padding: 1.5rem;
+    }
+
+    &__footer {
+      display: flex;
+      justify-content: flex-end;
+      padding: 1rem 1.5rem;
+      border-top: 1px solid $border-color;
+    }
+  }
+
+  .invite-instructions {
+    font-size: 0.875rem;
+    color: $text-secondary;
+    margin: 0 0 1.5rem 0;
+    line-height: 1.5;
+  }
+
+  .invite-code-display {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 1.5rem;
+    background: $surface-quaternary;
+    border-radius: 8px;
+    margin-bottom: 1rem;
+
+    @media (max-width: 640px) {
+      flex-direction: column;
+
+      .btn {
+        width: 100%;
+      }
+    }
+  }
+
+  .invite-code {
+    flex: 1;
+    font-size: 2rem;
+    font-weight: 700;
+    color: $text-primary;
+    text-align: center;
+    letter-spacing: 0.125rem;
+  }
+
+  .invite-note {
+    font-size: 0.75rem;
+    color: $text-tertiary;
+    margin: 0 0 1.5rem 0;
+  }
+
+  .invite-link-container {
+    margin-top: 0.5rem;
+  }
+
+  .invite-link-label {
+    display: block;
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: $text-secondary;
+    margin-bottom: 0.5rem;
+  }
+
+  .invite-link-wrapper {
+    display: flex;
+    gap: 0.5rem;
+
+    .invite-link-input {
+      flex: 1;
+      padding: 0.625rem 0.875rem;
+      font-size: 0.875rem;
+      background: $surface-quaternary;
+      border: 1px solid $border-color;
+      border-radius: 6px;
+      color: $text-secondary;
+      font-family: monospace;
+    }
+  }
+
+  // Button styles
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    padding: 0.625rem 1rem;
+    font-size: 0.875rem;
+    font-weight: 600;
+    border-radius: 6px;
+    border: none;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    text-decoration: none;
+
+    &:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
+
+    &__icon {
+      font-size: 1rem;
+    }
+
+    &--primary {
+      background: $primary;
+      color: #ffffff;
+
+      &:hover:not(:disabled) {
+        background: $primary-shade;
+        transform: translateY(-1px);
+      }
+
+      &:active:not(:disabled) {
+        transform: translateY(0);
+      }
+    }
+
+    &--secondary {
+      background: $success;
+      color: #ffffff;
+
+      &:hover:not(:disabled) {
+        background: $success-shade;
+        transform: translateY(-1px);
+      }
+
+      &:active:not(:disabled) {
+        transform: translateY(0);
+      }
+    }
+
+    &--outline {
+      background: transparent;
+      border: 1px solid $border-color;
+      color: $text-primary;
+
+      &:hover:not(:disabled) {
+        background: $surface-quaternary;
+        transform: translateY(-1px);
+      }
+
+      &:active:not(:disabled) {
+        transform: translateY(0);
+      }
+    }
+
+    &--text {
+      background: transparent;
+      color: $primary;
+      padding: 0.5rem 0;
+
+      &:hover:not(:disabled) {
+        color: $primary-shade;
+        text-decoration: underline;
+      }
+    }
+
+    &--icon {
+      padding: 0.5rem;
+      background: transparent;
+      border: none;
+      color: $text-secondary;
+      font-size: 1.25rem;
+
+      &:hover:not(:disabled) {
+        color: $text-primary;
+        background: $surface-quaternary;
+      }
+    }
+
+    &--large {
+      padding: 0.875rem 1.5rem;
+      font-size: 1rem;
+    }
+  }
+
+  @keyframes skeleton-loading {
+    0% {
+      background-position: 200% 0;
+    }
+    100% {
+      background-position: -200% 0;
+    }
+  }
+}

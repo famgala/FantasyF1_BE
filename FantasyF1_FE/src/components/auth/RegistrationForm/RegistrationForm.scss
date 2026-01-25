@@ -1,0 +1,433 @@
+/**
+ * RegistrationForm Styles
+ * 
+ * Uses same F1 brand colors and patterns as Login/EmailCheckForm
+ * for consistent authentication flow experience
+ */
+
+// Color variables (shared across auth forms)
+$primary-red: #e10600;
+$primary-red-dark: #b30500;
+$text-primary: #1e1e1e;
+$text-secondary: #666666;
+$background-white: #ffffff;
+$background-gray: #f5f5f5;
+$border-gray: #e0e0e0;
+$error-red: #dc3545;
+$error-bg: #fdf2f2;
+$success-green: #28a745;
+$warning-yellow: #ffc107;
+
+.registration-form {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, $background-gray 0%, $background-white 100%);
+  padding: 1rem;
+
+  &__container {
+    width: 100%;
+    max-width: 480px;
+    background: $background-white;
+    border-radius: 12px;
+    box-shadow: 0 4px 24px rgba(0, 0, 0, 0.1);
+    padding: 2rem 2rem 2.5rem;
+  }
+
+  &__header {
+    text-align: center;
+    margin-bottom: 1.5rem;
+  }
+
+  &__title {
+    font-size: 1.75rem;
+    font-weight: 700;
+    color: $text-primary;
+    margin: 0 0 0.5rem 0;
+  }
+
+  &__subtitle {
+    font-size: 1rem;
+    color: $text-secondary;
+    margin: 0;
+  }
+
+  &__email-display {
+    background: $background-gray;
+    border-radius: 8px;
+    padding: 0.875rem 1rem;
+    margin-bottom: 1.5rem;
+  }
+
+  &__email-label {
+    display: block;
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: $text-secondary;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 0.25rem;
+  }
+
+  &__email-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.5rem;
+  }
+
+  &__email-value {
+    font-size: 1rem;
+    font-weight: 500;
+    color: $text-primary;
+    word-break: break-all;
+  }
+
+  &__change-email-btn {
+    flex-shrink: 0;
+    padding: 0.25rem 0.5rem;
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: $primary-red;
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    transition: color 0.2s ease;
+
+    &:hover {
+      color: $primary-red-dark;
+      text-decoration: underline;
+    }
+
+    &:focus {
+      outline: 2px solid $primary-red;
+      outline-offset: 2px;
+    }
+  }
+
+  &__form {
+    display: flex;
+    flex-direction: column;
+    gap: 1.25rem;
+  }
+
+  &__field {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+
+    &--checkbox {
+      margin-top: 0.5rem;
+    }
+  }
+
+  &__label {
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: $text-primary;
+  }
+
+  &__password-wrapper {
+    position: relative;
+    display: flex;
+    align-items: center;
+  }
+
+  &__input {
+    width: 100%;
+    padding: 0.875rem 1rem;
+    font-size: 1rem;
+    border: 2px solid $border-gray;
+    border-radius: 8px;
+    background: $background-white;
+    color: $text-primary;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+
+    &::placeholder {
+      color: #999;
+    }
+
+    &:focus {
+      outline: none;
+      border-color: $primary-red;
+      box-shadow: 0 0 0 3px rgba($primary-red, 0.15);
+    }
+
+    &:disabled {
+      background-color: $background-gray;
+      cursor: not-allowed;
+      opacity: 0.7;
+    }
+
+    &--error {
+      border-color: $error-red;
+
+      &:focus {
+        box-shadow: 0 0 0 3px rgba($error-red, 0.15);
+      }
+    }
+  }
+
+  // Password fields need extra padding for toggle button
+  .registration-form__password-wrapper &__input {
+    padding-right: 3rem;
+  }
+
+  &__visibility-toggle {
+    position: absolute;
+    right: 0.75rem;
+    padding: 0.25rem;
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    &:focus {
+      outline: 2px solid $primary-red;
+      outline-offset: 2px;
+      border-radius: 4px;
+    }
+  }
+
+  &__icon {
+    font-size: 1.25rem;
+    line-height: 1;
+  }
+
+  &__hint {
+    font-size: 0.75rem;
+    color: $text-secondary;
+    margin: 0;
+  }
+
+  &__error {
+    font-size: 0.875rem;
+    color: $error-red;
+    margin: 0;
+  }
+
+  // Password strength indicator
+  &__strength {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    margin-top: 0.25rem;
+  }
+
+  &__strength-bar {
+    flex: 1;
+    height: 4px;
+    background: $border-gray;
+    border-radius: 2px;
+    overflow: hidden;
+  }
+
+  &__strength-fill {
+    height: 100%;
+    transition: width 0.3s ease, background-color 0.3s ease;
+    border-radius: 2px;
+  }
+
+  &__strength-label {
+    font-size: 0.75rem;
+    font-weight: 600;
+    min-width: 50px;
+    text-align: right;
+  }
+
+  // Checkbox styles
+  &__checkbox-label {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.75rem;
+    cursor: pointer;
+  }
+
+  &__checkbox {
+    width: 20px;
+    height: 20px;
+    flex-shrink: 0;
+    margin-top: 2px;
+    accent-color: $primary-red;
+    cursor: pointer;
+
+    &:focus {
+      outline: 2px solid $primary-red;
+      outline-offset: 2px;
+    }
+
+    &:disabled {
+      cursor: not-allowed;
+      opacity: 0.7;
+    }
+  }
+
+  &__checkbox-text {
+    font-size: 0.875rem;
+    color: $text-secondary;
+    line-height: 1.5;
+  }
+
+  &__optional {
+    font-size: 0.75rem;
+    font-weight: 400;
+    color: $text-secondary;
+    font-style: italic;
+  }
+
+  &__link {
+    color: $primary-red;
+    text-decoration: none;
+    font-weight: 500;
+
+    &:hover {
+      text-decoration: underline;
+    }
+
+    &:focus {
+      outline: 2px solid $primary-red;
+      outline-offset: 2px;
+    }
+  }
+
+  &__cancel-edit-btn {
+    margin-top: 0.5rem;
+    padding: 0.375rem 0.75rem;
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: $text-secondary;
+    background: transparent;
+    border: 1px solid $border-gray;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+
+    &:hover {
+      color: $text-primary;
+      border-color: $text-secondary;
+      background: $background-gray;
+    }
+
+    &:focus {
+      outline: 2px solid $primary-red;
+      outline-offset: 2px;
+    }
+
+    &:disabled {
+      opacity: 0.7;
+      cursor: not-allowed;
+    }
+  }
+
+  &__api-error {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.875rem 1rem;
+    background: $error-bg;
+    border: 1px solid rgba($error-red, 0.2);
+    border-radius: 8px;
+    color: $error-red;
+    font-size: 0.875rem;
+
+    &-icon {
+      flex-shrink: 0;
+    }
+  }
+
+  &__submit {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    width: 100%;
+    padding: 1rem;
+    font-size: 1rem;
+    font-weight: 600;
+    color: $background-white;
+    background: $primary-red;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background-color 0.2s ease, transform 0.1s ease;
+    margin-top: 0.5rem;
+
+    &:hover:not(:disabled) {
+      background: $primary-red-dark;
+    }
+
+    &:active:not(:disabled) {
+      transform: scale(0.98);
+    }
+
+    &:focus {
+      outline: 2px solid $primary-red;
+      outline-offset: 2px;
+    }
+
+    &:disabled {
+      opacity: 0.7;
+      cursor: not-allowed;
+    }
+  }
+
+  &__spinner {
+    width: 18px;
+    height: 18px;
+    border: 2px solid rgba($background-white, 0.3);
+    border-top-color: $background-white;
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+  }
+
+  &__footer {
+    margin-top: 1.5rem;
+    text-align: center;
+    font-size: 0.875rem;
+    color: $text-secondary;
+
+    p {
+      margin: 0;
+    }
+  }
+
+  &__login-link {
+    color: $primary-red;
+    font-weight: 600;
+    text-decoration: none;
+
+    &:hover {
+      text-decoration: underline;
+    }
+  }
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+// Responsive adjustments
+@media (max-width: 480px) {
+  .registration-form {
+    padding: 0;
+    background: $background-white;
+
+    &__container {
+      box-shadow: none;
+      border-radius: 0;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+    }
+
+    &__title {
+      font-size: 1.5rem;
+    }
+  }
+}

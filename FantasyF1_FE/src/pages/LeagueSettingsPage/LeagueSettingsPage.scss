@@ -1,0 +1,639 @@
+// League Settings Page Styles
+// Manager-only settings page with tabbed interface
+
+@import "../../styles/_variables.scss";
+
+.league-settings-page {
+  min-height: 100vh;
+  background-color: $bg-body;
+  padding: $spacing-xxl $spacing-md;
+
+  &--loading,
+  &--error {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 60vh;
+  }
+
+  .skeleton {
+    &--header {
+      height: 4rem;
+      width: 100%;
+      max-width: 800px;
+      margin-bottom: $spacing-lg;
+      border-radius: $border-radius-md;
+    }
+
+    &--tabs {
+      height: 3rem;
+      width: 100%;
+      max-width: 800px;
+      margin-bottom: $spacing-lg;
+      border-radius: $border-radius-sm;
+    }
+
+    &--content {
+      height: 20rem;
+      width: 100%;
+      max-width: 800px;
+      border-radius: $border-radius-md;
+    }
+  }
+
+  .error-container {
+    text-align: center;
+    max-width: 500px;
+
+    h2 {
+      font-size: $font-size-xl;
+      color: $text-primary;
+      margin-bottom: $spacing-md;
+    }
+
+    p {
+      color: $text-secondary;
+      margin-bottom: $spacing-lg;
+    }
+
+    .btn {
+      margin: $spacing-sm;
+    }
+  }
+}
+
+.settings-header {
+  max-width: 900px;
+  margin: 0 auto $spacing-xl;
+  padding: $spacing-xl 0 0;
+
+  &__content {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  &__title {
+    display: flex;
+    align-items: center;
+    font-size: $font-size-xxl;
+    font-weight: 600;
+    color: $text-primary;
+    margin: 0;
+  }
+
+  &__subtitle {
+    font-size: $font-size-md;
+    color: $text-secondary;
+    margin-top: $spacing-xs;
+  }
+}
+
+.back-button {
+  background: none;
+  border: none;
+  font-size: $font-size-xl;
+  color: $text-secondary;
+  cursor: pointer;
+  padding: 0;
+  margin-right: $spacing-md;
+  transition: color $transition-base;
+
+  &:hover {
+    color: $text-primary;
+  }
+}
+
+.settings-tabs {
+  max-width: 900px;
+  margin: 0 auto $spacing-xl;
+  display: flex;
+  gap: $spacing-sm;
+  flex-wrap: wrap;
+}
+
+.tab-button {
+  padding: $spacing-md $spacing-lg;
+  background-color: $bg-panel;
+  border: 2px solid $border-color;
+  border-radius: $border-radius-md;
+  color: $text-secondary;
+  font-size: $font-size-md;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all $transition-base;
+
+  &:hover {
+    background-color: $bg-hover;
+    border-color: $primary-color;
+  }
+
+  &--active {
+    background-color: $primary-color;
+    border-color: $primary-color;
+    color: $white;
+  }
+
+  &--danger {
+    border-color: $danger-color;
+    color: $danger-color;
+
+    &:hover {
+      background-color: rgba($danger-color, 0.1);
+    }
+
+    &.tab-button--active {
+      background-color: $danger-color;
+      color: $white;
+    }
+  }
+}
+
+.settings-content {
+  max-width: 900px;
+  margin: 0 auto;
+}
+
+.settings-section {
+  background-color: $bg-panel;
+  border-radius: $border-radius-lg;
+  padding: $spacing-xl;
+  box-shadow: $shadow-sm;
+
+  &__title {
+    font-size: $font-size-xl;
+    font-weight: 600;
+    color: $text-primary;
+    margin: 0 0 $spacing-lg;
+  }
+
+  &__description {
+    color: $text-secondary;
+    margin-bottom: $spacing-xl;
+  }
+
+  &--danger {
+    border: 2px solid $danger-color;
+  }
+}
+
+.form-group {
+  margin-bottom: $spacing-lg;
+
+  &--disabled {
+    opacity: 0.6;
+  }
+
+  &--toggle {
+    display: flex;
+    flex-direction: column;
+    gap: $spacing-sm;
+  }
+
+  &__label {
+    display: block;
+    font-size: $font-size-md;
+    font-weight: 500;
+    color: $text-primary;
+    margin-bottom: $spacing-sm;
+  }
+
+  &__hint {
+    font-size: $font-size-sm;
+    color: $text-secondary;
+    margin-top: $spacing-xs;
+  }
+}
+
+.form-input {
+  width: 100%;
+  padding: $spacing-md;
+  font-size: $font-size-md;
+  color: $text-primary;
+  background-color: $bg-input;
+  border: 2px solid $border-color;
+  border-radius: $border-radius-md;
+  transition: border-color $transition-base;
+
+  &:focus {
+    outline: none;
+    border-color: $primary-color;
+  }
+
+  &::placeholder {
+    color: $text-placeholder;
+  }
+
+  &--disabled {
+    background-color: $bg-disabled;
+    cursor: not-allowed;
+  }
+
+  &--textarea {
+    resize: vertical;
+    min-height: 100px;
+  }
+}
+
+.toggle-switch {
+  position: relative;
+  display: inline-block;
+  width: 50px;
+  height: 26px;
+
+  &__input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+
+    &:checked + .toggle-switch__label .toggle-switch__slider {
+      background-color: $primary-color;
+    }
+
+    &:checked + .toggle-switch__label .toggle-switch__slider:before {
+      transform: translateX(24px);
+    }
+
+    &:focus + .toggle-switch__label .toggle-switch__slider {
+      box-shadow: 0 0 1px $primary-color;
+    }
+  }
+
+  &__label {
+    position: absolute;
+    cursor: pointer;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: $border-color;
+    border-radius: 26px;
+    transition: background-color $transition-base;
+  }
+
+  &__slider {
+    position: absolute;
+    top: 3px;
+    left: 3px;
+    width: 20px;
+    height: 20px;
+    background-color: $white;
+    border-radius: 50%;
+    transition: transform $transition-base;
+  }
+}
+
+.settings-actions {
+  margin-top: $spacing-xl;
+  padding-top: $spacing-lg;
+  border-top: 1px solid $border-color;
+}
+
+// Members List
+.members-list {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-md;
+}
+
+.member-card {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: $spacing-lg;
+  background-color: $bg-body;
+  border: 1px solid $border-color;
+  border-radius: $border-radius-md;
+  transition: box-shadow $transition-base;
+
+  &:hover {
+    box-shadow: $shadow-sm;
+  }
+
+  &__info {
+    display: flex;
+    align-items: center;
+    gap: $spacing-lg;
+    flex: 1;
+  }
+}
+
+.member-avatar {
+  width: 48px;
+  height: 48px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: $font-size-lg;
+  font-weight: 600;
+  color: $white;
+  background-color: $primary-color;
+  border-radius: 50%;
+}
+
+.member-details {
+  &__name {
+    font-size: $font-size-md;
+    font-weight: 600;
+    color: $text-primary;
+    margin: 0 0 $spacing-xs;
+  }
+
+  &__team {
+    font-size: $font-size-sm;
+    color: $text-secondary;
+    margin: 0 0 $spacing-xs;
+  }
+
+  &__email {
+    font-size: $font-size-sm;
+    color: $text-tertiary;
+    margin: 0;
+  }
+}
+
+.member-card__actions {
+  display: flex;
+  align-items: center;
+  gap: $spacing-md;
+}
+
+.member-role {
+  .role-badge {
+    display: inline-block;
+    padding: $spacing-xs $spacing-sm;
+    font-size: $font-size-sm;
+    font-weight: 500;
+    border-radius: $border-radius-sm;
+    background-color: $bg-body;
+    color: $text-secondary;
+
+    &--manager {
+      background-color: rgba($accent-color, 0.1);
+      color: $accent-color;
+    }
+
+    &--co-manager {
+      background-color: rgba($primary-color, 0.1);
+      color: $primary-color;
+    }
+  }
+}
+
+.role-select {
+  padding: $spacing-sm $spacing-md;
+  font-size: $font-size-sm;
+  color: $text-primary;
+  background-color: $bg-input;
+  border: 1px solid $border-color;
+  border-radius: $border-radius-sm;
+  cursor: pointer;
+
+  &:focus {
+    outline: none;
+    border-color: $primary-color;
+  }
+}
+
+// Danger Zone
+.danger-card {
+  background-color: rgba($danger-color, 0.05);
+  border: 2px solid $danger-color;
+  border-radius: $border-radius-md;
+  padding: $spacing-xl;
+
+  &__content {
+    display: flex;
+    flex-direction: column;
+    gap: $spacing-md;
+  }
+
+  &__title {
+    font-size: $font-size-lg;
+    font-weight: 600;
+    color: $danger-color;
+    margin: 0;
+  }
+
+  &__description {
+    font-size: $font-size-md;
+    color: $text-secondary;
+    margin: 0;
+  }
+}
+
+// Modal
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba($bg-overlay, 0.75);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  padding: $spacing-md;
+}
+
+.modal {
+  background-color: $bg-panel;
+  border-radius: $border-radius-lg;
+  max-width: 500px;
+  width: 100%;
+  box-shadow: $shadow-lg;
+
+  &--danger {
+    border: 2px solid $danger-color;
+  }
+
+  &__header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: $spacing-xl;
+    border-bottom: 1px solid $border-color;
+  }
+
+  &__title {
+    font-size: $font-size-lg;
+    font-weight: 600;
+    color: $text-primary;
+    margin: 0;
+  }
+
+  &__close {
+    font-size: $font-size-xl;
+    color: $text-secondary;
+    cursor: pointer;
+    background: none;
+    border: none;
+    padding: 0;
+    transition: color $transition-base;
+
+    &:hover {
+      color: $text-primary;
+    }
+  }
+
+  &__body {
+    padding: $spacing-xl;
+  }
+
+  &__text {
+    font-size: $font-size-md;
+    color: $text-primary;
+    margin: 0 0 $spacing-lg;
+
+    strong {
+      color: $text-primary;
+    }
+  }
+
+  &__warning {
+    font-size: $font-size-sm;
+    color: $danger-color;
+    margin-bottom: $spacing-lg;
+
+    &--bold {
+      font-weight: 600;
+      font-size: $font-size-md;
+    }
+  }
+
+  &__label {
+    display: block;
+    font-size: $font-size-sm;
+    font-weight: 500;
+    color: $text-primary;
+    margin-bottom: $spacing-sm;
+  }
+
+  &__input {
+    width: 100%;
+    padding: $spacing-md;
+    font-size: $font-size-md;
+    color: $text-primary;
+    background-color: $bg-input;
+    border: 2px solid $border-color;
+    border-radius: $border-radius-md;
+    transition: border-color $transition-base;
+
+    &:focus {
+      outline: none;
+      border-color: $danger-color;
+    }
+  }
+
+  &__footer {
+    display: flex;
+    justify-content: flex-end;
+    gap: $spacing-md;
+    padding: $spacing-lg $spacing-xl;
+    border-top: 1px solid $border-color;
+  }
+}
+
+// Buttons
+.btn {
+  padding: $spacing-sm $spacing-lg;
+  font-size: $font-size-md;
+  font-weight: 500;
+  border: 2px solid transparent;
+  border-radius: $border-radius-md;
+  cursor: pointer;
+  transition: all $transition-base;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+
+  &--primary {
+    background-color: $primary-color;
+    color: $white;
+
+    &:hover:not(:disabled) {
+      background-color: darken($primary-color, 10%);
+    }
+  }
+
+  &--outline {
+    background-color: transparent;
+    border-color: $border-color;
+    color: $text-primary;
+
+    &:hover:not(:disabled) {
+      border-color: $primary-color;
+      color: $primary-color;
+    }
+  }
+
+  &--danger {
+    background-color: $danger-color;
+    color: $white;
+
+    &:hover:not(:disabled) {
+      background-color: darken($danger-color, 10%);
+    }
+  }
+
+  &--small {
+    padding: $spacing-xs $spacing-sm;
+    font-size: $font-size-sm;
+  }
+
+  &--large {
+    padding: $spacing-md $spacing-xl;
+    font-size: $font-size-lg;
+  }
+}
+
+// Responsive Design
+@media (max-width: $breakpoint-md) {
+  .league-settings-page {
+    padding: $spacing-lg $spacing-sm;
+  }
+
+  .settings-header {
+    &__title {
+      font-size: $font-size-xl;
+    }
+  }
+
+  .settings-tabs {
+    flex-direction: column;
+  }
+
+  .settings-section,
+  .danger-card {
+    padding: $spacing-lg;
+  }
+
+  .member-card {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: $spacing-md;
+
+    &__info {
+      width: 100%;
+    }
+
+    &__actions {
+      width: 100%;
+      justify-content: flex-end;
+    }
+  }
+
+  .modal {
+    &__header,
+    &__body,
+    &__footer {
+      padding: $spacing-lg;
+    }
+  }
+}

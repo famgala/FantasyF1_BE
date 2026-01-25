@@ -1,0 +1,160 @@
+@import "../../../styles/_variables.scss";
+
+.session-timeout-modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.7);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+  padding: 1rem;
+  animation: fadeIn 0.2s ease-out;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.session-timeout-modal {
+  background-color: white;
+  border-radius: 12px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+  max-width: 450px;
+  width: 100%;
+  animation: slideUp 0.3s ease-out;
+}
+
+@keyframes slideUp {
+  from {
+    transform: translateY(20px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+.session-timeout-modal__header {
+  padding: 1.5rem 1.5rem 1rem;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.session-timeout-modal__header h2 {
+  margin: 0;
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: #1f2937;
+}
+
+.session-timeout-modal__body {
+  padding: 1.5rem;
+  text-align: center;
+}
+
+.session-timeout-modal__icon {
+  font-size: 3rem;
+  margin-bottom: 1rem;
+  animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+  0%,
+  100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.1);
+  }
+}
+
+.session-timeout-modal__body > p {
+  margin: 0.75rem 0;
+  font-size: 1rem;
+  color: #374151;
+}
+
+.session-timeout-modal__time {
+  font-weight: 700;
+  font-size: 1.25rem;
+  color: #dc2626;
+}
+
+.session-timeout-modal__message {
+  font-size: 0.875rem !important;
+  color: #6b7280 !important;
+}
+
+.session-timeout-modal__footer {
+  padding: 1rem 1.5rem 1.5rem;
+  display: flex;
+  gap: 0.75rem;
+  justify-content: flex-end;
+}
+
+.session-timeout-modal__btn {
+  padding: 0.625rem 1.25rem;
+  border-radius: 8px;
+  font-size: 0.875rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  border: none;
+  outline: none;
+}
+
+.session-timeout-modal__btn--secondary {
+  background-color: #f3f4f6;
+  color: #374151;
+}
+
+.session-timeout-modal__btn--secondary:hover {
+  background-color: #e5e7eb;
+}
+
+.session-timeout-modal__btn--primary {
+  background-color: #dc2626;
+  color: white;
+}
+
+.session-timeout-modal__btn--primary:hover {
+  background-color: #b91c1c;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(220, 38, 38, 0.3);
+}
+
+.session-timeout-modal__btn:active {
+  transform: translateY(0);
+}
+
+// Responsive adjustments
+@media (max-width: 640px) {
+  .session-timeout-modal {
+    max-width: 100%;
+    margin: 0;
+  }
+
+  .session-timeout-modal__header,
+  .session-timeout-modal__body,
+  .session-timeout-modal__footer {
+    padding-left: 1rem;
+    padding-right: 1rem;
+  }
+
+  .session-timeout-modal__footer {
+    flex-direction: column-reverse;
+  }
+
+  .session-timeout-modal__btn {
+    width: 100%;
+  }
+}

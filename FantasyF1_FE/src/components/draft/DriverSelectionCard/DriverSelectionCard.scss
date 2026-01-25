@@ -1,0 +1,195 @@
+@import "../../../styles/_variables.scss";
+
+.driver-selection-card {
+  background: $surface-color;
+  border: 2px solid $border-color;
+  border-radius: $border-radius-md;
+  padding: $spacing-md;
+  margin-bottom: $spacing-md;
+  cursor: default;
+  transition: all 0.2s ease;
+
+  &--selectable {
+    cursor: pointer;
+    border-color: $secondary-color;
+
+    &:hover {
+      border-color: $primary-color;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
+      transform: translateY(-2px);
+    }
+  }
+
+  &--disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    background: $background-color;
+  }
+
+  &--selected {
+    border-color: $success-color;
+    background: rgba(16, 185, 129, 0.05);
+  }
+
+  &--expanded {
+    border-color: $primary-color;
+  }
+
+  &__header {
+    display: flex;
+    align-items: center;
+    gap: $spacing-md;
+    margin-bottom: $spacing-md;
+  }
+
+  &__number {
+    width: 48px;
+    height: 48px;
+    background: $primary-color;
+    color: white;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.25rem;
+    font-weight: 700;
+    flex-shrink: 0;
+  }
+
+  &__info {
+    flex: 1;
+  }
+
+  &__name {
+    font-size: 1.125rem;
+    font-weight: 600;
+    color: $text-primary;
+    margin-bottom: 0.25rem;
+  }
+
+  &__team {
+    font-size: 0.875rem;
+    color: $text-secondary;
+  }
+
+  &__action {
+    margin-left: auto;
+  }
+
+  &__select-btn {
+    background: $primary-color;
+    color: white;
+    border: none;
+    padding: 0.5rem 1rem;
+    border-radius: $border-radius-sm;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.2s;
+
+    &:hover {
+      background: darken($primary-color, 10%);
+    }
+  }
+
+  &__status-badge {
+    background: $success-color;
+    color: white;
+    padding: 0.375rem 0.75rem;
+    border-radius: $border-radius-sm;
+    font-size: 0.875rem;
+    font-weight: 600;
+  }
+
+  &__stats {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: $spacing-sm;
+    margin-bottom: $spacing-md;
+  }
+
+  &__stat {
+    background: $background-color;
+    padding: 0.5rem;
+    border-radius: $border-radius-sm;
+    text-align: center;
+  }
+
+  &__stat-label {
+    display: block;
+    font-size: 0.75rem;
+    color: $text-secondary;
+    margin-bottom: 0.25rem;
+  }
+
+  &__stat-value {
+    display: block;
+    font-size: 1rem;
+    font-weight: 600;
+    color: $text-primary;
+  }
+
+  &__details {
+    border-top: 1px solid $border-color;
+    padding-top: $spacing-md;
+    margin-top: $spacing-md;
+  }
+
+  &__country,
+  &__team-code {
+    margin-bottom: $spacing-sm;
+  }
+
+  &__detail-label {
+    font-size: 0.875rem;
+    color: $text-secondary;
+    font-weight: 500;
+  }
+
+  &__detail-value {
+    font-size: 0.875rem;
+    color: $text-primary;
+    margin-left: $spacing-sm;
+  }
+
+  &__section-title {
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: $text-primary;
+    margin: $spacing-md 0 $spacing-sm 0;
+  }
+
+  &__results-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.875rem;
+
+    th,
+    td {
+      padding: 0.5rem;
+      text-align: left;
+      border-bottom: 1px solid $border-color;
+    }
+
+    th {
+      font-weight: 600;
+      color: $text-secondary;
+      background: $background-color;
+    }
+
+    td {
+      color: $text-primary;
+    }
+
+    tr:last-child td {
+      border-bottom: none;
+    }
+  }
+
+  &__expand-hint {
+    font-size: 0.75rem;
+    color: $text-secondary;
+    text-align: center;
+    margin-top: $spacing-md;
+    font-style: italic;
+  }
+}

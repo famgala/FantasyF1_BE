@@ -1,0 +1,138 @@
+@import "../../styles/_variables.scss";
+
+.container {
+  max-width: 1000px;
+  margin: 0 auto;
+  padding: $spacing-xl;
+}
+
+.header {
+  text-align: center;
+  margin-bottom: $spacing-2xl;
+}
+
+.title {
+  font-size: $font-size-2xl;
+  font-weight: $font-weight-bold;
+  color: $color-text-primary;
+  margin-bottom: $spacing-sm;
+}
+
+.subtitle {
+  color: $color-text-secondary;
+  font-size: $font-size-base;
+}
+
+.tabsContainer {
+  background: $color-white;
+  border-radius: $border-radius-lg;
+  box-shadow: $shadow-sm;
+  overflow: hidden;
+}
+
+.tabsHeader {
+  display: flex;
+  border-bottom: 2px solid $color-border;
+  background: $color-gray-50;
+}
+
+.tabButton {
+  flex: 1;
+  padding: $spacing-lg $spacing-xl;
+  background: transparent;
+  border: none;
+  border-bottom: 3px solid transparent;
+  font-size: $font-size-base;
+  font-weight: $font-weight-semibold;
+  color: $color-text-secondary;
+  cursor: pointer;
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: $spacing-sm;
+  margin-bottom: -2px;
+
+  &:hover:not(.active) {
+    background: $color-white;
+    color: $color-text-primary;
+  }
+
+  &.active {
+    background: $color-white;
+    color: $color-primary;
+    border-bottom-color: $color-primary;
+  }
+}
+
+.tabIcon {
+  font-size: $font-size-lg;
+}
+
+.tabContent {
+  padding: $spacing-xl;
+  min-height: 400px;
+}
+
+.footer {
+  margin-top: $spacing-xl;
+  text-align: center;
+  padding: $spacing-lg;
+  background: $color-gray-50;
+  border-radius: $border-radius-md;
+
+  p {
+    color: $color-text-secondary;
+    font-size: $font-size-sm;
+    margin: 0;
+  }
+}
+
+.createLink {
+  background: transparent;
+  border: none;
+  color: $color-primary;
+  font-weight: $font-weight-semibold;
+  cursor: pointer;
+  padding: 0;
+  font-size: $font-size-sm;
+  font-family: inherit;
+
+  &:hover {
+    color: $color-primary-dark;
+    text-decoration: underline;
+  }
+}
+
+@media (max-width: $breakpoint-md) {
+  .container {
+    padding: $spacing-lg;
+  }
+
+  .title {
+    font-size: $font-size-xl;
+  }
+
+  .tabsHeader {
+    flex-direction: column;
+  }
+
+  .tabButton {
+    border-bottom: 2px solid $color-border;
+    justify-content: flex-start;
+    padding: $spacing-md $spacing-lg;
+
+    &:last-child {
+      border-bottom: none;
+    }
+
+    &.active {
+      border-bottom-color: $color-border;
+      border-left: 3px solid $color-primary;
+    }
+  }
+
+  .tabContent {
+    padding: $spacing-lg;
+  }
+}

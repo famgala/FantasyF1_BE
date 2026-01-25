@@ -1,0 +1,162 @@
+@import '../../styles/variables';
+
+.DashboardPage {
+  min-height: 100vh;
+  background: #f5f5f5;
+  padding: 0;
+}
+
+.Header {
+  background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
+  padding: 32px 24px;
+  color: white;
+}
+
+.HeaderContent {
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
+.Title {
+  font-size: 32px;
+  font-weight: 700;
+  margin: 0 0 8px 0;
+}
+
+.Subtitle {
+  font-size: 16px;
+  color: rgba(255, 255, 255, 0.7);
+  margin: 0;
+}
+
+.Content {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 32px 24px;
+}
+
+.TopSection {
+  margin-bottom: 32px;
+}
+
+.MainSection {
+  display: grid;
+  grid-template-columns: 1fr 400px;
+  gap: 32px;
+
+  @media (max-width: 1200px) {
+    grid-template-columns: 1fr;
+  }
+}
+
+.LeftColumn {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.RightColumn {
+  position: sticky;
+  top: 24px;
+  align-self: start;
+
+  @media (max-width: 1200px) {
+    position: static;
+  }
+}
+
+.LeaguesSection {
+  margin-top: 20px;
+}
+
+.SectionTitle {
+  font-size: 20px;
+  font-weight: 700;
+  color: #1a1a1a;
+  margin: 0 0 20px 0;
+}
+
+.EmptyLeagues {
+  background: white;
+  border-radius: 12px;
+  padding: 48px 32px;
+  text-align: center;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+
+  p {
+    font-size: 16px;
+    color: #666;
+    margin: 0 0 24px 0;
+  }
+}
+
+.CreateButton {
+  display: inline-block;
+  padding: 12px 32px;
+  background: #E10600;
+  color: white;
+  border: none;
+  border-radius: 24px;
+  font-size: 14px;
+  font-weight: 600;
+  text-decoration: none;
+  cursor: pointer;
+  transition: all 0.3s ease;
+
+  &:hover {
+    background: #b80500;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(225, 6, 0, 0.3);
+  }
+}
+
+.LeaguesGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 20px;
+}
+
+.LoadingState,
+.ErrorState {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 60vh;
+  gap: 16px;
+}
+
+.Spinner {
+  width: 48px;
+  height: 48px;
+  border: 4px solid #e8e8e8;
+  border-top-color: #E10600;
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.LoadingText {
+  font-size: 16px;
+  font-weight: 600;
+  color: #666;
+}
+
+.ErrorIcon {
+  width: 64px;
+  height: 64px;
+  color: #E10600;
+}
+
+.ErrorMessage {
+  font-size: 16px;
+  font-weight: 600;
+  color: #333;
+  max-width: 400px;
+  text-align: center;
+}

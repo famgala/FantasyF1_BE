@@ -1,0 +1,508 @@
+name: CI/CD Pipeline
+
+on:
+  push:
+    branches: 
+      - main
+      - develop
+      - 'dev_**'
+    paths:
+      - 'backend/**'
+      - 'docker-compose*.yml'
+      - '.github/workflows/**'
+      - 'backend/requirements.txt'
+      - 'scripts/**'
+      - 'Dockerfile*'
+  pull_request:
+    branches: [ main ]
+    paths:
+      - 'backend/**'
+      - 'docker-compose*.yml'
+      - '.github/workflows/**'
+      - 'backend/requirements.txt'
+      - 'scripts/**'
+      - 'Dockerfile*'
+
+env:
+  REGISTRY: docker.io
+  IMAGE_NAME: famgala/dojomojo
+
+jobs:
+  detect-changes:
+    runs-on: ubuntu-latest
+    outputs:
+      backend_changed: ${{ steps.changes.outputs.backend }}
+      dockerfile_changed: ${{ steps.changes.outputs.dockerfile }}
+      compose_changed: ${{ steps.changes.outputs.compose }}
+      tests_changed: ${{ steps.changes.outputs.tests }}
+      workflow_changed: ${{ steps.changes.outputs.workflow }}
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Detect file changes
+        id: changes
+        uses: dorny/paths-filter@v2
+        with:
+          filters: |
+            backend:
+              - 'backend/**'
+              - '!backend/tests/**'
+              - 'backend/requirements.txt'
+            dockerfile:
+              - 'Dockerfile*'
+              - 'backend/Dockerfile*'
+            compose:
+              - 'docker-compose*.yml'
+            tests:
+              - 'backend/tests/**'
+            workflow:
+              - '.github/workflows/**'
+
+  test:
+    runs-on: ubuntu-latest
+    needs: detect-changes
+    if: |
+      (needs.detect-changes.outputs.backend_changed == 'true' || 
+       needs.detect-changes.outputs.tests_changed == 'true' ||
+       needs.detect-changes.outputs.workflow_changed == 'true' ||
+       needs.detect-changes.outputs.dockerfile_changed == 'true' ||
+       needs.detect-changes.outputs.compose_changed == 'true')
+    
+    permissions:
+      contents: read
+    
+    env:
+      # Set up Docker config for service container authentication
+      DOCKER_CONFIG: ${{ github.workspace }}/docker-config
+      
+      # CI/CD Environment Variables
+      SECRET_KEY: test_secret_key_for_ci_cd_only_change_in_production_1234567890abcdef
+      JWT_SECRET_KEY: test_jwt_secret_key_for_ci_cd_only_change_in_production_1234567890abcdef
+      POSTGRES_DB: family_dashboard
+      POSTGRES_USER: test_user
+      POSTGRES_PASSWORD: test_password_ci_cd_2024
+      REDIS_PASSWORD: test_redis_password_ci_cd_2024
+      MQTT_USERNAME: test_mqtt_user
+      MQTT_PASSWORD: test_mqtt_password_ci_cd_2024
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+    
+    - name: Create Docker config directory
+      run: |
+        mkdir -p $DOCKER_CONFIG
+        mkdir -p ~/.docker
+
+    - name: Log in to Docker Hub
+      uses: docker/login-action@v3
+      with:
+        username: ${{ secrets.DOCKER_HUB_USERNAME }}
+        password: ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }}
+
+    - name: Log in to dhi.io
+      continue-on-error: true
+      uses: docker/login-action@v3
+      with:
+        registry: dhi.io
+        username: ${{ secrets.DOCKER_HUB_USERNAME }}
+        password: ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }}
+
+    - name: Build backend image locally for testing
+      run: |
+        echo "🔨 Building backend image locally for CI/CD testing..."
+        
+        # Build the image - Dockerfile has dhi.io as default but supports fallback
+        docker build -t famgala/dojomojo:dev backend/ || {
+          echo "❌ Build failed"
+          exit 1
+        }
+        
+        echo "✅ Backend image built successfully"
+    
+    - name: Create .env file for docker-compose
+      run: |
+        echo "🚀 Creating .env file for docker-compose.test.yml..."
+        
+        # Create .env file with CI configuration for backend tests
+        echo "SECRET_KEY=test_secret_key_for_ci_cd_only_change_in_production_1234567890abcdef" > .env
+        echo "JWT_SECRET_KEY=test_jwt_secret_key_for_ci_cd_only_change_in_production_1234567890abcdef" >> .env
+        echo "JWT_ACCESS_TOKEN_EXPIRE_MINUTES=30" >> .env
+        echo "JWT_REFRESH_TOKEN_EXPIRE_DAYS=7" >> .env
+        echo "DATABASE_URL=postgresql://test_user:test_password_ci_cd_2024@postgres:5432/family_dashboard" >> .env
+        echo "POSTGRES_DB=family_dashboard" >> .env
+        echo "POSTGRES_USER=test_user" >> .env
+        echo "POSTGRES_PASSWORD=test_password_ci_cd_2024" >> .env
+        echo "MQTT_BROKER_HOST=mosquitto" >> .env
+        echo "MQTT_BROKER_PORT=1883" >> .env
+        echo "MQTT_USERNAME=test_mqtt_user" >> .env
+        echo "MQTT_PASSWORD=test_mqtt_password_ci_cd_2024" >> .env
+        echo "REDIS_PASSWORD=test_redis_password_ci_cd_2024" >> .env
+        echo "REDIS_COMMAND=--requirepass test_redis_password_ci_cd_2024 --maxmemory 256mb --maxmemory-policy allkeys-lru" >> .env
+        echo "REDIS_URL=redis://:test_redis_password_ci_cd_2024@redis:6379/0" >> .env
+        echo "ENVIRONMENT=testing" >> .env
+        echo "DEBUG=false" >> .env
+        echo "CORS_ORIGINS=http://localhost:3000,capacitor://localhost,http://127.0.0.1:3000" >> .env
+        echo "BCRYPT_ROUNDS=12" >> .env
+        echo "PIN_ATTEMPT_LIMIT=5" >> .env
+        echo "PIN_LOCKOUT_DURATION=300" >> .env
+        echo "RATE_LIMIT_REQUESTS=100" >> .env
+        echo "RATE_LIMIT_WINDOW=60" >> .env
+        echo "RATE_LIMIT_DISABLED=true" >> .env
+        echo "MAX_FILE_SIZE=10485760" >> .env
+        echo "ALLOWED_FILE_TYPES=image/jpeg,image/jpg,image/png,image/gif" >> .env
+        echo "UPLOAD_DIR=/app/uploads" >> .env
+        echo "ENABLE_RECURRING_TASKS=true" >> .env
+        echo "TASK_SCHEDULER_INTERVAL=60" >> .env
+        
+        # Verify .env file was created
+        if [ ! -f .env ]; then
+          echo "❌ .env file was not created!"
+          exit 1
+        fi
+        
+        echo "✅ .env file created successfully"
+        echo "📄 .env file contents (hidden passwords):"
+        cat .env | sed 's/=.*/=***/'
+    
+    - name: Start services with docker-compose
+      run: |
+        echo "🚀 Starting services with docker-compose.test.yml..."
+        
+        # Start services using docker-compose
+        docker compose -f docker-compose.test.yml up -d
+        
+        echo "✅ Services started with docker-compose"
+    
+    - name: Install dependencies
+      run: |
+        python3 -m pip install --upgrade pip
+        pip install -r backend/requirements.txt
+        pip install pytest pytest-asyncio httpx psycopg2-binary
+    
+    - name: Wait for services to be ready
+      run: |
+        echo "Waiting for services to be healthy..."
+        
+        # Display container status
+        echo "📊 Initial container status:"
+        docker compose -f docker-compose.test.yml ps
+        
+        # Wait for PostgreSQL
+        echo "⏳ Waiting for PostgreSQL..."
+        timeout 120 bash -c 'until docker compose -f docker-compose.test.yml exec -T postgres pg_isready -U test_user -d family_dashboard; do sleep 2; done'
+        echo "✅ PostgreSQL is ready!"
+        
+        # Wait for MQTT
+        echo "⏳ Waiting for MQTT..."
+        timeout 120 bash -c 'until docker compose -f docker-compose.test.yml exec -T mosquitto mosquitto_pub -h localhost -t test -m "test" -u test_mqtt_user -P test_mqtt_password_ci_cd_2024 2>/dev/null; do sleep 2; done'
+        echo "✅ MQTT is ready!"
+        
+        # Wait for Redis
+        echo "⏳ Waiting for Redis..."
+        timeout 180 bash -c 'until docker compose -f docker-compose.test.yml exec -T redis redis-cli -a test_redis_password_ci_cd_2024 ping 2>/dev/null; do sleep 5; done'
+        echo "✅ Redis is ready!"
+        
+        # Wait for backend
+        echo "⏳ Waiting for Backend..."
+        timeout 120 bash -c 'until curl -f http://localhost:8000/health > /dev/null 2>&1; do sleep 2; done'
+        echo "✅ Backend is ready!"
+        
+        # Display final container status
+        echo "📊 Final container status:"
+        docker compose -f docker-compose.test.yml ps
+    
+    - name: Show service logs if healthy
+      if: always()
+      run: |
+        echo "📋 Container logs for debugging:"
+        echo "================================"
+        echo ""
+        
+        echo "📊 Docker Compose status:"
+        docker compose -f docker-compose.test.yml ps
+        
+        echo ""
+        echo "🗄️  PostgreSQL logs (last 50 lines):"
+        docker compose -f docker-compose.test.yml logs --tail=50 postgres || echo "No PostgreSQL logs"
+        
+        echo ""
+        echo "📨 MQTT logs (last 50 lines):"
+        docker compose -f docker-compose.test.yml logs --tail=50 mosquitto || echo "No MQTT logs"
+        
+        echo ""
+        echo "🔴 Redis logs (last 50 lines):"
+        docker compose -f docker-compose.test.yml logs --tail=50 redis || echo "No Redis logs"
+        
+        echo ""
+        echo "🖥️  Backend logs (last 100 lines):"
+        docker compose -f docker-compose.test.yml logs --tail=100 backend || echo "No backend logs"
+    
+    - name: Run linting
+      run: |
+        cd backend
+        python3 -m flake8 app/ --count --select=E9,F63,F7,F82 --show-source --statistics
+        python3 -m flake8 app/ --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
+    
+    - name: Run backend tests
+      run: |
+        cd backend
+        
+        # Backend reads from ../.env automatically via config.py
+        # These are the solution-level tests for CI (pytest suite in backend/tests/)
+        
+        python3 -m pytest tests/ -v --cov=app --cov-report=xml --tb=short
+    
+    - name: Upload coverage reports
+      uses: codecov/codecov-action@v3
+      with:
+        file: backend/coverage.xml
+    
+    - name: Cleanup test containers
+      run: |
+        echo "🧹 Cleaning up test containers..."
+        docker compose -f docker-compose.test.yml down -v || true
+        echo "✅ Cleanup complete"
+
+
+  build:
+    needs: [detect-changes, test]
+    runs-on: ubuntu-latest
+    if: |
+      github.event_name == 'push' && 
+      (needs.detect-changes.outputs.backend_changed == 'true' || 
+       needs.detect-changes.outputs.dockerfile_changed == 'true' ||
+       needs.detect-changes.outputs.compose_changed == 'true')
+    
+    permissions:
+      contents: read
+      packages: read
+    
+    outputs:
+      image: ${{ steps.image.outputs.image }}
+      digest: ${{ steps.build.outputs.digest }}
+      version: ${{ steps.version.outputs.version }}
+    
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+    
+    - name: Generate CalVer version
+      id: version
+      run: |
+        # Make script executable
+        chmod +x ./scripts/generate_version.sh
+        
+        # Determine build type based on branch
+        if [[ "${{ github.ref_name }}" == "main" ]]; then
+          BUILD_TYPE="prod"
+        elif [[ "${{ github.ref_name }}" == "develop" ]]; then
+          BUILD_TYPE="staging"
+        else
+          BUILD_TYPE="dev"
+        fi
+        
+        echo "📋 Build type: $BUILD_TYPE"
+        
+        # Generate version using the script
+        VERSION=$(./scripts/generate_version.sh $BUILD_TYPE)
+        
+        echo "🔖 Generated version: $VERSION"
+        echo "version=$VERSION" >> $GITHUB_OUTPUT
+    
+    - name: Set up Docker Buildx
+      uses: docker/setup-buildx-action@v3
+      with:
+        driver: docker-container
+        driver-opts: |
+          image=moby/buildkit:buildx-stable-1
+    
+    - name: Log in to Docker Hub
+      uses: docker/login-action@v3
+      with:
+        username: ${{ secrets.DOCKER_HUB_USERNAME }}
+        password: ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }}
+  
+    - name: Attempt DHI.io registry login
+      id: dhi_login
+      continue-on-error: true
+      uses: docker/login-action@v3
+      with:
+        registry: dhi.io
+        username: ${{ secrets.DOCKER_HUB_USERNAME }}
+        password: ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }}
+    
+    - name: Preload hardened Python base image if available
+      continue-on-error: true
+      run: |
+        echo "🔒 Attempting to preload hardened Python base image for build..."
+        if docker pull dhi.io/python:3-debian12 > /dev/null 2>&1; then
+          echo "✅ Hardened Python image preloaded successfully"
+          docker tag dhi.io/python:3-debian12 dhi.io/python:3-debian12-preloaded || true
+        else
+          echo "⚠️ Hardened Python image not available, will build without it"
+          echo "ℹ️ Build will proceed without dhi.io base images"
+        fi
+    
+    - name: Extract metadata
+      id: meta
+      uses: docker/metadata-action@v5
+      with:
+        images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
+        tags: |
+          type=ref,event=branch
+          type=ref,event=pr
+          type=sha,prefix={{branch}}-
+          type=raw,value=latest,enable={{is_default_branch}}
+          type=raw,value=dev,enable=${{ startsWith(github.ref_name, 'dev_') }}
+          type=raw,value=nightly,enable=${{ github.ref_name == 'develop' }}
+    
+    - name: Extract Docker metadata
+      id: image
+      uses: docker/metadata-action@v5
+      with:
+        images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
+        tags: ${{ steps.meta.outputs.tags }}
+    
+    - name: Build and push Docker image
+      id: build
+      uses: docker/build-push-action@v5
+      with:
+        context: backend
+        file: backend/Dockerfile
+        push: true
+        tags: ${{ steps.meta.outputs.tags }}
+        labels: ${{ steps.meta.outputs.labels }}
+        cache-from: type=gha
+        cache-to: type=gha,mode=max
+        build-args: |
+          VCS_REF=${{ github.sha }}
+          BUILD_DATE=${{ github.event.head_commit.timestamp }}
+          VERSION=${{ steps.version.outputs.version }}
+
+  security-scan:
+    needs: [detect-changes, build]
+    runs-on: ubuntu-latest
+    if: |
+      github.event_name == 'push' && 
+      (needs.detect-changes.outputs.backend_changed == 'true' || 
+       needs.detect-changes.outputs.dockerfile_changed == 'true')
+    
+    permissions:
+      contents: read
+    
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+    
+    - name: Set up Docker Buildx
+      uses: docker/setup-buildx-action@v3
+      with:
+        driver: docker-container
+        driver-opts: |
+          image=moby/buildkit:buildx-stable-1
+    
+    - name: Log in to Docker Hub
+      uses: docker/login-action@v3
+      with:
+        username: ${{ secrets.DOCKER_HUB_USERNAME }}
+        password: ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }}
+  
+    - name: Attempt DHI.io registry login
+      id: dhi_login
+      continue-on-error: true
+      uses: docker/login-action@v3
+      with:
+        registry: dhi.io
+        username: ${{ secrets.DOCKER_HUB_USERNAME }}
+        password: ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }}
+    
+    - name: Pull Docker image for scanning
+      run: |
+        echo "🔍 Pulling Docker image for security scanning..."
+        docker pull ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}@${{ needs.build.outputs.digest }}
+        echo "✅ Image pulled successfully"
+    
+    - name: Run Trivy vulnerability scanner
+      uses: aquasecurity/trivy-action@master
+      with:
+        image-ref: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}@${{ needs.build.outputs.digest }}
+        format: 'sarif'
+        output: 'trivy-results.sarif'
+        severity: 'CRITICAL,HIGH'
+    
+    - name: Upload Trivy scan results as artifacts
+      uses: actions/upload-artifact@v4
+      with:
+        name: trivy-security-scan
+        path: trivy-results.sarif
+        retention-days: 30
+    
+    - name: Display Trivy summary
+      run: |
+        echo "🔒 Security Scan Summary"
+        echo "======================="
+        if [ -f trivy-results.sarif ]; then
+          echo "✅ SARIF file generated successfully"
+          echo "📦 Available as artifact: trivy-security-scan"
+          echo "📅 Retention: 30 days"
+        else
+          echo "❌ No SARIF file found"
+          exit 1
+        fi
+
+  deploy-preview:
+    needs: [detect-changes, build]
+    runs-on: ubuntu-latest
+    if: |
+      github.event_name == 'pull_request' && 
+      (needs.detect-changes.outputs.backend_changed == 'true' || 
+       needs.detect-changes.outputs.dockerfile_changed == 'true')
+    
+    permissions:
+      contents: read
+    
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+    
+    - name: Set up Docker Buildx
+      uses: docker/setup-buildx-action@v3
+      with:
+        driver: docker-container
+        driver-opts: |
+          image=moby/buildkit:buildx-stable-1
+    
+    - name: Log in to Docker Hub
+      uses: docker/login-action@v3
+      with:
+        username: ${{ secrets.DOCKER_HUB_USERNAME }}
+        password: ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }}
+  
+    - name: Attempt DHI.io registry login
+      id: dhi_login
+      continue-on-error: true
+      uses: docker/login-action@v3
+      with:
+        registry: dhi.io
+        username: ${{ secrets.DOCKER_HUB_USERNAME }}
+        password: ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }}
+    
+    - name: Pull and test image
+      run: |
+        docker pull ${{ needs.build.outputs.image }}@${{ needs.build.outputs.digest }}
+        docker tag ${{ needs.build.outputs.image }}@${{ needs.build.outputs.digest }} test-image
+        
+        # Test the image
+        docker run -d --name test-container test-image
+        sleep 10
+        
+        # Health check
+        if ! docker exec test-container curl -f http://localhost:8000/health; then
+          echo "Health check failed"
+          docker logs test-container
+          exit 1
+        fi
+        
+        echo "✅ Image health check passed"

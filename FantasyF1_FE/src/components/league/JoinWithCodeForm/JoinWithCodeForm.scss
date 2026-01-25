@@ -1,0 +1,296 @@
+@import "../../../styles/_variables.scss";
+
+.container {
+  padding: $spacing-xl;
+  max-width: 500px;
+  margin: 0 auto;
+}
+
+.formSection,
+.leagueFoundSection {
+  background: $color-white;
+  border-radius: $border-radius-lg;
+  padding: $spacing-xl;
+  box-shadow: $shadow-sm;
+}
+
+.title {
+  font-size: $font-size-xl;
+  font-weight: $font-weight-bold;
+  color: $color-text-primary;
+  margin-bottom: $spacing-sm;
+}
+
+.subtitle {
+  color: $color-text-secondary;
+  margin-bottom: $spacing-xl;
+}
+
+.codeForm,
+.joinForm {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-lg;
+}
+
+.formGroup {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-xs;
+}
+
+.formLabel {
+  font-size: $font-size-sm;
+  font-weight: $font-weight-semibold;
+  color: $color-text-primary;
+
+  .required {
+    color: $color-primary;
+  }
+}
+
+.formInput {
+  padding: $spacing-md;
+  border: 2px solid $color-border;
+  border-radius: $border-radius-md;
+  font-size: $font-size-base;
+  transition: border-color 0.2s;
+
+  &:focus {
+    outline: none;
+    border-color: $color-primary;
+  }
+
+  &:disabled {
+    background: $color-gray-100;
+    cursor: not-allowed;
+  }
+}
+
+.formHint {
+  font-size: $font-size-xs;
+  color: $color-text-secondary;
+}
+
+.errorMessage {
+  padding: $spacing-md;
+  background: $color-error-bg;
+  color: $color-error;
+  border-radius: $border-radius-md;
+  font-size: $font-size-sm;
+}
+
+.formActions {
+  display: flex;
+  gap: $spacing-md;
+  justify-content: flex-end;
+}
+
+.cancelButton,
+.submitButton {
+  padding: $spacing-md $spacing-lg;
+  border: none;
+  border-radius: $border-radius-md;
+  font-size: $font-size-base;
+  font-weight: $font-weight-semibold;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.cancelButton {
+  background: transparent;
+  color: $color-text-secondary;
+  border: 1px solid $color-border;
+
+  &:hover:not(:disabled) {
+    border-color: $color-gray-600;
+    color: $color-text-primary;
+  }
+
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+}
+
+.submitButton {
+  background: $color-primary;
+  color: $color-white;
+
+  &:hover:not(:disabled) {
+    background: $color-primary-dark;
+  }
+
+  &:disabled {
+    background: $color-gray-400;
+    cursor: not-allowed;
+  }
+}
+
+.divider {
+  display: flex;
+  align-items: center;
+  margin: $spacing-xl 0;
+  color: $color-text-secondary;
+  font-size: $font-size-sm;
+
+  &::before,
+  &::after {
+    content: "";
+    flex: 1;
+    height: 1px;
+    background: $color-border;
+  }
+
+  span {
+    padding: 0 $spacing-md;
+  }
+}
+
+.searchSection {
+  text-align: center;
+  padding: $spacing-lg 0;
+}
+
+.sectionTitle {
+  font-size: $font-size-lg;
+  font-weight: $font-weight-semibold;
+  color: $color-text-primary;
+  margin-bottom: $spacing-xs;
+}
+
+.sectionSubtitle {
+  color: $color-text-secondary;
+  margin-bottom: $spacing-md;
+  font-size: $font-size-sm;
+}
+
+.searchButton {
+  padding: $spacing-md $spacing-xl;
+  background: $color-primary;
+  color: $color-white;
+  border: none;
+  border-radius: $border-radius-md;
+  font-size: $font-size-base;
+  font-weight: $font-weight-semibold;
+  cursor: pointer;
+  transition: background 0.2s;
+  width: 100%;
+
+  &:hover {
+    background: $color-primary-dark;
+  }
+}
+
+.leagueInfo {
+  background: $color-gray-50;
+  padding: $spacing-md;
+  border-radius: $border-radius-md;
+  margin-bottom: $spacing-lg;
+}
+
+.leagueInfoRow {
+  display: flex;
+  justify-content: space-between;
+  padding: $spacing-sm 0;
+  border-bottom: 1px solid $color-border;
+
+  &:last-child {
+    border-bottom: none;
+  }
+}
+
+.leagueInfoLabel {
+  font-size: $font-size-sm;
+  color: $color-text-secondary;
+  font-weight: $font-weight-medium;
+}
+
+.leagueInfoValue {
+  font-size: $font-size-sm;
+  color: $color-text-primary;
+  font-weight: $font-weight-medium;
+  text-align: right;
+  flex: 1;
+  padding-left: $spacing-md;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.successState {
+  text-align: center;
+  padding: $spacing-2xl 0;
+}
+
+.successIcon {
+  width: 80px;
+  height: 80px;
+  background: $color-success;
+  color: $color-white;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: $font-size-xl;
+  margin: 0 auto $spacing-lg;
+  animation: scaleIn 0.3s ease-out;
+}
+
+@keyframes scaleIn {
+  from {
+    transform: scale(0);
+  }
+  to {
+    transform: scale(1);
+  }
+}
+
+.successState h3 {
+  font-size: $font-size-xl;
+  font-weight: $font-weight-semibold;
+  color: $color-text-primary;
+  margin-bottom: $spacing-md;
+}
+
+.successState p {
+  color: $color-text-secondary;
+  margin-bottom: $spacing-sm;
+}
+
+.successMessage {
+  color: $color-success !important;
+  font-weight: $font-weight-semibold;
+  font-size: $font-size-lg;
+}
+
+@media (max-width: $breakpoint-md) {
+  .container {
+    padding: $spacing-lg;
+  }
+
+  .formSection,
+  .leagueFoundSection {
+    padding: $spacing-lg;
+  }
+
+  .formActions {
+    flex-direction: column;
+  }
+
+  .cancelButton,
+  .submitButton {
+    width: 100%;
+  }
+
+  .leagueInfoRow {
+    flex-direction: column;
+    gap: $spacing-xs;
+  }
+
+  .leagueInfoValue {
+    text-align: left;
+    padding-left: 0;
+    white-space: normal;
+  }
+}

@@ -1,0 +1,231 @@
+/**
+ * EmailCheckForm Styles
+ * 
+ * F1-inspired design with red accent colors
+ * Mobile-first responsive design
+ */
+
+// Color variables (will be moved to global variables)
+$primary-red: #e10600;
+$primary-red-dark: #b30500;
+$text-primary: #1e1e1e;
+$text-secondary: #666666;
+$background-white: #ffffff;
+$background-gray: #f5f5f5;
+$border-gray: #e0e0e0;
+$error-red: #dc3545;
+$error-bg: #fdf2f2;
+
+.email-check-form {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, $background-gray 0%, $background-white 100%);
+  padding: 1rem;
+
+  &__container {
+    width: 100%;
+    max-width: 420px;
+    background: $background-white;
+    border-radius: 12px;
+    box-shadow: 0 4px 24px rgba(0, 0, 0, 0.1);
+    padding: 2.5rem 2rem;
+  }
+
+  &__header {
+    text-align: center;
+    margin-bottom: 2rem;
+  }
+
+  &__title {
+    font-size: 1.75rem;
+    font-weight: 700;
+    color: $text-primary;
+    margin: 0 0 0.5rem 0;
+  }
+
+  &__subtitle {
+    font-size: 1rem;
+    color: $text-secondary;
+    margin: 0;
+  }
+
+  &__form {
+    display: flex;
+    flex-direction: column;
+    gap: 1.25rem;
+  }
+
+  &__field {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+
+  &__label {
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: $text-primary;
+  }
+
+  &__input {
+    width: 100%;
+    padding: 0.875rem 1rem;
+    font-size: 1rem;
+    border: 2px solid $border-gray;
+    border-radius: 8px;
+    background: $background-white;
+    color: $text-primary;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+    box-sizing: border-box;
+
+    &::placeholder {
+      color: #999;
+    }
+
+    &:focus {
+      outline: none;
+      border-color: $primary-red;
+      box-shadow: 0 0 0 3px rgba($primary-red, 0.15);
+    }
+
+    &:disabled {
+      background-color: $background-gray;
+      cursor: not-allowed;
+      opacity: 0.7;
+    }
+
+    &--error {
+      border-color: $error-red;
+
+      &:focus {
+        box-shadow: 0 0 0 3px rgba($error-red, 0.15);
+      }
+    }
+  }
+
+  &__error {
+    font-size: 0.875rem;
+    color: $error-red;
+    margin: 0;
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+  }
+
+  &__api-error {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.875rem 1rem;
+    background: $error-bg;
+    border: 1px solid rgba($error-red, 0.2);
+    border-radius: 8px;
+    color: $error-red;
+    font-size: 0.875rem;
+
+    &-icon {
+      flex-shrink: 0;
+    }
+  }
+
+  &__retry-btn {
+    margin-left: auto;
+    padding: 0.25rem 0.5rem;
+    font-size: 0.75rem;
+    background: transparent;
+    border: 1px solid $error-red;
+    border-radius: 4px;
+    color: $error-red;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+
+    &:hover {
+      background: rgba($error-red, 0.1);
+    }
+
+    &:focus {
+      outline: 2px solid $error-red;
+      outline-offset: 2px;
+    }
+  }
+
+  &__submit {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    width: 100%;
+    padding: 1rem;
+    font-size: 1rem;
+    font-weight: 600;
+    color: $background-white;
+    background: $primary-red;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background-color 0.2s ease, transform 0.1s ease;
+
+    &:hover:not(:disabled) {
+      background: $primary-red-dark;
+    }
+
+    &:active:not(:disabled) {
+      transform: scale(0.98);
+    }
+
+    &:focus {
+      outline: 2px solid $primary-red;
+      outline-offset: 2px;
+    }
+
+    &:disabled {
+      opacity: 0.7;
+      cursor: not-allowed;
+    }
+  }
+
+  &__spinner {
+    width: 18px;
+    height: 18px;
+    border: 2px solid rgba($background-white, 0.3);
+    border-top-color: $background-white;
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+  }
+
+  &__footer {
+    margin-top: 1.5rem;
+    font-size: 0.75rem;
+    color: $text-secondary;
+    text-align: center;
+  }
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+// Responsive adjustments
+@media (max-width: 480px) {
+  .email-check-form {
+    padding: 0;
+    background: $background-white;
+
+    &__container {
+      box-shadow: none;
+      border-radius: 0;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+    }
+
+    &__title {
+      font-size: 1.5rem;
+    }
+  }
+}

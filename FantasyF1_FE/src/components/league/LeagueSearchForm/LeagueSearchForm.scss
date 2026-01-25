@@ -1,0 +1,466 @@
+@import "../../../styles/_variables.scss";
+
+.container {
+  padding: $spacing-xl;
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+.searchSection {
+  background: $color-white;
+  border-radius: $border-radius-lg;
+  padding: $spacing-xl;
+  box-shadow: $shadow-sm;
+}
+
+.title {
+  font-size: $font-size-xl;
+  font-weight: $font-weight-bold;
+  color: $color-text-primary;
+  margin-bottom: $spacing-lg;
+}
+
+.searchForm {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-md;
+}
+
+.searchInputGroup {
+  display: flex;
+  gap: $spacing-md;
+}
+
+.searchInput {
+  flex: 1;
+  padding: $spacing-md;
+  border: 2px solid $color-border;
+  border-radius: $border-radius-md;
+  font-size: $font-size-base;
+  transition: border-color 0.2s;
+
+  &:focus {
+    outline: none;
+    border-color: $color-primary;
+  }
+
+  &:placeholder {
+    color: $color-text-secondary;
+  }
+}
+
+.searchButton,
+.clearButton {
+  padding: $spacing-md $spacing-lg;
+  border: none;
+  border-radius: $border-radius-md;
+  font-size: $font-size-base;
+  font-weight: $font-weight-semibold;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.searchButton {
+  background: $color-primary;
+  color: $color-white;
+
+  &:hover:not(:disabled) {
+    background: $color-primary-dark;
+  }
+
+  &:disabled {
+    background: $color-gray-400;
+    cursor: not-allowed;
+  }
+}
+
+.clearButton {
+  background: transparent;
+  color: $color-text-secondary;
+  border: 1px solid $color-border;
+
+  &:hover {
+    border-color: $color-gray-600;
+    color: $color-text-primary;
+  }
+}
+
+.errorMessage {
+  padding: $spacing-md;
+  background: $color-error-bg;
+  color: $color-error;
+  border-radius: $border-radius-md;
+  font-size: $font-size-sm;
+}
+
+.resultsSection {
+  margin-top: $spacing-xl;
+}
+
+.resultsTitle {
+  font-size: $font-size-lg;
+  font-weight: $font-weight-semibold;
+  color: $color-text-primary;
+  margin-bottom: $spacing-md;
+}
+
+.leaguesList {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-md;
+}
+
+.leagueCard {
+  padding: $spacing-lg;
+  background: $color-gray-50;
+  border-radius: $border-radius-md;
+  transition: box-shadow 0.2s;
+
+  &:hover {
+    box-shadow: $shadow-md;
+  }
+}
+
+.leagueHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: $spacing-sm;
+}
+
+.leagueName {
+  font-size: $font-size-lg;
+  font-weight: $font-weight-semibold;
+  color: $color-text-primary;
+  margin: 0;
+}
+
+.privacyBadge {
+  padding: $spacing-xxs $spacing-sm;
+  border-radius: $border-radius-sm;
+  font-size: $font-size-xs;
+  font-weight: $font-weight-semibold;
+  text-transform: uppercase;
+
+  &__public {
+    background: $color-success-bg;
+    color: $color-success;
+  }
+
+  &__private {
+    background: $color-warning-bg;
+    color: $color-warning;
+  }
+}
+
+.leagueDescription {
+  color: $color-text-secondary;
+  font-size: $font-size-sm;
+  margin: $spacing-sm 0;
+  line-height: 1.5;
+}
+
+.leagueMeta {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin: $spacing-sm 0;
+  padding-bottom: $spacing-sm;
+  border-bottom: 1px solid $color-border;
+
+  span {
+    font-size: $font-size-sm;
+    color: $color-text-secondary;
+  }
+}
+
+.leagueActions {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: $spacing-md;
+}
+
+.joinButton,
+.fullButton {
+  padding: $spacing-sm $spacing-lg;
+  border: none;
+  border-radius: $border-radius-md;
+  font-size: $font-size-base;
+  font-weight: $font-weight-semibold;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.joinButton {
+  background: $color-primary;
+  color: $color-white;
+
+  &:hover {
+    background: $color-primary-dark;
+  }
+}
+
+.fullButton {
+  background: $color-gray-300;
+  color: $color-gray-600;
+  cursor: not-allowed;
+}
+
+.noResults {
+  text-align: center;
+  padding: $spacing-2xl;
+  color: $color-text-secondary;
+
+  .noResultsIcon {
+    font-size: 48px;
+    margin-bottom: $spacing-md;
+  }
+
+  h3 {
+    font-size: $font-size-xl;
+    font-weight: $font-weight-semibold;
+    color: $color-text-primary;
+    margin-bottom: $spacing-sm;
+  }
+
+  p {
+    margin-bottom: $spacing-lg;
+  }
+}
+
+.createLeagueButton {
+  padding: $spacing-md $spacing-lg;
+  background: $color-primary;
+  color: $color-white;
+  border: none;
+  border-radius: $border-radius-md;
+  font-size: $font-size-base;
+  font-weight: $font-weight-semibold;
+  cursor: pointer;
+  transition: background 0.2s;
+
+  &:hover {
+    background: $color-primary-dark;
+  }
+}
+
+.modalOverlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  padding: $spacing-lg;
+}
+
+.modalContent {
+  background: $color-white;
+  border-radius: $border-radius-lg;
+  padding: $spacing-xl;
+  max-width: 500px;
+  width: 100%;
+  position: relative;
+  max-height: 90vh;
+  overflow-y: auto;
+}
+
+.modalClose {
+  position: absolute;
+  top: $spacing-md;
+  right: $spacing-md;
+  background: transparent;
+  border: none;
+  font-size: $font-size-xl;
+  color: $color-text-secondary;
+  cursor: pointer;
+  padding: $spacing-xs;
+  transition: color 0.2s;
+
+  &:hover {
+    color: $color-text-primary;
+  }
+}
+
+.successState {
+  text-align: center;
+  padding: $spacing-xl 0;
+
+  .successIcon {
+    width: 60px;
+    height: 60px;
+    background: $color-success;
+    color: $color-white;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: $font-size-xl;
+    margin: 0 auto $spacing-lg;
+    animation: scaleIn 0.3s ease-out;
+  }
+
+  h3 {
+    font-size: $font-size-xl;
+    font-weight: $font-weight-semibold;
+    color: $color-text-primary;
+    margin-bottom: $spacing-md;
+  }
+
+  p {
+    color: $color-text-secondary;
+    margin-bottom: $spacing-sm;
+  }
+}
+
+@keyframes scaleIn {
+  from {
+    transform: scale(0);
+  }
+  to {
+    transform: scale(1);
+  }
+}
+
+.leagueInfo {
+  background: $color-gray-50;
+  padding: $spacing-md;
+  border-radius: $border-radius-md;
+  margin-bottom: $spacing-lg;
+
+  p {
+    margin: $spacing-xs 0;
+    color: $color-text-secondary;
+    font-size: $font-size-sm;
+
+    strong {
+      color: $color-text-primary;
+    }
+  }
+}
+
+.joinForm {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-lg;
+}
+
+.formGroup {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-xs;
+}
+
+.formLabel {
+  font-size: $font-size-sm;
+  font-weight: $font-weight-semibold;
+  color: $color-text-primary;
+
+  .required {
+    color: $color-primary;
+  }
+}
+
+.formInput {
+  padding: $spacing-md;
+  border: 2px solid $color-border;
+  border-radius: $border-radius-md;
+  font-size: $font-size-base;
+  transition: border-color 0.2s;
+
+  &:focus {
+    outline: none;
+    border-color: $color-primary;
+  }
+}
+
+.formHint {
+  font-size: $font-size-xs;
+  color: $color-text-secondary;
+}
+
+.errorText {
+  padding: $spacing-sm;
+  background: $color-error-bg;
+  color: $color-error;
+  border-radius: $border-radius-sm;
+  font-size: $font-size-sm;
+}
+
+.modalActions {
+  display: flex;
+  gap: $spacing-md;
+  justify-content: flex-end;
+  margin-top: $spacing-md;
+}
+
+.cancelButton,
+.submitButton {
+  padding: $spacing-md $spacing-lg;
+  border: none;
+  border-radius: $border-radius-md;
+  font-size: $font-size-base;
+  font-weight: $font-weight-semibold;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.cancelButton {
+  background: transparent;
+  color: $color-text-secondary;
+  border: 1px solid $color-border;
+
+  &:hover:not(:disabled) {
+    border-color: $color-gray-600;
+    color: $color-text-primary;
+  }
+
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+}
+
+.submitButton {
+  background: $color-primary;
+  color: $color-white;
+
+  &:hover:not(:disabled) {
+    background: $color-primary-dark;
+  }
+
+  &:disabled {
+    background: $color-gray-400;
+    cursor: not-allowed;
+  }
+}
+
+@media (max-width: $breakpoint-md) {
+  .container {
+    padding: $spacing-lg;
+  }
+
+  .searchInputGroup {
+    flex-direction: column;
+  }
+
+  .searchButton,
+  .clearButton {
+    width: 100%;
+  }
+
+  .modalContent {
+    padding: $spacing-lg;
+    margin: $spacing-md;
+  }
+
+  .leagueMeta {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: $spacing-xs;
+  }
+}

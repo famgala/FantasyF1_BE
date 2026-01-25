@@ -1,0 +1,886 @@
+/**
+ * TeamRosterPage Styles
+ *
+ * Styles for displaying a constructor's/team's roster with
+ * drafted drivers per race and points breakdown.
+ */
+
+// Import variables
+@import "../../styles/_variables.scss";
+
+.team-roster-page {
+  min-height: 100vh;
+  padding: $spacing-xl;
+  background: $color-bg-page;
+  max-width: 1200px;
+  margin: 0 auto;
+  
+  // Loading state
+  &--loading {
+    display: flex;
+    flex-direction: column;
+    gap: $spacing-lg;
+    padding: $spacing-xl;
+  }
+  
+  // Error state
+  &--error {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 60vh;
+    padding: $spacing-xl;
+  }
+}
+
+// Error container
+.error-container {
+  text-align: center;
+  
+  h2 {
+    color: $color-text-primary;
+    margin-bottom: $spacing-sm;
+  }
+  
+  p {
+    color: $color-text-secondary;
+    margin-bottom: $spacing-lg;
+  }
+  
+  .btn {
+    margin: 0 $spacing-sm;
+  }
+}
+
+// Skeleton loaders
+.skeleton {
+  background: linear-gradient(
+    90deg,
+    $color-skeleton 0%,
+    $color-skeleton-alt 50%,
+    $color-skeleton 100%
+  );
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite;
+  border-radius: $border-radius-md;
+  
+  &--header {
+    height: 80px;
+  }
+  
+  &--stats {
+    height: 100px;
+  }
+  
+  &--table {
+    height: 400px;
+  }
+}
+
+@keyframes shimmer {
+  0% {
+    background-position: 200% 0;
+  }
+  
+  100% {
+    background-position: -200% 0;
+  }
+}
+
+// Header section
+.roster-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: $spacing-lg;
+  padding-bottom: $spacing-lg;
+  border-bottom: 1px solid $color-border-primary;
+  
+  @media (max-width: $breakpoint-md) {
+    flex-direction: column;
+    gap: $spacing-md;
+  }
+  
+  &__content {
+    display: flex;
+    align-items: center;
+    gap: $spacing-md;
+    
+    @media (max-width: $breakpoint-md) {
+      align-items: flex-start;
+    }
+  }
+  
+  &__title {
+    color: $color-text-primary;
+    font-size: $font-size-xl;
+    font-weight: 600;
+    margin: 0;
+  }
+  
+  &__subtitle {
+    color: $color-text-secondary;
+    font-size: $font-size-sm;
+    margin: $spacing-xs 0 0 0;
+  }
+  
+  &__stats {
+    display: flex;
+    gap: $spacing-md;
+  }
+}
+
+// Back button
+.back-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  background: $color-bg-tertiary;
+  border: 1px solid $color-border-primary;
+  border-radius: $border-radius-md;
+  color: $color-text-primary;
+  font-size: $font-size-lg;
+  cursor: pointer;
+  transition: all $transition-fast;
+  
+  &:hover {
+    background: $color-bg-secondary;
+    border-color: $color-border-secondary;
+  }
+  
+  &:focus {
+    outline: none;
+    border-color: $color-primary;
+    box-shadow: 0 0 0 2px rgba($color-primary, 0.2);
+  }
+}
+
+// Stat cards
+.stat-card {
+  background: $color-bg-secondary;
+  border: 1px solid $color-border-primary;
+  border-radius: $border-radius-md;
+  padding: $spacing-md $spacing-lg;
+  min-width: 120px;
+  
+  &__label {
+    color: $color-text-secondary;
+    font-size: $font-size-xs;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-bottom: $spacing-xs;
+  }
+  
+  &__value {
+    color: $color-text-primary;
+    font-size: $font-size-xl;
+    font-weight: 700;
+  }
+}
+
+// Introduction section
+.roster-intro {
+  margin-bottom: $spacing-lg;
+  padding: $spacing-md;
+  background: $color-bg-secondary;
+  border-radius: $border-radius-md;
+  border-left: 4px solid $color-primary;
+  
+  &__text {
+    color: $color-text-secondary;
+    font-size: $font-size-sm;
+    margin: 0;
+    line-height: 1.6;
+  }
+}
+
+// Legend section
+.roster-legend {
+  display: flex;
+  gap: $spacing-lg;
+  margin-bottom: $spacing-lg;
+  padding: $spacing-md;
+  background: $color-bg-secondary;
+  border-radius: $border-radius-md;
+  
+  @media (max-width: $breakpoint-sm) {
+    flex-direction: column;
+    gap: $spacing-sm;
+  }
+}
+
+.legend-item {
+  display: flex;
+  align-items: center;
+  gap: $spacing-sm;
+  
+  .legend-text {
+    color: $color-text-secondary;
+    font-size: $font-size-xs;
+  }
+}
+
+.legend-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 24px;
+  border-radius: $border-radius-sm;
+  font-size: $font-size-xs;
+  font-weight: 600;
+  
+  &--first {
+    background: linear-gradient(135deg, #ffd700, #ffec8b);
+    color: #333;
+  }
+  
+  &--second {
+    background: linear-gradient(135deg, #c0c0c0, #e8e8e8);
+    color: #333;
+  }
+  
+  &--points {
+    background: linear-gradient(135deg, $color-primary, lighten($color-primary, 10%));
+    color: white;
+  }
+}
+
+// Sort controls
+.roster-controls {
+  margin-bottom: $spacing-lg;
+  
+  .sort-controls {
+    display: flex;
+    align-items: center;
+    gap: $spacing-sm;
+    flex-wrap: wrap;
+    
+    &__label {
+      color: $color-text-secondary;
+      font-size: $font-size-sm;
+      font-weight: 500;
+    }
+  }
+  
+  .sort-button {
+    display: flex;
+    align-items: center;
+    gap: $spacing-xs;
+    padding: $spacing-sm $spacing-md;
+    background: $color-bg-secondary;
+    border: 1px solid $color-border-primary;
+    border-radius: $border-radius-sm;
+    color: $color-text-secondary;
+    font-size: $font-size-sm;
+    cursor: pointer;
+    transition: all $transition-fast;
+    
+    &:hover {
+      background: $color-bg-tertiary;
+      border-color: $color-border-secondary;
+      color: $color-text-primary;
+    }
+    
+    &--active {
+      background: $color-primary;
+      border-color: $color-primary;
+      color: white;
+      
+      &:hover {
+        background: darken($color-primary, 5%);
+      }
+    }
+    
+    &:focus {
+      outline: none;
+      box-shadow: 0 0 0 2px rgba($color-primary, 0.2);
+    }
+  }
+  
+  .sort-indicator {
+    font-size: $font-size-xs;
+  }
+}
+
+// Roster list
+.roster-list {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-lg;
+}
+
+// Empty state
+.empty-state {
+  text-align: center;
+  padding: $spacing-xl;
+  background: $color-bg-secondary;
+  border-radius: $border-radius-md;
+  border: 2px dashed $color-border-primary;
+  
+  &__title {
+    color: $color-text-primary;
+    font-size: $font-size-lg;
+    margin-bottom: $spacing-sm;
+  }
+  
+  &__description {
+    color: $color-text-secondary;
+    font-size: $font-size-sm;
+    margin: 0;
+  }
+}
+
+// Race cards
+.race-card {
+  background: $color-bg-secondary;
+  border: 1px solid $color-border-primary;
+  border-radius: $border-radius-md;
+  overflow: hidden;
+  
+  &__header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    padding: $spacing-md $spacing-lg;
+    background: $color-bg-tertiary;
+    border-bottom: 1px solid $color-border-primary;
+    
+    @media (max-width: $breakpoint-md) {
+      flex-direction: column;
+      gap: $spacing-sm;
+    }
+  }
+  
+  &__info {
+    flex: 1;
+  }
+  
+  &__name {
+    color: $color-text-primary;
+    font-size: $font-size-md;
+    font-weight: 600;
+    margin-bottom: $spacing-xs;
+  }
+  
+  &__details {
+    display: flex;
+    gap: $spacing-md;
+    flex-wrap: wrap;
+    
+    .race-card__circuit,
+    .race-card__date {
+      color: $color-text-secondary;
+      font-size: $font-size-sm;
+    }
+  }
+  
+  &__meta {
+    display: flex;
+    align-items: center;
+    gap: $spacing-md;
+  }
+  
+  &__points {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    
+    &-label {
+      color: $color-text-secondary;
+      font-size: $font-size-xs;
+    }
+    
+    &-value {
+      color: $color-text-primary;
+      font-size: $font-size-lg;
+      font-weight: 700;
+    }
+  }
+  
+  &__drivers {
+    padding: $spacing-md;
+  }
+}
+
+// Status badges
+.status-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: $spacing-xs $spacing-sm;
+  border-radius: $border-radius-full;
+  font-size: $font-size-xs;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  
+  &--completed {
+    background: rgba($color-success, 0.1);
+    color: $color-success;
+  }
+  
+  &--drafting {
+    background: rgba($color-primary, 0.1);
+    color: $color-primary;
+    animation: pulse 2s infinite;
+  }
+  
+  &--upcoming-draft {
+    background: rgba($color-warning, 0.1);
+    color: $color-warning;
+  }
+  
+  &--upcoming {
+    background: rgba($color-text-secondary, 0.1);
+    color: $color-text-secondary;
+  }
+}
+
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  
+  50% {
+    opacity: 0.7;
+  }
+}
+
+// Empty drivers state
+.empty-drivers {
+  text-align: center;
+  padding: $spacing-lg;
+  
+  &__text {
+    color: $color-text-secondary;
+    font-size: $font-size-sm;
+    font-style: italic;
+    margin: 0;
+  }
+}
+
+// Driver rows
+.driver-row {
+  display: flex;
+  align-items: center;
+  gap: $spacing-md;
+  padding: $spacing-md;
+  margin-bottom: $spacing-sm;
+  background: $color-bg-page;
+  border: 1px solid $color-border-primary;
+  border-radius: $border-radius-sm;
+  cursor: pointer;
+  transition: all $transition-fast;
+  
+  &:last-child {
+    margin-bottom: 0;
+  }
+  
+  &:hover {
+    background: $color-bg-tertiary;
+    border-color: $color-border-secondary;
+    transform: translateX(4px);
+  }
+  
+  &:focus {
+    outline: none;
+    border-color: $color-primary;
+    box-shadow: 0 0 0 2px rgba($color-primary, 0.2);
+  }
+  
+  // DNF status
+  &.driver-status--dnf {
+    border-left: 4px solid $color-error;
+  }
+  
+  // DSQ status
+  &.driver-status--dsq {
+    border-left: 4px solid $color-error;
+    background: rgba($color-error, 0.05);
+  }
+  
+  // DNS status
+  &.driver-status--dns {
+    border-left: 4px solid $color-warning;
+  }
+  
+  &__badge {
+    flex-shrink: 0;
+  }
+  
+  &__info {
+    flex: 1;
+    min-width: 0;
+  }
+  
+  &__name {
+    color: $color-text-primary;
+    font-size: $font-size-md;
+    font-weight: 600;
+    margin-bottom: $spacing-xs;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  
+  &__details {
+    display: flex;
+    align-items: center;
+    gap: $spacing-md;
+    flex-wrap: wrap;
+    
+    .driver-row__number,
+    .driver-row__team {
+      color: $color-text-secondary;
+      font-size: $font-size-sm;
+    }
+  }
+  
+  &__performance {
+    display: flex;
+    align-items: center;
+    gap: $spacing-md;
+    text-align: right;
+    
+    @media (max-width: $breakpoint-sm) {
+      flex-direction: column;
+      align-items: flex-end;
+      gap: $spacing-xs;
+    }
+  }
+  
+  &__finish,
+  &__points {
+    display: flex;
+    flex-direction: column;
+    
+    &-label {
+      color: $color-text-secondary;
+      font-size: $font-size-xs;
+    }
+    
+    &-value {
+      color: $color-text-primary;
+      font-size: $font-size-md;
+      font-weight: 600;
+    }
+  }
+  
+  &__status {
+    color: $color-text-secondary;
+    font-size: $font-size-sm;
+    font-weight: 600;
+  }
+  
+  &__link {
+    flex-shrink: 0;
+    opacity: 0;
+    transition: opacity $transition-fast;
+    
+    .arrow-icon {
+      color: $color-text-secondary;
+      font-size: $font-size-lg;
+    }
+  }
+  
+  &:hover &__link {
+    opacity: 1;
+  }
+}
+
+// Pick badges
+.pick-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: $border-radius-sm;
+  font-size: $font-size-xs;
+  font-weight: 700;
+  
+  &--first {
+    background: linear-gradient(135deg, #ffd700, #ffec8b);
+    color: #333;
+  }
+  
+  &--second {
+    background: linear-gradient(135deg, #c0c0c0, #e8e8e8);
+    color: #333;
+  }
+}
+
+// Driver status badges
+.driver-status {
+  display: inline-flex;
+  align-items: center;
+  padding: $spacing-xs $spacing-sm;
+  border-radius: $border-radius-sm;
+  font-size: $font-size-xs;
+  font-weight: 600;
+  text-transform: uppercase;
+  
+  &--active {
+    display: none;
+  }
+  
+  &--dnf {
+    background: rgba($color-error, 0.1);
+    color: $color-error;
+  }
+  
+  &--dsq {
+    background: rgba($color-error, 0.1);
+    color: $color-error;
+  }
+  
+  &--dns {
+    background: rgba($color-warning, 0.1);
+    color: $color-warning;
+  }
+  
+  &--placeholder {
+    background: rgba($color-text-secondary, 0.1);
+    color: $color-text-secondary;
+  }
+  
+  &--pending {
+    background: rgba($color-primary, 0.1);
+    color: $color-primary;
+    animation: pulse 2s infinite;
+  }
+}
+
+// Modal overlay
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba($color-bg-overlay, 0.75);
+  backdrop-filter: blur(4px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  padding: $spacing-lg;
+  animation: fadeIn $transition-normal;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  
+  to {
+    opacity: 1;
+  }
+}
+
+// Modal
+.modal {
+  background: $color-bg-secondary;
+  border: 1px solid $color-border-primary;
+  border-radius: $border-radius-lg;
+  max-width: 500px;
+  width: 100%;
+  max-height: 90vh;
+  overflow: hidden;
+  animation: slideUp $transition-normal;
+  
+  @media (max-width: $breakpoint-md) {
+    max-width: 90vw;
+  }
+  
+  &__header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: $spacing-md $spacing-lg;
+    border-bottom: 1px solid $color-border-primary;
+    background: $color-bg-tertiary;
+  }
+  
+  &__title {
+    color: $color-text-primary;
+    font-size: $font-size-lg;
+    font-weight: 600;
+    margin: 0;
+  }
+  
+  &__close {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
+    background: transparent;
+    border: none;
+    color: $color-text-secondary;
+    font-size: $font-size-xl;
+    cursor: pointer;
+    border-radius: $border-radius-sm;
+    transition: all $transition-fast;
+    
+    &:hover {
+      background: $color-bg-page;
+      color: $color-text-primary;
+    }
+    
+    &:focus {
+      outline: none;
+      box-shadow: 0 0 0 2px rgba($color-primary, 0.2);
+    }
+  }
+  
+  &__body {
+    padding: $spacing-lg;
+    max-height: calc(90vh - 120px);
+    overflow-y: auto;
+  }
+  
+  &__footer {
+    display: flex;
+    justify-content: flex-end;
+    gap: $spacing-md;
+    padding: $spacing-md $spacing-lg;
+    border-top: 1px solid $color-border-primary;
+    background: $color-bg-tertiary;
+  }
+}
+
+@keyframes slideUp {
+  from {
+    transform: translateY(20px);
+    opacity: 0;
+  }
+  
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+// Driver detail
+.driver-detail {
+  &__header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: $spacing-lg;
+    padding-bottom: $spacing-md;
+    border-bottom: 1px solid $color-border-primary;
+  }
+  
+  &__name {
+    color: $color-text-primary;
+    font-size: $font-size-xl;
+    font-weight: 600;
+    margin: 0;
+  }
+  
+  &__number {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 48px;
+    height: 48px;
+    background: $color-bg-tertiary;
+    border: 2px solid $color-border-primary;
+    border-radius: $border-radius-md;
+    color: $color-text-primary;
+    font-size: $font-size-lg;
+    font-weight: 700;
+  }
+  
+  &__row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: $spacing-sm 0;
+    border-bottom: 1px solid $color-border-primary;
+    
+    &:last-child {
+      border-bottom: none;
+    }
+    
+    &--highlight {
+      background: rgba($color-primary, 0.1);
+      padding: $spacing-md;
+      border-radius: $border-radius-sm;
+      border: 2px solid $color-primary;
+    }
+  }
+  
+  &__label {
+    color: $color-text-secondary;
+    font-size: $font-size-sm;
+    font-weight: 500;
+  }
+  
+  &__value {
+    color: $color-text-primary;
+    font-size: $font-size-md;
+    font-weight: 600;
+    text-align: right;
+    
+    &--points {
+      color: $color-primary;
+      font-size: $font-size-xl;
+    }
+  }
+}
+
+// Button styles
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: $spacing-sm $spacing-lg;
+  border-radius: $border-radius-md;
+  font-size: $font-size-sm;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all $transition-fast;
+  border: none;
+  text-decoration: none;
+  
+  &:focus {
+    outline: none;
+    box-shadow: 0 0 0 2px rgba($color-primary, 0.2);
+  }
+  
+  &--primary {
+    background: $color-primary;
+    color: white;
+    
+    &:hover {
+      background: darken($color-primary, 10%);
+    }
+    
+    &:disabled {
+      background: $color-text-disabled;
+      cursor: not-allowed;
+    }
+  }
+  
+  &--outline {
+    background: transparent;
+    color: $color-text-primary;
+    border: 1px solid $color-border-primary;
+    
+    &:hover {
+      background: $color-bg-tertiary;
+      border-color: $color-border-secondary;
+    }
+    
+    &:disabled {
+      border-color: $color-border-disabled;
+      color: $color-text-disabled;
+      cursor: not-allowed;
+    }
+  }
+}

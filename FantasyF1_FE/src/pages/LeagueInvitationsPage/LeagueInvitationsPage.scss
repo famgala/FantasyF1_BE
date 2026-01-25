@@ -1,0 +1,630 @@
+// League Invitations Page Styles
+// Manager-only page for managing league invitations
+
+@import "../../styles/_variables.scss";
+
+.league-invitations-page {
+  min-height: 100vh;
+  background-color: $bg-body;
+  padding: $spacing-xxl $spacing-md;
+
+  &--loading,
+  &--error {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 60vh;
+  }
+
+  .skeleton {
+    &--header {
+      height: 4rem;
+      width: 100%;
+      max-width: 800px;
+      margin-bottom: $spacing-lg;
+      border-radius: $border-radius-md;
+    }
+
+    &--tabs {
+      height: 3rem;
+      width: 100%;
+      max-width: 800px;
+      margin-bottom: $spacing-lg;
+      border-radius: $border-radius-sm;
+    }
+
+    &--content {
+      height: 20rem;
+      width: 100%;
+      max-width: 800px;
+      border-radius: $border-radius-md;
+    }
+  }
+
+  .error-container {
+    text-align: center;
+    max-width: 500px;
+
+    h2 {
+      font-size: $font-size-xl;
+      color: $text-primary;
+      margin-bottom: $spacing-md;
+    }
+
+    p {
+      color: $text-secondary;
+      margin-bottom: $spacing-lg;
+    }
+
+    .btn {
+      margin: $spacing-sm;
+    }
+  }
+}
+
+.invitations-header {
+  max-width: 1200px;
+  margin: 0 auto $spacing-xl;
+  padding: $spacing-xl 0 0;
+
+  &__content {
+    display: flex;
+    align-items: center;
+    gap: $spacing-md;
+  }
+
+  &__title {
+    font-size: $font-size-xxl;
+    font-weight: 600;
+    color: $text-primary;
+    margin: 0;
+  }
+
+  &__subtitle {
+    font-size: $font-size-md;
+    color: $text-secondary;
+    margin-top: $spacing-xs;
+  }
+}
+
+.back-button {
+  background: none;
+  border: none;
+  font-size: $font-size-xl;
+  color: $text-secondary;
+  cursor: pointer;
+  padding: 0;
+  transition: color $transition-base;
+
+  &:hover {
+    color: $text-primary;
+  }
+}
+
+// Invite Code Section
+.invite-code-section {
+  max-width: 1200px;
+  margin: 0 auto $spacing-xl;
+}
+
+.invite-code-card {
+  background-color: $bg-panel;
+  border-radius: $border-radius-lg;
+  padding: $spacing-xl;
+  box-shadow: $shadow-sm;
+  border: 2px solid $primary-color;
+
+  &__header {
+    margin-bottom: $spacing-lg;
+  }
+
+  &__title {
+    font-size: $font-size-xl;
+    font-weight: 600;
+    color: $text-primary;
+    margin: 0 0 $spacing-xs;
+  }
+
+  &__description {
+    color: $text-secondary;
+    margin: 0;
+  }
+}
+
+.invite-code-display,
+.invite-url-display {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: $spacing-lg;
+  background-color: $bg-body;
+  border-radius: $border-radius-md;
+  border: 1px solid $border-color;
+  margin-bottom: $spacing-md;
+
+  &__value {
+    flex: 1;
+    margin-right: $spacing-md;
+  }
+
+  &__label {
+    display: block;
+    font-size: $font-size-sm;
+    font-weight: 500;
+    color: $text-secondary;
+    margin-bottom: $spacing-xs;
+  }
+
+  &__code,
+  &__url {
+    display: block;
+    font-size: $font-size-lg;
+    font-weight: 600;
+    color: $text-primary;
+    word-break: break-all;
+  }
+}
+
+// Tabs
+.invitations-tabs {
+  max-width: 1200px;
+  margin: 0 auto $spacing-xl;
+  display: flex;
+  gap: $spacing-sm;
+  flex-wrap: wrap;
+}
+
+.tab-button {
+  padding: $spacing-md $spacing-lg;
+  background-color: $bg-panel;
+  border: 2px solid $border-color;
+  border-radius: $border-radius-md;
+  color: $text-secondary;
+  font-size: $font-size-md;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all $transition-base;
+
+  &:hover {
+    background-color: $bg-hover;
+    border-color: $primary-color;
+  }
+
+  &--active {
+    background-color: $primary-color;
+    border-color: $primary-color;
+    color: $white;
+  }
+}
+
+// Content
+.invitations-content {
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.invitations-section {
+  background-color: $bg-panel;
+  border-radius: $border-radius-lg;
+  padding: $spacing-xl;
+  box-shadow: $shadow-sm;
+}
+
+// Invite Methods
+.inviteMethods-container {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: $spacing-xl;
+}
+
+.invite-method-card {
+  border: 1px solid $border-color;
+  border-radius: $border-radius-md;
+  padding: $spacing-lg;
+  background-color: $bg-body;
+
+  &__title {
+    font-size: $font-size-lg;
+    font-weight: 600;
+    color: $text-primary;
+    margin: 0 0 $spacing-xs;
+  }
+
+  &__description {
+    color: $text-secondary;
+    margin-bottom: $spacing-lg;
+  }
+}
+
+.invite-form {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-md;
+}
+
+.form-group {
+  &__label {
+    display: block;
+    font-size: $font-size-md;
+    font-weight: 500;
+    color: $text-primary;
+    margin-bottom: $spacing-sm;
+  }
+
+  &__hint {
+    font-size: $font-size-sm;
+    color: $text-secondary;
+    margin-top: $spacing-xs;
+  }
+}
+
+.form-input {
+  width: 100%;
+  padding: $spacing-md;
+  font-size: $font-size-md;
+  color: $text-primary;
+  background-color: $bg-input;
+  border: 2px solid $border-color;
+  border-radius: $border-radius-md;
+  transition: border-color $transition-base;
+
+  &:focus {
+    outline: none;
+    border-color: $primary-color;
+  }
+
+  &::placeholder {
+    color: $text-placeholder;
+  }
+
+  &--disabled {
+    background-color: $bg-disabled;
+    cursor: not-allowed;
+  }
+
+  &--textarea {
+    resize: vertical;
+    min-height: 100px;
+    font-family: inherit;
+  }
+}
+
+// Invites List
+.invites-list {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-md;
+}
+
+.invite-card {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: $spacing-lg;
+  background-color: $bg-body;
+  border: 1px solid $border-color;
+  border-radius: $border-radius-md;
+  transition: box-shadow $transition-base;
+
+  &:hover {
+    box-shadow: $shadow-sm;
+  }
+
+  &--history {
+    border-left: 4px solid $border-color;
+  }
+
+  &__info {
+    flex: 1;
+  }
+
+  &__email {
+    font-size: $font-size-md;
+    font-weight: 600;
+    color: $text-primary;
+    margin-bottom: $spacing-sm;
+  }
+
+  &__details {
+    display: flex;
+    flex-direction: column;
+    gap: $spacing-xs;
+  }
+
+  &__created,
+  &__expires,
+  &__status {
+    font-size: $font-size-sm;
+    color: $text-secondary;
+  }
+
+  &__actions {
+    display: flex;
+    align-items: center;
+    gap: $spacing-md;
+  }
+}
+
+.status-badge {
+  padding: $spacing-xs $spacing-sm;
+  font-size: $font-size-sm;
+  font-weight: 600;
+  border-radius: $border-radius-sm;
+  text-transform: uppercase;
+
+  &--pending {
+    background-color: rgba($primary-color, 0.1);
+    color: $primary-color;
+  }
+
+  &--accepted {
+    background-color: rgba($success-color, 0.1);
+    color: $success-color;
+  }
+
+  &--declined {
+    background-color: rgba($danger-color, 0.1);
+    color: $danger-color;
+  }
+
+  &--expired {
+    background-color: rgba($text-tertiary, 0.1);
+    color: $text-tertiary;
+  }
+
+  &--revoked {
+    background-color: rgba($danger-color, 0.2);
+    color: $danger-color;
+  }
+}
+
+// Empty State
+.empty-state {
+  text-align: center;
+  padding: $spacing-xxl $spacing-lg;
+
+  &__title {
+    font-size: $font-size-lg;
+    color: $text-primary;
+    margin: 0 0 $spacing-md;
+  }
+
+  &__description {
+    color: $text-secondary;
+    margin-bottom: $spacing-lg;
+  }
+}
+
+// Modal
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba($bg-overlay, 0.75);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  padding: $spacing-md;
+}
+
+.modal {
+  background-color: $bg-panel;
+  border-radius: $border-radius-lg;
+  max-width: 500px;
+  width: 100%;
+  box-shadow: $shadow-lg;
+
+  &--danger {
+    border: 2px solid $danger-color;
+  }
+
+  &__header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: $spacing-xl;
+    border-bottom: 1px solid $border-color;
+  }
+
+  &__title {
+    font-size: $font-size-lg;
+    font-weight: 600;
+    color: $text-primary;
+    margin: 0;
+  }
+
+  &__close {
+    font-size: $font-size-xl;
+    color: $text-secondary;
+    cursor: pointer;
+    background: none;
+    border: none;
+    padding: 0;
+    transition: color $transition-base;
+
+    &:hover {
+      color: $text-primary;
+    }
+  }
+
+  &__body {
+    padding: $spacing-xl;
+  }
+
+  &__text {
+    font-size: $font-size-md;
+    color: $text-primary;
+    margin: 0 0 $spacing-lg;
+
+    strong {
+      color: $text-primary;
+    }
+  }
+
+  &__warning {
+    font-size: $font-size-sm;
+    color: $danger-color;
+    margin-bottom: $spacing-lg;
+
+    &--bold {
+      font-weight: 600;
+      font-size: $font-size-md;
+    }
+  }
+
+  &__label {
+    display: block;
+    font-size: $font-size-sm;
+    font-weight: 500;
+    color: $text-primary;
+    margin-bottom: $spacing-sm;
+  }
+
+  &__input {
+    width: 100%;
+    padding: $spacing-md;
+    font-size: $font-size-md;
+    color: $text-primary;
+    background-color: $bg-input;
+    border: 2px solid $border-color;
+    border-radius: $border-radius-md;
+    transition: border-color $transition-base;
+
+    &:focus {
+      outline: none;
+      border-color: $danger-color;
+    }
+  }
+
+  &__footer {
+    display: flex;
+    justify-content: flex-end;
+    gap: $spacing-md;
+    padding: $spacing-lg $spacing-xl;
+    border-top: 1px solid $border-color;
+  }
+}
+
+// Buttons
+.btn {
+  padding: $spacing-sm $spacing-lg;
+  font-size: $font-size-md;
+  font-weight: 500;
+  border: 2px solid transparent;
+  border-radius: $border-radius-md;
+  cursor: pointer;
+  transition: all $transition-base;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+
+  &--primary {
+    background-color: $primary-color;
+    color: $white;
+
+    &:hover:not(:disabled) {
+      background-color: darken($primary-color, 10%);
+    }
+  }
+
+  &--outline {
+    background-color: transparent;
+    border-color: $border-color;
+    color: $text-primary;
+
+    &:hover:not(:disabled) {
+      border-color: $primary-color;
+      color: $primary-color;
+    }
+  }
+
+  &--danger {
+    background-color: $danger-color;
+    color: $white;
+
+    &:hover:not(:disabled) {
+      background-color: darken($danger-color, 10%);
+    }
+  }
+
+  &--small {
+    padding: $spacing-xs $spacing-sm;
+    font-size: $font-size-sm;
+  }
+
+  &--large {
+    padding: $spacing-md $spacing-xl;
+    font-size: $font-size-lg;
+  }
+}
+
+// Responsive Design
+@media (max-width: $breakpoint-md) {
+  .league-invitations-page {
+    padding: $spacing-lg $spacing-sm;
+  }
+
+  .invitations-header {
+    &__title {
+      font-size: $font-size-xl;
+    }
+  }
+
+  .invite-code-display,
+  .invite-url-display {
+    flex-direction: column;
+    align-items: flex-start;
+
+    .btn {
+      width: 100%;
+      margin-top: $spacing-md;
+    }
+  }
+
+  .invitations-tabs {
+    flex-direction: column;
+
+    .tab-button {
+      text-align: left;
+    }
+  }
+
+  .inviteMethods-container {
+    grid-template-columns: 1fr;
+  }
+
+  .invite-card {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: $spacing-md;
+
+    &__actions {
+      width: 100%;
+      justify-content: flex-end;
+    }
+  }
+
+  .modal {
+    &__header,
+    &__body,
+    &__footer {
+      padding: $spacing-lg;
+    }
+
+    &__footer {
+      flex-direction: column;
+    }
+
+    .btn {
+      width: 100%;
+    }
+  }
+}
