@@ -1,25 +1,18 @@
 import React, { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { useAuth } from "../../contexts/AuthContext";
+import { 
+  getLeagueById, 
+  getLeagueTeams, 
+  getDraftStatus, 
+  getCurrentRace,
+  DraftStatus as BackendDraftStatus,
+  Race as BackendRace,
+  LeagueTeam,
+  League
+} from "../../services/leagueService";
 import "./LeagueDashboardPage.scss";
 
-/**
- * Interface for League data
- */
-interface League {
-  id: string;
-  name: string;
-  description: string;
-  code: string;
-  is_private: boolean;
-  max_teams: number;
-  current_teams: number;
-  draft_method: string;
-  scoring_system: string;
-  manager_id: string;
-  manager_username: string;
-  created_at: string;
-}
 
 /**
  * Interface for Constructor (Team/Player) data
@@ -36,28 +29,37 @@ interface Constructor {
 }
 
 /**
- * Interface for current race data
+ * Extended DraftStatus with additional UI properties
  */
-interface Race {
-  id: string;
-  name: string;
-  circuit: string;
-  country: string;
-  race_date: string;
-  qualifying_date: string;
-  status: string;
-}
-
-/**
- * Interface for draft status
- */
-interface DraftStatus {
-  status: "UPCOMING" | "OPEN" | "CLOSED" | "COMPLETE";
-  opens_at: string;
-  closes_at: string;
+interface UIDraftStatus {
+  league_id: string;
+  race_id: number;
+  draft_method: string;
+  is_draft_complete: boolean;
+  total_teams: number;
+  total_picks_made: number;
+  current_round: number;
+  current_position: number;
+  current_team: {
+    id: string;
+    name: string;
+    user_id: string;
+  } | null;
+  next_pick: {
+    fantasy_team_id: string;
+    pick_round: number;
+    draft_position: number;
+  } | null;
+  opens_at?: string;
+  closes_at?: string;
   user_picks_count: number;
   max_picks: number;
 }
+
+/**
+ * Interface for current race data (using backend Race type)
+ */
+type Race = BackendRace;
 
 /**
  * League Dashboard Page
@@ -73,7 +75,7 @@ const LeagueDashboardPage: React.FC = () => {
   const [league, setLeague] = useState<League | null>(null);
   const [constructors, setConstructors] = useState<Constructor[]>([]);
   const [currentRace, setCurrentRace] = useState<Race | null>(null);
-  const [draftStatus, setDraftStatus] = useState<DraftStatus | null>(null);
+  const [draftStatus, setDraftStatus] = useState<UIDraftStatus | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -92,95 +94,72 @@ const LeagueDashboardPage: React.FC = () => {
     setError(null);
 
     try {
-      // In a real application, these would be actual API calls
-      // Simulating API responses for now
-
       // Fetch league details
-      const leagueData: League = {
-        id: id,
-        name: "F1 Fanatics League",
-        description: "The ultimate fantasy F1 league for true Formula 1 fans!",
-        code: "F1FAN",
-        is_private: false,
-        max_teams: 20,
-        current_teams: 8,
-        draft_method: "sequential",
-        scoring_system: "inverted_position",
-        manager_id: "manager123",
-        manager_username: "AdminUser",
-        created_at: "2024-01-15T10:00:00Z",
-      };
+      const leagueData = await getLeagueById(id);
       setLeague(leagueData);
 
       // Check if current user is manager
-      setIsManager(user?.username === leagueData.manager_username);
+      if (leagueData) {
+        setIsManager(user?.username === leagueData.manager_username || user?.email === leagueData.creator_id);
+      }
 
-      // Fetch constructors (league standings)
-      const constructorsData: Constructor[] = [
-        {
-          id: "1",
+      // Fetch constructors (league teams/standings)
+      const teamsData = await getLeagueTeams(id);
+      
+      // Convert teams to constructors with ranking
+      const constructorsData: Constructor[] = teamsData
+        .map((team, index) => ({
+          id: team.id,
           league_id: id,
-          team_name: "Red Bull Racing",
-          username: "AdminUser",
-          user_id: "manager123",
-          total_points: 245,
-          rank: 1,
-          is_manager: true,
-        },
-        {
-          id: "2",
-          league_id: id,
-          team_name: "Mercedes AMG",
-          username: "SpeedDemon",
-          user_id: "user456",
-          total_points: 220,
-          rank: 2,
-          is_manager: false,
-        },
-        {
-          id: "3",
-          league_id: id,
-          team_name: "Ferrari Scuderia",
-          username: "TifosoPro",
-          user_id: "user789",
-          total_points: 198,
-          rank: 3,
-          is_manager: false,
-        },
-        {
-          id: "4",
-          league_id: id,
-          team_name: "McLaren F1",
-          username: "PapayaArmy",
-          user_id: "user101",
-          total_points: 175,
-          rank: 4,
-          is_manager: false,
-        },
-      ];
+          team_name: team.name,
+          username: team.username || `User${team.user_id}`,
+          user_id: team.user_id,
+          total_points: team.total_points,
+          rank: index + 1,
+          is_manager: team.is_manager || false,
+        }))
+        .sort((a, b) => b.total_points - a.total_points)
+        .map((team, index) => ({ ...team, rank: index + 1 }));
+      
       setConstructors(constructorsData);
 
-      // Fetch current race
-      const raceData: Race = {
-        id: "race1",
-        name: "Australian Grand Prix",
-        circuit: "Albert Park Circuit",
-        country: "Australia",
-        race_date: new Date(Date.now() + 3 * 24 * 60 * 60 * 1000).toISOString(),
-        qualifying_date: new Date(Date.now() + 3 * 24 * 60 * 60 * 1000 - 2 * 60 * 60 * 1000).toISOString(),
-        status: "upcoming",
-      };
+      // Fetch current/upcoming race
+      const raceData = await getCurrentRace() || await getCurrentRace() || null;
       setCurrentRace(raceData);
 
-      // Fetch draft status
-      const draftStatusData: DraftStatus = {
-        status: "OPEN",
-        opens_at: new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString(),
-        closes_at: new Date(Date.now() + 2 * 60 * 60 * 1000).toISOString(),
-        user_picks_count: 1,
-        max_picks: 2,
-      };
-      setDraftStatus(draftStatusData);
+      // Fetch draft status if race is available
+      if (raceData) {
+        try {
+          const draftData = await getDraftStatus(id, Number(raceData.id));
+          const uiDraftStatus: UIDraftStatus = {
+            ...draftData,
+            opens_at: raceData.race_date, // Typically opens before race
+            closes_at: raceData.qualifying_date, // Closes at qualifying
+            user_picks_count: draftData.total_picks_made % draftData.total_teams,
+            max_picks: 2, // Assuming 2 picks per round
+          };
+          setDraftStatus(uiDraftStatus);
+        } catch (draftErr) {
+          console.error("Error fetching draft status:", draftErr);
+          // Set default draft status if not available
+          setDraftStatus({
+            league_id: id,
+            race_id: Number(raceData.id),
+            draft_method: leagueData.draft_method || "sequential",
+            is_draft_complete: false,
+            total_teams: leagueData.current_teams || teamsData.length,
+            total_picks_made: 0,
+            current_round: 1,
+            current_position: 1,
+            current_team: null,
+            next_pick: null,
+            opens_at: raceData.race_date,
+            closes_at: raceData.qualifying_date,
+            user_picks_count: 0,
+            max_picks: 2,
+          });
+        }
+      }
     } catch (err) {
       setError("Failed to load league data. Please try again.");
       console.error("Error fetching league data:", err);
@@ -190,7 +169,7 @@ const LeagueDashboardPage: React.FC = () => {
   };
 
   const handleEnterDraftRoom = () => {
-    if (currentRace && draftStatus?.status === "OPEN") {
+    if (currentRace && draftStatus && !draftStatus.is_draft_complete) {
       navigate(`/draft/${leagueId}/${currentRace.id}`);
     }
   };
@@ -241,19 +220,21 @@ const LeagueDashboardPage: React.FC = () => {
     return `${minutes}m`;
   };
 
-  const getDraftStatusColor = (status: string): string => {
-    switch (status) {
-      case "UPCOMING":
-        return "#f59e0b"; // Yellow
-      case "OPEN":
-        return "#10b981"; // Green
-      case "CLOSED":
-        return "#ef4444"; // Red
-      case "COMPLETE":
-        return "#3b82f6"; // Blue
-      default:
-        return "#6b7280"; // Gray
+  const getDraftStatusColor = (isComplete: boolean, isOpen: boolean): string => {
+    if (isComplete) {
+      return "#3b82f6"; // Blue for complete
     }
+    if (isOpen) {
+      return "#10b981"; // Green for open
+    }
+    return "#f59e0b"; // Yellow for upcoming
+  };
+
+  const getDraftStatusLabel = (draftStatus: UIDraftStatus | null): string => {
+    if (!draftStatus) return "Loading...";
+    if (draftStatus.is_draft_complete) return "COMPLETE";
+    if (draftStatus.total_picks_made > 0) return "OPEN";
+    return "UPCOMING";
   };
 
   if (loading) {
@@ -331,9 +312,9 @@ const LeagueDashboardPage: React.FC = () => {
               </h2>
               <span
                 className="draft-status-card__status"
-                style={{ backgroundColor: getDraftStatusColor(draftStatus.status) }}
+                style={{ backgroundColor: getDraftStatusColor(draftStatus.is_draft_complete, draftStatus.total_picks_made > 0) }}
               >
-                {draftStatus.status}
+                {getDraftStatusLabel(draftStatus)}
               </span>
             </div>
 
@@ -349,16 +330,17 @@ const LeagueDashboardPage: React.FC = () => {
               <div className="detail-item">
                 <span className="detail-item__label">Draft Window:</span>
                 <span className="detail-item__value">
-                  Opens: Monday 8:00 AM EST → Closes at Qualifying
+                  Opens: {draftStatus.opens_at ? formatDateTime(draftStatus.opens_at) : "TBD"} → 
+                  Closes: {draftStatus.closes_at ? formatDateTime(draftStatus.closes_at) : "TBD"}
                 </span>
               </div>
-              {draftStatus.status === "UPCOMING" && (
+              {!draftStatus.is_draft_complete && draftStatus.total_picks_made === 0 && draftStatus.opens_at && (
                 <div className="detail-item detail-item--highlight">
                   <span className="detail-item__label">Opens in:</span>
                   <span className="detail-item__value">{getCountdown(draftStatus.opens_at)}</span>
                 </div>
               )}
-              {draftStatus.status === "OPEN" && (
+              {!draftStatus.is_draft_complete && draftStatus.total_picks_made > 0 && draftStatus.closes_at && (
                 <div className="detail-item detail-item--highlight">
                   <span className="detail-item__label">Draft closes in:</span>
                   <span className="detail-item__value">{getCountdown(draftStatus.closes_at)}</span>
@@ -366,7 +348,7 @@ const LeagueDashboardPage: React.FC = () => {
               )}
             </div>
 
-            {draftStatus.status === "OPEN" && currentUserConstructor && (
+            {!draftStatus.is_draft_complete && draftStatus.total_picks_made > 0 && currentUserConstructor && (
               <div className="draft-status-card__picks">
                 <p className="picks-info">
                   Your Picks: {draftStatus.user_picks_count} / {draftStatus.max_picks}
@@ -380,7 +362,7 @@ const LeagueDashboardPage: React.FC = () => {
               </div>
             )}
 
-            {draftStatus.status === "COMPLETE" && (
+            {draftStatus.is_draft_complete && (
               <div className="draft-status-card__actions">
                 <button onClick={handleViewStandings} className="btn btn--secondary">
                   <span className="btn__icon">📊</span>

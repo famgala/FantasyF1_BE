@@ -2,6 +2,15 @@ import React, { useState, useEffect, ChangeEvent } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 
+import {
+  getLeagueById,
+  createInvite,
+  createBulkInvites,
+  getLeagueInvites,
+  revokeInvite,
+  type LeagueInvite,
+} from "../../services/leagueService";
+
 import "./LeagueInvitationsPage.scss";
 
 /**
@@ -16,20 +25,10 @@ import "./LeagueInvitationsPage.scss";
  * - Revoke pending invites
  */
 
-interface LeagueInvite {
-  id: string;
-  email: string;
-  status: "pending" | "expired" | "accepted" | "declined";
-  created_at: string;
-  expires_at: string;
-  token: string;
-}
-
 interface LeagueInfo {
   id: string;
   name: string;
   code: string;
-  invite_url: string;
 }
 
 type TabType = "invite" | "pending" | "history";
@@ -80,59 +79,28 @@ const LeagueInvitationsPage: React.FC = () => {
       setLoading(true);
       setError(null);
 
-      // Simulate API calls - replace with actual service calls
-      // const leagueResponse = await leagueService.getLeagueInviteInfo(leagueId!);
-      // const invitesResponse = await leagueService.getLeagueInvites(leagueId!);
+      if (!leagueId) {
+        throw new Error("League ID is required");
+      }
 
-      // Mock data for simulation
-      const mockLeagueInfo: LeagueInfo = {
-        id: leagueId || "1",
-        name: "Formula Fanatics League",
-        code: "F4NF4N",
-        invite_url: `${window.location.origin}/join?code=F4NF4N`,
+      // Fetch league info
+      const leagueData = await getLeagueById(leagueId);
+      const leagueInfoData: LeagueInfo = {
+        id: leagueData.id,
+        name: leagueData.name,
+        code: leagueData.code,
       };
 
-      const mockPendingInvites: LeagueInvite[] = [
-        {
-          id: "1",
-          email: "john.doe@example.com",
-          status: "pending",
-          created_at: "2026-01-25T10:00:00Z",
-          expires_at: "2026-02-01T10:00:00Z",
-          token: "abc123xyz",
-        },
-        {
-          id: "2",
-          email: "jane.smith@example.com",
-          status: "pending",
-          created_at: "2026-01-24T15:30:00Z",
-          expires_at: "2026-01-31T15:30:00Z",
-          token: "def456uvw",
-        },
-      ];
+      // Fetch all invites
+      const allInvites = await getLeagueInvites(leagueId);
 
-      const mockInviteHistory: LeagueInvite[] = [
-        {
-          id: "3",
-          email: "bob.wilson@example.com",
-          status: "accepted",
-          created_at: "2026-01-20T09:00:00Z",
-          expires_at: "2026-01-27T09:00:00Z",
-          token: "ghi789rst",
-        },
-        {
-          id: "4",
-          email: "alice.brown@example.com",
-          status: "expired",
-          created_at: "2026-01-15T12:00:00Z",
-          expires_at: "2026-01-22T12:00:00Z",
-          token: "jkl012opq",
-        },
-      ];
+      // Separate pending and history invites
+      const pending = allInvites.filter((invite) => invite.status === "pending");
+      const history = allInvites.filter((invite) => invite.status !== "pending");
 
-      setLeagueInfo(mockLeagueInfo);
-      setPendingInvites(mockPendingInvites);
-      setInviteHistory(mockInviteHistory);
+      setLeagueInfo(leagueInfoData);
+      setPendingInvites(pending);
+      setInviteHistory(history);
     } catch (err) {
       setError("Failed to load league invitations. Please try again.");
       console.error("Error fetching league data:", err);
@@ -160,7 +128,8 @@ const LeagueInvitationsPage: React.FC = () => {
    */
   const handleCopyUrl = async () => {
     try {
-      await navigator.clipboard.writeText(leagueInfo!.invite_url);
+      const inviteUrl = `${window.location.origin}/join?code=${leagueInfo!.code}`;
+      await navigator.clipboard.writeText(inviteUrl);
       toast.success("Invite link copied to clipboard!");
     } catch (err) {
       toast.error("Failed to copy invite link");
@@ -206,17 +175,19 @@ const LeagueInvitationsPage: React.FC = () => {
     try {
       setSendingInvite(true);
 
-      // Simulate API call - replace with actual service call
-      // await leagueService.sendLeagueInvite(leagueId!, [email]);
+      // Call API to create invite
+      const response = await createInvite(leagueId!, { email });
 
-      // Mock successful response
+      // Create new invite with API response data
       const newInvite: LeagueInvite = {
-        id: `${Date.now()}`,
-        email,
+        id: response.invite_id,
+        email: response.email,
+        token: response.token,
         status: "pending",
         created_at: new Date().toISOString(),
-        expires_at: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString(),
-        token: "newtoken123",
+        expires_at: response.expires_at,
+        updated_at: new Date().toISOString(),
+        league_id: leagueId!,
       };
 
       setPendingInvites([newInvite, ...pendingInvites]);
@@ -269,17 +240,19 @@ const LeagueInvitationsPage: React.FC = () => {
     try {
       setSendingInvite(true);
 
-      // Simulate API call - replace with actual service call
-      // await leagueService.sendLeagueInvite(leagueId!, emails);
+      // Call API to create bulk invites
+      const responses = await createBulkInvites(leagueId!, { emails });
 
-      // Mock successful response
-      const newInvites: LeagueInvite[] = emails.map((email) => ({
-        id: `${Date.now()}-${Math.random()}`,
-        email,
-        status: "pending" as const,
+      // Create new invites with API response data
+      const newInvites: LeagueInvite[] = responses.map((response) => ({
+        id: response.invite_id,
+        email: response.email,
+        token: response.token,
+        status: "pending",
         created_at: new Date().toISOString(),
-        expires_at: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString(),
-        token: `tok${Math.random().toString(36).substring(7)}`,
+        expires_at: response.expires_at,
+        updated_at: new Date().toISOString(),
+        league_id: leagueId!,
       }));
 
       setPendingInvites([...newInvites, ...pendingInvites]);
@@ -323,10 +296,10 @@ const LeagueInvitationsPage: React.FC = () => {
     try {
       setRevoking(true);
 
-      // Simulate API call - replace with actual service call
-      // await leagueService.revokeLeagueInvite(leagueId!, selectedInvite.id);
+      // Call API to revoke invite
+      await revokeInvite(leagueId!, selectedInvite.id);
 
-      // Mock successful response
+      // Remove from pending and add to history with revoked status
       setPendingInvites(
         pendingInvites.filter((invite) => invite.id !== selectedInvite.id)
       );
@@ -472,7 +445,9 @@ const LeagueInvitationsPage: React.FC = () => {
           <div className="invite-url-display">
             <div className="invite-url-display__value">
               <span className="invite-url-display__label">Invite Link:</span>
-              <span className="invite-url-display__url">{leagueInfo?.invite_url}</span>
+              <span className="invite-url-display__url">
+                {leagueInfo ? `${window.location.origin}/join?code=${leagueInfo.code}` : ""}
+              </span>
             </div>
             <button
               className="btn btn--outline"

@@ -262,3 +262,96 @@ export const updateMemberRole = async (
 export const deleteLeague = async (leagueId: string): Promise<void> => {
   await api.delete(`/leagues/${leagueId}`);
 };
+
+// League Invitation System
+export interface LeagueInvite {
+  id: string;
+  league_id: string;
+  email: string;
+  token: string;
+  status: "pending" | "accepted" | "declined" | "revoked" | "expired";
+  expires_at: string;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface CreateInviteRequest {
+  email: string;
+}
+
+export interface CreateInviteResponse {
+  invite_id: string;
+  email: string;
+  token: string;
+  expires_at: string;
+}
+
+export interface BulkInviteRequest {
+  emails: string[];
+}
+
+export const createInvite = async (
+  leagueId: string,
+  data: CreateInviteRequest,
+): Promise<CreateInviteResponse> => {
+  const response = await api.post<CreateInviteResponse>(
+    `/leagues/${leagueId}/invites`,
+    data,
+  );
+  return response.data;
+};
+
+export const createBulkInvites = async (
+  leagueId: string,
+  data: BulkInviteRequest,
+): Promise<CreateInviteResponse[]> => {
+  const response = await api.post<CreateInviteResponse[]>(
+    `/leagues/${leagueId}/invites/bulk`,
+    data,
+  );
+  return response.data;
+};
+
+export const getLeagueInvites = async (leagueId: string): Promise<LeagueInvite[]> => {
+  const response = await api.get<LeagueInvite[]>(`/leagues/${leagueId}/invites`);
+  return response.data;
+};
+
+export const getPendingInvites = async (leagueId: string): Promise<LeagueInvite[]> => {
+  const response = await api.get<LeagueInvite[]>(`/leagues/${leagueId}/invites`, {
+    params: { status: "pending" },
+  });
+  return response.data;
+};
+
+export const revokeInvite = async (leagueId: string, inviteId: string): Promise<void> => {
+  await api.delete(`/leagues/${leagueId}/invites/${inviteId}`);
+};
+
+export interface AcceptInviteRequest {
+  team_name: string;
+}
+
+export const acceptInvite = async (
+  token: string,
+  data: AcceptInviteRequest,
+): Promise<JoinLeagueResponse> => {
+  const response = await api.post<JoinLeagueResponse>(
+    `/leagues/invites/${token}/accept`,
+    data,
+  );
+  return response.data;
+};
+
+export const declineInvite = async (token: string): Promise<void> => {
+  await api.post(`/leagues/invites/${token}/decline`);
+};
+
+export const checkInviteToken = async (token: string): Promise<LeagueInvite | null> => {
+  try {
+    const response = await api.get<LeagueInvite>(`/leagues/invites/${token}`);
+    return response.data;
+  } catch (error) {
+    return null;
+  }
+};
