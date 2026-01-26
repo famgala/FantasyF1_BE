@@ -202,3 +202,63 @@ export const getLeaderboard = async (
   const response = await api.get<LeaderboardResponse>(`/leagues/${leagueId}/leaderboard`, { params });
   return response.data;
 };
+
+export interface LeagueSettings {
+  id: string;
+  name: string;
+  code: string;
+  description: string;
+  max_teams: number;
+  current_teams: number;
+  is_private: boolean;
+  created_at: string;
+}
+
+export interface LeagueMember {
+  id: string;
+  username: string;
+  email: string;
+  role: "manager" | "co_manager" | "member";
+  team_name: string;
+  joined_at: string;
+}
+
+export interface UpdateLeagueSettingsRequest {
+  description?: string;
+  max_teams?: number;
+  is_private?: boolean;
+}
+
+export const getLeagueSettings = async (leagueId: string): Promise<LeagueSettings> => {
+  const response = await api.get<LeagueSettings>(`/leagues/${leagueId}/settings`);
+  return response.data;
+};
+
+export const updateLeagueSettings = async (
+  leagueId: string,
+  data: UpdateLeagueSettingsRequest,
+): Promise<LeagueSettings> => {
+  const response = await api.patch<LeagueSettings>(`/leagues/${leagueId}`, data);
+  return response.data;
+};
+
+export const getLeagueMembers = async (leagueId: string): Promise<LeagueMember[]> => {
+  const response = await api.get<LeagueMember[]>(`/leagues/${leagueId}/members`);
+  return response.data;
+};
+
+export const removeLeagueMember = async (leagueId: string, memberId: string): Promise<void> => {
+  await api.delete(`/leagues/${leagueId}/members/${memberId}`);
+};
+
+export const updateMemberRole = async (
+  leagueId: string,
+  memberId: string,
+  role: "manager" | "co_manager" | "member",
+): Promise<void> => {
+  await api.patch(`/leagues/${leagueId}/members/${memberId}/role`, { role });
+};
+
+export const deleteLeague = async (leagueId: string): Promise<void> => {
+  await api.delete(`/leagues/${leagueId}`);
+};

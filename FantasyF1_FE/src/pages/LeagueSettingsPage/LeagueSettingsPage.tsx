@@ -1,6 +1,16 @@
 import React, { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
+import {
+  LeagueSettings,
+  LeagueMember,
+  getLeagueSettings,
+  updateLeagueSettings,
+  getLeagueMembers,
+  removeLeagueMember,
+  updateMemberRole,
+  deleteLeague,
+} from "../../services/leagueService";
 import "./LeagueSettingsPage.scss";
 
 /**
@@ -11,27 +21,6 @@ import "./LeagueSettingsPage.scss";
  * Includes editable fields (description, max_teams, is_private) and
  * non-editable fields (name, code). Member management with role assignment.
  */
-
-interface LeagueMember {
-  id: string;
-  username: string;
-  email: string;
-  role: "manager" | "co_manager" | "member";
-  team_name: string;
-  joined_at: string;
-}
-
-interface LeagueSettings {
-  id: string;
-  name: string;
-  code: string;
-  description: string;
-  max_teams: number;
-  current_teams: number;
-  is_private: boolean;
-  created_at: string;
-  members: LeagueMember[];
-}
 
 type TabType = "settings" | "members" | "danger";
 
@@ -52,6 +41,9 @@ const LeagueSettingsPage: React.FC = () => {
     is_private: true,
   });
 
+  // Members state
+  const [members, setMembers] = useState<LeagueMember[]>([]);
+
   // Delete confirmation state
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [deleteConfirmation, setDeleteConfirmation] = useState("");
@@ -63,70 +55,22 @@ const LeagueSettingsPage: React.FC = () => {
     setError(null);
 
     try {
-      // Simulate API call - replace with actual API
-      // const response = await api.get(`/leagues/${leagueId}/settings`);
-      // setData(response.data);
+      if (!leagueId) {
+        throw new Error("League ID is required");
+      }
 
-      // Mock data for simulation
-      const mockData: LeagueSettings = {
-        id: leagueId || "1",
-        name: "F1 Fantasy Champions",
-        code: "F1CHAMP",
-        description: "A competitive league for F1 fantasy racing enthusiasts",
-        max_teams: 20,
-        current_teams: 5,
-        is_private: true,
-        created_at: "2024-03-15T10:00:00Z",
-        members: [
-          {
-            id: "u1",
-            username: "SpeedDemon",
-            email: "speeddemon@example.com",
-            role: "manager",
-            team_name: "Red Bull Dash",
-            joined_at: "2024-03-15T10:00:00Z",
-          },
-          {
-            id: "u2",
-            username: "TifosoPro",
-            email: "tifoso@example.com",
-            role: "member",
-            team_name: "Ferrari Fanatics",
-            joined_at: "2024-03-16T14:30:00Z",
-          },
-          {
-            id: "u3",
-            username: "SilverArrow",
-            email: "silver@example.com",
-            role: "co_manager",
-            team_name: "Mercedes Magic",
-            joined_at: "2024-03-17T09:15:00Z",
-          },
-          {
-            id: "u4",
-            username: "PapayaOrange",
-            email: "papaya@example.com",
-            role: "member",
-            team_name: "McLaren Masters",
-            joined_at: "2024-03-18T16:45:00Z",
-          },
-          {
-            id: "u5",
-            username: "GreenMachine",
-            email: "green@example.com",
-            role: "member",
-            team_name: "Aston Acceleration",
-            joined_at: "2024-03-19T11:20:00Z",
-          },
-        ],
-      };
-
-      setData(mockData);
+      // Fetch settings
+      const settingsData = await getLeagueSettings(leagueId);
+      setData(settingsData);
       setSettings({
-        description: mockData.description,
-        max_teams: mockData.max_teams,
-        is_private: mockData.is_private,
+        description: settingsData.description,
+        max_teams: settingsData.max_teams,
+        is_private: settingsData.is_private,
       });
+
+      // Fetch members
+      const membersData = await getLeagueMembers(leagueId);
+      setMembers(membersData);
     } catch (err) {
       setError("Failed to load settings data. Please try again.");
       console.error("Error fetching settings:", err);
@@ -157,8 +101,9 @@ const LeagueSettingsPage: React.FC = () => {
     setSaving(true);
 
     try {
-      // Simulate API call - replace with actual API
-      // await api.patch(`/leagues/${leagueId}`, settings);
+      if (!leagueId) {
+        throw new Error("League ID is required");
+      }
 
       // Validate max_teams
       if (data && settings.max_teams < data.current_teams) {
@@ -167,11 +112,12 @@ const LeagueSettingsPage: React.FC = () => {
         return;
       }
 
-      // Simulate success
+      await updateLeagueSettings(leagueId, settings);
       toast.success("Settings updated successfully!");
       await fetchSettingsData();
-    } catch (err) {
-      toast.error("Failed to update settings. Please try again.");
+    } catch (err: any) {
+      const errorMessage = err?.response?.data?.detail || "Failed to update settings. Please try again.";
+      toast.error(errorMessage);
       console.error("Error updating settings:", err);
     } finally {
       setSaving(false);
@@ -179,40 +125,56 @@ const LeagueSettingsPage: React.FC = () => {
   };
 
   const handleRemoveMember = async (memberId: string) => {
-    try {
-      // Simulate API call - replace with actual API
-      // await api.delete(`/leagues/${leagueId}/members/${memberId}`);
+    if (!leagueId) {
+      toast.error("League ID is required");
+      return;
+    }
 
+    if (!window.confirm("Are you sure you want to remove this member from the league?")) {
+      return;
+    }
+
+    try {
+      await removeLeagueMember(leagueId, memberId);
       toast.success("Member removed successfully!");
       await fetchSettingsData();
-    } catch (err) {
-      toast.error("Failed to remove member. Please try again.");
+    } catch (err: any) {
+      const errorMessage = err?.response?.data?.detail || "Failed to remove member. Please try again.";
+      toast.error(errorMessage);
       console.error("Error removing member:", err);
     }
   };
 
-  const handleRoleChange = async (memberId: string, newRole: string) => {
-    try {
-      // Simulate API call - replace with actual API
-      // await api.patch(`/leagues/${leagueId}/members/${memberId}/role`, { role: newRole });
+  const handleRoleChange = async (memberId: string, newRole: "manager" | "co_manager" | "member") => {
+    if (!leagueId) {
+      toast.error("League ID is required");
+      return;
+    }
 
-      toast.success(`Role updated to ${newRole}!`);
+    try {
+      await updateMemberRole(leagueId, memberId, newRole);
+      toast.success(`Role updated to ${newRole.replace("_", " ")}!`);
       await fetchSettingsData();
-    } catch (err) {
-      toast.error("Failed to update role. Please try again.");
+    } catch (err: any) {
+      const errorMessage = err?.response?.data?.detail || "Failed to update role. Please try again.";
+      toast.error(errorMessage);
       console.error("Error updating role:", err);
     }
   };
 
   const handleDeleteLeague = async () => {
-    try {
-      // Simulate API call - replace with actual API
-      // await api.delete(`/leagues/${leagueId}`);
+    if (!leagueId) {
+      toast.error("League ID is required");
+      return;
+    }
 
+    try {
+      await deleteLeague(leagueId);
       toast.success("League deleted successfully!");
       navigate("/dashboard");
-    } catch (err) {
-      toast.error("Failed to delete league. Please try again.");
+    } catch (err: any) {
+      const errorMessage = err?.response?.data?.detail || "Failed to delete league. Please try again.";
+      toast.error(errorMessage);
       console.error("Error deleting league:", err);
     }
   };
@@ -274,7 +236,7 @@ const LeagueSettingsPage: React.FC = () => {
           className={`tab-button ${activeTab === "members" ? "tab-button--active" : ""}`}
           onClick={() => setActiveTab("members")}
         >
-          Members ({data.members.length})
+          Members ({members.length})
         </button>
         <button
           className={`tab-button tab-button--danger ${activeTab === "danger" ? "tab-button--active" : ""}`}
@@ -402,7 +364,7 @@ const LeagueSettingsPage: React.FC = () => {
             <h2 className="settings-section__title">League Members</h2>
 
             <div className="members-list">
-              {data.members.map((member) => (
+              {members.map((member) => (
                 <div key={member.id} className="member-card">
                   <div className="member-card__info">
                     <div className="member-avatar">
