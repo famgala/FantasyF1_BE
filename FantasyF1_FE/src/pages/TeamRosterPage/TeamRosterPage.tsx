@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
+import { getTeamRoster, DriverPick, RaceRoster, TeamRosterData } from "../../services/leagueService";
 
 import "./TeamRosterPage.scss";
 
@@ -17,41 +18,6 @@ import "./TeamRosterPage.scss";
  * - Links to driver profiles
  * - Status indicators for races (completed, current, upcoming)
  */
-
-interface RaceRoster {
-  race_id: string;
-  race_name: string;
-  race_date: string;
-  round_number: number;
-  circuit_name: string;
-  status: "upcoming" | "upcoming_draft" | "drafting" | "completed";
-  drivers: DriverPick[];
-  total_points: number;
-}
-
-interface DriverPick {
-  driver_id: string;
-  driver_name: string;
-  driver_number: number;
-  team: string;
-  constructor_code: string;
-  finish_position: number | null;
-  points_earned: number;
-  pick_order: 1 | 2; // 1st pick or 2nd pick
-  status: "active" | "dnf" | "dsq" | "dns" | "placeholder" | "pending";
-}
-
-interface TeamRosterData {
-  constructor_id: string;
-  team_name: string;
-  league_id: string;
-  league_name: string;
-  owner_username: string;
-  owner_email: string;
-  season_total_points: number;
-  rank_in_league: number | null;
-  races: RaceRoster[];
-}
 
 type SortField = "date" | "points" | "race_name";
 type SortOrder = "asc" | "desc";
@@ -94,145 +60,12 @@ const TeamRosterPage: React.FC = () => {
       setLoading(true);
       setError(null);
 
-      // Simulate API call - replace with actual service call
-      // const response = await leagueService.getTeamRoster(leagueId!, teamId!);
-
-      // Mock data for simulation
-      const mockData: TeamRosterData = {
-        constructor_id: teamId || "1",
-        team_name: "Speed Demons Racing",
-        league_id: leagueId || "1",
-        league_name: "Formula Fanatics League",
-        owner_username: "speedracer",
-        owner_email: "racer@example.com",
-        season_total_points: 156,
-        rank_in_league: 3,
-        races: [
-          {
-            race_id: "1",
-            race_name: "Australian Grand Prix",
-            race_date: "2025-03-14T05:00:00Z",
-            round_number: 1,
-            circuit_name: "Albert Park Circuit",
-            status: "completed",
-            drivers: [
-              {
-                driver_id: "1",
-                driver_name: "Max Verstappen",
-                driver_number: 1,
-                team: "Red Bull Racing",
-                constructor_code: "RBR",
-                finish_position: 1,
-                points_earned: 1,
-                pick_order: 1,
-                status: "active",
-              },
-              {
-                driver_id: "2",
-                driver_name: "Lando Norris",
-                driver_number: 4,
-                team: "McLaren",
-                constructor_code: "MCL",
-                finish_position: 10,
-                points_earned: 10,
-                pick_order: 2,
-                status: "active",
-              },
-            ],
-            total_points: 11,
-          },
-          {
-            race_id: "2",
-            race_name: "Saudi Arabian Grand Prix",
-            race_date: "2025-03-21T15:00:00Z",
-            round_number: 2,
-            circuit_name: "Jeddah Corniche Circuit",
-            status: "completed",
-            drivers: [
-              {
-                driver_id: "3",
-                driver_name: "Charles Leclerc",
-                driver_number: 16,
-                team: "Ferrari",
-                constructor_code: "FER",
-                finish_position: 11,
-                points_earned: 9,
-                pick_order: 1,
-                status: "active",
-              },
-              {
-                driver_id: "4",
-                driver_name: "Oscar Piastri",
-                driver_number: 81,
-                team: "McLaren",
-                constructor_code: "MCL",
-                finish_position: 9,
-                points_earned: 11,
-                pick_order: 2,
-                status: "active",
-              },
-            ],
-            total_points: 20,
-          },
-          {
-            race_id: "3",
-            race_name: "Bahrain Grand Prix",
-            race_date: "2025-04-04T14:00:00Z",
-            round_number: 3,
-            circuit_name: "Bahrain International Circuit",
-            status: "completed",
-            drivers: [
-              {
-                driver_id: "5",
-                driver_name: "Lewis Hamilton",
-                driver_number: 44,
-                team: "Mercedes",
-                constructor_code: "MER",
-                finish_position: 7,
-                points_earned: 14,
-                pick_order: 1,
-                status: "active",
-              },
-              {
-                driver_id: "6",
-                driver_name: "George Russell",
-                driver_number: 63,
-                team: "Mercedes",
-                constructor_code: "MER",
-                finish_position: 8,
-                points_earned: 13,
-                pick_order: 2,
-                status: "active",
-              },
-            ],
-            total_points: 27,
-          },
-          {
-            race_id: "4",
-            race_name: "Japanese Grand Prix",
-            race_date: "2025-04-11T05:00:00Z",
-            round_number: 4,
-            circuit_name: "Suzuka Circuit",
-            status: "upcoming_draft",
-            drivers: [],
-            total_points: 0,
-          },
-          {
-            race_id: "5",
-            race_name: "Chinese Grand Prix",
-            race_date: "2025-04-18T08:00:00Z",
-            round_number: 5,
-            circuit_name: "Shanghai International Circuit",
-            status: "upcoming",
-            drivers: [],
-            total_points: 0,
-          },
-        ],
-      };
-
-      setTeamData(mockData);
+      // Call real API
+      const response = await getTeamRoster(leagueId!, teamId!);
+      setTeamData(response);
     } catch (err) {
       setError("Failed to load team roster. Please try again.");
+      toast.error("Failed to load team roster");
       console.error("Error fetching team roster:", err);
     } finally {
       setLoading(false);
@@ -455,8 +288,8 @@ const TeamRosterPage: React.FC = () => {
       {/* Description Section */}
       <div className="roster-intro">
         <p className="roster-intro__text">
-          View {teamData?.team_name}'s complete season roster breakdown. 
-          See which drivers were drafted for each race and the points earned 
+          View {teamData?.team_name}'s complete season roster breakdown.
+          See which drivers were drafted for each race and the points earned
           using inverted position scoring.
         </p>
       </div>

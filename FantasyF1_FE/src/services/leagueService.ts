@@ -355,3 +355,49 @@ export const checkInviteToken = async (token: string): Promise<LeagueInvite | nu
     return null;
   }
 };
+
+// Team Roster System
+export interface DriverPick {
+  driver_id: string;
+  driver_name: string;
+  driver_number: number;
+  team: string;
+  constructor_code: string;
+  finish_position: number | null;
+  points_earned: number;
+  pick_order: 1 | 2;
+  status: "active" | "dnf" | "dsq" | "dns" | "placeholder" | "pending";
+}
+
+export interface RaceRoster {
+  race_id: string;
+  race_name: string;
+  race_date: string;
+  round_number: number;
+  circuit_name: string;
+  status: "upcoming" | "upcoming_draft" | "drafting" | "completed";
+  drivers: DriverPick[];
+  total_points: number;
+}
+
+export interface TeamRosterData {
+  constructor_id: string;
+  team_name: string;
+  league_id: string;
+  league_name: string;
+  owner_username: string;
+  owner_email: string;
+  season_total_points: number;
+  rank_in_league: number | null;
+  races: RaceRoster[];
+}
+
+export const getTeamRoster = async (
+  leagueId: string,
+  teamId: string,
+): Promise<TeamRosterData> => {
+  const response = await api.get<TeamRosterData>(
+    `/leagues/${leagueId}/teams/${teamId}/roster`,
+  );
+  return response.data;
+};
