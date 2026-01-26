@@ -130,6 +130,47 @@ export const getDraftStatus = async (
 };
 
 /**
+ * Draft order with rotation info
+ */
+export interface DraftOrder {
+  race_id: number;
+  league_id: number;
+  draft_round: number;
+  order: DraftOrderConstructor[];
+  is_rotated: boolean;
+  rotation_reason?: string;
+  allow_draft_change: boolean;
+}
+
+/**
+ * Get draft order
+ */
+export const getDraftOrder = async (
+  leagueId: number,
+  raceId: number
+): Promise<DraftOrder> => {
+  const response = await api.get(
+    `/races/${raceId}/leagues/${leagueId}/draft-order`
+  );
+  return response.data;
+};
+
+/**
+ * Update draft order (manager only)
+ */
+export const updateDraftOrder = async (
+  leagueId: number,
+  raceId: number,
+  order: number[]
+): Promise<DraftOrder> => {
+  const response = await api.patch(
+    `/races/${raceId}/leagues/${leagueId}/draft-order`,
+    { order }
+  );
+  return response.data;
+};
+
+/**
  * Get draft history (completed drafts)
  */
 export const getDraftHistory = async (
