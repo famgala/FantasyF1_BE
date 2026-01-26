@@ -30,6 +30,22 @@ const formatTimeRemaining = (ms: number): string => {
 };
 
 /**
+ * Format datetime to user's local timezone
+ */
+const formatLocalDateTime = (dateString: string): string => {
+  const date = new Date(dateString);
+  return date.toLocaleString(undefined, {
+    weekday: 'short',
+    year: 'numeric',
+    month: 'short',
+    day: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit',
+    timeZoneName: 'short'
+  });
+};
+
+/**
  * Calculate time remaining to a target date
  */
 const getTimeRemaining = (
