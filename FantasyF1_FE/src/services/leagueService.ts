@@ -10,10 +10,13 @@ export interface League {
   current_teams: number;
   draft_method: string;
   scoring_system: string;
-  manager_id: string;
-  manager_username: string;
+  creator_id: string;
+  manager_id?: string;
+  manager_username?: string;
   created_at: string;
-  invite_link: string;
+  updated_at: string;
+  invite_link?: string;
+  team_count?: number;
 }
 
 export interface CreateLeagueRequest {
@@ -73,6 +76,51 @@ export const getLeagueById = async (id: string): Promise<League> => {
   return response.data;
 };
 
+export interface LeagueTeam {
+  id: string;
+  name: string;
+  user_id: string;
+  username?: string;
+  total_points: number;
+  is_manager: boolean;
+}
+
+export const getLeagueTeams = async (leagueId: string): Promise<LeagueTeam[]> => {
+  const response = await api.get<LeagueTeam[]>(`/leagues/${leagueId}/teams`);
+  return response.data;
+};
+
+export interface DraftStatus {
+  league_id: string;
+  race_id: number;
+  draft_method: string;
+  is_draft_complete: boolean;
+  total_teams: number;
+  total_picks_made: number;
+  current_round: number;
+  current_position: number;
+  current_team: {
+    id: string;
+    name: string;
+    user_id: string;
+  } | null;
+  next_pick: {
+    fantasy_team_id: string;
+    pick_round: number;
+    draft_position: number;
+  } | null;
+}
+
+export const getDraftStatus = async (
+  leagueId: string,
+  raceId: number,
+): Promise<DraftStatus> => {
+  const response = await api.get<DraftStatus>(`/drafts/${leagueId}/draft-status`, {
+    params: { race_id: raceId },
+  });
+  return response.data;
+};
+
 export const joinLeague = async (
   data: JoinLeagueRequest,
 ): Promise<JoinLeagueResponse> => {
@@ -87,4 +135,70 @@ export const inviteCodeCheck = async (code: string): Promise<League | null> => {
   } catch (error) {
     return null;
   }
+};
+
+export interface Race {
+  id: number;
+  name: string;
+  circuit: string;
+  country: string;
+  race_date: string;
+  qualifying_date: string;
+  status: string;
+}
+
+export const getUpcomingRace = async (): Promise<Race | null> => {
+  try {
+    const response = await api.get<Race[]>("/races", { params: { status: "upcoming" } });
+    // Return the first upcoming race
+    return response.data.length > 0 ? response.data[0] : null;
+  } catch (error) {
+    return null;
+  }
+};
+
+export const getCurrentRace = async (): Promise<Race | null> => {
+  try {
+    const response = await api.get<Race[]>("/races", { params: { status: "current" } });
+    return response.data.length > 0 ? response.data[0] : null;
+  } catch (error) {
+    return null;
+  }
+};
+
+export interface ConstructorLeaderboardEntry {
+  id: string;
+  team_name: string;
+  username: string;
+  is_manager: boolean;
+  total_points: number;
+  rank: number;
+  rank_change: "up" | "down" | "same" | number;
+}
+
+export interface LeaderboardRaceEntry {
+  id: number;
+  name: string;
+  round_number: number;
+  is_completed: boolean;
+}
+
+export interface LeaderboardResponse {
+  league_id: string;
+  league_name: string;
+  league_code: string;
+  is_manager: boolean;
+  constructors: ConstructorLeaderboardEntry[];
+  races: LeaderboardRaceEntry[];
+  overall_totals: ConstructorLeaderboardEntry[];
+  current_race_id: number | null;
+}
+
+export const getLeaderboard = async (
+  leagueId: string,
+  raceId?: number,
+): Promise<LeaderboardResponse> => {
+  const params = raceId ? { race_id: raceId } : {};
+  const response = await api.get<LeaderboardResponse>(`/leagues/${leagueId}/leaderboard`, { params });
+  return response.data;
 };

@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
+import { getLeaderboard, ConstructorLeaderboardEntry, LeaderboardRaceEntry, LeaderboardResponse } from "../../services/leagueService";
 import "./LeagueStandingsPage.scss";
 
 /**
@@ -11,33 +12,11 @@ import "./LeagueStandingsPage.scss";
  * and points per race. Allows filtering by race and CSV export for managers.
  */
 
-interface Constructor {
-  id: string;
-  team_name: string;
-  username: string;
-  is_manager: boolean;
-  total_points: number;
-  rank: number;
-  rank_change: "up" | "down" | "same" | number;
-}
+type Constructor = ConstructorLeaderboardEntry;
 
-interface Race {
-  id: string;
-  name: string;
-  round_number: number;
-  is_completed: boolean;
-}
+type Race = LeaderboardRaceEntry;
 
-interface LeagueStandingsData {
-  league_id: string;
-  league_name: string;
-  league_code: string;
-  is_manager: boolean;
-  constructors: Constructor[];
-  races: Race[];
-  overall_totals: Constructor[];
-  current_race_id: string | null;
-}
+type LeagueStandingsData = LeaderboardResponse;
 
 const LeagueStandingsPage: React.FC = () => {
   const { leagueId } = useParams<{ leagueId: string }>();
@@ -46,156 +25,24 @@ const LeagueStandingsPage: React.FC = () => {
   const [data, setData] = useState<LeagueStandingsData | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [selectedRaceId, setSelectedRaceId] = useState<string | null>(null);
+  const [selectedRaceId, setSelectedRaceId] = useState<number | null>(null);
   const [sortColumn, setSortColumn] = useState<keyof Constructor>("rank");
   const [sortDirection, setSortDirection] = useState<"asc" | "desc">("asc");
 
   // Fetch league standings data
   const fetchStandingsData = async () => {
+    if (!leagueId) {
+      setError("Invalid league ID");
+      setLoading(false);
+      return;
+    }
+
     setLoading(true);
     setError(null);
 
     try {
-      // Simulate API call - replace with actual API
-      // const response = await api.get(`/leagues/${leagueId}/leaderboard`);
-      // setData(response.data);
-
-      // Mock data for simulation
-      const mockData: LeagueStandingsData = {
-        league_id: leagueId || "1",
-        league_name: "F1 Fantasy Champions",
-        league_code: "F1CHAMP",
-        is_manager: true,
-        constructors: [
-          {
-            id: "c1",
-            team_name: "Red Bull Dash",
-            username: "SpeedDemon",
-            is_manager: true,
-            total_points: 0,
-            rank: 1,
-            rank_change: "up",
-          },
-          {
-            id: "c2",
-            team_name: "Ferrari Fanatics",
-            username: "TifosoPro",
-            is_manager: false,
-            total_points: 0,
-            rank: 2,
-            rank_change: 2,
-          },
-          {
-            id: "c3",
-            team_name: "Mercedes Magic",
-            username: "SilverArrow",
-            is_manager: false,
-            total_points: 0,
-            rank: 3,
-            rank_change: "down",
-          },
-          {
-            id: "c4",
-            team_name: "McLaren Masters",
-            username: "PapayaOrange",
-            is_manager: false,
-            total_points: 0,
-            rank: 4,
-            rank_change: "same",
-          },
-          {
-            id: "c5",
-            team_name: "Aston Acceleration",
-            username: "GreenMachine",
-            is_manager: false,
-            total_points: 0,
-            rank: 5,
-            rank_change: 1,
-          },
-        ],
-        races: [
-          {
-            id: "r1",
-            name: "Australian Grand Prix",
-            round_number: 1,
-            is_completed: true,
-          },
-          {
-            id: "r2",
-            name: "Saudi Arabian Grand Prix",
-            round_number: 2,
-            is_completed: true,
-          },
-          {
-            id: "r3",
-            name: "Japanese Grand Prix",
-            round_number: 3,
-            is_completed: true,
-          },
-          {
-            id: "r4",
-            name: "Chinese Grand Prix",
-            round_number: 4,
-            is_completed: false,
-          },
-          {
-            id: "r5",
-            name: "Miami Grand Prix",
-            round_number: 5,
-            is_completed: false,
-          },
-        ],
-        overall_totals: [
-          {
-            id: "c1",
-            team_name: "Red Bull Dash",
-            username: "SpeedDemon",
-            is_manager: true,
-            total_points: 142,
-            rank: 1,
-            rank_change: "up",
-          },
-          {
-            id: "c2",
-            team_name: "Ferrari Fanatics",
-            username: "TifosoPro",
-            is_manager: false,
-            total_points: 128,
-            rank: 2,
-            rank_change: 2,
-          },
-          {
-            id: "c3",
-            team_name: "Mercedes Magic",
-            username: "SilverArrow",
-            is_manager: false,
-            total_points: 115,
-            rank: 3,
-            rank_change: "down",
-          },
-          {
-            id: "c4",
-            team_name: "McLaren Masters",
-            username: "PapayaOrange",
-            is_manager: false,
-            total_points: 98,
-            rank: 4,
-            rank_change: "same",
-          },
-          {
-            id: "c5",
-            team_name: "Aston Acceleration",
-            username: "GreenMachine",
-            is_manager: false,
-            total_points: 87,
-            rank: 5,
-            rank_change: 1,
-          },
-        ],
-        current_race_id: "r4",
-      };
-
-      setData(mockData);
+      const leaderboardData = await getLeaderboard(leagueId, selectedRaceId ?? undefined);
+      setData(leaderboardData);
     } catch (err) {
       setError("Failed to load standings data. Please try again.");
       console.error("Error fetching standings:", err);
@@ -205,12 +52,10 @@ const LeagueStandingsPage: React.FC = () => {
   };
 
   useEffect(() => {
-    if (leagueId) {
-      fetchStandingsData();
-    }
-  }, [leagueId]);
+    fetchStandingsData();
+  }, [leagueId, selectedRaceId]);
 
-  const handleRaceFilterChange = (raceId: string | null) => {
+  const handleRaceFilterChange = (raceId: number | null) => {
     setSelectedRaceId(raceId);
   };
 
@@ -253,11 +98,7 @@ const LeagueStandingsPage: React.FC = () => {
     if (!data) return [];
 
     let constructors = selectedRaceId
-      ? data.constructors.map((c) => ({
-          ...c,
-          // In real implementation, fetch race-specific points
-          ...(data.overall_totals.find((ot) => ot.id === c.id) || {}),
-        }))
+      ? data.constructors
       : data.overall_totals;
 
     return constructors.sort((a, b) => {
