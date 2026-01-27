@@ -21,6 +21,7 @@ import AdminUsersPage from "./pages/AdminUsersPage";
 import AdminLeaguesPage from "./pages/AdminLeaguesPage";
 import AdminLogsPage from "./pages/AdminLogsPage";
 import AdminRaceManagementPage from "./pages/AdminRaceManagementPage";
+import { AdminNotificationsPage } from "./pages/AdminNotificationsPage";
 import NotFoundPage from "./pages/NotFoundPage";
 import { ProtectedRoute } from "./components/auth/ProtectedRoute";
 import AppLayout from "./components/layout/AppLayout";
@@ -255,7 +256,18 @@ const AppContent: React.FC = () => {
               </ProtectedRoute>
             }
           />
-          
+
+          <Route
+            path="/admin/notifications"
+            element={
+              <ProtectedRoute>
+                <AppLayout>
+                  <AdminNotificationsPage />
+                </AppLayout>
+              </ProtectedRoute>
+            }
+          />
+
           {/* 404 Fallback */}
           <Route path="*" element={<NotFoundPage />} />
         </Routes>
