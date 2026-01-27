@@ -184,7 +184,7 @@ async def delete_team(
     team_id: int,
     current_user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db),
-):
+) -> None:
     """
     Delete a fantasy team.
 
@@ -301,7 +301,7 @@ async def remove_team_pick(
     pick_id: int,
     current_user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db),
-):
+) -> None:
     """
     Remove a pick from a fantasy team.
 

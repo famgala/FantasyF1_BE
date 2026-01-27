@@ -1,0 +1,117 @@
+version: '3.8'
+
+services:
+  # PostgreSQL Database
+  postgres:
+    image: postgres:15-alpine
+    container_name: fantasyf1_test_postgres
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-test_fantasyf1_user}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-test_password_ci_cd_2024}
+      POSTGRES_DB: ${POSTGRES_DB:-test_fantasyf1_db}
+    ports:
+      - "5432:5432"
+    networks:
+      - fantasyf1_test_network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-test_fantasyf1_user} -d ${POSTGRES_DB:-test_fantasyf1_db}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    security_opt:
+      - no-new-privileges:true
+
+  # Redis Cache & Message Broker
+  redis:
+    image: redis:7-alpine
+    container_name: fantasyf1_test_redis
+    command: redis-server --requirepass ${REDIS_PASSWORD:-test_redis_password_ci_cd_2024} --maxmemory 256mb --maxmemory-policy allkeys-lru
+    ports:
+      - "6379:6379"
+    networks:
+      - fantasyf1_test_network
+    healthcheck:
+      test: ["CMD", "redis-cli", "-a", "${REDIS_PASSWORD:-test_redis_password_ci_cd_2024}", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 30s
+    security_opt:
+      - no-new-privileges:true
+
+  # MQTT Broker (Eclipse Mosquitto)
+  mosquitto:
+    image: eclipse-mosquitto:2.0
+    container_name: fantasyf1_test_mosquitto
+    user: "1883:1883"
+    ports:
+      - "1883:1883"
+    volumes:
+      - ./init-mosquitto-test.sh:/init-mosquitto.sh:ro
+      - mosquitto_test_data:/mosquitto/data
+      - mosquitto_test_logs:/mosquitto/log
+    entrypoint: ["sh", "/init-mosquitto.sh"]
+    env_file:
+      - .env
+    networks:
+      - fantasyf1_test_network
+    security_opt:
+      - no-new-privileges:true
+
+  # FastAPI Backend Application
+  backend:
+    build:
+      context: ./FantasyF1_BE
+      dockerfile: Dockerfile
+      args:
+        VCS_REF: ${VCS_REF:-unknown}
+        BUILD_DATE: ${BUILD_DATE:-unknown}
+        VERSION: ${VERSION:-1.0.0}
+    image: famgala/fantasyf1-be:dev
+    container_name: fantasyf1_test_backend
+    environment:
+      - DATABASE_URL=postgresql+asyncpg://${POSTGRES_USER:-test_fantasyf1_user}:${POSTGRES_PASSWORD:-test_password_ci_cd_2024}@postgres:5432/${POSTGRES_DB:-test_fantasyf1_db}
+      - REDIS_URL=redis://:${REDIS_PASSWORD:-test_redis_password_ci_cd_2024}@redis:6379/0
+      - CELERY_BROKER_URL=redis://:${REDIS_PASSWORD:-test_redis_password_ci_cd_2024}@redis:6379/1
+      - CELERY_RESULT_BACKEND=redis://:${REDIS_PASSWORD:-test_redis_password_ci_cd_2024}@redis:6379/2
+      - SECRET_KEY=${SECRET_KEY:-test_secret_key_ci_only}
+      - JWT_SECRET_KEY=${JWT_SECRET_KEY:-test_jwt_secret_key_ci_only}
+      - ENVIRONMENT=testing
+      - MQTT_BROKER_HOST=mosquitto
+      - MQTT_BROKER_PORT=1883
+      - MQTT_USERNAME=${MQTT_USERNAME:-test_mqtt_user}
+      - MQTT_PASSWORD=${MQTT_PASSWORD:-test_mqtt_password_ci}
+    ports:
+      - "8000:8000"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      mosquitto:
+        condition: service_started
+    networks:
+      - fantasyf1_test_network
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:8000/health || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
+    security_opt:
+      - no-new-privileges:true
+    tmpfs:
+      - /tmp
+
+networks:
+  fantasyf1_test_network:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.26.0.0/16
+
+volumes:
+  mosquitto_test_data:
+    driver: local
+  mosquitto_test_logs:
+    driver: local

@@ -5,6 +5,8 @@ This service handles fetching and syncing data from the Jolpica F1 API
 with current F1 season data.
 """
 
+from typing import Any
+
 import httpx
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -43,7 +45,7 @@ class ExternalDataService:
         return client
 
     @staticmethod
-    async def fetch_drivers(year: int) -> list[dict]:
+    async def fetch_drivers(year: int) -> list[dict[str, Any]]:
         """Fetch drivers from Jolpica API for a specific year.
 
         Args:
@@ -59,12 +61,12 @@ class ExternalDataService:
             logger.info(f"Fetching drivers for year {year}")
             response = await client.get(f"{ExternalDataService.JOLPICA_BASE_URL}/drivers/{year}")
             response.raise_for_status()
-            data: list[dict] = response.json()
+            data: list[dict[str, Any]] = response.json()
             logger.info(f"Fetched {len(data)} drivers for year {year}")
             return data
 
     @staticmethod
-    async def fetch_races(year: int) -> list[dict]:
+    async def fetch_races(year: int) -> list[dict[str, Any]]:
         """Fetch race schedule from Jolpica API for a specific year.
 
         Args:
@@ -80,12 +82,12 @@ class ExternalDataService:
             logger.info(f"Fetching races for year {year}")
             response = await client.get(f"{ExternalDataService.JOLPICA_BASE_URL}/races/{year}")
             response.raise_for_status()
-            data: list[dict] = response.json()
+            data: list[dict[str, Any]] = response.json()
             logger.info(f"Fetched {len(data)} races for year {year}")
             return data
 
     @staticmethod
-    async def fetch_race_results(year: int, round_number: int) -> dict:
+    async def fetch_race_results(year: int, round_number: int) -> dict[str, Any]:
         """Fetch race results from Jolpica API.
 
         Args:
@@ -104,7 +106,7 @@ class ExternalDataService:
                 f"{ExternalDataService.JOLPICA_BASE_URL}/races/{year}/{round_number}/results"
             )
             response.raise_for_status()
-            data: dict = response.json()
+            data: dict[str, Any] = response.json()
             logger.info(f"Fetched race results for year {year}, round {round_number}")
             return data
 
@@ -210,6 +212,7 @@ class ExternalDataService:
                     update_data = RaceUpdate(
                         status=race_data.get("status", "upcoming"),
                         race_date=race_data.get("date"),
+                        winning_constructor_id=None,  # Will be set by scoring service after results
                     )
                     await RaceService.update(db, existing, update_data)
                     logger.info(f"Updated race: {existing.name}")

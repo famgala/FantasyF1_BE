@@ -1,12 +1,14 @@
 """Leagues API endpoints."""
 
-from typing import Annotated
+from typing import Annotated, Any
 
 from fastapi import APIRouter, Depends, HTTPException, Query, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.api.deps import get_current_user, get_db
+from app.models.race import Race
 from app.models.user import User
+from app.schemas.leaderboard import LeaderboardEntry, LeaderboardResponse
 from app.schemas.league import (
     LeagueCreate,
     LeagueDetailResponse,
@@ -16,6 +18,8 @@ from app.schemas.league import (
 )
 from app.schemas.team import TeamResponse as LeagueTeamResponse
 from app.services.fantasy_team_service import FantasyTeamService
+from app.services.invitation_service import InvitationService
+from app.services.leaderboard_service import LeaderboardService
 from app.services.league_service import LeagueService
 
 router = APIRouter()
@@ -85,10 +89,34 @@ async def search_leagues(
 async def get_league(
     league_id: int,
     db: Annotated[AsyncSession, Depends(get_db)],
-    current_user: Annotated[User | None, Depends(get_current_user)] = None,  # noqa: ARG001
+    current_user: Annotated[User | None, Depends(get_current_user)] = None,
 ) -> LeagueDetailResponse:
-    """Get league by ID with full details."""
+    """Get league by ID with full details.
+
+    For private leagues, only league members can access the details.
+    """
     league = await LeagueService.get(db, league_id)
+
+    # Check access control for private leagues
+    if league.is_private and current_user:
+        # If logged in, check if user is a member (has a team in the league)
+        user_teams = await FantasyTeamService.get_user_teams(
+            session=db,
+            user_id=current_user.id,
+            league_id=league_id,
+        )
+        if not user_teams and not current_user.is_superuser:
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail="You must be a member to view this private league",
+            )
+    elif league.is_private and not current_user:
+        # Anonymous users cannot access private leagues
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="You must be logged in to view private leagues",
+        )
+
     return LeagueDetailResponse.model_validate(league)
 
 
@@ -96,12 +124,36 @@ async def get_league(
 async def get_league_by_code(
     code: str,
     db: Annotated[AsyncSession, Depends(get_db)],
-    current_user: Annotated[User | None, Depends(get_current_user)] = None,  # noqa: ARG001
+    current_user: Annotated[User | None, Depends(get_current_user)] = None,
 ) -> LeagueDetailResponse:
-    """Get league by join code."""
+    """Get league by join code.
+
+    For private leagues, only league members can access the details.
+    """
     league = await LeagueService.get_by_code(db, code)
     if not league:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="League not found")
+
+    # Check access control for private leagues
+    if league.is_private and current_user:
+        # If logged in, check if user is a member (has a team in the league)
+        user_teams = await FantasyTeamService.get_user_teams(
+            session=db,
+            user_id=current_user.id,
+            league_id=league.id,
+        )
+        if not user_teams and not current_user.is_superuser:
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail="You must be a member to view this private league",
+            )
+    elif league.is_private and not current_user:
+        # Anonymous users cannot access private leagues
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="You must be logged in to view private leagues",
+        )
+
     return LeagueDetailResponse.model_validate(league)
 
 
@@ -157,7 +209,7 @@ async def list_league_members(
     current_user: Annotated[User, Depends(get_current_user)],  # noqa: ARG001
     skip: int = Query(default=0, ge=0),
     limit: int = Query(default=100, ge=1, le=100),
-):
+) -> dict[str, Any]:
     """List all members (teams) in a league."""
     await LeagueService.get(db, league_id)
 
@@ -194,7 +246,7 @@ async def list_league_teams(
     current_user: Annotated[User, Depends(get_current_user)],  # noqa: ARG001
     skip: int = Query(default=0, ge=0),
     limit: int = Query(default=100, ge=1, le=100),
-) -> dict:
+) -> dict[str, Any]:
     """List all teams in a league."""
     # Verify league exists
     await LeagueService.get(db, league_id)
@@ -220,20 +272,51 @@ async def join_league(
     league_id: int,
     db: Annotated[AsyncSession, Depends(get_db)],
     current_user: Annotated[User, Depends(get_current_user)],
-    team_name: str = Query(..., min_length=3, max_length=100, description="Team name"),
+    team_name: str = Query(
+        ...,
+        min_length=3,
+        max_length=100,
+        description="Team name",
+    ),
+    invite_code: str
+    | None = Query(
+        None,
+        description="Invite code for private leagues",
+    ),
 ) -> LeagueTeamResponse:
     """Join a league by creating a team in it.
+
+    For public leagues: Anyone can join
+    For private leagues: Must provide valid invite code or have pending invitation
 
     This endpoint creates a new team for the user in the specified league,
     effectively joining the league.
     """
     league = await LeagueService.get(db, league_id)
 
-    # Check if league is private (optional check depending on requirements)
-    if league.is_private and league.code:
-        # For private leagues, you might require the code to be verified
-        # This is a placeholder for future enhancement
-        pass
+    # Check if league is private
+    if league.is_private:
+        # Check if user has a valid invite code
+        code_valid = False
+        if invite_code and league.code:
+            code_valid = invite_code == league.code
+
+        # Check if user has a pending invitation
+        has_invitation = False
+        if invite_code and not code_valid:
+            try:
+                invitation = await InvitationService.get_by_code(db, invite_code)
+                if invitation and invitation.league_id == league_id:
+                    has_invitation = True
+            except Exception:
+                has_invitation = False
+
+        if not code_valid and not has_invitation:
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail="Invalid invite code. Please get a valid invite code "
+                "from the league creator.",
+            )
 
     # Check if user already has a team in this league
     existing_teams = await FantasyTeamService.get_user_teams(
@@ -267,6 +350,21 @@ async def join_league(
             league_id=league_id,
             name=team_name,
         )
+
+        # If user joined via invite code, invalidate the invitation
+        if invite_code and league.is_private:
+            try:
+                invitation = await InvitationService.get_by_code(db, invite_code)
+                if invitation and invitation.status == "pending":
+                    await InvitationService.accept_invitation(
+                        db=db,
+                        invitation=invitation,
+                        user_id=current_user.id,
+                        team_name=team_name,
+                    )
+            except Exception:
+                pass  # Silently fail if invitation update fails
+
         return LeagueTeamResponse.model_validate(team)
     except ConflictError as e:
         raise HTTPException(
@@ -280,12 +378,99 @@ async def join_league(
         ) from e
 
 
+@router.get(
+    "/{league_id}/leaderboard", response_model=LeaderboardResponse, status_code=status.HTTP_200_OK
+)
+async def get_leaderboard(
+    league_id: int,
+    db: Annotated[AsyncSession, Depends(get_db)],
+    current_user: Annotated[User, Depends(get_current_user)],  # noqa: ARG001
+    race_id: int | None = Query(None, description="Optional race ID for race-specific leaderboard"),
+    use_cache: bool = Query(True, description="Whether to use cached data"),
+    skip: int = Query(default=0, ge=0, description="Number of entries to skip"),
+    limit: int = Query(
+        default=100, ge=1, le=100, description="Maximum number of entries to return"
+    ),
+) -> LeaderboardResponse:
+    """Get the leaderboard for a league.
+
+    Returns sorted standings with tie-breaking based on:
+    1. Total points (primary)
+    2. Number of wins (secondary)
+    3. Number of podiums (tertiary)
+    4. Alphabetical team name (final)
+
+    Args:
+        league_id: League ID
+        db: Database session
+        current_user: Current authenticated user
+        race_id: Optional race ID for race-specific leaderboard
+        use_cache: Whether to use cached data if available
+        skip: Number of entries to skip for pagination
+        limit: Maximum number of entries to return
+
+    Returns:
+        Leaderboard response with entries sorted by rank
+
+    Raises:
+        HTTPException: If league not found
+    """
+    from sqlalchemy import select
+
+    from app.core.exceptions import NotFoundError
+
+    # Get league
+    try:
+        league = await LeagueService.get(db, league_id)
+    except NotFoundError as e:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="League not found",
+        ) from e
+
+    # Get race if specified
+    race_name = None
+    if race_id:
+        result = await db.execute(select(Race).where(Race.id == race_id))
+        race = result.scalar_one_or_none()
+        if not race:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="Race not found",
+            )
+        race_name = race.name
+
+    # Get leaderboard
+    entries_dict = await LeaderboardService.get_leaderboard(
+        db=db,
+        league_id=league_id,
+        race_id=race_id,
+        use_cache=use_cache,
+    )
+
+    # Apply pagination
+    total_entries = len(entries_dict)
+    paginated_entries_dict = entries_dict[skip : skip + limit]
+
+    # Convert to LeaderboardEntry objects
+    entries = [LeaderboardEntry(**entry) for entry in paginated_entries_dict]
+
+    return LeaderboardResponse(
+        league_id=league_id,
+        league_name=league.name,
+        race_id=race_id,
+        race_name=race_name,
+        entries=entries,
+        total_entries=total_entries,
+    )
+
+
 @router.delete("/{league_id}/leave", status_code=status.HTTP_204_NO_CONTENT)
 async def leave_league(
     league_id: int,
     db: Annotated[AsyncSession, Depends(get_db)],
     current_user: Annotated[User, Depends(get_current_user)],
-):
+) -> None:
     """Leave a league by deleting your team in it.
 
     This endpoint finds and deletes the user's team in the specified league.

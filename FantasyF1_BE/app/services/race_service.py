@@ -268,6 +268,7 @@ class RaceService:
             update_data = RaceUpdate(
                 status=race_data.status,
                 race_date=race_data.race_date if race_data.status == "completed" else None,
+                winning_constructor_id=None,  # Will be set by scoring service after results
             )
             return await RaceService.update(db, existing, update_data)
         else:

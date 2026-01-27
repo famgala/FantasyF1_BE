@@ -1,5 +1,7 @@
 """Integration tests for DriverService."""
 
+# type: ignore
+
 import pytest
 from sqlalchemy.ext.asyncio import AsyncSession
 

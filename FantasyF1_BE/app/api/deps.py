@@ -5,12 +5,19 @@ from typing import Annotated
 from fastapi import Depends, HTTPException, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from app.core.exceptions import ForbiddenError
 from app.core.security import verify_token
 from app.db.session import get_db
 from app.models.user import User
 from app.services.user_service import UserService
 
-__all__ = ["get_current_user", "get_db"]
+__all__ = [
+    "get_current_user",
+    "get_current_user_id",
+    "get_current_superuser",
+    "get_current_active_user",
+    "get_db",
+]
 
 
 async def get_current_user(
@@ -42,3 +49,30 @@ async def get_current_active_user(
             detail="Not authenticated",
         )
     return current_user
+
+
+async def get_current_superuser(
+    current_user: Annotated[User, Depends(get_current_active_user)],
+) -> User:
+    """Get current superuser (admin).
+
+    Raises:
+        ForbiddenError: If user is not a superuser
+    """
+    if not current_user.is_superuser:
+        raise ForbiddenError("Admin privileges required")
+    return current_user
+
+
+async def get_current_user_id(
+    current_user: Annotated[User, Depends(get_current_active_user)],
+) -> int:
+    """Get current user ID.
+
+    Returns:
+        Current user ID as integer
+
+    Raises:
+        HTTPException: If user is not authenticated
+    """
+    return current_user.id

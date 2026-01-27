@@ -1,0 +1,70 @@
+# Development Environment Dockerfile
+# Used for VS Code Dev Container
+FROM mcr.microsoft.com/devcontainers/base:ubuntu
+
+# Install Python and Node.js
+RUN apt-get update && export DEBIAN_FRONTEND=noninteractive \
+    && apt-get -y install --no-install-recommends \
+    python3.11 \
+    python3.11-venv \
+    python3-pip \
+    python3-dev \
+    libpq-dev \
+    postgresql-client \
+    redis-tools \
+    curl \
+    git \
+    vim \
+    jq \
+    && rm -rf /var/lib/apt/lists/*
+
+# Install Docker CLI
+RUN curl -fsSL https://get.docker.com -o get-docker.sh \
+    && sh get-docker.sh \
+    && rm get-docker.sh
+
+# Install Node.js (for future frontend development)
+RUN curl -fsSL https://deb.nodesource.com/setup_lts.x | bash - \
+    && apt-get install -y nodejs \
+    && rm -rf /var/lib/apt/lists/*
+
+# Set up Python venv
+RUN python3.11 -m venv /usr/local
+ENV PATH="/usr/local/bin:${PATH}"
+
+# Install Python development tools
+RUN pip install --no-cache-dir \
+    pip==23.3.1 \
+    setuptools==69.0.3 \
+    wheel==0.42.0 \
+    black==23.12.1 \
+    ruff==0.1.9 \
+    mypy==1.8.0 \
+    pytest==7.4.3 \
+    pytest-asyncio==0.21.1 \
+    pytest-cov==4.1.0 \
+    httpx==0.26.0
+
+# Install common VS Code tools
+RUN pip install --no-cache-dir \
+    ipython \
+    ipykernel
+
+# Create non-root user
+RUN groupadd --gid 1000 vscode && \
+    useradd --uid 1000 --gid vscode --shell /bin/bash --create-home vscode
+
+# Set up permissions
+RUN mkdir -p /workspace && \
+    chown vscode:vscode /workspace
+
+# Switch to non-root user
+USER vscode
+
+# Set working directory
+WORKDIR /workspace
+
+# Add Python kernel for Jupyter
+RUN python -m ipykernel install --user --name=python3
+
+CMD ["/bin/bash"]
