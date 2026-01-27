@@ -1,0 +1,44 @@
+@import '../../../styles/_variables.scss';
+
+.list-skeleton {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-md;
+}
+
+.list-skeleton__item {
+  display: flex;
+  align-items: center;
+  gap: $spacing-md;
+  padding: $spacing-md;
+  background: $white;
+  border-radius: $border-radius-sm;
+  border: 1px solid $gray-100;
+}
+
+.list-skeleton__icon {
+  flex-shrink: 0;
+}
+
+.list-skeleton__content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-xs;
+  min-width: 0;
+}
+
+.list-skeleton__date {
+  flex-shrink: 0;
+}
+
+@media (max-width: $breakpoint-sm) {
+  .list-skeleton__item {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .list-skeleton__date {
+    align-self: flex-end;
+  }
+}

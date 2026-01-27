@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import { getTeamRoster, DriverPick, RaceRoster, TeamRosterData } from "../../services/leagueService";
+import { CardSkeleton } from "../../components/loading";
 
 import "./TeamRosterPage.scss";
 
@@ -219,9 +220,22 @@ const TeamRosterPage: React.FC = () => {
   if (loading) {
     return (
       <div className="team-roster-page team-roster-page--loading">
-        <div className="skeleton skeleton--header" />
-        <div className="skeleton skeleton--stats" />
-        <div className="skeleton skeleton--table" />
+        <div className="team-roster-page__header-skeleton">
+          <CardSkeleton />
+        </div>
+        <div className="team-roster-page__stats-skeleton">
+          <CardSkeleton />
+        </div>
+        <div className="team-roster-page__intro-skeleton">
+          <CardSkeleton />
+        </div>
+        <div className="team-roster-page__list-skeleton">
+          {Array(3).fill(null).map((_, index) => (
+            <div key={index} className="team-roster-page__race-skeleton">
+              <CardSkeleton />
+            </div>
+          ))}
+        </div>
       </div>
     );
   }

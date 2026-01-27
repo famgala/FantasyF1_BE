@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import { getLeaderboard, ConstructorLeaderboardEntry, LeaderboardRaceEntry, LeaderboardResponse } from "../../services/leagueService";
+import { CardSkeleton, TableSkeleton } from "../../components/loading";
 import "./LeagueStandingsPage.scss";
 
 /**
@@ -141,9 +142,15 @@ const LeagueStandingsPage: React.FC = () => {
   if (loading) {
     return (
       <div className="league-standings-page league-standings-page--loading">
-        <div className="skeleton skeleton--header" />
-        <div className="skeleton skeleton--filter" />
-        <div className="skeleton skeleton--table" />
+        <header className="standings-header">
+          <CardSkeleton />
+        </header>
+        <div className="standings-filter-section">
+          <CardSkeleton />
+        </div>
+        <div className="standings-table-container">
+          <TableSkeleton rows={8} columns={5} />
+        </div>
       </div>
     );
   }

@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { RaceResult, getRaceResults } from "../../services/raceResultsService";
+import { CardSkeleton, TableSkeleton } from "../loading";
+
 import "./RaceResults.scss";
 
 interface RaceResultsProps {
@@ -85,8 +87,12 @@ const RaceResults: React.FC<RaceResultsProps> = ({ raceId: propRaceId }) => {
   if (loading) {
     return (
       <div className="race-results race-results--loading">
-        <div className="skeleton-header"></div>
-        <div className="skeleton-table"></div>
+        <div className="race-results__header-skeleton">
+          <CardSkeleton />
+        </div>
+        <div className="race-results__table-skeleton">
+          <TableSkeleton rowCount={10} columnCount={7} />
+        </div>
       </div>
     );
   }

@@ -6,6 +6,7 @@ import {
   PlatformStats,
   SystemHealth,
 } from "../../services/adminService";
+import { CardSkeleton } from "../../components/loading";
 import "./AdminDashboardPage.scss";
 
 /**
@@ -78,9 +79,30 @@ const AdminDashboardPage: React.FC = () => {
   if (isLoading) {
     return (
       <div className="admin-dashboard admin-dashboard--loading">
-        <div className="admin-dashboard__loader">
-          <div className="admin-dashboard__spinner" />
-          <p>Loading dashboard data...</p>
+        <div className="admin-dashboard__header-skeleton">
+          <CardSkeleton />
+        </div>
+        <div className="admin-dashboard__stats-grid">
+          {Array(6).fill(null).map((_, index) => (
+            <div key={index} className="admin-dashboard__stat-card-skeleton">
+              <CardSkeleton />
+            </div>
+          ))}
+        </div>
+        <div className="admin-dashboard__charts">
+          <div className="admin-dashboard__chart-card">
+            <CardSkeleton />
+          </div>
+          <div className="admin-dashboard__chart-card">
+            <CardSkeleton />
+          </div>
+        </div>
+        <div className="admin-dashboard__health-grid">
+          {Array(4).fill(null).map((_, index) => (
+            <div key={index} className="admin-dashboard__health-card-skeleton">
+              <CardSkeleton />
+            </div>
+          ))}
         </div>
       </div>
     );

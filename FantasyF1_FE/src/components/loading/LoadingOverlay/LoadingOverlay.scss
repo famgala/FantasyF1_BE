@@ -1,0 +1,49 @@
+@import '../../../styles/_variables.scss';
+
+.loading-overlay {
+  position: relative;
+  min-height: 200px;
+}
+
+.loading-overlay__backdrop {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(255, 255, 255, 0.9);
+  backdrop-filter: blur(4px);
+  z-index: 1000;
+}
+
+.loading-overlay__spinner-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: $spacing-md;
+  padding: $spacing-lg;
+  background: $white;
+  border-radius: $border-radius-lg;
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.15);
+}
+
+.loading-overlay__message {
+  margin: 0;
+  font-size: $font-size-md;
+  color: $text-primary;
+  font-weight: 500;
+  text-align: center;
+}
+
+@media (max-width: $breakpoint-sm) {
+  .loading-overlay__spinner-container {
+    padding: $spacing-md;
+  }
+
+  .loading-overlay__message {
+    font-size: $font-size-sm;
+  }
+}

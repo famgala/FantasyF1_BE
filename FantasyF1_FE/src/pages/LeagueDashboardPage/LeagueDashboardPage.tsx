@@ -11,6 +11,7 @@ import {
   LeagueTeam,
   League
 } from "../../services/leagueService";
+import { CardSkeleton, TableSkeleton } from "../../components/loading";
 import "./LeagueDashboardPage.scss";
 
 
@@ -240,9 +241,15 @@ const LeagueDashboardPage: React.FC = () => {
   if (loading) {
     return (
       <div className="league-dashboard-page league-dashboard-page--loading">
-        <div className="skeleton skeleton--header" />
-        <div className="skeleton skeleton--content" />
-        <div className="skeleton skeleton--table" />
+        <div className="league-header">
+          <CardSkeleton />
+        </div>
+        <section className="draft-status-section">
+          <CardSkeleton />
+        </section>
+        <section className="standings-section">
+          <TableSkeleton rows={5} columns={4} />
+        </section>
       </div>
     );
   }

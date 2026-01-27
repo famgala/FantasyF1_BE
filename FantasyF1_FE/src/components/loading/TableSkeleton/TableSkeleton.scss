@@ -1,0 +1,42 @@
+@import '../../../styles/_variables.scss';
+
+.table-skeleton {
+  background: $white;
+  border-radius: $border-radius-md;
+  overflow: hidden;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.table-skeleton__header {
+  display: grid;
+  gap: $spacing-sm;
+  padding: $spacing-md;
+  background: $gray-50;
+  border-bottom: 1px solid $gray-200;
+}
+
+.table-skeleton__header-cell {
+  display: flex;
+  align-items: center;
+}
+
+.table-skeleton__body {
+  display: flex;
+  flex-direction: column;
+}
+
+.table-skeleton__row {
+  display: grid;
+  gap: $spacing-sm;
+  padding: $spacing-md;
+  border-bottom: 1px solid $gray-100;
+
+  &:last-child {
+    border-bottom: none;
+  }
+}
+
+.table-skeleton__cell {
+  display: flex;
+  align-items: center;
+}

@@ -7,6 +7,7 @@ import RaceCountdown from "../../components/dashboard/RaceCountdown/RaceCountdow
 import LeagueCard from "../../components/dashboard/LeagueCard/LeagueCard";
 import ActivityFeed from "../../components/dashboard/ActivityFeed/ActivityFeed";
 import { NoLeagueState } from "../../components/dashboard/NoLeagueState/NoLeagueState";
+import { CardSkeleton, ListSkeleton, LoadingSpinner } from "../../components/loading";
 import * as S from "./DashboardPage.scss";
 
 /**
@@ -48,10 +49,35 @@ const DashboardPage: React.FC = () => {
   if (loading) {
     return (
       <S.DashboardPage>
-        <S.LoadingState>
-          <S.Spinner />
-          <S.LoadingText>Loading your dashboard...</S.LoadingText>
-        </S.LoadingState>
+        <S.Header>
+          <S.HeaderContent>
+            <S.Title>Loading your dashboard...</S.Title>
+          </S.HeaderContent>
+        </S.Header>
+
+        <S.Content>
+          <S.TopSection>
+            <CardSkeleton />
+          </S.TopSection>
+
+          <S.MainSection>
+            <S.LeftColumn>
+              <CardSkeleton />
+              <S.LeaguesSection>
+                <S.SectionTitle>Your Leagues</S.SectionTitle>
+                <S.LeaguesGrid>
+                  <CardSkeleton />
+                  <CardSkeleton />
+                  <CardSkeleton />
+                </S.LeaguesGrid>
+              </S.LeaguesSection>
+            </S.LeftColumn>
+
+            <S.RightColumn>
+              <CardSkeleton />
+            </S.RightColumn>
+          </S.MainSection>
+        </S.Content>
       </S.DashboardPage>
     );
   }

@@ -10,6 +10,7 @@ import {
   revokeInvite,
   type LeagueInvite,
 } from "../../services/leagueService";
+import { CardSkeleton } from "../../components/loading";
 
 import "./LeagueInvitationsPage.scss";
 
@@ -366,9 +367,23 @@ const LeagueInvitationsPage: React.FC = () => {
   if (loading) {
     return (
       <div className="league-invitations-page league-invitations-page--loading">
-        <div className="skeleton skeleton--header" />
-        <div className="skeleton skeleton--tabs" />
-        <div className="skeleton skeleton--content" />
+        <div className="league-invitations-page__header-skeleton">
+          <CardSkeleton />
+        </div>
+        <div className="league-invitations-page__code-section-skeleton">
+          <CardSkeleton />
+        </div>
+        <div className="league-invitations-page__tabs-skeleton">
+          <CardSkeleton />
+        </div>
+        <div className="league-invitations-page__content-skeleton">
+          <div className="league-invitations-page__form-skeleton">
+            <CardSkeleton />
+          </div>
+          <div className="league-invitations-page__form-skeleton">
+            <CardSkeleton />
+          </div>
+        </div>
       </div>
     );
   }

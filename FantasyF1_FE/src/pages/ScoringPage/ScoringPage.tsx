@@ -3,6 +3,8 @@ import { useParams, useNavigate } from "react-router-dom";
 import { ScoringView } from "../../components/scoring/ScoringView";
 import { getConstructorScoring, ScoringData } from "../../services/scoringService";
 import { ProtectedRoute } from "../../components/auth/ProtectedRoute/ProtectedRoute";
+import { CardSkeleton } from "../../components/loading";
+
 import "./ScoringPage.scss";
 
 /**
@@ -63,9 +65,11 @@ const ScoringContent: React.FC = () => {
   if (loading) {
     return (
       <div className="scoring-page">
-        <div className="loading-container">
-          <div className="loading-spinner"></div>
-          <p>Loading scoring data...</p>
+        <div className="page-header-skeleton">
+          <CardSkeleton />
+        </div>
+        <div className="scoring-skeleton">
+          <CardSkeleton count={3} />
         </div>
       </div>
     );

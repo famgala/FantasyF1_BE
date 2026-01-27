@@ -3,6 +3,8 @@ import { useParams, useNavigate } from "react-router-dom";
 import DriverCard, { Driver as DriverCardType } from "../../components/drivers/DriverCard";
 import DriverFilter, { DriverFilterOptions } from "../../components/drivers/DriverFilter";
 import driverService, { Driver } from "../../services/driverService";
+import { CardSkeleton, ListSkeleton } from "../../components/loading";
+
 import "./DriverListPage.scss";
 
 const DriverListPage: React.FC = () => {
@@ -131,9 +133,14 @@ const DriverListPage: React.FC = () => {
   if (loading) {
     return (
       <div className="driver-list-page">
-        <div className="loading-container">
-          <div className="spinner" />
-          <p>Loading drivers...</p>
+        <div className="page-header-skeleton">
+          <CardSkeleton />
+        </div>
+        <div className="driver-filter-skeleton">
+          <CardSkeleton />
+        </div>
+        <div className="drivers-grid-skeleton">
+          <ListSkeleton count={12} />
         </div>
       </div>
     );

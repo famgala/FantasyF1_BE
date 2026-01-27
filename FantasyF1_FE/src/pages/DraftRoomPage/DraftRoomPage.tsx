@@ -7,6 +7,7 @@ import DriverList from "../../components/draft/DriverList";
 import DraftOrderList from "../../components/draft/DraftOrderList";
 import { DraftHistory } from "../../components/draft/DraftHistory";
 import { DraftParticipant } from "../../services/draftService";
+import { CardSkeleton, ListSkeleton, LoadingSpinner, LoadingOverlay } from "../../components/loading";
 import "./DraftRoomPage.scss";
 
 /**
@@ -111,8 +112,23 @@ const DraftRoomPage: React.FC = () => {
 
   if (loading) {
     return (
-      <div className="draft-room-page">
-        <div className="draft-room-page__loading">Loading draft room...</div>
+      <div className="draft-room-page draft-room-page--loading">
+        <div className="draft-room-page__header">
+          <div className="draft-room-page__header-content">
+            <CardSkeleton />
+          </div>
+          <div className="draft-timer-card">
+            <CardSkeleton />
+          </div>
+        </div>
+        <div className="draft-room-page__content">
+          <div className="draft-room-page__main">
+            <ListSkeleton items={6} />
+          </div>
+          <div className="draft-room-page__sidebar">
+            <ListSkeleton items={5} />
+          </div>
+        </div>
       </div>
     );
   }
@@ -200,12 +216,7 @@ const DraftRoomPage: React.FC = () => {
       )}
 
       {isSubmitting && (
-        <div className="draft-room-page__submitting-overlay">
-          <div className="draft-room-page__submitting-spinner" />
-          <div className="draft-room-page__submitting-text">
-            Submitting pick...
-          </div>
-        </div>
+        <LoadingOverlay message="Submitting pick..." />
       )}
     </div>
   );

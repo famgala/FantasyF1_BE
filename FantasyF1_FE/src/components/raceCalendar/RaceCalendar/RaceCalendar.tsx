@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { Race } from "../../../services/raceService";
 import { RaceCard } from "../RaceCard";
+import { CardSkeleton } from "../../../components/loading";
 import "./RaceCalendar.scss";
 
 interface RaceCalendarProps {
@@ -56,9 +57,19 @@ const RaceCalendar: React.FC<RaceCalendarProps> = ({
   if (loading) {
     return (
       <div className="race-calendar race-calendar--loading">
-        <div className="race-calendar__skeleton race-calendar__skeleton--header" />
-        <div className="race-calendar__skeleton race-calendar__skeleton--filters" />
-        <div className="race-calendar__skeleton race-calendar__skeleton--grid" />
+        <div className="race-calendar__header-skeleton">
+          <CardSkeleton />
+        </div>
+        <div className="race-calendar__controls-skeleton">
+          <CardSkeleton />
+        </div>
+        <div className="race-calendar__grid">
+          {Array(6).fill(null).map((_, index) => (
+            <div key={index} className="race-calendar__card-skeleton">
+              <CardSkeleton />
+            </div>
+          ))}
+        </div>
       </div>
     );
   }

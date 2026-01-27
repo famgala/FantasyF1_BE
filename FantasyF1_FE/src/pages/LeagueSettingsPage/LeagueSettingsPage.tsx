@@ -11,6 +11,7 @@ import {
   updateMemberRole,
   deleteLeague,
 } from "../../services/leagueService";
+import { CardSkeleton } from "../../components/loading";
 import "./LeagueSettingsPage.scss";
 
 /**
@@ -182,9 +183,19 @@ const LeagueSettingsPage: React.FC = () => {
   if (loading) {
     return (
       <div className="league-settings-page league-settings-page--loading">
-        <div className="skeleton skeleton--header" />
-        <div className="skeleton skeleton--tabs" />
-        <div className="skeleton skeleton--content" />
+        <div className="league-settings-page__header-skeleton">
+          <CardSkeleton />
+        </div>
+        <div className="league-settings-page__tabs-skeleton">
+          <CardSkeleton />
+        </div>
+        <div className="league-settings-page__content-skeleton">
+          {Array(3).fill(null).map((_, index) => (
+            <div key={index} className="league-settings-page__form-skeleton">
+              <CardSkeleton />
+            </div>
+          ))}
+        </div>
       </div>
     );
   }
