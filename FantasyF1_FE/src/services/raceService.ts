@@ -1,4 +1,5 @@
 import api from "./api";
+import { raceCache, getCachedData, createCacheKey } from "../utils/cache";
 
 export interface Race {
   id: number;
@@ -38,14 +39,22 @@ class RaceService {
    */
   async getRacesByYear(year: number): Promise<Race[]> {
     try {
-      const response = await api.get<Race[]>(`/races`, {
-        params: {
-          year,
-          sort: "race_date",
-          order: "asc"
-        }
-      });
-      return response.data;
+      const key = createCacheKey("/races", { year, sort: "race_date", order: "asc" });
+      return getCachedData(
+        raceCache,
+        key,
+        async () => {
+          const response = await api.get<Race[]>(`/races`, {
+            params: {
+              year,
+              sort: "race_date",
+              order: "asc"
+            }
+          });
+          return response.data;
+        },
+        600000 // 10 minutes TTL for race calendar
+      );
     } catch (error) {
       console.error("Error fetching races:", error);
       throw error;
@@ -57,8 +66,16 @@ class RaceService {
    */
   async getRaceById(raceId: number): Promise<Race> {
     try {
-      const response = await api.get<Race>(`/races/${raceId}`);
-      return response.data;
+      const key = createCacheKey(`/races/${raceId}`);
+      return getCachedData(
+        raceCache,
+        key,
+        async () => {
+          const response = await api.get<Race>(`/races/${raceId}`);
+          return response.data;
+        },
+        300000 // 5 minutes TTL for race details
+      );
     } catch (error) {
       console.error("Error fetching race:", error);
       throw error;
@@ -70,8 +87,16 @@ class RaceService {
    */
   async getRaceResults(raceId: number): Promise<RaceResult[]> {
     try {
-      const response = await api.get<RaceResult[]>(`/races/${raceId}/results`);
-      return response.data;
+      const key = createCacheKey(`/races/${raceId}/results`);
+      return getCachedData(
+        raceCache,
+        key,
+        async () => {
+          const response = await api.get<RaceResult[]>(`/races/${raceId}/results`);
+          return response.data;
+        },
+        3600000 // 1 hour TTL for completed race results
+      );
     } catch (error) {
       console.error("Error fetching race results:", error);
       throw error;
@@ -83,15 +108,23 @@ class RaceService {
    */
   async getUpcomingRaces(limit: number = 5): Promise<Race[]> {
     try {
-      const response = await api.get<Race[]>(`/races`, {
-        params: {
-          status: "upcoming",
-          sort: "race_date",
-          order: "asc",
-          limit
-        }
-      });
-      return response.data;
+      const key = createCacheKey("/races", { status: "upcoming", sort: "race_date", order: "asc", limit });
+      return getCachedData(
+        raceCache,
+        key,
+        async () => {
+          const response = await api.get<Race[]>(`/races`, {
+            params: {
+              status: "upcoming",
+              sort: "race_date",
+              order: "asc",
+              limit
+            }
+          });
+          return response.data;
+        },
+        180000 // 3 minutes TTL for upcoming races (changes frequently)
+      );
     } catch (error) {
       console.error("Error fetching upcoming races:", error);
       throw error;
@@ -103,16 +136,24 @@ class RaceService {
    */
   async getCompletedRaces(year: number, limit: number = 10): Promise<Race[]> {
     try {
-      const response = await api.get<Race[]>(`/races`, {
-        params: {
-          year,
-          status: "completed",
-          sort: "race_date",
-          order: "desc",
-          limit
-        }
-      });
-      return response.data;
+      const key = createCacheKey("/races", { year, status: "completed", sort: "race_date", order: "desc", limit });
+      return getCachedData(
+        raceCache,
+        key,
+        async () => {
+          const response = await api.get<Race[]>(`/races`, {
+            params: {
+              year,
+              status: "completed",
+              sort: "race_date",
+              order: "desc",
+              limit
+            }
+          });
+          return response.data;
+        },
+        3600000 // 1 hour TTL for completed races
+      );
     } catch (error) {
       console.error("Error fetching completed races:", error);
       throw error;

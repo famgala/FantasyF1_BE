@@ -1,35 +1,38 @@
-import React from "react";
+import React, { lazy, Suspense } from "react";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
-import HomePage from "./pages/HomePage";
-import LoginPage from "./pages/LoginPage";
-import RegisterPage from "./pages/RegisterPage";
-import ForgotPasswordPage from "./pages/ForgotPasswordPage";
-import ResetPasswordPage from "./pages/ResetPasswordPage";
-import { DashboardPage } from "./pages/DashboardPage";
-import CreateLeaguePage from "./pages/CreateLeaguePage";
-import JoinLeaguePage from "./pages/JoinLeaguePage";
-import DraftRoomPage from "./pages/DraftRoomPage";
-import { RaceCalendarPage } from "./pages/RaceCalendarPage";
-import RaceDetailPage from "./pages/RaceDetailPage";
-import RaceResultsPage from "./pages/RaceResultsPage";
-import { ScoringPage } from "./pages/ScoringPage";
-import DriverListPage from "./pages/DriverListPage";
-import DriverProfilePage from "./pages/DriverProfilePage";
-import { ProfilePage } from "./pages/ProfilePage";
-import AdminDashboardPage from "./pages/AdminDashboardPage";
-import AdminUsersPage from "./pages/AdminUsersPage";
-import AdminLeaguesPage from "./pages/AdminLeaguesPage";
-import AdminLogsPage from "./pages/AdminLogsPage";
-import AdminRaceManagementPage from "./pages/AdminRaceManagementPage";
-import { AdminNotificationsPage } from "./pages/AdminNotificationsPage";
-import NotFoundPage from "./pages/NotFoundPage";
 import { ProtectedRoute } from "./components/auth/ProtectedRoute";
 import AppLayout from "./components/layout/AppLayout";
 import { AuthProvider, useAuth } from "./contexts/AuthContext";
 import { NotificationProvider } from "./contexts/NotificationContext";
 import { NotificationContainer } from "./components/notifications/NotificationContainer";
 import { SkipNavigation } from "./components/accessibility/SkipNavigation";
+import { LoadingPage } from "./components/loading/LoadingPage";
 import "./App.scss";
+
+// Code split pages with React.lazy for better performance
+const HomePage = lazy(() => import("./pages/HomePage"));
+const LoginPage = lazy(() => import("./pages/LoginPage"));
+const RegisterPage = lazy(() => import("./pages/RegisterPage"));
+const ForgotPasswordPage = lazy(() => import("./pages/ForgotPasswordPage"));
+const ResetPasswordPage = lazy(() => import("./pages/ResetPasswordPage"));
+const DashboardPage = lazy(() => import("./pages/DashboardPage"));
+const CreateLeaguePage = lazy(() => import("./pages/CreateLeaguePage"));
+const JoinLeaguePage = lazy(() => import("./pages/JoinLeaguePage"));
+const DraftRoomPage = lazy(() => import("./pages/DraftRoomPage"));
+const RaceCalendarPage = lazy(() => import("./pages/RaceCalendarPage"));
+const RaceDetailPage = lazy(() => import("./pages/RaceDetailPage"));
+const RaceResultsPage = lazy(() => import("./pages/RaceResultsPage"));
+const ScoringPage = lazy(() => import("./pages/ScoringPage"));
+const DriverListPage = lazy(() => import("./pages/DriverListPage"));
+const DriverProfilePage = lazy(() => import("./pages/DriverProfilePage"));
+const ProfilePage = lazy(() => import("./pages/ProfilePage"));
+const AdminDashboardPage = lazy(() => import("./pages/AdminDashboardPage"));
+const AdminUsersPage = lazy(() => import("./pages/AdminUsersPage"));
+const AdminLeaguesPage = lazy(() => import("./pages/AdminLeaguesPage"));
+const AdminLogsPage = lazy(() => import("./pages/AdminLogsPage"));
+const AdminRaceManagementPage = lazy(() => import("./pages/AdminRaceManagementPage"));
+const AdminNotificationsPage = lazy(() => import("./pages/AdminNotificationsPage"));
+const NotFoundPage = lazy(() => import("./pages/NotFoundPage"));
 
 /**
  * Main App Content Component
@@ -43,7 +46,8 @@ const AppContent: React.FC = () => {
     <>
       <SkipNavigation />
       <div className="app" id="main-content">
-        <Routes>
+        <Suspense fallback={<LoadingPage />}>
+          <Routes>
           {/* Public Routes */}
           <Route path="/" element={<HomePage />} />
           
@@ -272,7 +276,8 @@ const AppContent: React.FC = () => {
 
           {/* 404 Fallback */}
           <Route path="*" element={<NotFoundPage />} />
-        </Routes>
+          </Routes>
+        </Suspense>
       </div>
       {/* Toast Notifications Container */}
       {isAuthenticated && <NotificationContainer />}
@@ -314,7 +319,7 @@ const AppContentWrapper: React.FC = () => {
  * Placeholder component for routes not yet implemented
  * Will be replaced as stories are completed
  */
-const PlaceholderPage: React.FC<{ title: string }> = ({ title }) => (
+const PlaceholderPage = ({ title }: { title: string }) => (
   <div className="placeholder-page">
     <h1>{title}</h1>
     <p>This page is coming soon.</p>

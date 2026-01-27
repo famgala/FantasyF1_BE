@@ -9,3 +9,6 @@ export { ListSkeleton } from './ListSkeleton';
 
 // Overlay components
 export { LoadingOverlay } from './LoadingOverlay';
+
+// Page loading component
+export { LoadingPage } from './LoadingPage';
