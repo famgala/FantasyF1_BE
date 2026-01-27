@@ -84,3 +84,22 @@ def verify_token(token: str) -> dict[str, Any] | None:
     except JWTError as e:
         logger.warning(f"Invalid token: {e}")
         return None
+
+
+def create_password_reset_token(
+    subject: str | Any,
+    expires_delta: timedelta | None = None,
+) -> str:
+    """Create a JWT password reset token"""
+    if expires_delta:
+        expire = datetime.utcnow() + expires_delta
+    else:
+        # Default: 1 hour expiration for password reset tokens
+        expire = datetime.utcnow() + timedelta(hours=1)
+    to_encode: dict[str, str | int | datetime] = {
+        "exp": expire,
+        "sub": str(subject),
+        "type": "reset",
+    }
+    encoded_jwt = jwt.encode(to_encode, settings.SECRET_KEY, algorithm=settings.ALGORITHM)
+    return str(encoded_jwt)

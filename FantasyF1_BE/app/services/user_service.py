@@ -207,6 +207,52 @@ class UserService:
         return True
 
     @staticmethod
+    async def email_exists(db: AsyncSession, email: str) -> bool:
+        """Check if an email address already exists.
+
+        Args:
+            db: Database session
+            email: Email address to check
+
+        Returns:
+            True if email exists, False otherwise
+        """
+        result = await db.execute(select(User).where(User.email == email))
+        return result.scalar_one_or_none() is not None
+
+    @staticmethod
+    async def update_password(db: AsyncSession, user_id: int, new_password: str) -> User:
+        """Update user password.
+
+        Args:
+            db: Database session
+            user_id: User ID
+            new_password: New plain text password
+
+        Returns:
+            Updated user
+
+        Raises:
+            NotFoundError: If user not found
+            ValidationError: If password doesn't meet requirements
+        """
+        user = await UserService.get_user_by_id(db, user_id)
+
+        # Validate password strength
+        UserService._validate_password(new_password)
+
+        # Update password
+        db.expire(user)
+        await db.refresh(user)
+        user.hashed_password = get_password_hash(new_password)
+        user.updated_at = datetime.utcnow()
+
+        await db.commit()
+        await db.refresh(user)
+
+        return user
+
+    @staticmethod
     def _validate_password(password: str) -> None:
         """Validate password strength.
 
