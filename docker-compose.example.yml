@@ -100,6 +100,32 @@ services:
     tmpfs:
       - /tmp
 
+  # Family Dashboard Frontend
+  frontend:
+    build:
+      context: ./FantasyF1_FE
+      dockerfile: Dockerfile
+      args:
+        NODE_ENV: production
+    image: famgala/dojomojo-frontend:dev
+    container_name: dojomojo_test_frontend
+    restart: unless-stopped
+    ports:
+      - "3000:80"
+    networks:
+      - dojomojo_network
+    depends_on:
+      - backend
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:80/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
+    # Security settings
+    security_opt:
+      - no-new-privileges:true
+
 networks:
   dojomojo_network:
     driver: bridge

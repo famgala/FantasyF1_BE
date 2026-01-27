@@ -1,0 +1,480 @@
+@import "../../styles/_variables.scss";
+
+.driver-profile-page {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: $spacing-lg;
+
+  .page-header {
+    display: flex;
+    align-items: center;
+    gap: $spacing-md;
+    margin-bottom: $spacing-xl;
+
+    .back-button {
+      background-color: $color-background;
+      color: $color-text-primary;
+      border: 1px solid $color-border;
+      padding: 8px 16px;
+      border-radius: $border-radius-sm;
+      font-size: 0.9rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s ease;
+
+      &:hover {
+        background-color: $color-border;
+        transform: translateY(-1px);
+      }
+
+      &:active {
+        transform: translateY(0);
+      }
+    }
+
+    h1 {
+      flex: 1;
+      font-size: 2rem;
+      font-weight: 700;
+      color: $color-text-primary;
+      margin: 0;
+    }
+
+    .badge {
+      padding: 6px 12px;
+      border-radius: $border-radius-sm;
+      font-size: 0.85rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+
+      &.badge-success {
+        background-color: #10b981;
+        color: white;
+      }
+
+      &.badge-warning {
+        background-color: #f59e0b;
+        color: white;
+      }
+
+      &.badge-secondary {
+        background-color: #6b7280;
+        color: white;
+      }
+    }
+  }
+
+  .profile-content {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+    gap: $spacing-lg;
+    margin-bottom: $spacing-lg;
+  }
+
+  .driver-info-card,
+  .season-stats-card,
+  .fantasy-info-card {
+    background-color: $color-white;
+    border: 1px solid $color-border;
+    border-radius: $border-radius-md;
+    padding: $spacing-lg;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+
+    h3 {
+      font-size: 1.25rem;
+      font-weight: 700;
+      color: $color-text-primary;
+      margin: 0 0 $spacing-md 0;
+    }
+  }
+
+  .driver-header {
+    display: flex;
+    gap: $spacing-lg;
+    margin-bottom: $spacing-lg;
+    padding-bottom: $spacing-lg;
+    border-bottom: 1px solid $color-border;
+
+    .driver-avatar {
+      width: 120px;
+      height: 120px;
+      background: linear-gradient(135deg, #e53935 0%, #d32f2f 100%);
+      border-radius: $border-radius-md;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+
+      .driver-number {
+        font-size: 3rem;
+        font-weight: 700;
+        color: white;
+        text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+      }
+    }
+
+    .driver-details {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+
+      .driver-name {
+        font-size: 1.75rem;
+        font-weight: 700;
+        color: $color-text-primary;
+        margin: 0 0 $spacing-sm 0;
+      }
+
+      .driver-meta {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+
+        .driver-team,
+        .driver-country {
+          font-size: 1rem;
+          color: $color-text-secondary;
+          font-weight: 500;
+        }
+      }
+    }
+  }
+
+  .career-stats {
+    h3 {
+      margin-bottom: $spacing-md;
+    }
+
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+      gap: $spacing-md;
+
+      .stat-item {
+        background-color: $color-background;
+        padding: $spacing-md;
+        border-radius: $border-radius-sm;
+        text-align: center;
+
+        .stat-value {
+          display: block;
+          font-size: 1.75rem;
+          font-weight: 700;
+          color: $color-primary;
+          margin-bottom: 4px;
+        }
+
+        .stat-label {
+          display: block;
+          font-size: 0.85rem;
+          color: $color-text-secondary;
+          font-weight: 500;
+        }
+      }
+    }
+  }
+
+  .season-selector {
+    margin-bottom: $spacing-lg;
+    padding-bottom: $spacing-lg;
+    border-bottom: 1px solid $color-border;
+
+    h3 {
+      margin-bottom: $spacing-md;
+    }
+
+    .season-buttons {
+      display: flex;
+      gap: $spacing-sm;
+      flex-wrap: wrap;
+
+      .season-button {
+        background-color: $color-background;
+        color: $color-text-primary;
+        border: 1px solid $color-border;
+        padding: 8px 16px;
+        border-radius: $border-radius-sm;
+        font-size: 0.9rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.2s ease;
+
+        &:hover {
+          background-color: $color-border;
+          transform: translateY(-1px);
+        }
+
+        &.active {
+          background-color: $color-primary;
+          border-color: $color-primary;
+          color: white;
+        }
+
+        &:active {
+          transform: translateY(0);
+        }
+      }
+    }
+  }
+
+  .season-stats {
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+      gap: $spacing-md;
+
+      .stat-item {
+        background-color: $color-background;
+        padding: $spacing-md;
+        border-radius: $border-radius-sm;
+        text-align: center;
+        transition: transform 0.2s ease;
+
+        &:hover {
+          transform: translateY(-2px);
+        }
+
+        .stat-value {
+          display: block;
+          font-size: 1.75rem;
+          font-weight: 700;
+          color: $color-text-primary;
+          margin-bottom: 4px;
+
+          &::after {
+            content: "";
+          }
+        }
+
+        .stat-label {
+          display: block;
+          font-size: 0.85rem;
+          color: $color-text-secondary;
+          font-weight: 500;
+        }
+
+        &.stat-primary {
+          background-color: $color-primary-light;
+          border: 2px solid $color-primary;
+
+          .stat-value {
+            color: $color-primary;
+          }
+        }
+      }
+    }
+  }
+
+  .no-stats {
+    text-align: center;
+    padding: $spacing-lg;
+    background-color: $color-background;
+    border-radius: $border-radius-sm;
+
+    p {
+      margin: 0;
+      color: $color-text-secondary;
+      font-size: 1rem;
+    }
+  }
+
+  .fantasy-info-card {
+    .fantasy-stats {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+      gap: $spacing-md;
+
+      .stat-item {
+        background-color: $color-background;
+        padding: $spacing-md;
+        border-radius: $border-radius-sm;
+        text-align: center;
+
+        .stat-value {
+          display: block;
+          font-size: 1.75rem;
+          font-weight: 700;
+          color: $color-success;
+          margin-bottom: 4px;
+        }
+
+        .stat-label {
+          display: block;
+          font-size: 0.85rem;
+          color: $color-text-secondary;
+          font-weight: 500;
+        }
+      }
+    }
+  }
+
+  .loading-container,
+  .error-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 400px;
+
+    p {
+      margin-top: $spacing-md;
+      color: $color-text-secondary;
+      font-size: 1.1rem;
+    }
+  }
+
+  .spinner {
+    width: 40px;
+    height: 40px;
+    border: 4px solid $color-border;
+    border-top-color: $color-primary;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+  }
+
+  @keyframes spin {
+    to {
+      transform: rotate(360deg);
+    }
+  }
+
+  .error-message {
+    color: $color-error;
+    font-size: 1.2rem;
+    margin-bottom: $spacing-md !important;
+  }
+
+  .retry-button,
+  .back-button {
+    background-color: $color-primary;
+    color: white;
+    border: none;
+    padding: 12px 32px;
+    border-radius: $border-radius-sm;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    margin: $spacing-sm;
+
+    &:hover {
+      background-color: $color-primary-dark;
+      transform: translateY(-1px);
+    }
+
+    &:active {
+      transform: translateY(0);
+    }
+  }
+
+  .back-button {
+    background-color: $color-background;
+    color: $color-text-primary;
+    border: 1px solid $color-border;
+
+    &:hover {
+      background-color: $color-border;
+    }
+  }
+
+  @media (max-width: $breakpoint-lg) {
+    padding: $spacing-md;
+
+    .profile-content {
+      grid-template-columns: 1fr;
+    }
+
+    .driver-header {
+      .driver-avatar {
+        width: 100px;
+        height: 100px;
+
+        .driver-number {
+          font-size: 2.5rem;
+        }
+      }
+
+      .driver-details {
+        .driver-name {
+          font-size: 1.5rem;
+        }
+      }
+    }
+  }
+
+  @media (max-width: $breakpoint-md) {
+    padding: $spacing-sm;
+
+    .page-header {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: $spacing-sm;
+
+      h1 {
+        font-size: 1.5rem;
+      }
+    }
+
+    .driver-header {
+      .driver-avatar {
+        width: 80px;
+        height: 80px;
+
+        .driver-number {
+          font-size: 2rem;
+        }
+      }
+
+      .driver-details {
+        .driver-name {
+          font-size: 1.25rem;
+        }
+      }
+    }
+
+    .stats-grid {
+      grid-template-columns: repeat(2, 1fr) !important;
+
+      .stat-item {
+        .stat-value {
+          font-size: 1.5rem;
+        }
+      }
+    }
+
+    .season-selector {
+      .season-buttons {
+        .season-button {
+          padding: 6px 12px;
+          font-size: 0.85rem;
+        }
+      }
+    }
+  }
+
+  @media (max-width: $breakpoint-sm) {
+    padding: $spacing-xs;
+
+    .page-header {
+      margin-bottom: $spacing-md;
+    }
+
+    .driver-header {
+      gap: $spacing-md;
+      padding-bottom: $spacing-md;
+    }
+
+    .stats-grid {
+      grid-template-columns: 1fr !important;
+    }
+
+    .season-buttons {
+      .season-button {
+        flex: 1;
+        min-width: 60px;
+      }
+    }
+  }
+}

@@ -1,0 +1,288 @@
+.race-results {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 2rem;
+
+  &__header {
+    margin-bottom: 2rem;
+  }
+
+  &__title {
+    font-size: 2rem;
+    font-weight: 700;
+    color: #e10600;
+    margin-bottom: 0.5rem;
+  }
+
+  &__subtitle {
+    font-size: 1.1rem;
+    color: #6b7280;
+  }
+
+  &__table-container {
+    overflow-x: auto;
+    background: white;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  }
+
+  &__table {
+    width: 100%;
+    border-collapse: collapse;
+
+    thead {
+      background: #f3f4f6;
+
+      th {
+        padding: 1rem;
+        text-align: left;
+        font-weight: 600;
+        color: #374151;
+        border-bottom: 2px solid #e5e7eb;
+        cursor: default;
+
+        &.sortable {
+          cursor: pointer;
+          user-select: none;
+
+          &:hover {
+            background: #e5e7eb;
+          }
+        }
+      }
+    }
+
+    tbody tr {
+      border-bottom: 1px solid #e5e7eb;
+      cursor: pointer;
+      transition: background-color 0.2s;
+
+      &:hover {
+        background: #f9fafb;
+      }
+
+      &--dnf {
+        background: #fef2f2;
+        color: #dc2626;
+      }
+    }
+
+    td {
+      padding: 1rem;
+      color: #374151;
+    }
+  }
+
+  &__position {
+    width: 80px;
+  }
+
+  &__driver {
+    .driver-number {
+      display: inline-block;
+      background: #e10600;
+      color: white;
+      padding: 0.25rem 0.5rem;
+      border-radius: 4px;
+      font-size: 0.875rem;
+      font-weight: 600;
+      margin-right: 0.5rem;
+    }
+
+    .driver-name {
+      font-weight: 500;
+    }
+  }
+
+  &__team {
+    color: #6b7280;
+  }
+
+  &__grid,
+  &__laps {
+    color: #6b7280;
+  }
+
+  &__points {
+    font-weight: 600;
+    color: #059669;
+  }
+
+  &__time {
+    color: #6b7280;
+    font-family: monospace;
+  }
+
+  &__footer {
+    margin-top: 2rem;
+    text-align: center;
+  }
+
+  &--loading {
+    .skeleton-header {
+      height: 4rem;
+      background: linear-gradient(90deg, #f3f4f6 25%, #e5e7eb 50%, #f3f4f6 75%);
+      background-size: 200% 100%;
+      animation: skeleton-loading 1.5s ease-in-out infinite;
+      border-radius: 8px;
+      margin-bottom: 2rem;
+    }
+
+    .skeleton-table {
+      height: 400px;
+      background: linear-gradient(90deg, #f3f4f6 25%, #e5e7eb 50%, #f3f4f6 75%);
+      background-size: 200% 100%;
+      animation: skeleton-loading 1.5s ease-in-out infinite;
+      border-radius: 8px;
+    }
+  }
+
+  &--error,
+  &--empty {
+    text-align: center;
+    padding: 3rem;
+
+    .error-message,
+    .empty-message {
+      background: #fef2f2;
+      border: 1px solid #fecaca;
+      border-radius: 8px;
+      padding: 2rem;
+
+      p {
+        color: #dc2626;
+        margin-bottom: 1rem;
+        font-size: 1.1rem;
+      }
+
+      .empty-message p {
+        color: #6b7280;
+      }
+    }
+
+    .retry-button,
+    .back-button {
+      background: #e10600;
+      color: white;
+      border: none;
+      padding: 0.75rem 1.5rem;
+      border-radius: 6px;
+      font-weight: 600;
+      cursor: pointer;
+      margin: 0.5rem;
+      transition: background-color 0.2s;
+
+      &:hover {
+        background: #be0500;
+      }
+    }
+  }
+}
+
+.position-badge {
+  display: inline-block;
+  width: 36px;
+  height: 36px;
+  line-height: 36px;
+  text-align: center;
+  border-radius: 50%;
+  font-weight: 700;
+  font-size: 1rem;
+
+  &--1 {
+    background: #fbbf24;
+    color: #78350f;
+  }
+
+  &--2 {
+    background: #9ca3af;
+    color: white;
+  }
+
+  &--3 {
+    background: #b45309;
+    color: white;
+  }
+
+  &--default {
+    background: #e5e7eb;
+    color: #374151;
+  }
+}
+
+.fastest-lap-indicator {
+  margin-left: 0.5rem;
+  font-size: 1.25rem;
+  animation: pulse 1.5s ease-in-out infinite;
+}
+
+.dnf-status {
+  color: #dc2626;
+  font-weight: 600;
+  padding: 0.25rem 0.5rem;
+  background: #fef2f2;
+  border-radius: 4px;
+}
+
+@keyframes skeleton-loading {
+  0% {
+    background-position: 200% 0;
+  }
+
+  100% {
+    background-position: -200% 0;
+  }
+}
+
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+
+  50% {
+    opacity: 0.5;
+  }
+}
+
+// Responsive design
+@media (max-width: 768px) {
+  .race-results {
+    padding: 1rem;
+
+    &__title {
+      font-size: 1.5rem;
+    }
+
+    &__subtitle {
+      font-size: 1rem;
+    }
+
+    &__table {
+      font-size: 0.875rem;
+
+      thead th,
+      tbody td {
+        padding: 0.75rem 0.5rem;
+      }
+    }
+  }
+}
+
+@media (max-width: 480px) {
+  .race-results {
+    &__table {
+      font-size: 0.8rem;
+
+      thead th,
+      tbody td {
+        padding: 0.5rem 0.25rem;
+      }
+
+      &__driver {
+        .driver-number {
+          display: none;
+        }
+      }
+    }
+  }
+}

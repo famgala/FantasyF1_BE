@@ -1,0 +1,8 @@
+.race-results-page {
+  min-height: calc(100vh - 120px);
+  background: #f9fafb;
+
+  @media (max-width: 768px) {
+    min-height: calc(100vh - 100px);
+  }
+}

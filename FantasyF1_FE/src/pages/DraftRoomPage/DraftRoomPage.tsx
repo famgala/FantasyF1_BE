@@ -3,8 +3,9 @@ import { useParams, useNavigate } from "react-router-dom";
 import { useAuth } from "../../contexts/AuthContext";
 import { getDraftRoom, makePick, Driver, DraftStatus } from "../../services/draftService";
 import DraftTimer from "../../components/draft/DraftTimer";
-import DriverSelectionCard from "../../components/draft/DriverSelectionCard";
+import DriverList from "../../components/draft/DriverList";
 import DraftOrderList from "../../components/draft/DraftOrderList";
+import { DraftHistory } from "../../components/draft/DraftHistory";
 import { DraftParticipant } from "../../services/draftService";
 import "./DraftRoomPage.scss";
 
@@ -31,10 +32,6 @@ const DraftRoomPage: React.FC = () => {
   } | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [selectedDriver, setSelectedDriver] = useState<number | null>(null);
-  const [expandedDriver, setExpandedDriver] = useState<number | null>(null);
-  const [filterTeam, setFilterTeam] = useState<string>("all");
-  const [filterSearch, setFilterSearch] = useState<string>("");
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   // Fetch draft room data
@@ -63,16 +60,15 @@ const DraftRoomPage: React.FC = () => {
   }, [fetchDraftRoom]);
 
   // Handle driver selection
-  const handleSelectDriver = useCallback(async (driverId: number) => {
+  const handleSelectDriver = useCallback(async (driver: Driver) => {
     if (!leagueId || !raceId || isSubmitting || !draftData?.status.is_my_turn) {
       return;
     }
 
     setIsSubmitting(true);
     try {
-      await makePick(Number(leagueId), Number(raceId), driverId);
+      await makePick(Number(leagueId), Number(raceId), driver.id);
       await fetchDraftRoom();
-      setSelectedDriver(null);
     } catch (err) {
       setError("Failed to select driver. Please try again.");
       console.error("Select driver error:", err);
@@ -80,24 +76,6 @@ const DraftRoomPage: React.FC = () => {
       setIsSubmitting(false);
     }
   }, [leagueId, raceId, isSubmitting, draftData, fetchDraftRoom]);
-
-  // Get unique teams for filter
-  const teams = draftData
-    ? Array.from(new Set(draftData.available_drivers.map((d) => d.team)))
-    : [];
-
-  // Filter drivers
-  const filteredDrivers = draftData
-    ? draftData.available_drivers.filter((driver) => {
-        if (filterTeam !== "all" && driver.team !== filterTeam) return false;
-        if (
-          filterSearch &&
-          !driver.name.toLowerCase().includes(filterSearch.toLowerCase())
-        )
-          return false;
-        return true;
-      })
-    : [];
 
   // Convert draft order to participants for DraftOrderList
   const draftParticipants: DraftParticipant[] = draftData
@@ -120,6 +98,16 @@ const DraftRoomPage: React.FC = () => {
   const draftedDriverIds = draftData
     ? draftData.drafted_drivers.map((pick) => pick.driver.id)
     : [];
+
+  // Calculate user's picks count
+  const myPicksCount = draftData
+    ? draftData.draft_order.find((order) => order.user_id === user?.id)?.picks.length || 0
+    : 0;
+
+  // Get max picks per team
+  const maxPicks = draftData?.draft_order.length > 0
+    ? Math.ceil(draftData.available_drivers.length / draftData.draft_order.length)
+    : 2;
 
   if (loading) {
     return (
@@ -181,81 +169,35 @@ const DraftRoomPage: React.FC = () => {
         </div>
       )}
 
-      <div className="draft-room-page__content">
-        <div className="draft-room-page__main">
-          <div className="draft-room-page__drivers-section">
-            <div className="draft-room-page__filters">
-              <input
-                type="text"
-                placeholder="Search drivers..."
-                value={filterSearch}
-                onChange={(e) => setFilterSearch(e.target.value)}
-                className="draft-room-page__search"
-              />
+      {draftData.status.status === "COMPLETE" || draftData.status.status === "CLOSED" ? (
+        <div className="draft-room-page__history">
+          <DraftHistory leagueId={Number(leagueId)} raceId={Number(raceId)} />
+        </div>
+      ) : (
+        <div className="draft-room-page__content">
+          <div className="draft-room-page__main">
+            <DriverList
+              drivers={draftData.available_drivers}
+              draftedDriverIds={draftedDriverIds}
+              isMyTurn={isMyTurn && draftData.status.is_my_turn}
+              myPicksCount={myPicksCount}
+              maxPicks={maxPicks}
+              onDriverSelect={handleSelectDriver}
+            />
+          </div>
 
-              <select
-                value={filterTeam}
-                onChange={(e) => setFilterTeam(e.target.value)}
-                className="draft-room-page__team-filter"
-              >
-                <option value="all">All Teams</option>
-                {teams.map((team) => (
-                  <option key={team} value={team}>
-                    {team}
-                  </option>
-                ))}
-              </select>
-            </div>
-
-            <div className="draft-room-page__drivers-list">
-              {filteredDrivers.length === 0 ? (
-                <div className="draft-room-page__no-drivers">
-                  No drivers match your filters
-                </div>
-              ) : (
-                filteredDrivers.map((driver) => {
-                  const isDrafted = draftedDriverIds.includes(driver.id);
-                  const canSelect =
-                    isMyTurn &&
-                    !isDrafted &&
-                    draftData!.status.is_my_turn &&
-                    !isSubmitting;
-
-                  return (
-                    <DriverSelectionCard
-                      key={driver.id}
-                      driver={driver}
-                      selected={selectedDriver === driver.id}
-                      disabled={!canSelect || isDrafted}
-                      expanded={expandedDriver === driver.id}
-                      onSelect={() => {
-                        setSelectedDriver(driver.id);
-                        handleSelectDriver(driver.id);
-                      }}
-                      onToggle={() => {
-                        setExpandedDriver(
-                          expandedDriver === driver.id ? null : driver.id
-                        );
-                      }}
-                    />
-                  );
-                })
+          <div className="draft-room-page__sidebar">
+            <DraftOrderList
+              participants={draftParticipants}
+              currentDraftIndex={draftData.draft_order.findIndex(
+                (order) => order.is_current_picker
               )}
-            </div>
+              isMyTurn={isMyTurn}
+              userId={user?.id}
+            />
           </div>
         </div>
-
-        <div className="draft-room-page__sidebar">
-          <DraftOrderList
-            participants={draftParticipants}
-            currentDraftIndex={draftData.draft_order.findIndex(
-              (order) => order.is_current_picker
-            )}
-            isMyTurn={isMyTurn}
-            userId={user?.id}
-          />
-        </div>
-      </div>
+      )}
 
       {isSubmitting && (
         <div className="draft-room-page__submitting-overlay">

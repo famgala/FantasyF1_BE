@@ -9,19 +9,36 @@ import { DashboardPage } from "./pages/DashboardPage";
 import CreateLeaguePage from "./pages/CreateLeaguePage";
 import JoinLeaguePage from "./pages/JoinLeaguePage";
 import DraftRoomPage from "./pages/DraftRoomPage";
+import { RaceCalendarPage } from "./pages/RaceCalendarPage";
+import RaceDetailPage from "./pages/RaceDetailPage";
+import RaceResultsPage from "./pages/RaceResultsPage";
+import { ScoringPage } from "./pages/ScoringPage";
+import DriverListPage from "./pages/DriverListPage";
+import DriverProfilePage from "./pages/DriverProfilePage";
+import { ProfilePage } from "./pages/ProfilePage";
+import AdminDashboardPage from "./pages/AdminDashboardPage";
+import AdminUsersPage from "./pages/AdminUsersPage";
+import AdminLeaguesPage from "./pages/AdminLeaguesPage";
+import AdminLogsPage from "./pages/AdminLogsPage";
+import AdminRaceManagementPage from "./pages/AdminRaceManagementPage";
+import NotFoundPage from "./pages/NotFoundPage";
 import { ProtectedRoute } from "./components/auth/ProtectedRoute";
 import AppLayout from "./components/layout/AppLayout";
+import { AuthProvider, useAuth } from "./contexts/AuthContext";
+import { NotificationProvider } from "./contexts/NotificationContext";
+import { NotificationContainer } from "./components/notifications/NotificationContainer";
 import "./App.scss";
 
 /**
- * Main App Component
+ * Main App Content Component
  * 
- * Sets up routing for the Fantasy F1 application.
- * Routes are organized by feature area.
+ * Wraps the application routes with authentication and notification providers.
  */
-const App: React.FC = () => {
+const AppContent: React.FC = () => {
+  const { isAuthenticated } = useAuth();
+
   return (
-    <BrowserRouter>
+    <>
       <div className="app">
         <Routes>
           {/* Public Routes */}
@@ -99,7 +116,74 @@ const App: React.FC = () => {
             element={
               <ProtectedRoute>
                 <AppLayout>
-                  <PlaceholderPage title="Races" />
+                  <RaceCalendarPage />
+                </AppLayout>
+              </ProtectedRoute>
+            }
+          />
+
+          <Route
+            path="/races/:raceId"
+            element={
+              <ProtectedRoute>
+                <AppLayout>
+                  <RaceDetailPage />
+                </AppLayout>
+              </ProtectedRoute>
+            }
+          />
+
+          <Route
+            path="/races/:raceId/results"
+            element={
+              <ProtectedRoute>
+                <AppLayout>
+                  <RaceResultsPage />
+                </AppLayout>
+              </ProtectedRoute>
+            }
+          />
+
+          <Route
+            path="/constructors/:constructorId/scoring"
+            element={
+              <ProtectedRoute>
+                <AppLayout>
+                  <ScoringPage />
+                </AppLayout>
+              </ProtectedRoute>
+            }
+          />
+
+          {/* Driver Routes */}
+          <Route
+            path="/drivers"
+            element={
+              <ProtectedRoute>
+                <AppLayout>
+                  <DriverListPage />
+                </AppLayout>
+              </ProtectedRoute>
+            }
+          />
+
+          <Route
+            path="/drivers/:status"
+            element={
+              <ProtectedRoute>
+                <AppLayout>
+                  <DriverListPage />
+                </AppLayout>
+              </ProtectedRoute>
+            }
+          />
+
+          <Route
+            path="/drivers/:driverId"
+            element={
+              <ProtectedRoute>
+                <AppLayout>
+                  <DriverProfilePage />
                 </AppLayout>
               </ProtectedRoute>
             }
@@ -110,17 +194,105 @@ const App: React.FC = () => {
             element={
               <ProtectedRoute>
                 <AppLayout>
-                  <PlaceholderPage title="Profile" />
+                  <ProfilePage />
+                </AppLayout>
+              </ProtectedRoute>
+            }
+          />
+
+          {/* Admin Routes */}
+          <Route
+            path="/admin"
+            element={
+              <ProtectedRoute>
+                <AppLayout>
+                  <AdminDashboardPage />
+                </AppLayout>
+              </ProtectedRoute>
+            }
+          />
+
+          <Route
+            path="/admin/users"
+            element={
+              <ProtectedRoute>
+                <AppLayout>
+                  <AdminUsersPage />
+                </AppLayout>
+              </ProtectedRoute>
+            }
+          />
+
+          <Route
+            path="/admin/leagues"
+            element={
+              <ProtectedRoute>
+                <AppLayout>
+                  <AdminLeaguesPage />
+                </AppLayout>
+              </ProtectedRoute>
+            }
+          />
+
+          <Route
+            path="/admin/logs"
+            element={
+              <ProtectedRoute>
+                <AppLayout>
+                  <AdminLogsPage />
+                </AppLayout>
+              </ProtectedRoute>
+            }
+          />
+
+          <Route
+            path="/admin/races"
+            element={
+              <ProtectedRoute>
+                <AppLayout>
+                  <AdminRaceManagementPage />
                 </AppLayout>
               </ProtectedRoute>
             }
           />
           
           {/* 404 Fallback */}
-          <Route path="*" element={<PlaceholderPage title="Page Not Found" />} />
+          <Route path="*" element={<NotFoundPage />} />
         </Routes>
       </div>
+      {/* Toast Notifications Container */}
+      {isAuthenticated && <NotificationContainer />}
+    </>
+  );
+};
+
+/**
+ * Main App Component
+ * 
+ * Sets up routing for the Fantasy F1 application.
+ * Routes are organized by feature area.
+ * Wraps the entire app with AuthProvider and NotificationProvider.
+ */
+const App: React.FC = () => {
+  return (
+    <BrowserRouter>
+      <AuthProvider>
+        <AppContentWrapper />
+      </AuthProvider>
     </BrowserRouter>
+  );
+};
+
+/**
+ * Wrapper to access auth context for NotificationProvider
+ */
+const AppContentWrapper: React.FC = () => {
+  const { isAuthenticated } = useAuth();
+
+  return (
+    <NotificationProvider isAuthenticated={isAuthenticated}>
+      <AppContent />
+    </NotificationProvider>
   );
 };
 

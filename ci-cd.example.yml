@@ -6,8 +6,10 @@ on:
       - main
       - develop
       - 'dev_**'
+      - '**-dev'
     paths:
       - 'backend/**'
+      - 'FantasyF1_FE/**'
       - 'docker-compose*.yml'
       - '.github/workflows/**'
       - 'backend/requirements.txt'
@@ -17,6 +19,7 @@ on:
     branches: [ main ]
     paths:
       - 'backend/**'
+      - 'FantasyF1_FE/**'
       - 'docker-compose*.yml'
       - '.github/workflows/**'
       - 'backend/requirements.txt'
@@ -26,12 +29,14 @@ on:
 env:
   REGISTRY: docker.io
   IMAGE_NAME: famgala/dojomojo
+  FRONTEND_IMAGE_NAME: famgala/dojomojo-frontend
 
 jobs:
   detect-changes:
     runs-on: ubuntu-latest
     outputs:
       backend_changed: ${{ steps.changes.outputs.backend }}
+      frontend_changed: ${{ steps.changes.outputs.frontend }}
       dockerfile_changed: ${{ steps.changes.outputs.dockerfile }}
       compose_changed: ${{ steps.changes.outputs.compose }}
       tests_changed: ${{ steps.changes.outputs.tests }}
@@ -49,13 +54,19 @@ jobs:
               - 'backend/**'
               - '!backend/tests/**'
               - 'backend/requirements.txt'
+            frontend:
+              - 'FantasyF1_FE/**'
+              - '!FantasyF1_FE/node_modules/**'
+              - 'FantasyF1_FE/package.json'
             dockerfile:
               - 'Dockerfile*'
               - 'backend/Dockerfile*'
+              - 'FantasyF1_FE/Dockerfile*'
             compose:
               - 'docker-compose*.yml'
             tests:
               - 'backend/tests/**'
+              - 'FantasyF1_FE/src/**/**/*.test.*'
             workflow:
               - '.github/workflows/**'
 
@@ -266,7 +277,7 @@ jobs:
         echo "✅ Cleanup complete"
 
 
-  build:
+  build-backend:
     needs: [detect-changes, test]
     runs-on: ubuntu-latest
     if: |
@@ -355,7 +366,7 @@ jobs:
           type=ref,event=pr
           type=sha,prefix={{branch}}-
           type=raw,value=latest,enable={{is_default_branch}}
-          type=raw,value=dev,enable=${{ startsWith(github.ref_name, 'dev_') }}
+          type=raw,value=dev,enable=${{ startsWith(github.ref_name, 'dev_') || endsWith(github.ref_name, '-dev') }}
           type=raw,value=nightly,enable=${{ github.ref_name == 'develop' }}
     
     - name: Extract Docker metadata
@@ -381,8 +392,112 @@ jobs:
           BUILD_DATE=${{ github.event.head_commit.timestamp }}
           VERSION=${{ steps.version.outputs.version }}
 
+  build-frontend:
+    needs: [detect-changes]
+    runs-on: ubuntu-latest
+    if: |
+      github.event_name == 'push' && 
+      (needs.detect-changes.outputs.frontend_changed == 'true' || 
+       needs.detect-changes.outputs.dockerfile_changed == 'true' ||
+       needs.detect-changes.outputs.compose_changed == 'true')
+    
+    permissions:
+      contents: read
+      packages: read
+    
+    outputs:
+      image: ${{ steps.image.outputs.image }}
+      digest: ${{ steps.build.outputs.digest }}
+      version: ${{ steps.version.outputs.version }}
+    
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+    
+    - name: Generate CalVer version
+      id: version
+      run: |
+        # Make script executable
+        chmod +x ./scripts/generate_version.sh
+        
+        # Determine build type based on branch
+        if [[ "${{ github.ref_name }}" == "main" ]]; then
+          BUILD_TYPE="prod"
+        elif [[ "${{ github.ref_name }}" == "develop" ]]; then
+          BUILD_TYPE="staging"
+        else
+          BUILD_TYPE="dev"
+        fi
+        
+        echo "📋 Build type: $BUILD_TYPE"
+        
+        # Generate version using the script
+        VERSION=$(./scripts/generate_version.sh $BUILD_TYPE)
+        
+        echo "🔖 Generated version: $VERSION"
+        echo "version=$VERSION" >> $GITHUB_OUTPUT
+    
+    - name: Set up Docker Buildx
+      uses: docker/setup-buildx-action@v3
+      with:
+        driver: docker-container
+        driver-opts: |
+          image=moby/buildkit:buildx-stable-1
+    
+    - name: Log in to Docker Hub
+      uses: docker/login-action@v3
+      with:
+        username: ${{ secrets.DOCKER_HUB_USERNAME }}
+        password: ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }}
+  
+    - name: Attempt DHI.io registry login
+      id: dhi_login
+      continue-on-error: true
+      uses: docker/login-action@v3
+      with:
+        registry: dhi.io
+        username: ${{ secrets.DOCKER_HUB_USERNAME }}
+        password: ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }}
+    
+    - name: Extract metadata
+      id: meta
+      uses: docker/metadata-action@v5
+      with:
+        images: ${{ env.REGISTRY }}/${{ env.FRONTEND_IMAGE_NAME }}
+        tags: |
+          type=ref,event=branch
+          type=ref,event=pr
+          type=sha,prefix={{branch}}-
+          type=raw,value=latest,enable={{is_default_branch}}
+          type=raw,value=dev,enable=${{ startsWith(github.ref_name, 'dev_') || endsWith(github.ref_name, '-dev') }}
+          type=raw,value=nightly,enable=${{ github.ref_name == 'develop' }}
+    
+    - name: Extract Docker metadata
+      id: image
+      uses: docker/metadata-action@v5
+      with:
+        images: ${{ env.REGISTRY }}/${{ env.FRONTEND_IMAGE_NAME }}
+        tags: ${{ steps.meta.outputs.tags }}
+    
+    - name: Build and push Docker image
+      id: build
+      uses: docker/build-push-action@v5
+      with:
+        context: FantasyF1_FE
+        file: FantasyF1_FE/Dockerfile
+        push: true
+        tags: ${{ steps.meta.outputs.tags }}
+        labels: ${{ steps.meta.outputs.labels }}
+        cache-from: type=gha
+        cache-to: type=gha,mode=max
+        build-args: |
+          VCS_REF=${{ github.sha }}
+          BUILD_DATE=${{ github.event.head_commit.timestamp }}
+          VERSION=${{ steps.version.outputs.version }}
+          NODE_ENV=production
+
   security-scan:
-    needs: [detect-changes, build]
+    needs: [detect-changes, build-backend]
     runs-on: ubuntu-latest
     if: |
       github.event_name == 'push' && 
@@ -421,13 +536,13 @@ jobs:
     - name: Pull Docker image for scanning
       run: |
         echo "🔍 Pulling Docker image for security scanning..."
-        docker pull ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}@${{ needs.build.outputs.digest }}
+        docker pull ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}@${{ needs.build-backend.outputs.digest }}
         echo "✅ Image pulled successfully"
     
     - name: Run Trivy vulnerability scanner
       uses: aquasecurity/trivy-action@master
       with:
-        image-ref: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}@${{ needs.build.outputs.digest }}
+        image-ref: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}@${{ needs.build-backend.outputs.digest }}
         format: 'sarif'
         output: 'trivy-results.sarif'
         severity: 'CRITICAL,HIGH'
@@ -453,7 +568,7 @@ jobs:
         fi
 
   deploy-preview:
-    needs: [detect-changes, build]
+    needs: [detect-changes, build-backend, build-frontend]
     runs-on: ubuntu-latest
     if: |
       github.event_name == 'pull_request' && 
@@ -489,10 +604,10 @@ jobs:
         username: ${{ secrets.DOCKER_HUB_USERNAME }}
         password: ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }}
     
-    - name: Pull and test image
+    - name: Pull and test backend image
       run: |
-        docker pull ${{ needs.build.outputs.image }}@${{ needs.build.outputs.digest }}
-        docker tag ${{ needs.build.outputs.image }}@${{ needs.build.outputs.digest }} test-image
+        docker pull ${{ needs.build-backend.outputs.image }}@${{ needs.build-backend.outputs.digest }}
+        docker tag ${{ needs.build-backend.outputs.image }}@${{ needs.build-backend.outputs.digest }} test-image
         
         # Test the image
         docker run -d --name test-container test-image

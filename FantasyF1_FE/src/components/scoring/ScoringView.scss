@@ -1,0 +1,311 @@
+@import "../../styles/_variables.scss";
+
+.scoring-view {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: $spacing-lg;
+
+  .scoring-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: $spacing-lg;
+    padding-bottom: $spacing-md;
+    border-bottom: 2px solid $color-border;
+
+    @media (max-width: $breakpoint-md) {
+      flex-direction: column;
+      gap: $spacing-md;
+    }
+
+    .team-info {
+      .team-name {
+        font-size: 2rem;
+        font-weight: 700;
+        color: $color-primary;
+        margin-bottom: $spacing-xs;
+      }
+
+      .team-owner {
+        color: $color-text-secondary;
+        font-size: 1.1rem;
+      }
+    }
+
+    .season-total {
+      text-align: right;
+
+      @media (max-width: $breakpoint-md) {
+        text-align: left;
+      }
+
+      .total-label {
+        display: block;
+        font-size: 0.9rem;
+        color: $color-text-secondary;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        margin-bottom: $spacing-xs;
+      }
+
+      .total-points {
+        display: block;
+        font-size: 2.5rem;
+        font-weight: 800;
+        color: $color-success;
+      }
+    }
+  }
+
+  .scoring-controls {
+    display: flex;
+    justify-content: center;
+    margin: $spacing-lg 0;
+
+    .toggle-rules-btn {
+      background-color: $color-primary;
+      color: $color-white;
+      border: none;
+      padding: $spacing-sm $spacing-lg;
+      font-size: 1rem;
+      font-weight: 600;
+      border-radius: $border-radius-md;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      box-shadow: 0 2px 8px rgba($color-primary, 0.3);
+
+      &:hover {
+        background-color: darken($color-primary, 10%);
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba($color-primary, 0.4);
+      }
+
+      &:active {
+        transform: translateY(0);
+      }
+
+      &:focus {
+        outline: none;
+        box-shadow: 0 0 0 3px rgba($color-primary, 0.3);
+      }
+
+      @media (max-width: $breakpoint-sm) {
+        width: 100%;
+        padding: $spacing-sm;
+      }
+    }
+  }
+
+  .scoring-legend {
+    display: flex;
+    gap: $spacing-lg;
+    margin-bottom: $spacing-lg;
+    padding: $spacing-md;
+    background-color: $color-background-light;
+    border-radius: $border-radius-md;
+
+    .legend-item {
+      display: flex;
+      align-items: center;
+      gap: $spacing-sm;
+
+      .legend-indicator {
+        width: 20px;
+        height: 20px;
+        border-radius: 4px;
+
+        &.podium {
+          background-color: $color-primary;
+        }
+
+        &.dnf {
+          background-color: $color-danger;
+        }
+      }
+
+      .legend-label {
+        font-size: 0.9rem;
+        color: $color-text-secondary;
+      }
+    }
+  }
+
+  .race-scores-list {
+    display: flex;
+    flex-direction: column;
+    gap: $spacing-lg;
+  }
+
+  .race-score-card {
+    background-color: $color-white;
+    border: 1px solid $color-border;
+    border-radius: $border-radius-md;
+    overflow: hidden;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+
+    .race-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: $spacing-md $spacing-lg;
+      background-color: $color-background;
+      border-bottom: 1px solid $color-border;
+
+      @media (max-width: $breakpoint-sm) {
+        flex-wrap: wrap;
+        gap: $spacing-sm;
+      }
+
+      .race-info {
+        .race-name {
+          font-size: 1.3rem;
+          font-weight: 600;
+          color: $color-text-primary;
+          margin-bottom: $spacing-xs;
+        }
+
+        .race-round {
+          font-size: 0.9rem;
+          color: $color-text-secondary;
+        }
+      }
+
+      .race-date {
+        font-size: 0.95rem;
+        color: $color-text-secondary;
+        font-weight: 500;
+      }
+
+      .race-total-points {
+        font-size: 1.5rem;
+        font-weight: 700;
+        color: $color-success;
+      }
+    }
+
+    .race-drivers-table {
+      overflow-x: auto;
+
+      table {
+        width: 100%;
+        border-collapse: collapse;
+
+        thead {
+          background-color: $color-background-light;
+
+          tr {
+            th {
+              padding: $spacing-sm $spacing-md;
+              text-align: left;
+              font-weight: 600;
+              font-size: 0.9rem;
+              color: $color-text-secondary;
+              text-transform: uppercase;
+              letter-spacing: 0.5px;
+              border-bottom: 1px solid $color-border;
+            }
+          }
+        }
+
+        tbody {
+          tr {
+            &.driver-row {
+              border-bottom: 1px solid $color-border;
+
+              &:last-child {
+                border-bottom: none;
+              }
+
+              &:hover {
+                background-color: $color-background-light;
+              }
+
+              td {
+                padding: $spacing-md;
+                font-size: 0.95rem;
+
+                &.driver-name {
+                  cursor: pointer;
+                  color: $color-primary;
+                  font-weight: 500;
+                  display: flex;
+                  align-items: center;
+                  gap: $spacing-sm;
+
+                  &:hover {
+                    color: darken($color-primary, 10%);
+                  }
+
+                  .driver-number {
+                    background-color: $color-background;
+                    color: $color-text-primary;
+                    padding: 2px 8px;
+                    border-radius: 4px;
+                    font-size: 0.85rem;
+                    font-weight: 700;
+                  }
+
+                  .driver-names {
+                    flex: 1;
+                  }
+                }
+
+                &.driver-team {
+                  color: $color-text-secondary;
+                }
+
+                &.driver-position {
+                  font-weight: 600;
+
+                  &.position-podium {
+                    color: $color-primary;
+                  }
+
+                  &.position-dnf {
+                    color: $color-danger;
+                  }
+
+                  &.position-normal {
+                    color: $color-text-primary;
+                  }
+                }
+
+                &.driver-points {
+                  font-weight: 700;
+                  color: $color-success;
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+
+  .scoring-empty {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: $spacing-xl 0;
+    text-align: center;
+
+    .empty-icon {
+      font-size: 4rem;
+      margin-bottom: $spacing-lg;
+      opacity: 0.5;
+    }
+
+    h3 {
+      font-size: 1.5rem;
+      color: $color-text-primary;
+      margin-bottom: $spacing-sm;
+    }
+
+    p {
+      color: $color-text-secondary;
+      font-size: 1rem;
+      max-width: 500px;
+    }
+  }
+}

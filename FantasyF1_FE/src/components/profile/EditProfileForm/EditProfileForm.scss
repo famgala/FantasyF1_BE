@@ -1,0 +1,343 @@
+/**
+ * EditProfileForm Component Styles
+ * 
+ * Styles for the user profile editing form with sections for:
+ * - Account information
+ * - F1 preferences
+ * - Personal bio
+ */
+
+.edit-profile-form {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: $spacing-lg;
+
+  &__header {
+    margin-bottom: $spacing-xl;
+    text-align: center;
+  }
+
+  &__title {
+    margin: 0 0 $spacing-sm 0;
+    font-size: $font-size-xl;
+    font-weight: $font-weight-bold;
+    color: $color-text-primary;
+  }
+
+  &__subtitle {
+    margin: 0;
+    font-size: $font-size-sm;
+    color: $color-text-secondary;
+  }
+
+  &__form {
+    display: flex;
+    flex-direction: column;
+    gap: $spacing-xl;
+  }
+
+  &__section {
+    padding: $spacing-lg;
+    background-color: $color-surface-primary;
+    border-radius: $border-radius-lg;
+    border: $border-width-sm solid $color-border-primary;
+
+    @media (max-width: $breakpoint-md) {
+      padding: $spacing-md;
+    }
+  }
+
+  &__section-title {
+    margin: 0 0 $spacing-lg 0;
+    font-size: $font-size-lg;
+    font-weight: $font-weight-semibold;
+    color: $color-text-primary;
+    padding-bottom: $spacing-sm;
+    border-bottom: $border-width-sm solid $color-border-primary;
+
+    @media (max-width: $breakpoint-md) {
+      margin: 0 0 $spacing-md 0;
+    }
+  }
+
+  &__row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: $spacing-lg;
+
+    @media (max-width: $breakpoint-md) {
+      grid-template-columns: 1fr;
+      gap: $spacing-md;
+    }
+  }
+
+  &__field-group {
+    display: flex;
+    flex-direction: column;
+    gap: $spacing-xs;
+    margin-bottom: $spacing-lg;
+
+    &:last-child {
+      margin-bottom: 0;
+    }
+
+    @media (max-width: $breakpoint-md) {
+      margin-bottom: $spacing-md;
+    }
+  }
+
+  &__label {
+    font-size: $font-size-sm;
+    font-weight: $font-weight-medium;
+    color: $color-text-primary;
+
+    @media (max-width: $breakpoint-md) {
+      font-size: $font-size-xs;
+    }
+  }
+
+  &__input,
+  &__select,
+  &__textarea {
+    padding: $spacing-md;
+    font-size: $font-size-md;
+    font-family: $font-family-primary;
+    color: $color-text-primary;
+    background-color: $color-background-primary;
+    border: $border-width-sm solid $color-border-primary;
+    border-radius: $border-radius-md;
+    outline: none;
+    transition: all $transition-fast;
+
+    &::placeholder {
+      color: $color-text-placeholder;
+    }
+
+    &:focus {
+      border-color: $color-primary;
+      box-shadow: 0 0 0 $focus-width $color-primary-alpha;
+    }
+
+    &:disabled {
+      background-color: $color-background-disabled;
+      cursor: not-allowed;
+      opacity: 0.6;
+    }
+
+    @media (max-width: $breakpoint-md) {
+      padding: $spacing-sm;
+      font-size: $font-size-sm;
+    }
+  }
+
+  &__input--error,
+  &__select--error,
+  &__textarea--error {
+    border-color: $color-error;
+
+    &:focus {
+      border-color: $color-error;
+      box-shadow: 0 0 0 $focus-width $color-error-alpha;
+    }
+  }
+
+  &__textarea {
+    resize: vertical;
+    min-height: 100px;
+  }
+
+  &__error {
+    font-size: $font-size-xs;
+    color: $color-error;
+    margin-top: -$spacing-xs;
+
+    @media (max-width: $breakpoint-md) {
+      font-size: $font-size-xs;
+    }
+  }
+
+  &__hint {
+    font-size: $font-size-xs;
+    color: $color-text-secondary;
+    margin-top: -$spacing-xs;
+
+    @media (max-width: $breakpoint-md) {
+      font-size: $font-size-xs;
+    }
+  }
+
+  &__char-count {
+    align-self: flex-end;
+    font-size: $font-size-xs;
+    color: $color-text-secondary;
+
+    @media (max-width: $breakpoint-md) {
+      font-size: $font-size-xs;
+    }
+  }
+
+  &__actions {
+    display: flex;
+    gap: $spacing-md;
+    justify-content: flex-end;
+    margin-top: $spacing-lg;
+
+    @media (max-width: $breakpoint-md) {
+      flex-direction: column;
+      gap: $spacing-sm;
+      margin-top: $spacing-md;
+    }
+  }
+
+  &__button {
+    padding: $spacing-md $spacing-xl;
+    font-size: $font-size-md;
+    font-weight: $font-weight-semibold;
+    font-family: $font-family-primary;
+    color: $color-text-primary;
+    background-color: $color-surface-primary;
+    border: $border-width-md solid $color-border-primary;
+    border-radius: $border-radius-md;
+    cursor: pointer;
+    outline: none;
+    transition: all $transition-fast;
+    white-space: nowrap;
+
+    &:hover:not(:disabled) {
+      background-color: $color-surface-secondary;
+      border-color: $color-border-secondary;
+      transform: translateY(-2px);
+      box-shadow: $shadow-md;
+    }
+
+    &:active:not(:disabled) {
+      transform: translateY(0);
+      box-shadow: $shadow-sm;
+    }
+
+    &:focus {
+      box-shadow: 0 0 0 $focus-width $color-primary-alpha;
+    }
+
+    &:disabled {
+      cursor: not-allowed;
+      opacity: 0.6;
+      transform: none !important;
+    }
+
+    @media (max-width: $breakpoint-md) {
+      padding: $spacing-md;
+      font-size: $font-size-sm;
+    }
+  }
+
+  &__button--primary {
+    color: $color-text-inverse;
+    background-color: $color-primary;
+    border-color: $color-primary;
+
+    &:hover:not(:disabled) {
+      background-color: $color-primary-dark;
+      border-color: $color-primary-dark;
+    }
+
+    &:focus {
+      box-shadow: 0 0 0 $focus-width $color-primary-alpha;
+    }
+  }
+
+  &__button--secondary {
+    color: $color-text-primary;
+    background-color: $color-surface-primary;
+    border-color: $color-border-primary;
+
+    &:hover:not(:disabled) {
+      background-color: $color-surface-secondary;
+    }
+  }
+}
+
+// Dark mode support
+@media (prefers-color-scheme: dark) {
+  .edit-profile-form {
+    &__title {
+      color: $color-text-primary-dark;
+    }
+
+    &__subtitle {
+      color: $color-text-secondary-dark;
+    }
+
+    &__section {
+      background-color: $color-surface-primary-dark;
+      border-color: $color-border-primary-dark;
+    }
+
+    &__section-title {
+      color: $color-text-primary-dark;
+      border-bottom-color: $color-border-primary-dark;
+    }
+
+    &__label {
+      color: $color-text-primary-dark;
+    }
+
+    &__input,
+    &__select,
+    &__textarea {
+      color: $color-text-primary-dark;
+      background-color: $color-background-primary-dark;
+      border-color: $color-border-primary-dark;
+      &::placeholder {
+        color: $color-text-placeholder-dark;
+      }
+    }
+
+    &__input:focus,
+    &__select:focus,
+    &__textarea:focus {
+      background-color: $color-background-secondary-dark;
+    }
+
+    &__error {
+      color: $color-error-dark;
+    }
+
+    &__hint,
+    &__char-count {
+      color: $color-text-secondary-dark;
+    }
+
+    &__button {
+      color: $color-text-primary-dark;
+      background-color: $color-surface-primary-dark;
+      border-color: $color-border-primary-dark;
+
+      &:hover:not(:disabled) {
+        background-color: $color-surface-secondary-dark;
+        border-color: $color-border-secondary-dark;
+      }
+    }
+
+    &__button--primary {
+      color: $color-text-inverse-dark;
+      background-color: $color-primary;
+      border-color: $color-primary;
+
+      &:hover:not(:disabled) {
+        background-color: $color-primary-dark;
+        border-color: $color-primary-dark;
+      }
+    }
+
+    &__button--secondary {
+      color: $color-text-primary-dark;
+      background-color: $color-surface-primary-dark;
+      border-color: $color-border-primary-dark;
+
+      &:hover:not(:disabled) {
+        background-color: $color-surface-secondary-dark;
+      }
+    }
+  }
+}

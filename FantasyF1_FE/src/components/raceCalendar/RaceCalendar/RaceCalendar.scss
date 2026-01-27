@@ -1,0 +1,290 @@
+@import "../../../styles/_variables.scss";
+
+.race-calendar {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 24px;
+  min-height: calc(100vh - 160px);
+
+  &__header {
+    margin-bottom: 32px;
+    text-align: center;
+  }
+
+  &__title {
+    font-size: 2.5rem;
+    font-weight: 700;
+    margin: 0 0 8px;
+    color: $text-primary;
+  }
+
+  &__subtitle {
+    font-size: 1rem;
+    color: $text-secondary;
+    margin: 0;
+  }
+
+  &__controls {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    margin-bottom: 32px;
+    align-items: center;
+  }
+
+  &__filters {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 16px;
+    align-items: flex-end;
+    justify-content: center;
+    width: 100%;
+  }
+
+  &__filter-group {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+
+  &__filter-label {
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: $text-secondary;
+  }
+
+  &__filter-select {
+    padding: 10px 16px;
+    border: 1px solid $border-color;
+    border-radius: 8px;
+    background: $card-bg;
+    color: $text-primary;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    min-width: 150px;
+
+    &:hover {
+      border-color: $primary-color;
+    }
+
+    &:focus {
+      outline: none;
+      border-color: $primary-color;
+      box-shadow: 0 0 0 3px rgba(225, 6, 0, 0.1);
+    }
+  }
+
+  &__search {
+    flex: 1;
+    max-width: 400px;
+    min-width: 250px;
+  }
+
+  &__search-input {
+    width: 100%;
+    padding: 10px 16px;
+    border: 1px solid $border-color;
+    border-radius: 8px;
+    background: $card-bg;
+    color: $text-primary;
+    font-size: 1rem;
+    transition: all 0.2s ease;
+
+    &:hover {
+      border-color: $primary-color;
+    }
+
+    &:focus {
+      outline: none;
+      border-color: $primary-color;
+      box-shadow: 0 0 0 3px rgba(225, 6, 0, 0.1);
+    }
+
+    &::placeholder {
+      color: $text-secondary;
+    }
+  }
+
+  &__clear-filters {
+    padding: 10px 20px;
+    background: transparent;
+    border: 1px solid $border-color;
+    border-radius: 8px;
+    color: $text-secondary;
+    font-size: 0.95rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s ease;
+
+    &:hover {
+      background: rgba(225, 6, 0, 0.1);
+      border-color: $primary-color;
+      color: $primary-color;
+    }
+  }
+
+  &__grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+    gap: 24px;
+    margin-bottom: 32px;
+  }
+
+  &__empty {
+    text-align: center;
+    padding: 64px 24px;
+    background: $card-bg;
+    border-radius: 12px;
+    border: 1px dashed $border-color;
+  }
+
+  &__empty-text {
+    font-size: 1.1rem;
+    color: $text-secondary;
+    margin: 0;
+  }
+
+  &__next-race-banner {
+    position: sticky;
+    bottom: 24px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    background: linear-gradient(135deg, $primary-color 0%, #b30000 100%);
+    color: white;
+    padding: 16px 24px;
+    border-radius: 12px;
+    box-shadow: 0 8px 24px rgba(225, 6, 0, 0.4);
+    z-index: 10;
+    animation: slideUp 0.5s ease-out;
+  }
+
+  &__next-race-icon {
+    font-size: 1.5rem;
+    animation: pulse 2s ease-in-out infinite;
+  }
+
+  &__next-race-text {
+    font-size: 1rem;
+    flex: 1;
+  }
+
+  &__error {
+    text-align: center;
+    padding: 64px 24px;
+    background: rgba(244, 67, 54, 0.1);
+    border: 1px solid #f44336;
+    border-radius: 12px;
+
+    h3 {
+      color: #f44336;
+      margin: 0 0 8px;
+    }
+
+    p {
+      color: $text-secondary;
+      margin: 0;
+    }
+  }
+
+  &__skeleton {
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 12px;
+    animation: shimmer 1.5s ease-in-out infinite;
+
+    &--header {
+      height: 70px;
+      width: 60%;
+      margin: 0 auto 32px;
+    }
+
+    &--filters {
+      height: 60px;
+      width: 100%;
+      margin-bottom: 32px;
+    }
+
+    &--grid {
+      height: 400px;
+    }
+  }
+
+  &--loading {
+    pointer-events: none;
+  }
+
+  &--error {
+    pointer-events: none;
+  }
+}
+
+@keyframes slideUp {
+  from {
+    transform: translateY(20px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+@keyframes shimmer {
+  0%, 100% {
+    background: rgba(255, 255, 255, 0.05);
+  }
+  50% {
+    background: rgba(255, 255, 255, 0.1);
+  }
+}
+
+@media (max-width: $tablet-breakpoint) {
+  .race-calendar {
+    padding: 16px;
+
+    &__title {
+      font-size: 2rem;
+    }
+
+    &__grid {
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 16px;
+    }
+
+    &__filters {
+      flex-direction: column;
+      align-items: stretch;
+    }
+
+    &__filter-select,
+    &__search-input {
+      width: 100%;
+    }
+  }
+}
+
+@media (max-width: $mobile-breakpoint) {
+  .race-calendar {
+    padding: 12px;
+
+    &__title {
+      font-size: 1.75rem;
+    }
+
+    &__grid {
+      grid-template-columns: 1fr;
+      gap: 16px;
+    }
+
+    &__next-race-banner {
+      flex-direction: column;
+      text-align: center;
+      padding: 12px 16px;
+    }
+
+    &__next-race-text {
+      font-size: 0.9rem;
+    }
+  }
+}

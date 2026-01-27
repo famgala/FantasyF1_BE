@@ -1,0 +1,251 @@
+@import "../../../styles/_variables.scss";
+
+.notification-toast {
+  position: fixed;
+  right: 20px;
+  bottom: 20px;
+  min-width: 320px;
+  max-width: 420px;
+  background-color: white;
+  border-radius: $border-radius-md;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.25);
+  padding: $spacing-md;
+  display: flex;
+  gap: $spacing-md;
+  z-index: 9999;
+  cursor: pointer;
+  animation: slideIn 0.3s ease;
+  border-left: 4px solid $color-info;
+
+  &.success {
+    border-left-color: $color-success;
+    
+    .toast-icon .icon-success {
+      color: $color-success;
+    }
+  }
+
+  &.warning {
+    border-left-color: $color-warning;
+    
+    .toast-icon .icon-warning {
+      color: $color-warning;
+    }
+  }
+
+  &.error {
+    border-left-color: $color-error;
+    
+    .toast-icon .icon-error {
+      color: $color-error;
+    }
+  }
+
+  &.info {
+    border-left-color: $color-info;
+    
+    .toast-icon .icon-info {
+      color: $color-info;
+    }
+  }
+
+  &.exiting {
+    animation: slideOut 0.3s ease forwards;
+  }
+
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 24px rgba(0, 0, 0, 0.3);
+  }
+
+  .toast-icon {
+    flex-shrink: 0;
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    svg {
+      width: 28px;
+      height: 28px;
+    }
+  }
+
+  .toast-content {
+    flex: 1;
+    min-width: 0;
+
+    .toast-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: $spacing-xs;
+      gap: $spacing-sm;
+
+      .toast-title {
+        margin: 0;
+        font-size: 1rem;
+        font-weight: 700;
+        color: $color-text-primary;
+        line-height: 1.2;
+      }
+
+      .toast-time {
+        font-size: 0.75rem;
+        color: $color-text-secondary;
+        font-weight: 500;
+        white-space: nowrap;
+      }
+    }
+
+    .toast-message {
+      margin: 0 0 $spacing-sm 0;
+      font-size: 0.9rem;
+      color: $color-text-secondary;
+      line-height: 1.4;
+      display: -webkit-box;
+      -webkit-line-clamp: 3;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+
+    .toast-action {
+      display: inline-block;
+      color: $color-primary;
+      text-decoration: none;
+      font-size: 0.85rem;
+      font-weight: 600;
+      padding: 4px 8px;
+      border-radius: $border-radius-sm;
+      transition: background-color 0.2s ease;
+
+      &:hover {
+        background-color: rgba($color-primary, 0.1);
+      }
+    }
+  }
+
+  .toast-close {
+    flex-shrink: 0;
+    width: 28px;
+    height: 28px;
+    background-color: transparent;
+    border: none;
+    border-radius: $border-radius-sm;
+    color: $color-text-secondary;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s ease;
+
+    svg {
+      width: 20px;
+      height: 20px;
+    }
+
+    &:hover {
+      background-color: $color-border;
+      color: $color-text-primary;
+    }
+
+    &:active {
+      transform: scale(0.95);
+    }
+  }
+
+  .toast-progress {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 3px;
+    overflow: hidden;
+    border-bottom-left-radius: $border-radius-md;
+    border-bottom-right-radius: $border-radius-md;
+
+    .toast-progress-bar {
+      height: 100%;
+      width: 100%;
+      transform-origin: left;
+      animation-name: progress;
+    }
+  }
+
+  @media (max-width: $breakpoint-sm) {
+    right: 10px;
+    left: 10px;
+    bottom: 10px;
+    min-width: auto;
+    max-width: none;
+    padding: $spacing-sm;
+
+    .toast-icon {
+      width: 36px;
+      height: 36px;
+
+      svg {
+        width: 24px;
+        height: 24px;
+      }
+    }
+
+    .toast-content {
+      .toast-header {
+        .toast-title {
+          font-size: 0.9rem;
+        }
+
+        .toast-time {
+          font-size: 0.7rem;
+        }
+      }
+
+      .toast-message {
+        font-size: 0.85rem;
+      }
+    }
+
+    .toast-close {
+      width: 24px;
+      height: 24px;
+
+      svg {
+        width: 18px;
+        height: 18px;
+      }
+    }
+  }
+}
+
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateX(100%);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes slideOut {
+  from {
+    opacity: 1;
+    transform: translateX(0);
+  }
+  to {
+    opacity: 0;
+    transform: translateX(100%);
+  }
+}
+
+@keyframes progress {
+  from {
+    transform: scaleX(1);
+  }
+  to {
+    transform: scaleX(0);
+  }
+}

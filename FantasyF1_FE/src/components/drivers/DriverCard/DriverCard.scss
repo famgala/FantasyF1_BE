@@ -1,0 +1,150 @@
+@import "../../../styles/_variables.scss";
+
+.driver-card {
+  background-color: $color-white;
+  border: 1px solid $color-border;
+  border-radius: $border-radius-md;
+  padding: $spacing-md;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+
+  &:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    border-color: $color-primary;
+  }
+
+  &:focus {
+    outline: none;
+    box-shadow: 0 0 0 3px rgba($color-primary, 0.3);
+  }
+
+  .driver-card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: $spacing-sm;
+
+    .driver-number {
+      background-color: $color-background;
+      color: $color-text-primary;
+      padding: 4px 12px;
+      border-radius: 4px;
+      font-size: 1.2rem;
+      font-weight: 700;
+      min-width: 40px;
+      text-align: center;
+    }
+
+    .driver-status-badge {
+      padding: 4px 10px;
+      border-radius: 12px;
+      font-size: 0.75rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+
+      &.status-active {
+        background-color: $color-success-light;
+        color: $color-success-dark;
+      }
+
+      &.status-reserve {
+        background-color: $color-warning-light;
+        color: $color-warning-dark;
+      }
+
+      &.status-retired {
+        background-color: $color-danger-light;
+        color: $color-danger-dark;
+      }
+    }
+  }
+
+  .driver-card-body {
+    margin-bottom: $spacing-md;
+
+    .driver-name {
+      font-size: 1.4rem;
+      font-weight: 700;
+      color: $color-text-primary;
+      margin-bottom: $spacing-sm;
+    }
+
+    .driver-team,
+    .driver-country {
+      display: flex;
+      align-items: center;
+      gap: $spacing-xs;
+      margin-bottom: $spacing-xs;
+      font-size: 0.95rem;
+      color: $color-text-secondary;
+
+      .team-label,
+      .country-value {
+        font-weight: 500;
+      }
+
+      .team-value {
+        color: $color-text-primary;
+      }
+
+      .flag-icon {
+        font-size: 1.2rem;
+      }
+    }
+  }
+
+  .driver-card-stats {
+    display: flex;
+    gap: $spacing-md;
+    padding-top: $spacing-sm;
+    border-top: 1px solid $color-border-light;
+
+    .stat-item {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+
+      .stat-label {
+        font-size: 0.85rem;
+        color: $color-text-secondary;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        margin-bottom: 4px;
+      }
+
+      .stat-value {
+        font-size: 1.3rem;
+        font-weight: 700;
+        color: $color-primary;
+      }
+    }
+  }
+
+  @media (max-width: $breakpoint-sm) {
+    padding: $spacing-sm;
+
+    .driver-card-body {
+      .driver-name {
+        font-size: 1.2rem;
+      }
+    }
+
+    .driver-card-stats {
+      gap: $spacing-sm;
+
+      .stat-item {
+        .stat-label {
+          font-size: 0.75rem;
+        }
+
+        .stat-value {
+          font-size: 1.1rem;
+        }
+      }
+    }
+  }
+}

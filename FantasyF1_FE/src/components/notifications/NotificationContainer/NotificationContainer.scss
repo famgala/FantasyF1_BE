@@ -1,0 +1,31 @@
+@import "../../../styles/_variables.scss";
+
+.notification-container {
+  position: fixed;
+  top: 80px;
+  right: $spacing-lg;
+  z-index: $z-index-notification + 10;
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-sm;
+  max-width: 400px;
+  pointer-events: none;
+
+  // Allow pointer events on children but not on container itself
+  & > * {
+    pointer-events: auto;
+  }
+
+  @media (max-width: $breakpoint-md) {
+    top: 70px;
+    right: $spacing-md;
+    left: $spacing-md;
+    max-width: none;
+  }
+
+  @media (max-width: $breakpoint-sm) {
+    top: 60px;
+    right: $spacing-sm;
+    left: $spacing-sm;
+  }
+}
