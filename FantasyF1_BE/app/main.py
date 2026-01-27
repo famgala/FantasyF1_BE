@@ -8,6 +8,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.routing import APIRouter
 
 from app.api.v1.endpoints import (
+    admin,
     auth,
     constructors,
     drafts,
@@ -61,6 +62,7 @@ app.add_middleware(
 
 # Create API v1 router
 api_v1_router = APIRouter(prefix=settings.API_V1_PREFIX)
+api_v1_router.include_router(admin.router, tags=["Admin"])
 api_v1_router.include_router(auth.router, prefix="/auth", tags=["Authentication"])
 api_v1_router.include_router(users.router, prefix="/users", tags=["Users"])
 api_v1_router.include_router(drivers.router, prefix="/drivers", tags=["Drivers"])
