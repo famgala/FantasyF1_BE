@@ -12,7 +12,7 @@ export const NotificationContainer: React.FC = () => {
   };
 
   return (
-    <div className="notification-container" role="region" aria-label="Notification toasts">
+    <div className="notification-container" role="region" aria-label="Notification toasts" aria-live="polite" aria-atomic="true">
       {activeToasts.map((notification) => (
         <NotificationToast
           key={notification.id}

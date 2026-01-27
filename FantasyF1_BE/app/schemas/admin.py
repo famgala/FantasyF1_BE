@@ -94,12 +94,17 @@ class ErrorLog(BaseModel):
 
     id: int
     timestamp: datetime
-    type: Literal["validation", "auth", "server", "database", "external"]
-    severity: Literal["error", "warning", "critical"]
+    level: Literal["debug", "info", "warning", "error", "critical"]
     message: str
-    endpoint: str
+    module: str | None = None
+    function: str | None = None
+    line_number: int | None = None
+    endpoint: str | None = None
+    method: str | None = None
     user_id: int | None = None
+    request_id: str | None = None
     stack_trace: str | None = None
+    additional_data: str | None = None
 
     model_config = ConfigDict(from_attributes=True)
 

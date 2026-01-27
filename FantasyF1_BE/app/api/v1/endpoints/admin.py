@@ -8,6 +8,7 @@ from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.api.deps import get_current_superuser, get_db
+from app.models.error_log import ErrorLog as ErrorLogModel
 from app.models.fantasy_team import FantasyTeam
 from app.models.user import User
 from app.schemas.admin import (
@@ -17,6 +18,8 @@ from app.schemas.admin import (
     AdminUserBase,
     AdminUserListResponse,
     AdminUserUpdate,
+    ErrorLog,
+    ErrorLogListResponse,
     PlatformStats,
     SystemHealth,
 )
@@ -265,6 +268,68 @@ async def delete_league(
         league_id: ID of league to delete
     """
     await AdminService.delete_league(db=db, league_id=league_id)
+
+
+@router.get(
+    "/logs",
+    response_model=ErrorLogListResponse,
+    status_code=status.HTTP_200_OK,
+)
+async def get_error_logs(
+    db: Annotated[AsyncSession, Depends(get_db)],
+    _: Annotated[dict, Depends(get_current_superuser)],
+    level: Literal["debug", "info", "warning", "error", "critical"] | None = Query(
+        None, description="Filter by log level"
+    ),
+    module: str | None = Query(None, description="Filter by module name"),
+    endpoint: str | None = Query(None, description="Filter by endpoint"),
+    user_id: int | None = Query(None, description="Filter by user ID"),
+    limit: int = Query(100, ge=1, le=1000, description="Maximum number of results"),
+    offset: int = Query(0, ge=0, description="Number of results to skip"),
+) -> ErrorLogListResponse:
+    """Get error logs with optional filtering.
+
+    Requires superuser (admin) privileges.
+
+    Args:
+        level: Filter by log level
+        module: Filter by module name
+        endpoint: Filter by endpoint
+        user_id: Filter by user ID
+        limit: Maximum number of results
+        offset: Number of results to skip
+
+    Returns:
+        Paginated list of error logs with total count
+    """
+    query = select(ErrorLogModel)
+
+    # Apply filters
+    if level is not None:
+        query = query.where(ErrorLogModel.level == level)
+    if module is not None:
+        query = query.where(ErrorLogModel.module == module)
+    if endpoint is not None:
+        query = query.where(ErrorLogModel.endpoint == endpoint)
+    if user_id is not None:
+        query = query.where(ErrorLogModel.user_id == user_id)
+
+    # Get total count
+    count_query = select(func.count()).select_from(query.subquery())
+    total_result = await db.execute(count_query)
+    total = total_result.scalar() or 0
+
+    # Get paginated results
+    query = query.order_by(ErrorLogModel.timestamp.desc())
+    query = query.limit(limit).offset(offset)
+
+    result = await db.execute(query)
+    logs = result.scalars().all()
+
+    return ErrorLogListResponse(
+        logs=[ErrorLog.model_validate(log) for log in logs],
+        total=total,
+    )
 
 
 @router.get("/health", response_model=SystemHealth, status_code=status.HTTP_200_OK)

@@ -230,18 +230,22 @@
     color: $text-muted;
   }
 
-  &__filter-select {
+  &__filter-select,
+  &__filter-input {
     padding: 0.625rem 1rem;
     border: 1px solid $border-color;
     border-radius: 6px;
     background: $input-bg;
     color: $text-color;
     font-size: 0.9rem;
-    cursor: pointer;
 
     &:focus {
       outline: none;
       border-color: $primary-color;
+    }
+
+    &::placeholder {
+      color: $text-muted;
     }
   }
 
@@ -450,42 +454,8 @@
     }
   }
 
-  // Badge Styles
-  &__type {
-    display: inline-block;
-    padding: 0.25rem 0.5rem;
-    border-radius: 4px;
-    font-size: 0.75rem;
-    font-weight: 600;
-    text-transform: uppercase;
-
-    &--validation {
-      background: rgba(#17a2b8, 0.15);
-      color: #17a2b8;
-    }
-
-    &--auth {
-      background: rgba(#6610f2, 0.15);
-      color: #6610f2;
-    }
-
-    &--server {
-      background: rgba($error-color, 0.15);
-      color: $error-color;
-    }
-
-    &--database {
-      background: rgba(#fd7e14, 0.15);
-      color: #fd7e14;
-    }
-
-    &--external {
-      background: rgba(#20c997, 0.15);
-      color: #20c997;
-    }
-  }
-
-  &__severity {
+  // Level Badge Styles
+  &__level {
     display: inline-block;
     padding: 0.25rem 0.5rem;
     border-radius: 4px;
@@ -506,6 +476,16 @@
     &--warning {
       background: rgba($warning-color, 0.15);
       color: $warning-color;
+    }
+
+    &--info {
+      background: rgba(#17a2b8, 0.15);
+      color: #17a2b8;
+    }
+
+    &--debug {
+      background: rgba(#6c757d, 0.15);
+      color: #6c757d;
     }
   }
 

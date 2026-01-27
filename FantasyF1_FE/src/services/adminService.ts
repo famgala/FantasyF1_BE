@@ -60,12 +60,17 @@ export interface AdminLeague {
 export interface ErrorLog {
   id: number;
   timestamp: string;
-  type: "validation" | "auth" | "server" | "database" | "external";
-  severity: "error" | "warning" | "critical";
+  level: "debug" | "info" | "warning" | "error" | "critical";
   message: string;
-  endpoint: string;
+  module?: string;
+  function?: string;
+  lineNumber?: number;
+  endpoint?: string;
+  method?: string;
   userId?: number;
+  requestId?: string;
   stackTrace?: string;
+  additionalData?: string;
 }
 
 /**
@@ -100,21 +105,8 @@ export interface BroadcastNotificationRequest {
  */
 export const getPlatformStats = async (): Promise<PlatformStats> => {
   try {
-    // In production, this would call the actual API
-    // const response = await api.get("/admin/stats");
-    // return response.data;
-
-    // Mock data for development
-    return {
-      totalUsers: 1247,
-      activeUsers7d: 523,
-      totalLeagues: 89,
-      activeLeagues: 67,
-      completedRaces: 5,
-      upcomingRaces: 19,
-      registrationsByDay: generateMockDailyData(30, 10, 50),
-      leaguesByDay: generateMockDailyData(30, 1, 5),
-    };
+    const response = await api.get("/admin/stats");
+    return response.data;
   } catch (error) {
     console.error("Failed to fetch platform stats:", error);
     throw error;
@@ -289,48 +281,16 @@ export const deleteLeague = async (leagueId: number): Promise<void> => {
  * Fetches error logs for admin monitoring
  */
 export const getErrorLogs = async (params?: {
-  startDate?: string;
-  endDate?: string;
-  type?: string;
-  severity?: string;
+  level?: "debug" | "info" | "warning" | "error" | "critical";
+  module?: string;
+  endpoint?: string;
+  userId?: number;
   limit?: number;
   offset?: number;
 }): Promise<{ logs: ErrorLog[]; total: number }> => {
   try {
-    // In production: const response = await api.get("/admin/logs", { params });
-    
-    // Mock data
-    const logs: ErrorLog[] = [
-      {
-        id: 1,
-        timestamp: "2026-01-26T15:30:00Z",
-        type: "validation",
-        severity: "warning",
-        message: "Invalid email format in registration",
-        endpoint: "/api/v1/auth/register",
-        userId: 0,
-      },
-      {
-        id: 2,
-        timestamp: "2026-01-26T14:45:00Z",
-        type: "auth",
-        severity: "error",
-        message: "Failed login attempt - invalid credentials",
-        endpoint: "/api/v1/auth/login",
-        userId: 5,
-      },
-      {
-        id: 3,
-        timestamp: "2026-01-26T12:20:00Z",
-        type: "database",
-        severity: "critical",
-        message: "Connection timeout to primary database",
-        endpoint: "/api/v1/leagues",
-        stackTrace: "ConnectionError: timeout after 30000ms...",
-      },
-    ];
-
-    return { logs, total: logs.length };
+    const response = await api.get("/admin/logs", { params });
+    return response.data;
   } catch (error) {
     console.error("Failed to fetch error logs:", error);
     throw error;

@@ -28,6 +28,7 @@ import AppLayout from "./components/layout/AppLayout";
 import { AuthProvider, useAuth } from "./contexts/AuthContext";
 import { NotificationProvider } from "./contexts/NotificationContext";
 import { NotificationContainer } from "./components/notifications/NotificationContainer";
+import { SkipNavigation } from "./components/accessibility/SkipNavigation";
 import "./App.scss";
 
 /**
@@ -40,7 +41,8 @@ const AppContent: React.FC = () => {
 
   return (
     <>
-      <div className="app">
+      <SkipNavigation />
+      <div className="app" id="main-content">
         <Routes>
           {/* Public Routes */}
           <Route path="/" element={<HomePage />} />

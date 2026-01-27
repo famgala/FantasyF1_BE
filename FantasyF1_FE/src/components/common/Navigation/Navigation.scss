@@ -15,6 +15,7 @@ $user-menu-bg: #16213e;
 $user-menu-width: 280px;
 $dropdown-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
 $mobile-menu-bg: #1a1a2e;
+$tap-target-min: 44px; // WCAG 2.1 AA minimum for touch targets
 
 .navigation {
   position: sticky;
@@ -126,8 +127,8 @@ $mobile-menu-bg: #1a1a2e;
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 40px;
-  height: 40px;
+  width: $tap-target-min;
+  height: $tap-target-min;
   padding: 0;
   border: none;
   border-radius: 8px;
@@ -190,7 +191,7 @@ $mobile-menu-bg: #1a1a2e;
   display: flex;
   align-items: center;
   gap: 6px;
-  padding: 0;
+  padding: 4px;
   border: none;
   border-radius: 8px;
   background-color: transparent;
@@ -297,7 +298,7 @@ $mobile-menu-bg: #1a1a2e;
     align-items: center;
     gap: 12px;
     width: 100%;
-    padding: 10px 12px;
+    padding: 12px; // Ensures minimum tap target of 44px
     border: none;
     border-radius: 8px;
     background-color: transparent;
@@ -308,6 +309,7 @@ $mobile-menu-bg: #1a1a2e;
     text-decoration: none;
     cursor: pointer;
     transition: all 0.2s ease;
+    min-height: $tap-target-min;
 
     &:hover {
       background-color: rgba(255, 255, 255, 0.05);
@@ -423,8 +425,8 @@ $mobile-menu-bg: #1a1a2e;
   flex-direction: column;
   justify-content: center;
   gap: 5px;
-  width: 40px;
-  height: 40px;
+  width: $tap-target-min;
+  height: $tap-target-min;
   padding: 0;
   border: none;
   border-radius: 8px;
@@ -477,6 +479,12 @@ $mobile-menu-bg: #1a1a2e;
   background-color: $mobile-menu-bg;
   border-bottom: 1px solid $nav-border-color;
   animation: slideDown 0.2s ease;
+
+  // Ensure mobile menu items meet minimum tap target size
+  .mobile-nav-link {
+    min-height: $tap-target-min;
+    min-width: $tap-target-min;
+  }
 }
 
 .mobile-menu-container {

@@ -12,7 +12,7 @@ import "./AdminLogsPage.scss";
  * Admin Logs Page Component
  *
  * Displays system error logs and monitoring information for admin users.
- * Includes filtering by date range, error type, and severity.
+ * Includes filtering by level, module, endpoint, and user ID.
  */
 const AdminLogsPage: React.FC = () => {
   const [logs, setLogs] = useState<ErrorLog[]>([]);
@@ -23,37 +23,14 @@ const AdminLogsPage: React.FC = () => {
   const [expandedRows, setExpandedRows] = useState<Set<number>>(new Set());
 
   // Filter state
-  const [dateRange, setDateRange] = useState<"24h" | "7d" | "30d" | "all">("24h");
-  const [errorType, setErrorType] = useState<string>("all");
-  const [severity, setSeverity] = useState<string>("all");
+  const [module, setModule] = useState<string>("");
+  const [level, setLevel] = useState<string>("all");
+  const [endpoint, setEndpoint] = useState<string>("");
+  const [userId, setUserId] = useState<string>("");
 
   // Pagination state
   const [currentPage, setCurrentPage] = useState(1);
   const logsPerPage = 20;
-
-  /**
-   * Calculate date range for API call
-   */
-  const getDateParams = useCallback(() => {
-    const now = new Date();
-    let startDate: string | undefined;
-
-    switch (dateRange) {
-      case "24h":
-        startDate = new Date(now.getTime() - 24 * 60 * 60 * 1000).toISOString();
-        break;
-      case "7d":
-        startDate = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000).toISOString();
-        break;
-      case "30d":
-        startDate = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000).toISOString();
-        break;
-      default:
-        startDate = undefined;
-    }
-
-    return { startDate, endDate: now.toISOString() };
-  }, [dateRange]);
 
   /**
    * Load logs and health data
@@ -62,13 +39,12 @@ const AdminLogsPage: React.FC = () => {
     setIsLoading(true);
     setError(null);
     try {
-      const { startDate, endDate } = getDateParams();
       const [logsResponse, healthData] = await Promise.all([
         getErrorLogs({
-          startDate,
-          endDate,
-          type: errorType !== "all" ? errorType : undefined,
-          severity: severity !== "all" ? severity : undefined,
+          level: level !== "all" ? (level as "debug" | "info" | "warning" | "error" | "critical") : undefined,
+          module: module || undefined,
+          endpoint: endpoint || undefined,
+          userId: userId ? parseInt(userId, 10) : undefined,
           limit: logsPerPage,
           offset: (currentPage - 1) * logsPerPage,
         }),
@@ -83,7 +59,7 @@ const AdminLogsPage: React.FC = () => {
     } finally {
       setIsLoading(false);
     }
-  }, [dateRange, errorType, severity, currentPage, getDateParams]);
+  }, [level, module, endpoint, userId, currentPage]);
 
   useEffect(() => {
     loadData();
@@ -108,17 +84,17 @@ const AdminLogsPage: React.FC = () => {
    * Export logs to CSV
    */
   const exportToCSV = () => {
-    const headers = ["ID", "Timestamp", "Type", "Severity", "Message", "Endpoint", "User ID"];
+    const headers = ["ID", "Timestamp", "Level", "Module", "Message", "Endpoint", "User ID"];
     const csvContent = [
       headers.join(","),
       ...logs.map((log) =>
         [
           log.id,
           log.timestamp,
-          log.type,
-          log.severity,
+          log.level,
+          log.module || "",
           `"${log.message.replace(/"/g, '""')}"`,
-          log.endpoint,
+          log.endpoint || "",
           log.userId || "",
         ].join(",")
       ),
@@ -158,36 +134,18 @@ const AdminLogsPage: React.FC = () => {
   };
 
   /**
-   * Get severity badge class
+   * Get level badge class
    */
-  const getSeverityClass = (sev: string): string => {
-    switch (sev) {
+  const getLevelClass = (lvl: string): string => {
+    switch (lvl) {
       case "critical":
-        return "admin-logs__severity--critical";
+        return "admin-logs__level--critical";
       case "error":
-        return "admin-logs__severity--error";
+        return "admin-logs__level--error";
       case "warning":
-        return "admin-logs__severity--warning";
-      default:
-        return "";
-    }
-  };
-
-  /**
-   * Get type badge class
-   */
-  const getTypeClass = (type: string): string => {
-    switch (type) {
-      case "validation":
-        return "admin-logs__type--validation";
-      case "auth":
-        return "admin-logs__type--auth";
-      case "server":
-        return "admin-logs__type--server";
-      case "database":
-        return "admin-logs__type--database";
-      case "external":
-        return "admin-logs__type--external";
+        return "admin-logs__level--warning";
+      case "info":
+        return "admin-logs__level--info";
       default:
         return "";
     }
@@ -225,9 +183,10 @@ const AdminLogsPage: React.FC = () => {
    * Reset filters
    */
   const resetFilters = () => {
-    setDateRange("24h");
-    setErrorType("all");
-    setSeverity("all");
+    setModule("");
+    setLevel("all");
+    setEndpoint("");
+    setUserId("");
     setCurrentPage(1);
   };
 
@@ -349,65 +308,76 @@ const AdminLogsPage: React.FC = () => {
         <h2 className="admin-logs__section-title">Filter Logs</h2>
         <div className="admin-logs__filter-grid">
           <div className="admin-logs__filter-group">
-            <label htmlFor="dateRange" className="admin-logs__filter-label">
-              Date Range
+            <label htmlFor="level" className="admin-logs__filter-label">
+              Level
             </label>
             <select
-              id="dateRange"
+              id="level"
               className="admin-logs__filter-select"
-              value={dateRange}
+              value={level}
               onChange={(e) => {
-                setDateRange(e.target.value as "24h" | "7d" | "30d" | "all");
+                setLevel(e.target.value);
                 setCurrentPage(1);
               }}
             >
-              <option value="24h">Last 24 Hours</option>
-              <option value="7d">Last 7 Days</option>
-              <option value="30d">Last 30 Days</option>
-              <option value="all">All Time</option>
-            </select>
-          </div>
-
-          <div className="admin-logs__filter-group">
-            <label htmlFor="errorType" className="admin-logs__filter-label">
-              Error Type
-            </label>
-            <select
-              id="errorType"
-              className="admin-logs__filter-select"
-              value={errorType}
-              onChange={(e) => {
-                setErrorType(e.target.value);
-                setCurrentPage(1);
-              }}
-            >
-              <option value="all">All Types</option>
-              <option value="validation">Validation</option>
-              <option value="auth">Authentication</option>
-              <option value="server">Server</option>
-              <option value="database">Database</option>
-              <option value="external">External</option>
-            </select>
-          </div>
-
-          <div className="admin-logs__filter-group">
-            <label htmlFor="severity" className="admin-logs__filter-label">
-              Severity
-            </label>
-            <select
-              id="severity"
-              className="admin-logs__filter-select"
-              value={severity}
-              onChange={(e) => {
-                setSeverity(e.target.value);
-                setCurrentPage(1);
-              }}
-            >
-              <option value="all">All Severities</option>
+              <option value="all">All Levels</option>
+              <option value="debug">Debug</option>
+              <option value="info">Info</option>
               <option value="warning">Warning</option>
               <option value="error">Error</option>
               <option value="critical">Critical</option>
             </select>
+          </div>
+
+          <div className="admin-logs__filter-group">
+            <label htmlFor="module" className="admin-logs__filter-label">
+              Module
+            </label>
+            <input
+              id="module"
+              type="text"
+              className="admin-logs__filter-input"
+              placeholder="e.g., auth, league"
+              value={module}
+              onChange={(e) => {
+                setModule(e.target.value);
+                setCurrentPage(1);
+              }}
+            />
+          </div>
+
+          <div className="admin-logs__filter-group">
+            <label htmlFor="endpoint" className="admin-logs__filter-label">
+              Endpoint
+            </label>
+            <input
+              id="endpoint"
+              type="text"
+              className="admin-logs__filter-input"
+              placeholder="e.g., /api/v1/auth"
+              value={endpoint}
+              onChange={(e) => {
+                setEndpoint(e.target.value);
+                setCurrentPage(1);
+              }}
+            />
+          </div>
+
+          <div className="admin-logs__filter-group">
+            <label htmlFor="userId" className="admin-logs__filter-label">
+              User ID
+            </label>
+            <input
+              id="userId"
+              type="number"
+              className="admin-logs__filter-input"
+              placeholder="User ID"
+              value={userId}
+              onChange={(e) => {
+                setUserId(e.target.value);
+                setCurrentPage(1);
+              }}
+            />
           </div>
 
           <div className="admin-logs__filter-actions">
@@ -468,8 +438,8 @@ const AdminLogsPage: React.FC = () => {
                 <tr>
                   <th className="admin-logs__th admin-logs__th--expand"></th>
                   <th className="admin-logs__th">Timestamp</th>
-                  <th className="admin-logs__th">Type</th>
-                  <th className="admin-logs__th">Severity</th>
+                  <th className="admin-logs__th">Level</th>
+                  <th className="admin-logs__th">Module</th>
                   <th className="admin-logs__th">Message</th>
                   <th className="admin-logs__th">Endpoint</th>
                   <th className="admin-logs__th">User ID</th>
@@ -502,22 +472,18 @@ const AdminLogsPage: React.FC = () => {
                         {formatTimestamp(log.timestamp)}
                       </td>
                       <td className="admin-logs__td">
-                        <span className={`admin-logs__type ${getTypeClass(log.type)}`}>
-                          {log.type}
+                        <span className={`admin-logs__level ${getLevelClass(log.level)}`}>
+                          {log.level}
                         </span>
                       </td>
                       <td className="admin-logs__td">
-                        <span
-                          className={`admin-logs__severity ${getSeverityClass(log.severity)}`}
-                        >
-                          {log.severity}
-                        </span>
+                        <code>{log.module || "-"}</code>
                       </td>
                       <td className="admin-logs__td admin-logs__td--message">
                         {log.message}
                       </td>
                       <td className="admin-logs__td admin-logs__td--endpoint">
-                        <code>{log.endpoint}</code>
+                        <code>{log.endpoint || "-"}</code>
                       </td>
                       <td className="admin-logs__td admin-logs__td--user">
                         {log.userId || "-"}

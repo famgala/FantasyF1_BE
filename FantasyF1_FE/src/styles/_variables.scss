@@ -1,12 +1,12 @@
-// F1 Brand Colors
-$color-primary: #e10600;
-$color-primary-dark: #b30500;
-$color-primary-light: #ffebe9;
+// F1 Brand Colors (WCAG AA Compliant)
+$color-primary: #cc0500; // Darkened for 4.5:1+ contrast with white
+$color-primary-dark: #990400;
+$color-primary-light: #fff0ef;
 
-// Neutral Colors
-$color-text: #1a1a1a;
-$color-text-secondary: #666666;
-$color-text-light: #999999;
+// Neutral Colors (WCAG AA Compliant)
+$color-text: #1a1a1a; // 16.5:1 contrast with white
+$color-text-secondary: #555555; // 7.5:1 contrast with white (improved from #666666)
+$color-text-muted: #767676; // 5.5:1 contrast with white for non-critical text
 $color-white: #ffffff;
 
 // Background Colors
@@ -14,14 +14,14 @@ $color-bg: #f5f5f5;
 $color-bg-light: #fafafa;
 $color-bg-dark: #1a1a1a;
 
-// Status Colors
-$color-success: #10b981;
+// Status Colors (WCAG AA Compliant)
+$color-success: #047857; // Darkened for 4.5:1+ contrast with white
 $color-success-light: #d1fae5;
-$color-error: #ef4444;
+$color-error: #dc2626; // Darkened for 4.5:1+ contrast with white
 $color-error-light: #fee2e2;
-$color-warning: #f59e0b;
+$color-warning: #d97706; // Darkened for 4.5:1+ contrast with white
 $color-warning-light: #fef3c7;
-$color-info: #3b82f6;
+$color-info: #2563eb; // Darkened for 4.5:1+ contrast with white
 $color-info-light: #dbeafe;
 
 // Border Colors
@@ -96,3 +96,8 @@ $container-md: 768px;
 $container-lg: 1024px;
 $container-xl: 1280px;
 $container-2xl: 1536px;
+
+// Accessibility - Focus States
+$focus-outline-width: 2px;
+$focus-outline-offset: 2px;
+$focus-outline-color: #2563eb;

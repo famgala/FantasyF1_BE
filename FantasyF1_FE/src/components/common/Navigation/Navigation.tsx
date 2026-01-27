@@ -94,7 +94,7 @@ const Navigation: React.FC = () => {
   };
 
   return (
-    <nav className="navigation">
+    <nav className="navigation" id="navigation">
       <div className="navigation__container">
         {/* Logo/Brand */}
         <div className="navigation__logo">
