@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
+import { yupResolver } from "@hookform/resolvers/yup";
+import * as yup from "yup";
 import { useNavigate, useLocation, Link } from "react-router-dom";
 import { login, ApiError } from "../../../services/authService";
 import "./LoginForm.scss";
@@ -7,6 +9,14 @@ import "./LoginForm.scss";
 interface LoginFormData {
   password: string;
 }
+
+// Validation schema using yup
+const loginSchema = yup.object().shape({
+  password: yup
+    .string()
+    .required("Password is required")
+    .min(1, "Password is required"),
+});
 
 interface LocationState {
   email?: string;
@@ -41,6 +51,7 @@ const LoginForm: React.FC = () => {
     formState: { errors },
     reset,
   } = useForm<LoginFormData>({
+    resolver: yupResolver(loginSchema),
     mode: "onBlur",
   });
 

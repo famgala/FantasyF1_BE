@@ -1,5 +1,42 @@
 import React, { useState, useEffect } from "react";
+import { useForm } from "react-hook-form";
+import { yupResolver } from "@hookform/resolvers/yup";
+import * as yup from "yup";
 import "./EditProfileForm.scss";
+
+// Validation schema using yup
+const editProfileSchema = yup.object().shape({
+  username: yup
+    .string()
+    .required("Username is required")
+    .min(3, "Username must be at least 3 characters")
+    .max(30, "Username must not exceed 30 characters")
+    .matches(
+      /^[a-zA-Z0-9_]+$/,
+      "Username can only contain letters, numbers, and underscores"
+    ),
+  email: yup
+    .string()
+    .required("Email is required")
+    .email("Please enter a valid email address"),
+  firstName: yup
+    .string()
+    .required("First name is required")
+    .min(1, "First name is required")
+    .max(50, "First name must not exceed 50 characters"),
+  lastName: yup
+    .string()
+    .required("Last name is required")
+    .min(1, "Last name is required")
+    .max(50, "Last name must not exceed 50 characters"),
+  country: yup.string().optional(),
+  favoriteDriver: yup.string().optional(),
+  favoriteTeam: yup.string().optional(),
+  bio: yup
+    .string()
+    .optional()
+    .max(500, "Bio must not exceed 500 characters"),
+});
 
 /**
  * User Profile Data Interface
@@ -13,16 +50,6 @@ interface ProfileData {
   favoriteDriver?: string;
   favoriteTeam?: string;
   bio?: string;
-}
-
-/**
- * Form Validation Errors Interface
- */
-interface FormErrors {
-  username?: string;
-  email?: string;
-  firstName?: string;
-  lastName?: string;
 }
 
 /**
@@ -46,20 +73,31 @@ const EditProfileForm: React.FC<EditProfileFormProps> = ({
   onSuccess,
   onCancel,
 }) => {
-  const [formData, setFormData] = useState<ProfileData>({
-    username: "",
-    email: "",
-    firstName: "",
-    lastName: "",
-    country: "",
-    favoriteDriver: "",
-    favoriteTeam: "",
-    bio: "",
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [initialData, setInitialData] = useState<ProfileData | null>(null);
+
+  const {
+    register,
+    handleSubmit,
+    formState: { errors, isDirty },
+    reset,
+    watch,
+  } = useForm<ProfileData>({
+    resolver: yupResolver(editProfileSchema),
+    mode: "onBlur",
+    defaultValues: {
+      username: "",
+      email: "",
+      firstName: "",
+      lastName: "",
+      country: "",
+      favoriteDriver: "",
+      favoriteTeam: "",
+      bio: "",
+    },
   });
 
-  const [errors, setErrors] = useState<FormErrors>({});
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [isDirty, setIsDirty] = useState(false);
+  const bio = watch("bio", "");
 
   // Load user data on mount
   useEffect(() => {
@@ -73,10 +111,10 @@ const EditProfileForm: React.FC<EditProfileFormProps> = ({
     try {
       // In production, this would call the actual API
       // const response = await api.get("/auth/profile");
-      // setFormData(response.data);
+      // const userData = response.data;
 
       // Mock data for now
-      setFormData({
+      const userData: ProfileData = {
         username: "f1fan2024",
         email: "fan@example.com",
         firstName: "John",
@@ -85,74 +123,24 @@ const EditProfileForm: React.FC<EditProfileFormProps> = ({
         favoriteDriver: "Max Verstappen",
         favoriteTeam: "Red Bull Racing",
         bio: "Passionate F1 fan and fantasy player",
-      });
+      };
+
+      setInitialData(userData);
+      reset(userData);
     } catch (error) {
       console.error("Failed to load profile data:", error);
     }
   };
 
   /**
-   * Handles input field changes
-   */
-  const handleChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
-  ) => {
-    const { name, value } = e.target;
-    setFormData((prev) => ({ ...prev, [name]: value }));
-    setIsDirty(true);
-    // Clear error for this field when user starts typing
-    setErrors((prev) => ({ ...prev, [name]: undefined }));
-  };
-
-  /**
-   * Validates the form data
-   */
-  const validateForm = (): boolean => {
-    const newErrors: FormErrors = {};
-
-    // Username validation
-    if (!formData.username) {
-      newErrors.username = "Username is required";
-    } else if (formData.username.length < 3) {
-      newErrors.username = "Username must be at least 3 characters";
-    } else if (formData.username.length > 30) {
-      newErrors.username = "Username must not exceed 30 characters";
-    }
-
-    // Email validation
-    if (!formData.email) {
-      newErrors.email = "Email is required";
-    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
-      newErrors.email = "Please enter a valid email address";
-    }
-
-    // Name validation
-    if (!formData.firstName.trim()) {
-      newErrors.firstName = "First name is required";
-    }
-    if (!formData.lastName.trim()) {
-      newErrors.lastName = "Last name is required";
-    }
-
-    setErrors(newErrors);
-    return Object.keys(newErrors).length === 0;
-  };
-
-  /**
    * Handles form submission
    */
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-
-    if (!validateForm()) {
-      return;
-    }
-
+  const onSubmit = async (data: ProfileData) => {
     setIsSubmitting(true);
 
     try {
       // In production, this would call the actual API
-      // await api.put("/auth/profile", formData);
+      // await api.put("/auth/profile", data);
 
       // Simulate API call
       await new Promise((resolve) => setTimeout(resolve, 1000));
@@ -161,7 +149,7 @@ const EditProfileForm: React.FC<EditProfileFormProps> = ({
       // (This would be handled by the service/context layer)
 
       if (onSuccess) {
-        onSuccess(formData);
+        onSuccess(data);
       }
     } catch (error) {
       console.error("Failed to update profile:", error);
@@ -211,8 +199,8 @@ const EditProfileForm: React.FC<EditProfileFormProps> = ({
     { code: "SG", name: "Singapore" },
     { code: "AE", name: "United Arab Emirates" },
     { code: "SA", name: "Saudi Arabia" },
-    { code: "Q", name: "Qatar" },
-    { code: "MO", name: "Monaco" },
+    { code: "QA", name: "Qatar" },
+    { code: "MC", name: "Monaco" },
     { code: "HU", name: "Hungary" },
     { code: "FI", name: "Finland" },
     { code: "DK", name: "Denmark" },
@@ -223,7 +211,6 @@ const EditProfileForm: React.FC<EditProfileFormProps> = ({
     { code: "GR", name: "Greece" },
     { code: "CZ", name: "Czech Republic" },
     { code: "PL", name: "Poland" },
-    { code: "NL", name: "Netherlands" },
     { code: "RU", name: "Russia" },
     { code: "CN", name: "China" },
     { code: "KR", name: "South Korea" },
@@ -289,37 +276,37 @@ const EditProfileForm: React.FC<EditProfileFormProps> = ({
         </p>
       </div>
 
-      <form className="edit-profile-form__form" onSubmit={handleSubmit}>
+      <form className="edit-profile-form__form" onSubmit={handleSubmit(onSubmit)}>
         {/* Required Information Section */}
         <div className="edit-profile-form__section">
           <h3 className="edit-profile-form__section-title">Account Information</h3>
 
           <div className="edit-profile-form__field-group">
-            <label
-              htmlFor="username"
-              className="edit-profile-form__label"
-            >
+            <label htmlFor="username" className="edit-profile-form__label">
               Username *
             </label>
             <input
               type="text"
               id="username"
-              name="username"
-              value={formData.username}
-              onChange={handleChange}
               className={`edit-profile-form__input ${
                 errors.username ? "edit-profile-form__input--error" : ""
               }`}
               placeholder="Choose a username"
               maxLength={30}
               disabled={isSubmitting}
+              aria-required="true"
+              aria-invalid={!!errors.username}
+              aria-describedby={
+                errors.username ? "username-error username-hint" : "username-hint"
+              }
+              {...register("username")}
             />
             {errors.username && (
-              <span className="edit-profile-form__error">
-                {errors.username}
+              <span id="username-error" className="edit-profile-form__error" role="alert">
+                {errors.username.message}
               </span>
             )}
-            <span className="edit-profile-form__hint">
+            <span id="username-hint" className="edit-profile-form__hint">
               3-30 characters, letters, numbers, and underscores only
             </span>
           </div>
@@ -331,69 +318,68 @@ const EditProfileForm: React.FC<EditProfileFormProps> = ({
             <input
               type="email"
               id="email"
-              name="email"
-              value={formData.email}
-              onChange={handleChange}
               className={`edit-profile-form__input ${
                 errors.email ? "edit-profile-form__input--error" : ""
               }`}
               placeholder="your@email.com"
               disabled={isSubmitting}
+              aria-required="true"
+              aria-invalid={!!errors.email}
+              aria-describedby={errors.email ? "email-error" : undefined}
+              {...register("email")}
             />
             {errors.email && (
-              <span className="edit-profile-form__error">{errors.email}</span>
+              <span id="email-error" className="edit-profile-form__error" role="alert">
+                {errors.email.message}
+              </span>
             )}
           </div>
 
           <div className="edit-profile-form__row">
             <div className="edit-profile-form__field-group">
-              <label
-                htmlFor="firstName"
-                className="edit-profile-form__label"
-              >
+              <label htmlFor="firstName" className="edit-profile-form__label">
                 First Name *
               </label>
               <input
                 type="text"
                 id="firstName"
-                name="firstName"
-                value={formData.firstName}
-                onChange={handleChange}
                 className={`edit-profile-form__input ${
                   errors.firstName ? "edit-profile-form__input--error" : ""
                 }`}
                 placeholder="John"
                 disabled={isSubmitting}
+                aria-required="true"
+                aria-invalid={!!errors.firstName}
+                aria-describedby={errors.firstName ? "firstName-error" : undefined}
+                {...register("firstName")}
               />
               {errors.firstName && (
-                <span className="edit-profile-form__error">
-                  {errors.firstName}
+                <span id="firstName-error" className="edit-profile-form__error" role="alert">
+                  {errors.firstName.message}
                 </span>
               )}
             </div>
 
             <div className="edit-profile-form__field-group">
-              <label
-                htmlFor="lastName"
-                className="edit-profile-form__label"
-              >
+              <label htmlFor="lastName" className="edit-profile-form__label">
                 Last Name *
               </label>
               <input
                 type="text"
                 id="lastName"
-                name="lastName"
-                value={formData.lastName}
-                onChange={handleChange}
                 className={`edit-profile-form__input ${
                   errors.lastName ? "edit-profile-form__input--error" : ""
                 }`}
                 placeholder="Doe"
                 disabled={isSubmitting}
+                aria-required="true"
+                aria-invalid={!!errors.lastName}
+                aria-describedby={errors.lastName ? "lastName-error" : undefined}
+                {...register("lastName")}
               />
               {errors.lastName && (
-                <span className="edit-profile-form__error">
-                  {errors.lastName}
+                <span id="lastName-error" className="edit-profile-form__error" role="alert">
+                  {errors.lastName.message}
                 </span>
               )}
             </div>
@@ -405,11 +391,9 @@ const EditProfileForm: React.FC<EditProfileFormProps> = ({
             </label>
             <select
               id="country"
-              name="country"
-              value={formData.country}
-              onChange={handleChange}
               className="edit-profile-form__select"
               disabled={isSubmitting}
+              {...register("country")}
             >
               <option value="">Select your country</option>
               {countries.map((country) => (
@@ -426,19 +410,14 @@ const EditProfileForm: React.FC<EditProfileFormProps> = ({
           <h3 className="edit-profile-form__section-title">F1 Preferences</h3>
 
           <div className="edit-profile-form__field-group">
-            <label
-              htmlFor="favoriteDriver"
-              className="edit-profile-form__label"
-            >
+            <label htmlFor="favoriteDriver" className="edit-profile-form__label">
               Favorite Driver
             </label>
             <select
               id="favoriteDriver"
-              name="favoriteDriver"
-              value={formData.favoriteDriver}
-              onChange={handleChange}
               className="edit-profile-form__select"
               disabled={isSubmitting}
+              {...register("favoriteDriver")}
             >
               <option value="">Select your favorite driver</option>
               {drivers.map((driver) => (
@@ -450,19 +429,14 @@ const EditProfileForm: React.FC<EditProfileFormProps> = ({
           </div>
 
           <div className="edit-profile-form__field-group">
-            <label
-              htmlFor="favoriteTeam"
-              className="edit-profile-form__label"
-            >
+            <label htmlFor="favoriteTeam" className="edit-profile-form__label">
               Favorite Team
             </label>
             <select
               id="favoriteTeam"
-              name="favoriteTeam"
-              value={formData.favoriteTeam}
-              onChange={handleChange}
               className="edit-profile-form__select"
               disabled={isSubmitting}
+              {...register("favoriteTeam")}
             >
               <option value="">Select your favorite team</option>
               {teams.map((team) => (
@@ -484,17 +458,22 @@ const EditProfileForm: React.FC<EditProfileFormProps> = ({
             </label>
             <textarea
               id="bio"
-              name="bio"
-              value={formData.bio}
-              onChange={handleChange}
               className="edit-profile-form__textarea"
               placeholder="Tell us about yourself and your F1 journey..."
               rows={4}
               maxLength={500}
               disabled={isSubmitting}
+              aria-invalid={!!errors.bio}
+              aria-describedby={errors.bio ? "bio-error bio-char-count" : "bio-char-count"}
+              {...register("bio")}
             />
-            <span className="edit-profile-form__char-count">
-              {formData.bio?.length || 0}/500
+            {errors.bio && (
+              <span id="bio-error" className="edit-profile-form__error" role="alert">
+                {errors.bio.message}
+              </span>
+            )}
+            <span id="bio-char-count" className="edit-profile-form__char-count">
+              {bio?.length || 0}/500
             </span>
           </div>
         </div>
@@ -513,6 +492,7 @@ const EditProfileForm: React.FC<EditProfileFormProps> = ({
             type="submit"
             className="edit-profile-form__button edit-profile-form__button--primary"
             disabled={isSubmitting || !isDirty}
+            aria-busy={isSubmitting}
           >
             {isSubmitting ? "Saving..." : "Save Changes"}
           </button>

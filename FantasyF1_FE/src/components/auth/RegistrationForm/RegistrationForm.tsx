@@ -1,8 +1,48 @@
 import React, { useState, useEffect, useMemo } from "react";
 import { useForm } from "react-hook-form";
+import { yupResolver } from "@hookform/resolvers/yup";
+import * as yup from "yup";
 import { useNavigate, useLocation, Link } from "react-router-dom";
 import { register as registerUser, ApiError } from "../../../services/authService";
 import "./RegistrationForm.scss";
+
+// Validation schema using yup
+const registrationSchema = yup.object().shape({
+  email: yup
+    .string()
+    .required("Email is required")
+    .email("Invalid email address format"),
+  username: yup
+    .string()
+    .required("Username is required")
+    .min(3, "Username must be at least 3 characters")
+    .max(50, "Username must be less than 50 characters")
+    .matches(
+      /^[a-zA-Z0-9_]+$/,
+      "Username can only contain letters, numbers, and underscores"
+    ),
+  fullName: yup
+    .string()
+    .min(2, "Name must be at least 2 characters")
+    .max(100, "Name must be less than 100 characters")
+    .optional(),
+  password: yup
+    .string()
+    .required("Password is required")
+    .min(8, "Password must be at least 8 characters")
+    .matches(
+      /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/,
+      "Password must include uppercase, lowercase, and number"
+    ),
+  confirmPassword: yup
+    .string()
+    .required("Please confirm your password")
+    .oneOf([yup.ref("password")], "Passwords do not match"),
+  acceptTerms: yup
+    .boolean()
+    .required("You must accept the terms to continue")
+    .oneOf([true], "You must accept the terms to continue"),
+});
 
 interface RegistrationFormData {
   username: string;
@@ -56,6 +96,7 @@ const RegistrationForm: React.FC = () => {
     watch,
     formState: { errors },
   } = useForm<RegistrationFormData>({
+    resolver: yupResolver(registrationSchema),
     mode: "onBlur",
     defaultValues: {
       username: "",
@@ -205,13 +246,7 @@ const RegistrationForm: React.FC = () => {
                 errors.email ? "registration-form__input--error" : ""
               }`}
               disabled={isLoading}
-              {...register("email", {
-                required: "Email is required",
-                pattern: {
-                  value: /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i,
-                  message: "Invalid email address format",
-                },
-              })}
+              {...register("email")}
             />
             {errors.email && (
               <p
@@ -256,21 +291,7 @@ const RegistrationForm: React.FC = () => {
                 errors.username ? "registration-form__input--error" : ""
               }`}
               disabled={isLoading}
-              {...register("username", {
-                required: "Username is required",
-                minLength: {
-                  value: 3,
-                  message: "Username must be at least 3 characters",
-                },
-                maxLength: {
-                  value: 50,
-                  message: "Username must be less than 50 characters",
-                },
-                pattern: {
-                  value: /^[a-zA-Z0-9_]+$/,
-                  message: "Username can only contain letters, numbers, and underscores",
-                },
-              })}
+              {...register("username")}
             />
             <p id="username-requirements" className="registration-form__hint">
               3-50 characters, letters, numbers, and underscores only
@@ -302,16 +323,7 @@ const RegistrationForm: React.FC = () => {
                 errors.fullName ? "registration-form__input--error" : ""
               }`}
               disabled={isLoading}
-              {...register("fullName", {
-                minLength: {
-                  value: 2,
-                  message: "Name must be at least 2 characters",
-                },
-                maxLength: {
-                  value: 100,
-                  message: "Name must be less than 100 characters",
-                },
-              })}
+              {...register("fullName")}
             />
             {errors.fullName && (
               <p
@@ -346,17 +358,7 @@ const RegistrationForm: React.FC = () => {
                   errors.password ? "registration-form__input--error" : ""
                 }`}
                 disabled={isLoading}
-                {...register("password", {
-                  required: "Password is required",
-                  minLength: {
-                    value: 8,
-                    message: "Password must be at least 8 characters",
-                  },
-                  pattern: {
-                    value: /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/,
-                    message: "Password must include uppercase, lowercase, and number",
-                  },
-                })}
+                {...register("password")}
               />
               <button
                 type="button"
@@ -425,11 +427,7 @@ const RegistrationForm: React.FC = () => {
                   errors.confirmPassword ? "registration-form__input--error" : ""
                 }`}
                 disabled={isLoading}
-                {...register("confirmPassword", {
-                  required: "Please confirm your password",
-                  validate: (value) =>
-                    value === password || "Passwords do not match",
-                })}
+                {...register("confirmPassword")}
               />
               <button
                 type="button"
@@ -463,9 +461,7 @@ const RegistrationForm: React.FC = () => {
                 aria-invalid={!!errors.acceptTerms}
                 aria-describedby={errors.acceptTerms ? "terms-error" : undefined}
                 disabled={isLoading}
-                {...register("acceptTerms", {
-                  required: "You must accept the terms to continue",
-                })}
+                {...register("acceptTerms")}
               />
               <span className="registration-form__checkbox-text">
                 I agree to the{" "}

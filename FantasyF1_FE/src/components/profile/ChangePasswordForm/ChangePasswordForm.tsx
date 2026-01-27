@@ -1,5 +1,34 @@
 import React, { useState } from "react";
+import { useForm } from "react-hook-form";
+import { yupResolver } from "@hookform/resolvers/yup";
+import * as yup from "yup";
 import "./ChangePasswordForm.scss";
+
+// Validation schema using yup
+const changePasswordSchema = yup
+  .object()
+  .shape({
+    currentPassword: yup
+      .string()
+      .required("Current password is required")
+      .min(1, "Current password is required"),
+    newPassword: yup
+      .string()
+      .required("New password is required")
+      .min(8, "Password must be at least 8 characters")
+      .matches(/[a-z]/, "Password must contain at least one lowercase letter")
+      .matches(/[A-Z]/, "Password must contain at least one uppercase letter")
+      .matches(/\d/, "Password must contain at least one number"),
+    confirmPassword: yup
+      .string()
+      .required("Please confirm your new password")
+      .oneOf([yup.ref("newPassword")], "Passwords do not match"),
+  })
+  .test(
+    "new-password-different",
+    "New password must be different from current password",
+    (data) => data.currentPassword !== data.newPassword
+  );
 
 /**
  * Form Data Interface
@@ -8,15 +37,6 @@ interface PasswordFormData {
   currentPassword: string;
   newPassword: string;
   confirmPassword: string;
-}
-
-/**
- * Form Validation Errors Interface
- */
-interface FormErrors {
-  currentPassword?: string;
-  newPassword?: string;
-  confirmPassword?: string;
 }
 
 /**
@@ -32,20 +52,14 @@ interface ChangePasswordFormProps {
  * 
  * Allows authenticated users to change their password with validation:
  * - Requires current password for verification
- * - New password must meet security requirements
+ * - New password must meet security requirements (8+ chars, uppercase, lowercase, number)
  * - Password confirmation must match new password
+ * - Real-time password strength indicator
  */
 const ChangePasswordForm: React.FC<ChangePasswordFormProps> = ({
   onSuccess,
   onCancel,
 }) => {
-  const [formData, setFormData] = useState<PasswordFormData>({
-    currentPassword: "",
-    newPassword: "",
-    confirmPassword: "",
-  });
-
-  const [errors, setErrors] = useState<FormErrors>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showPasswords, setShowPasswords] = useState({
     current: false,
@@ -53,15 +67,19 @@ const ChangePasswordForm: React.FC<ChangePasswordFormProps> = ({
     confirm: false,
   });
 
-  /**
-   * Handles input field changes
-   */
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = e.target;
-    setFormData((prev: PasswordFormData) => ({ ...prev, [name]: value }));
-    // Clear error for this field when user starts typing
-    setErrors((prev: FormErrors) => ({ ...prev, [name]: undefined }));
-  };
+  const {
+    register,
+    handleSubmit,
+    formState: { errors, isDirty },
+    watch,
+    setError,
+    reset,
+  } = useForm<PasswordFormData>({
+    resolver: yupResolver(changePasswordSchema),
+    mode: "onBlur",
+  });
+
+  const newPassword = watch("newPassword", "");
 
   /**
    * Toggles password visibility
@@ -71,75 +89,32 @@ const ChangePasswordForm: React.FC<ChangePasswordFormProps> = ({
   };
 
   /**
-   * Validates the form data
-   */
-  const validateForm = (): boolean => {
-    const newErrors: FormErrors = {};
-
-    // Current password validation
-    if (!formData.currentPassword) {
-      newErrors.currentPassword = "Current password is required";
-    }
-
-    // New password validation
-    if (!formData.newPassword) {
-      newErrors.newPassword = "New password is required";
-    } else if (formData.newPassword.length < 8) {
-      newErrors.newPassword = "Password must be at least 8 characters";
-    } else if (!/(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/.test(formData.newPassword)) {
-      newErrors.newPassword =
-        "Password must contain at least one uppercase letter, one lowercase letter, and one number";
-    } else if (formData.newPassword === formData.currentPassword) {
-      newErrors.newPassword = "New password must be different from current password";
-    }
-
-    // Confirm password validation
-    if (!formData.confirmPassword) {
-      newErrors.confirmPassword = "Please confirm your new password";
-    } else if (formData.confirmPassword !== formData.newPassword) {
-      newErrors.confirmPassword = "Passwords do not match";
-    }
-
-    setErrors(newErrors);
-    return Object.keys(newErrors).length === 0;
-  };
-
-  /**
    * Handles form submission
    */
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-
-    if (!validateForm()) {
-      return;
-    }
-
+  const onSubmit = async (data: PasswordFormData) => {
     setIsSubmitting(true);
 
     try {
       // In production, this would call the actual API
       // await api.put("/auth/change-password", {
-      //   currentPassword: formData.currentPassword,
-      //   newPassword: formData.newPassword,
+      //   currentPassword: data.currentPassword,
+      //   newPassword: data.newPassword,
       // });
 
       // Simulate API call
       await new Promise((resolve) => setTimeout(resolve, 1000));
 
       // Reset form
-      setFormData({
-        currentPassword: "",
-        newPassword: "",
-        confirmPassword: "",
-      });
+      reset();
 
       if (onSuccess) {
         onSuccess();
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error("Failed to change password:", error);
-      setErrors({
-        currentPassword: "Current password is incorrect",
+      setError("currentPassword", {
+        type: "manual",
+        message: error.response?.data?.detail || "Current password is incorrect",
       });
     } finally {
       setIsSubmitting(false);
@@ -150,7 +125,7 @@ const ChangePasswordForm: React.FC<ChangePasswordFormProps> = ({
    * Handles form cancellation
    */
   const handleCancel = () => {
-    if (formData.currentPassword || formData.newPassword || formData.confirmPassword) {
+    if (isDirty) {
       if (window.confirm("You have unsaved changes. Are you sure you want to cancel?")) {
         if (onCancel) {
           onCancel();
@@ -177,7 +152,7 @@ const ChangePasswordForm: React.FC<ChangePasswordFormProps> = ({
     return strength;
   };
 
-  const passwordStrength = getPasswordStrength(formData.newPassword);
+  const passwordStrength = getPasswordStrength(newPassword);
 
   return (
     <div className="change-password-form">
@@ -188,28 +163,31 @@ const ChangePasswordForm: React.FC<ChangePasswordFormProps> = ({
         </p>
       </div>
 
-      <form className="change-password-form__form" onSubmit={handleSubmit}>
+      <form className="change-password-form__form" onSubmit={handleSubmit(onSubmit)}>
         <div className="change-password-form__section">
           <div className="change-password-form__field-group">
             <label
               htmlFor="currentPassword"
               className="change-password-form__label"
             >
-              Current Password *
+              Current Password <span className="change-password-form__required">*</span>
             </label>
             <div className="change-password-form__input-wrapper">
               <input
                 type={showPasswords.current ? "text" : "password"}
                 id="currentPassword"
-                name="currentPassword"
-                value={formData.currentPassword}
-                onChange={handleChange}
                 className={`change-password-form__input ${
                   errors.currentPassword ? "change-password-form__input--error" : ""
                 }`}
                 placeholder="Enter your current password"
                 disabled={isSubmitting}
                 autoComplete="current-password"
+                aria-required="true"
+                aria-invalid={!!errors.currentPassword}
+                aria-describedby={
+                  errors.currentPassword ? "currentPassword-error" : undefined
+                }
+                {...register("currentPassword")}
               />
               <button
                 type="button"
@@ -222,8 +200,8 @@ const ChangePasswordForm: React.FC<ChangePasswordFormProps> = ({
               </button>
             </div>
             {errors.currentPassword && (
-              <span className="change-password-form__error">
-                {errors.currentPassword}
+              <span id="currentPassword-error" className="change-password-form__error" role="alert">
+                {errors.currentPassword.message}
               </span>
             )}
           </div>
@@ -233,21 +211,24 @@ const ChangePasswordForm: React.FC<ChangePasswordFormProps> = ({
               htmlFor="newPassword"
               className="change-password-form__label"
             >
-              New Password *
+              New Password <span className="change-password-form__required">*</span>
             </label>
             <div className="change-password-form__input-wrapper">
               <input
                 type={showPasswords.new ? "text" : "password"}
                 id="newPassword"
-                name="newPassword"
-                value={formData.newPassword}
-                onChange={handleChange}
                 className={`change-password-form__input ${
                   errors.newPassword ? "change-password-form__input--error" : ""
                 }`}
                 placeholder="Enter a new password"
                 disabled={isSubmitting}
                 autoComplete="new-password"
+                aria-required="true"
+                aria-invalid={!!errors.newPassword}
+                aria-describedby={
+                  errors.newPassword ? "newPassword-error newPassword-requirements" : "newPassword-requirements"
+                }
+                {...register("newPassword")}
               />
               <button
                 type="button"
@@ -260,11 +241,11 @@ const ChangePasswordForm: React.FC<ChangePasswordFormProps> = ({
               </button>
             </div>
             {errors.newPassword && (
-              <span className="change-password-form__error">
-                {errors.newPassword}
+              <span id="newPassword-error" className="change-password-form__error" role="alert">
+                {errors.newPassword.message}
               </span>
             )}
-            {formData.newPassword && (
+            {newPassword && (
               <>
                 <div className="change-password-form__strength-meter">
                   <div
@@ -278,10 +259,10 @@ const ChangePasswordForm: React.FC<ChangePasswordFormProps> = ({
                     style={{ width: `${(passwordStrength / 6) * 100}%` }}
                   />
                 </div>
-                <ul className="change-password-form__requirements">
+                <ul id="newPassword-requirements" className="change-password-form__requirements">
                   <li
                     className={
-                      formData.newPassword.length >= 8
+                      newPassword.length >= 8
                         ? "change-password-form__requirement--met"
                         : ""
                     }
@@ -290,7 +271,7 @@ const ChangePasswordForm: React.FC<ChangePasswordFormProps> = ({
                   </li>
                   <li
                     className={
-                      /[a-z]/.test(formData.newPassword)
+                      /[a-z]/.test(newPassword)
                         ? "change-password-form__requirement--met"
                         : ""
                     }
@@ -299,7 +280,7 @@ const ChangePasswordForm: React.FC<ChangePasswordFormProps> = ({
                   </li>
                   <li
                     className={
-                      /[A-Z]/.test(formData.newPassword)
+                      /[A-Z]/.test(newPassword)
                         ? "change-password-form__requirement--met"
                         : ""
                     }
@@ -308,7 +289,7 @@ const ChangePasswordForm: React.FC<ChangePasswordFormProps> = ({
                   </li>
                   <li
                     className={
-                      /\d/.test(formData.newPassword)
+                      /\d/.test(newPassword)
                         ? "change-password-form__requirement--met"
                         : ""
                     }
@@ -317,7 +298,7 @@ const ChangePasswordForm: React.FC<ChangePasswordFormProps> = ({
                   </li>
                   <li
                     className={
-                      /[^a-zA-Z0-9]/.test(formData.newPassword)
+                      /[^a-zA-Z0-9]/.test(newPassword)
                         ? "change-password-form__requirement--met"
                         : ""
                     }
@@ -334,21 +315,24 @@ const ChangePasswordForm: React.FC<ChangePasswordFormProps> = ({
               htmlFor="confirmPassword"
               className="change-password-form__label"
             >
-              Confirm New Password *
+              Confirm New Password <span className="change-password-form__required">*</span>
             </label>
             <div className="change-password-form__input-wrapper">
               <input
                 type={showPasswords.confirm ? "text" : "password"}
                 id="confirmPassword"
-                name="confirmPassword"
-                value={formData.confirmPassword}
-                onChange={handleChange}
                 className={`change-password-form__input ${
                   errors.confirmPassword ? "change-password-form__input--error" : ""
                 }`}
                 placeholder="Confirm your new password"
                 disabled={isSubmitting}
                 autoComplete="new-password"
+                aria-required="true"
+                aria-invalid={!!errors.confirmPassword}
+                aria-describedby={
+                  errors.confirmPassword ? "confirmPassword-error" : undefined
+                }
+                {...register("confirmPassword")}
               />
               <button
                 type="button"
@@ -361,8 +345,8 @@ const ChangePasswordForm: React.FC<ChangePasswordFormProps> = ({
               </button>
             </div>
             {errors.confirmPassword && (
-              <span className="change-password-form__error">
-                {errors.confirmPassword}
+              <span id="confirmPassword-error" className="change-password-form__error" role="alert">
+                {errors.confirmPassword.message}
               </span>
             )}
           </div>
@@ -381,7 +365,8 @@ const ChangePasswordForm: React.FC<ChangePasswordFormProps> = ({
           <button
             type="submit"
             className="change-password-form__button change-password-form__button--primary"
-            disabled={isSubmitting}
+            disabled={isSubmitting || !isDirty}
+            aria-busy={isSubmitting}
           >
             {isSubmitting ? "Changing Password..." : "Change Password"}
           </button>

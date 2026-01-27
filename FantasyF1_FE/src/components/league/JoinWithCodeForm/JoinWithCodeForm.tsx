@@ -1,68 +1,127 @@
 import React, { useState } from "react";
+import { useForm } from "react-hook-form";
+import { yupResolver } from "@hookform/resolvers/yup";
+import * as yup from "yup";
 import { useNavigate } from "react-router-dom";
 import * as S from "./JoinWithCodeForm.scss";
 import { inviteCodeCheck, joinLeague, League } from "../../../services/leagueService";
+
+// Validation schema using yup
+const codeCheckSchema = yup.object().shape({
+  inviteCode: yup
+    .string()
+    .required("League code is required")
+    .min(6, "Code must be at least 6 characters")
+    .max(10, "Code must be less than 10 characters")
+    .matches(
+      /^[A-Z0-9]+$/,
+      "Code can only contain letters and numbers"
+    ),
+});
+
+const joinLeagueSchema = yup.object().shape({
+  teamName: yup
+    .string()
+    .required("Team name is required")
+    .min(3, "Team name must be at least 3 characters")
+    .max(50, "Team name must be less than 50 characters"),
+});
+
+interface CheckCodeFormData {
+  inviteCode: string;
+}
+
+interface JoinLeagueFormData {
+  teamName: string;
+}
 
 interface JoinWithCodeFormProps {
   onJoinLeague: (league: League) => void;
 }
 
+/**
+ * JoinWithCodeForm - Form for joining a league with an invite code
+ * 
+ * Features:
+ * - Two-step process: Check code, then join league
+ * - Invite code validation (6-10 chars, alphanumeric)
+ * - Team name validation (3-50 chars)
+ * - League info display after code verification
+ * - Error handling for invalid codes and full leagues
+ */
 const JoinWithCodeForm: React.FC<JoinWithCodeFormProps> = ({ onJoinLeague }) => {
   const navigate = useNavigate();
-  const [inviteCode, setInviteCode] = useState("");
-  const [teamName, setTeamName] = useState("");
   const [loading, setLoading] = useState(false);
   const [joining, setJoining] = useState(false);
   const [error, setError] = useState("");
+  const [apiError, setApiError] = useState<string | null>(null);
   const [leagueFound, setLeagueFound] = useState<League | null>(null);
   const [joinSuccess, setJoinSuccess] = useState(false);
 
-  const handleCheckCode = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!inviteCode.trim()) return;
+  const {
+    register: registerCode,
+    handleSubmit: handleCodeSubmit,
+    formState: { errors: codeErrors },
+    reset: resetCode,
+  } = useForm<CheckCodeFormData>({
+    resolver: yupResolver(codeCheckSchema),
+    mode: "onBlur",
+  });
 
+  const {
+    register: registerTeam,
+    handleSubmit: handleTeamSubmit,
+    formState: { errors: teamErrors },
+    reset: resetTeam,
+  } = useForm<JoinLeagueFormData>({
+    resolver: yupResolver(joinLeagueSchema),
+    mode: "onBlur",
+  });
+
+  const onCheckCode = async (data: CheckCodeFormData) => {
     setLoading(true);
+    setApiError(null);
     setError("");
     setLeagueFound(null);
 
     try {
-      const league = await inviteCodeCheck(inviteCode.trim().toUpperCase());
+      const league = await inviteCodeCheck(data.inviteCode.trim().toUpperCase());
       
       if (!league) {
-        setError("Invalid league code. Please check and try again.");
+        setApiError("Invalid league code. Please check and try again.");
         return;
       }
 
       if (league.is_private && !league.invite_link) {
-        setError("This is a private league. You need a valid invite link to join.");
+        setApiError("This is a private league. You need a valid invite link to join.");
         return;
       }
 
       if (league.current_teams >= league.max_teams) {
-        setError("This league is full. Please contact the league manager or find another league.");
+        setApiError("This league is full. Please contact the league manager or find another league.");
         return;
       }
 
       setLeagueFound(league);
     } catch (err: any) {
       const errorMessage = err.response?.data?.detail || "Failed to check league code. Please try again.";
-      setError(errorMessage);
+      setApiError(errorMessage);
     } finally {
       setLoading(false);
     }
   };
 
-  const handleJoinLeague = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!leagueFound || !teamName.trim()) return;
+  const onJoin = async (data: JoinLeagueFormData) => {
+    if (!leagueFound) return;
 
     setJoining(true);
+    setApiError("");
     setError("");
 
     try {
       await joinLeague({
         league_id: leagueFound.id,
-        team_name: teamName.trim(),
+        team_name: data.teamName.trim(),
       });
 
       setJoinSuccess(true);
@@ -73,16 +132,17 @@ const JoinWithCodeForm: React.FC<JoinWithCodeFormProps> = ({ onJoinLeague }) => 
       }, 1500);
     } catch (err: any) {
       const errorMessage = err.response?.data?.detail || "Failed to join league. Please try again.";
-      setError(errorMessage);
+      setApiError(errorMessage);
     } finally {
       setJoining(false);
     }
   };
 
   const handleReset = () => {
-    setInviteCode("");
-    setTeamName("");
+    resetCode();
+    resetTeam();
     setError("");
+    setApiError(null);
     setLeagueFound(null);
     setJoinSuccess(false);
   };
@@ -96,7 +156,7 @@ const JoinWithCodeForm: React.FC<JoinWithCodeFormProps> = ({ onJoinLeague }) => 
               <h2 className={S.title}>Join with Invite Code</h2>
               <p className={S.subtitle}>Enter the league code shared with you by the league manager</p>
 
-              <form onSubmit={handleCheckCode} className={S.codeForm}>
+              <form onSubmit={handleCodeSubmit(onCheckCode)} className={S.codeForm}>
                 <div className={S.formGroup}>
                   <label htmlFor="inviteCode" className={S.formLabel}>
                     League Code <span className={S.required}>*</span>
@@ -104,21 +164,29 @@ const JoinWithCodeForm: React.FC<JoinWithCodeFormProps> = ({ onJoinLeague }) => 
                   <input
                     id="inviteCode"
                     type="text"
-                    value={inviteCode}
-                    onChange={(e) => setInviteCode(e.target.value.toUpperCase())}
-                    placeholder="Enter 6-10 character code"
                     className={S.formInput}
+                    placeholder="Enter 6-10 character code"
                     aria-required="true"
-                    minLength={6}
-                    maxLength={10}
+                    aria-invalid={!!codeErrors.inviteCode}
+                    aria-describedby={
+                      codeErrors.inviteCode ? "inviteCode-error inviteCode-hint" : "inviteCode-hint"
+                    }
                     disabled={loading}
+                    {...registerCode("inviteCode")}
                   />
-                  <p className={S.formHint}>Case-insensitive, 6-10 characters</p>
+                  <p id="inviteCode-hint" className={S.formHint}>
+                    Case-insensitive, 6-10 characters, letters and numbers only
+                  </p>
+                  {codeErrors.inviteCode && (
+                    <p id="inviteCode-error" className={S.errorMessage} role="alert">
+                      {codeErrors.inviteCode.message}
+                    </p>
+                  )}
                 </div>
 
-                {error && (
+                {apiError && (
                   <div className={S.errorMessage} role="alert">
-                    {error}
+                    {apiError}
                   </div>
                 )}
 
@@ -134,7 +202,8 @@ const JoinWithCodeForm: React.FC<JoinWithCodeFormProps> = ({ onJoinLeague }) => 
                   <button
                     type="submit"
                     className={S.submitButton}
-                    disabled={loading || inviteCode.length < 6}
+                    disabled={loading}
+                    aria-busy={loading}
                   >
                     {loading ? "Checking..." : "Check Code"}
                   </button>
@@ -194,7 +263,7 @@ const JoinWithCodeForm: React.FC<JoinWithCodeFormProps> = ({ onJoinLeague }) => 
                   )}
                 </div>
 
-                <form onSubmit={handleJoinLeague} className={S.joinForm}>
+                <form onSubmit={handleTeamSubmit(onJoin)} className={S.joinForm}>
                   <div className={S.formGroup}>
                     <label htmlFor="teamName" className={S.formLabel}>
                       Team Name <span className={S.required}>*</span>
@@ -202,21 +271,29 @@ const JoinWithCodeForm: React.FC<JoinWithCodeFormProps> = ({ onJoinLeague }) => 
                     <input
                       id="teamName"
                       type="text"
-                      value={teamName}
-                      onChange={(e) => setTeamName(e.target.value)}
-                      placeholder="Enter your team name (3-50 characters)"
                       className={S.formInput}
+                      placeholder="Enter your team name (3-50 characters)"
                       aria-required="true"
-                      minLength={3}
-                      maxLength={50}
+                      aria-invalid={!!teamErrors.teamName}
+                      aria-describedby={
+                        teamErrors.teamName ? "teamName-error teamName-hint" : "teamName-hint"
+                      }
                       disabled={joining}
+                      {...registerTeam("teamName")}
                     />
-                    <p className={S.formHint}>Must be 3-50 characters</p>
+                    <p id="teamName-hint" className={S.formHint}>
+                      Must be 3-50 characters
+                    </p>
+                    {teamErrors.teamName && (
+                      <p id="teamName-error" className={S.errorMessage} role="alert">
+                        {teamErrors.teamName.message}
+                      </p>
+                    )}
                   </div>
 
-                  {error && (
+                  {apiError && (
                     <div className={S.errorMessage} role="alert">
-                      {error}
+                      {apiError}
                     </div>
                   )}
 
@@ -232,7 +309,8 @@ const JoinWithCodeForm: React.FC<JoinWithCodeFormProps> = ({ onJoinLeague }) => 
                     <button
                       type="submit"
                       className={S.submitButton}
-                      disabled={joining || teamName.length < 3}
+                      disabled={joining}
+                      aria-busy={joining}
                     >
                       {joining ? "Joining..." : "Join League"}
                     </button>
