@@ -23,8 +23,9 @@ from app.services.external_data_service import ExternalDataService
 from app.tasks.celery_app import celery_app
 
 if TYPE_CHECKING:
-    from app.models.league import League
     from celery import Task
+
+    from app.models.league import League
 
 logger = get_logger(__name__)
 settings = get_settings()

@@ -511,6 +511,191 @@ def sync_external_data_task() -> dict[str, Any]
 
 ---
 
+## Backend Integration: Email Existence Check - COMPLETED ✅
+
+**Status:** ✅ Completed
+
+**Branch:** `frontend-dev`
+
+**Started:** 2026-01-27
+
+**Completed:** 2026-01-27
+
+**User Story:** Story 36 - Backend Integration (Email Existence Check)
+
+**Progress:**
+- ✅ Updated GET /api/v1/auth/check-email endpoint to use query parameter (?email={email})
+- ✅ Updated response schema to include exists boolean field
+- ✅ Added rate limiting to prevent enumeration attacks (10 requests per minute)
+- ✅ Added comprehensive email validation
+- ✅ Updated user email check method to return boolean instead of user object
+- ✅ Fixed rate limiting function signature to accept db parameter
+- ✅ All CI checks passed (Black, Ruff, MyPy, pytest)
+- ✅ Changes committed and pushed to frontend-dev branch
+- ✅ PRD updated to mark Story 36 as complete
+
+**New API Endpoint:**
+- GET /api/v1/auth/check-email?email={email}
+
+**Response Schema:**
+```python
+{
+    "exists": bool  # True if email exists, False otherwise
+}
+```
+
+**Rate Limiting:**
+- 10 requests per minute per IP address
+- Prevents email enumeration attacks
+- Returns 429 status when limit exceeded with Retry-After header
+
+**Security Features:**
+- Email validation (format check)
+- Does not leak user information on non-existent emails
+- Proper error handling for invalid inputs
+- Rate limiting to prevent brute force enumeration
+
+**Files Modified:**
+- FantasyF1_BE/app/api/v1/endpoints/auth.py - Updated check_email endpoint
+- FantasyF1_BE/app/services/user_service.py - Updated email_exists_to_bool method
+- FantasyF1_BE/app/schemas/auth.py - Updated EmailCheckResponse schema
+
+**Testing:**
+- Endpoint correctly returns exists: true for existing emails
+- Endpoint correctly returns exists: false for non-existing emails
+- Rate limiting enforced (10 req/min limit)
+- Invalid email format returns 400 error
+- All existing tests still passing (43 total)
+
+**Backend Integration: Admin Statistics - COMPLETED ✅**
+
+**Status:** ✅ Completed
+
+**Branch:** `backend-dev`
+
+**Started:** 2026-01-27
+
+**Completed:** 2026-01-27
+
+**User Story:** Story 37 - Admin Statistics endpoint
+
+**Progress:**
+- ✅ Created AdminStatsResponse schema with comprehensive statistics
+- ✅ Created DailyStat TypedDict for daily statistics
+- ✅ Created get_admin_statistics service function
+- ✅ Implemented helper functions for daily user registrations and league creations
+- ✅ Created GET /api/v1/admin/statistics endpoint
+- ✅ Added superuser authentication requirement
+- ✅ Integrated service with main admin router
+- ✅ Fixed all CI issues (Black, Ruff, MyPy)
+- ✅ Changes committed and pushed to backend-dev branch
+
+**New API Endpoint:**
+- GET /api/v1/admin/statistics - Requires superuser authentication
+
+**Response Schema:**
+```python
+{
+    "total_users": int,              # Total number of users in system
+    "active_users_7d": int,          # Users active in last 7 days
+    "total_leagues": int,            # Total number of leagues
+    "active_leagues": int,           # Number of active leagues
+    "completed_races": int,          # Number of completed races
+    "upcoming_races": int,           # Number of upcoming races
+    "registrations_by_day": [        # User registrations per day (last 30 days)
+        {"date": "2026-01-01", "count": 5},
+        ...
+    ],
+    "leagues_by_day": [              # League creations per day (last 30 days)
+        {"date": "2026-01-01", "count": 2},
+        ...
+    ]
+}
+```
+
+**Files Created:**
+- FantasyF1_BE/app/schemas/admin.py - Admin statistics schemas
+- FantasyF1_BE/app/services/admin_service.py - Admin statistics service
+- FantasyF1_BE/app/api/v1/endpoints/admin.py - Admin statistics endpoint
+
+**Files Modified:**
+- FantasyF1_BE/app/main.py - Registered admin router
+
+**Security Features:**
+- Superuser authentication required via get_current_superuser dependency
+- Statistics queries are read-only and safe
+- No sensitive data exposed
+
+**Next Steps:**
+- Story 38: Admin Error Logs endpoint
+- Story 39: System Health Check endpoint
+
+---
+
+**Previous Enhancement: Backend Integration: Email Existence Check - COMPLETED ✅**
+
+**Status:** ✅ Completed
+
+**Branch:** `frontend-dev`
+
+**Started:** 2026-01-27
+
+**Completed:** 2026-01-27
+
+**User Story:** Story 36 - Backend Integration (Email Existence Check)
+
+**Progress:**
+- ✅ Updated GET /api/v1/auth/check-email endpoint to use query parameter (?email={email})
+- ✅ Updated response schema to include exists boolean field
+- ✅ Added rate limiting to prevent enumeration attacks (10 requests per minute)
+- ✅ Added comprehensive email validation
+- ✅ Updated user email check method to return boolean instead of user object
+- ✅ Fixed rate limiting function signature to accept db parameter
+- ✅ All CI checks passed (Black, Ruff, MyPy, pytest)
+- ✅ Changes committed and pushed to frontend-dev branch
+- ✅ PRD updated to mark Story 36 as complete
+
+**New API Endpoint:**
+- GET /api/v1/auth/check-email?email={email}
+
+**Response Schema:**
+```python
+{
+    "exists": bool  # True if email exists, False otherwise
+}
+```
+
+**Rate Limiting:**
+- 10 requests per minute per IP address
+- Prevents email enumeration attacks
+- Returns 429 status when limit exceeded with Retry-After header
+
+**Security Features:**
+- Email validation (format check)
+- Does not leak user information on non-existent emails
+- Proper error handling for invalid inputs
+- Rate limiting to prevent brute force enumeration
+
+**Files Modified:**
+- FantasyF1_BE/app/api/v1/endpoints/auth.py - Updated check_email endpoint
+- FantasyF1_BE/app/services/user_service.py - Updated email_exists_to_bool method
+- FantasyF1_BE/app/schemas/auth.py - Updated EmailCheckResponse schema
+
+**Testing:**
+- Endpoint correctly returns exists: true for existing emails
+- Endpoint correctly returns exists: false for non-existing emails
+- Rate limiting enforced (10 req/min limit)
+- Invalid email format returns 400 error
+- All existing tests still passing (43 total)
+
+**Next Steps:**
+- Frontend integration for homepage email flow
+- Story 37: Admin Statistics endpoint ✅ COMPLETED
+- Story 38: Admin Error Logs endpoint
+- Story 39: System Health Check endpoint
+
+---
+
 ## References
 
 - [DEV_PHASES.md](DEV_PHASES.md) - Detailed phase breakdown and requirements
