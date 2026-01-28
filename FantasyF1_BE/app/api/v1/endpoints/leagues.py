@@ -49,7 +49,6 @@ async def list_leagues(
     search: str | None = None,
     skip: int = Query(default=0, ge=0),
     limit: int = Query(default=100, ge=1, le=100),
-    current_user: Annotated[User | None, Depends(get_current_user)] = None,
 ) -> LeagueListResponse:
     """List all leagues with optional search."""
     if search:
@@ -72,7 +71,6 @@ async def search_leagues(
     query: str = Query(min_length=1),
     skip: int = Query(default=0, ge=0),
     limit: int = Query(default=20, ge=1, le=100),
-    current_user: Annotated[User | None, Depends(get_current_user)] = None,
 ) -> LeagueListResponse:
     """Search leagues by name."""
     leagues = await LeagueService.search(db, query, skip=skip, limit=limit)

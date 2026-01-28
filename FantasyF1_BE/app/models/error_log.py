@@ -28,7 +28,9 @@ class JSONType(TypeDecorator):
             return dialect.type_descriptor(JSONB())
         return dialect.type_descriptor(Text())
 
-    def process_bind_param(self, value: dict[str, Any] | None, dialect: Dialect) -> str | None:
+    def process_bind_param(
+        self, value: dict[str, Any] | None, dialect: Dialect  # noqa: ARG002
+    ) -> str | None:
         """Process Python to DB."""
         if value is None:
             return None
@@ -36,14 +38,18 @@ class JSONType(TypeDecorator):
 
         return json.dumps(value)
 
-    def process_result_value(self, value: str | None, dialect: Dialect) -> dict[str, Any] | None:
+    def process_result_value(
+        self, value: str | None, dialect: Dialect  # noqa: ARG002
+    ) -> dict[str, Any] | None:
         """Process DB to Python."""
         if value is None:
             return None
         import json
+        from typing import cast
 
         try:
-            return json.loads(value)
+            result = json.loads(value)
+            return cast("dict[str, Any]", result) if isinstance(result, dict) else None
         except (json.JSONDecodeError, ValueError):
             return None
 
