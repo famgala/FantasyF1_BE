@@ -73,9 +73,7 @@ app.add_middleware(
 
 # Exception handlers
 @app.exception_handler(FantasyF1Error)
-async def fantasy_f1_exception_handler(
-    _: Request, exc: FantasyF1Error
-) -> JSONResponse:
+async def fantasy_f1_exception_handler(_: Request, exc: FantasyF1Error) -> JSONResponse:
     """Handle custom Fantasy F1 exceptions"""
     status_code = 500
     if isinstance(exc, NotFoundError):

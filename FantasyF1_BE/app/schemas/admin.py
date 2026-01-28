@@ -1,9 +1,9 @@
 """Admin schemas for admin-related operations."""
 
 from datetime import datetime
-from typing import TypedDict
 
 from pydantic import BaseModel, Field
+from typing_extensions import TypedDict
 
 
 class DailyStat(TypedDict):
