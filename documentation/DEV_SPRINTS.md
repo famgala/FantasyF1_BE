@@ -696,6 +696,159 @@ def sync_external_data_task() -> dict[str, Any]
 
 ---
 
+**Backend Integration: Admin Error Logs - COMPLETED ✅**
+
+**Status:** ✅ Completed
+
+**Branch:** `backend-dev`
+
+**Started:** 2026-01-27
+
+**Completed:** 2026-01-27
+
+**User Story:** Story 38 - Admin Error Logs endpoint
+
+**Progress:**
+- ✅ Created ErrorLog model with comprehensive error tracking
+- ✅ Updated User model with error_logs relationship
+- ✅ Created migration for ErrorLog model (alembic/versions/010_add_error_log_model.py)
+- ✅ Created ErrorLogResponse, ErrorLogUpdate, and ErrorLogsResponse schemas
+- ✅ Implemented get_error_logs service function with filtering and pagination
+- ✅ Implemented update_error_log service function for resolution tracking
+- ✅ Created GET /api/v1/admin/logs endpoint
+- ✅ Created PUT /api/v1/admin/logs/{log_id} endpoint
+- ✅ Added superuser authentication requirement
+- ✅ Fixed all CI issues (Black, Ruff, MyPy)
+- ✅ Changes committed and pushed to backend-dev branch
+
+**New Features Implemented:**
+
+### Error Log System
+- Model tracks: timestamp, error_type, message, endpoint, user_id, stack_trace, severity
+- Additional fields: request_data, response_data, ip_address, user_agent
+- Resolution tracking: resolved, resolved_at, resolved_by, notes
+- Indexed queries on: timestamp, error_type, endpoint, user_id, severity, resolved
+- Composite indexes for common filter combinations
+
+### New API Endpoints:
+- GET /api/v1/admin/logs - Get error logs with filtering and pagination
+- PUT /api/v1/admin/logs/{log_id} - Update error log resolution status
+
+### Query Parameters (GET /api/v1/admin/logs):
+- skip: Number of records to skip (default 0)
+- limit: Maximum records to return (default 50)
+- severity: Filter by severity level (error, warning, info)
+- resolved: Filter by resolved status (true/false)
+- error_type: Filter by error type (partial match)
+- user_id: Filter by user ID
+- endpoint: Filter by endpoint (partial match)
+
+### Response Schema (GET /api/v1/admin/logs):
+```python
+{
+    "items": [
+        {
+            "id": int,
+            "timestamp": "2026-01-27T10:00:00Z",
+            "error_type": "ValidationError",
+            "message": "Error message",
+            "endpoint": "/api/v1/endpoint",
+            "user_id": int | null,
+            "stack_trace": string | null,
+            "severity": "error",
+            "request_data": dict | null,
+            "response_data": dict | null,
+            "ip_address": string | null,
+            "user_agent": string | null,
+            "resolved": bool,
+            "resolved_at": datetime | null,
+            "resolved_by": int | null,
+            "notes": string | null
+        },
+        ...
+    ],
+    "total": int,
+    "page": int,
+    "page_size": int,
+    "total_pages": int
+}
+```
+
+### Request/Response Schema (PUT /api/v1/admin/logs/{log_id}):
+```python
+# Request
+{
+    "resolved": bool,
+    "notes": string | null  # Optional resolution notes
+}
+
+# Response
+{
+    "id": int,
+    "timestamp": datetime,
+    "error_type": string,
+    "message": string,
+    "endpoint": string | null,
+    "user_id": int | null,
+    "stack_trace": string | null,
+    "severity": string,
+    "request_data": dict | null,
+    "response_data": dict | null,
+    "ip_address": string | null,
+    "user_agent": string | null,
+    "resolved": bool,
+    "resolved_at": datetime | null,
+    "resolved_by": int | null,
+    "notes": string | null
+}
+```
+
+**Files Created:**
+- FantasyF1_BE/app/models/error_log.py - ErrorLog model
+- FantasyF1_BE/alembic/versions/010_add_error_log_model.py - ErrorLog migration
+- FantasyF1_BE/app/schemas/admin.py - Error log schemas (added to existing file)
+- FantasyF1_BE/app/services/admin_service.py - Error log service methods (added to existing file)
+- FantasyF1_BE/app/api/v1/endpoints/admin.py - Error log endpoints (added to existing file)
+
+**Files Modified:**
+- FantasyF1_BE/app/models/__init__.py - Export ErrorLog model
+- FantasyF1_BE/app/models/user.py - Add error_logs relationship
+
+**Database Schema:**
+```python
+error_logs table:
+- id (PK)
+- timestamp (indexed)
+- error_type (indexed)
+- message
+- endpoint (indexed)
+- user_id (FK, indexed)
+- stack_trace
+- severity (indexed)
+- request_data (JSON)
+- response_data (JSON)
+- ip_address
+- user_agent
+- resolved (indexed)
+- resolved_at
+- resolved_by (FK to users)
+- notes
+- Composite indexes: (timestamp, severity), (user_id, resolved), (endpoint, severity)
+```
+
+**Security Features:**
+- Superuser authentication required for all endpoints
+- Error logs never exposed to regular users
+- Resolution tracking with audit trail (resolved_by user)
+- No sensitive password data stored in request/response data
+
+**Next Steps:**
+- Story 39: System Health Check endpoint
+- Integrate ErrorLog middleware into application for automatic error logging
+- Consider alerting for high-severity errors
+
+---
+
 ## References
 
 - [DEV_PHASES.md](DEV_PHASES.md) - Detailed phase breakdown and requirements

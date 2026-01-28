@@ -3,9 +3,10 @@
 from datetime import datetime, timedelta
 from typing import TypedDict
 
-from sqlalchemy import func, select
+from sqlalchemy import desc, func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from app.models.error_log import ErrorLog
 from app.models.league import League
 from app.models.race import Race
 from app.models.user import User
@@ -119,6 +120,125 @@ async def _get_daily_user_registrations(db: AsyncSession, start_date: datetime) 
 
     rows = result.all()
     return [{"date": str(row.date), "count": int(row[1])} for row in rows]
+
+
+async def get_error_logs(
+    db: AsyncSession,
+    skip: int = 0,
+    limit: int = 50,
+    severity: str | None = None,
+    resolved: bool | None = None,
+    error_type: str | None = None,
+    user_id: int | None = None,
+    endpoint: str | None = None,
+) -> dict:
+    """Get error logs with filtering and pagination.
+
+    Args:
+        db: Async database session
+        skip: Number of records to skip (for pagination)
+        limit: Maximum number of records to return
+        severity: Filter by severity level
+        resolved: Filter by resolved status
+        error_type: Filter by error type
+        user_id: Filter by user ID
+        endpoint: Filter by endpoint
+
+    Returns:
+        Dictionary containing:
+        - items: List of error logs
+        - total: Total number of error logs matching filters
+        - page: Current page number (calculated from skip/limit)
+        - page_size: Number of items per page
+        - total_pages: Total number of pages
+    """
+    query = select(ErrorLog)
+
+    # Apply filters
+    if severity:
+        query = query.where(ErrorLog.severity == severity)
+    if resolved is not None:
+        query = query.where(ErrorLog.resolved == resolved)
+    if error_type:
+        query = query.where(ErrorLog.error_type.ilike(f"%{error_type}%"))
+    if user_id:
+        query = query.where(ErrorLog.user_id == user_id)
+    if endpoint:
+        query = query.where(ErrorLog.endpoint.ilike(f"%{endpoint}%"))
+
+    # Get total count
+    count_query = select(func.count(ErrorLog.id))
+    if severity:
+        count_query = count_query.where(ErrorLog.severity == severity)
+    if resolved is not None:
+        count_query = count_query.where(ErrorLog.resolved == resolved)
+    if error_type:
+        count_query = count_query.where(ErrorLog.error_type.ilike(f"%{error_type}%"))
+    if user_id:
+        count_query = count_query.where(ErrorLog.user_id == user_id)
+    if endpoint:
+        count_query = count_query.where(ErrorLog.endpoint.ilike(f"%{endpoint}%"))
+
+    total_result = await db.execute(count_query)
+    total = total_result.scalar() or 0
+
+    # Get paginated results, ordered by timestamp descending
+    query = query.order_by(desc(ErrorLog.timestamp)).offset(skip).limit(limit)
+    result = await db.execute(query)
+    items = result.scalars().all()
+
+    # Calculate pagination info
+    page = skip // limit + 1 if limit > 0 else 1
+    page_size = limit
+    total_pages = (total + limit - 1) // limit if limit > 0 else 1
+
+    return {
+        "items": items,
+        "total": total,
+        "page": page,
+        "page_size": page_size,
+        "total_pages": total_pages,
+    }
+
+
+async def update_error_log(
+    db: AsyncSession,
+    log_id: int,
+    resolved: bool,
+    notes: str | None,
+    resolved_by_user_id: int,
+) -> ErrorLog | None:
+    """Update an error log (mark as resolved/unresolved).
+
+    Args:
+        db: Async database session
+        log_id: Error log ID
+        resolved: Whether error is resolved
+        notes: Resolution notes
+        resolved_by_user_id: ID of admin resolving the error
+
+    Returns:
+        Updated error log or None if not found
+    """
+    result = await db.execute(select(ErrorLog).where(ErrorLog.id == log_id))
+    error_log = result.scalar_one_or_none()
+
+    if not error_log:
+        return None
+
+    error_log.resolved = resolved
+    error_log.notes = notes
+    if resolved:
+        error_log.resolved_at = datetime.utcnow()
+        error_log.resolved_by = resolved_by_user_id
+    else:
+        error_log.resolved_at = None
+        error_log.resolved_by = None
+
+    await db.commit()
+    await db.refresh(error_log)
+
+    return error_log
 
 
 async def _get_daily_league_creations(db: AsyncSession, start_date: datetime) -> list[DailyStat]:

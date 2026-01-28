@@ -4,6 +4,7 @@ from app.models.constructor import Constructor
 from app.models.draft import DraftOrder, DraftPick
 from app.models.driver import Driver
 from app.models.driver_stats import DriverStats
+from app.models.error_log import ErrorLog
 from app.models.fantasy_team import FantasyTeam, TeamPick
 from app.models.league import League
 from app.models.league_invitation import (
@@ -35,4 +36,5 @@ __all__ = [
     "Race",
     "RaceResult",
     "User",
+    "ErrorLog",
 ]
