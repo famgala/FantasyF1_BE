@@ -164,3 +164,52 @@ class ErrorLogsResponse(BaseModel):
     page: int
     page_size: int
     total_pages: int
+
+
+class HealthStatusResponse(BaseModel):
+    """System health status response.
+
+    Attributes:
+        api_status: API health status (healthy/degraded/unhealthy)
+        api_response_time_ms: API response time in milliseconds
+        database_status: Database connection status (healthy/degraded/unhealthy)
+        database_response_time_ms: Database response time in milliseconds
+        redis_status: Redis cache status (healthy/degraded/unhealthy)
+        redis_response_time_ms: Redis response time in milliseconds
+        celery_status: Celery task queue status (healthy/degraded/unhealthy)
+        celery_response_time_ms: Celery response time in milliseconds
+        overall_status: Overall system health (healthy/degraded/unhealthy)
+        timestamp: When the health check was performed
+    """
+
+    api_status: str = Field(..., description="API service health status")
+    api_response_time_ms: float = Field(..., description="API response time in milliseconds")
+    database_status: str = Field(..., description="Database connection status")
+    database_response_time_ms: float = Field(
+        ..., description="Database response time in milliseconds"
+    )
+    redis_status: str = Field(..., description="Redis cache status")
+    redis_response_time_ms: float = Field(..., description="Redis response time in milliseconds")
+    celery_status: str = Field(..., description="Celery task queue status")
+    celery_response_time_ms: float = Field(..., description="Celery response time in milliseconds")
+    overall_status: str = Field(..., description="Overall system health status")
+    timestamp: datetime = Field(
+        default_factory=datetime.utcnow, description="Health check timestamp"
+    )
+
+    model_config = {
+        "json_schema_extra": {
+            "example": {
+                "api_status": "healthy",
+                "api_response_time_ms": 12.5,
+                "database_status": "healthy",
+                "database_response_time_ms": 8.3,
+                "redis_status": "healthy",
+                "redis_response_time_ms": 2.1,
+                "celery_status": "healthy",
+                "celery_response_time_ms": 5.7,
+                "overall_status": "healthy",
+                "timestamp": "2026-01-27T23:45:00Z",
+            }
+        }
+    }

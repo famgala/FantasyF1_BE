@@ -1,11 +1,13 @@
 """Admin service for administrative operations."""
 
+import time
 from datetime import datetime, timedelta
 from typing import TypedDict
 
-from sqlalchemy import desc, func, select
+from sqlalchemy import desc, func, select, text
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from app.cache.client import ping_redis
 from app.models.error_log import ErrorLog
 from app.models.league import League
 from app.models.race import Race
@@ -263,3 +265,112 @@ async def _get_daily_league_creations(db: AsyncSession, start_date: datetime) ->
 
     rows = result.all()
     return [{"date": str(row.date), "count": int(row[1])} for row in rows]
+
+
+async def check_system_health(db: AsyncSession) -> dict:
+    """Check comprehensive system health status.
+
+    Args:
+        db: Async database session
+
+    Returns:
+        Dictionary containing health status for all system components:
+        - api_status: API service health status (healthy/degraded/unhealthy)
+        - api_response_time_ms: API response time in milliseconds
+        - database_status: Database connection status (healthy/degraded/unhealthy)
+        - database_response_time_ms: Database response time in milliseconds
+        - redis_status: Redis cache status (healthy/degraded/unhealthy)
+        - redis_response_time_ms: Redis response time in milliseconds
+        - celery_status: Celery task queue status (healthy/degraded/unhealthy)
+        - celery_response_time_ms: Celery response time in milliseconds
+        - overall_status: Overall system health (healthy/degraded/unhealthy)
+        - timestamp: When the health check was performed
+    """
+    health_status = {
+        "api_status": "healthy",
+        "api_response_time_ms": 0.0,
+        "database_status": "healthy",
+        "database_response_time_ms": 0.0,
+        "redis_status": "healthy",
+        "redis_response_time_ms": 0.0,
+        "celery_status": "healthy",
+        "celery_response_time_ms": 0.0,
+        "overall_status": "healthy",
+        "timestamp": datetime.utcnow(),
+    }
+
+    # Check API health (self-check - just measure response time)
+    api_start = time.perf_counter()
+    try:
+        # Simulate API check by just getting current time
+        _ = datetime.utcnow()
+        api_response_time = (time.perf_counter() - api_start) * 1000
+        health_status["api_response_time_ms"] = round(api_response_time, 2)
+        health_status["api_status"] = "healthy"
+    except Exception:
+        health_status["api_status"] = "unhealthy"
+
+    # Check Database health
+    db_start = time.perf_counter()
+    try:
+        # Execute a simple query to check database connectivity
+        await db.execute(text("SELECT 1"))
+        db_response_time = (time.perf_counter() - db_start) * 1000
+        health_status["database_response_time_ms"] = round(db_response_time, 2)
+        health_status["database_status"] = "healthy"
+    except Exception:
+        health_status["database_status"] = "unhealthy"
+        health_status["database_response_time_ms"] = 0.0
+
+    # Check Redis health
+    redis_start = time.perf_counter()
+    try:
+        redis_healthy = await ping_redis()
+        if redis_healthy:
+            redis_response_time = (time.perf_counter() - redis_start) * 1000
+            health_status["redis_response_time_ms"] = round(redis_response_time, 2)
+            health_status["redis_status"] = "healthy"
+        else:
+            health_status["redis_status"] = "degraded"
+            health_status["redis_response_time_ms"] = 0.0
+    except Exception:
+        health_status["redis_status"] = "unhealthy"
+        health_status["redis_response_time_ms"] = 0.0
+
+    # Check Celery health
+    celery_start = time.perf_counter()
+    try:
+        # Import here to avoid circular dependencies
+        from app.tasks.celery_app import celery_app
+
+        # Try to inspect Celery to check if workers are running
+        inspect = celery_app.control.inspect(timeout=1.0)
+        stats = inspect.stats()
+        celery_response_time = (time.perf_counter() - celery_start) * 1000
+
+        if stats and len(stats) > 0:
+            health_status["celery_response_time_ms"] = round(celery_response_time, 2)
+            health_status["celery_status"] = "healthy"
+        else:
+            health_status["celery_response_time_ms"] = round(celery_response_time, 2)
+            health_status["celery_status"] = "degraded"
+    except Exception:
+        health_status["celery_status"] = "unhealthy"
+        health_status["celery_response_time_ms"] = 0.0
+
+    # Determine overall health status
+    statuses = [
+        health_status["api_status"],
+        health_status["database_status"],
+        health_status["redis_status"],
+        health_status["celery_status"],
+    ]
+
+    if "unhealthy" in statuses:
+        health_status["overall_status"] = "unhealthy"
+    elif "degraded" in statuses:
+        health_status["overall_status"] = "degraded"
+    else:
+        health_status["overall_status"] = "healthy"
+
+    return health_status

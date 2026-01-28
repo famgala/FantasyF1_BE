@@ -12,8 +12,14 @@ from app.schemas.admin import (
     ErrorLogResponse,
     ErrorLogsResponse,
     ErrorLogUpdate,
+    HealthStatusResponse,
 )
-from app.services.admin_service import get_admin_statistics, get_error_logs, update_error_log
+from app.services.admin_service import (
+    check_system_health,
+    get_admin_statistics,
+    get_error_logs,
+    update_error_log,
+)
 
 router = APIRouter()
 
@@ -129,3 +135,31 @@ async def update_error_log_status(
         raise HTTPException(status_code=404, detail="Error log not found")
 
     return ErrorLogResponse.model_validate(updated_log)
+
+
+@router.get("/health", response_model=HealthStatusResponse)
+async def get_system_health(
+    db: AsyncSession = Depends(get_db),
+) -> dict:
+    """Get comprehensive system health status.
+
+    Requires superuser privileges.
+
+    Args:
+        db: Async database session
+
+    Returns:
+        Dictionary containing health status for all system components:
+        - api_status: API service health status (healthy/degraded/unhealthy)
+        - api_response_time_ms: API response time in milliseconds
+        - database_status: Database connection status (healthy/degraded/unhealthy)
+        - database_response_time_ms: Database response time in milliseconds
+        - redis_status: Redis cache status (healthy/degraded/unhealthy)
+        - redis_response_time_ms: Redis response time in milliseconds
+        - celery_status: Celery task queue status (healthy/degraded/unhealthy)
+        - celery_response_time_ms: Celery response time in milliseconds
+        - overall_status: Overall system health (healthy/degraded/unhealthy)
+        - timestamp: When the health check was performed
+    """
+    health_status = await check_system_health(db)
+    return health_status
