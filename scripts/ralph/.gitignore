@@ -1,0 +1,11 @@
+# Ralph Infrastructure Files - DO NOT IGNORE THESE
+# These files are critical infrastructure for Ralph's operation
+# ralph.sh - The orchestration script
+# CLINE.md - Agent instructions
+# prd.json - Product requirements
+# progress.txt - Progress tracking
+# archive/ - Archived runs
+
+# Temporarily ignore these only if they contain sensitive data
+*.local
+*.secret

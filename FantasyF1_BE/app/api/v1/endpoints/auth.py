@@ -2,13 +2,15 @@
 
 from datetime import timedelta
 
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, Query, Request, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.config import settings
+from app.core.rate_limiting import limiter
 from app.core.security import create_access_token, create_refresh_token
 from app.db.session import get_db
 from app.schemas.auth import (
+    CheckEmailExistsResponse,
     CheckEmailRequest,
     CheckEmailResponse,
     ForgotPasswordRequest,
@@ -23,11 +25,43 @@ from app.services.user_service import UserService
 router = APIRouter()
 
 
-@router.post("/check-email", response_model=CheckEmailResponse)
+@router.get("/check-email", response_model=CheckEmailExistsResponse)
+@limiter.limit("10/minute")
+async def check_email_get(
+    _request: Request,
+    email: str = Query(..., min_length=1, description="Email address to check"),
+    db: AsyncSession = Depends(get_db),
+) -> CheckEmailExistsResponse:
+    """Check if an email address is already registered (GET version per PRD spec).
+
+    Args:
+        email: Email address to check via query parameter
+        db: Database session
+
+    Returns:
+        Check email response indicating if email exists
+
+    Raises:
+        HTTPException: If email check fails
+
+    Note:
+        Rate limited to 10 requests per minute to prevent email enumeration.
+    """
+    try:
+        exists = await UserService.email_exists(db, email)
+        return CheckEmailExistsResponse(exists=exists)
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Email check failed: {e!s}",
+        ) from None
+
+
+@router.post("/check-email", response_model=CheckEmailResponse, deprecated=True)
 async def check_email(
     email_data: CheckEmailRequest, db: AsyncSession = Depends(get_db)
 ) -> CheckEmailResponse:
-    """Check if an email address is already registered.
+    """Check if an email address is already registered (POST version - deprecated).
 
     Args:
         email_data: Email address to check
@@ -38,6 +72,9 @@ async def check_email(
 
     Raises:
         HTTPException: If email check fails
+
+    Deprecated:
+        Use GET /check-email?email={email} instead.
     """
     try:
         exists = await UserService.email_exists(db, email_data.email)

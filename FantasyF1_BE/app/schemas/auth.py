@@ -6,16 +6,22 @@ from pydantic import BaseModel, EmailStr, Field, field_validator
 
 
 class CheckEmailRequest(BaseModel):
-    """Schema for checking if email exists."""
+    """Schema for checking if email exists (POST version - deprecated)."""
 
     email: EmailStr
 
 
 class CheckEmailResponse(BaseModel):
-    """Schema for email check response."""
+    """Schema for email check response (POST version - deprecated)."""
 
     action: Literal["login", "register"]
     message: str
+
+
+class CheckEmailExistsResponse(BaseModel):
+    """Schema for email check response (GET version per PRD spec)."""
+
+    exists: bool
 
 
 class ForgotPasswordRequest(BaseModel):
