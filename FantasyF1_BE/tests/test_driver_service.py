@@ -78,13 +78,16 @@ async def test_get_all_drivers(db: AsyncSession):
     """Test getting all drivers."""
     # Create multiple drivers
     await DriverService.create(
-        db, DriverCreate(external_id=10, name="Driver 1", number=1, country="A", team_name="Team A")
+        db,
+        DriverCreate(external_id=10, name="Driver 1", number=1, country="A", team_name="Team A"),
     )
     await DriverService.create(
-        db, DriverCreate(external_id=11, name="Driver 2", number=2, country="B", team_name="Team B")
+        db,
+        DriverCreate(external_id=11, name="Driver 2", number=2, country="B", team_name="Team B"),
     )
     await DriverService.create(
-        db, DriverCreate(external_id=12, name="Driver 3", number=3, country="C", team_name="Team C")
+        db,
+        DriverCreate(external_id=12, name="Driver 3", number=3, country="C", team_name="Team C"),
     )
 
     drivers = await DriverService.get_all(db, skip=0, limit=10)
@@ -99,13 +102,21 @@ async def test_search_drivers(db: AsyncSession):
     await DriverService.create(
         db,
         DriverCreate(
-            external_id=13, name="Search Driver 1", number=5, country="D", team_name="Team D"
+            external_id=13,
+            name="Search Driver 1",
+            number=5,
+            country="D",
+            team_name="Team D",
         ),
     )
     await DriverService.create(
         db,
         DriverCreate(
-            external_id=14, name="Search Driver 2", number=6, country="E", team_name="Team E"
+            external_id=14,
+            name="Search Driver 2",
+            number=6,
+            country="E",
+            team_name="Team E",
         ),
     )
 
@@ -166,13 +177,21 @@ async def test_count_drivers(db: AsyncSession):
     await DriverService.create(
         db,
         DriverCreate(
-            external_id=17, name="Count Driver 1", number=9, country="F", team_name="Team F"
+            external_id=17,
+            name="Count Driver 1",
+            number=9,
+            country="F",
+            team_name="Team F",
         ),
     )
     await DriverService.create(
         db,
         DriverCreate(
-            external_id=18, name="Count Driver 2", number=10, country="G", team_name="Team G"
+            external_id=18,
+            name="Count Driver 2",
+            number=10,
+            country="G",
+            team_name="Team G",
         ),
     )
 
@@ -189,13 +208,21 @@ async def test_get_drivers_by_team(db: AsyncSession):
     await DriverService.create(
         db,
         DriverCreate(
-            external_id=19, name="Team Filter Driver 1", number=11, country="H", team_name=team_name
+            external_id=19,
+            name="Team Filter Driver 1",
+            number=11,
+            country="H",
+            team_name=team_name,
         ),
     )
     await DriverService.create(
         db,
         DriverCreate(
-            external_id=20, name="Team Filter Driver 2", number=12, country="I", team_name=team_name
+            external_id=20,
+            name="Team Filter Driver 2",
+            number=12,
+            country="I",
+            team_name=team_name,
         ),
     )
 

@@ -31,7 +31,9 @@ def upgrade() -> None:
         sa.Column("nationality", sa.String(length=50), nullable=True),
         sa.Column("year", sa.Integer(), nullable=True),
         sa.Column("world_wins", sa.Integer(), server_default="0", nullable=False),
-        sa.Column("world_championships", sa.Integer(), server_default="0", nullable=False),
+        sa.Column(
+            "world_championships", sa.Integer(), server_default="0", nullable=False
+        ),
         sa.Column("current_points", sa.Integer(), server_default="0", nullable=False),
         sa.Column(
             "created_at",
@@ -49,7 +51,9 @@ def upgrade() -> None:
         sa.UniqueConstraint("team_code"),
     )
     op.create_index(op.f("ix_constructors_id"), "constructors", ["id"])
-    op.create_index(op.f("ix_constructors_team_name"), "constructors", ["team_name"], unique=False)
+    op.create_index(
+        op.f("ix_constructors_team_name"), "constructors", ["team_name"], unique=False
+    )
 
     # Create drivers table
     op.create_table(
@@ -62,7 +66,9 @@ def upgrade() -> None:
         sa.Column("points", sa.Integer(), server_default="0", nullable=False),
         sa.Column("wins", sa.Integer(), server_default="0", nullable=False),
         sa.Column("podiums", sa.Integer(), server_default="0", nullable=False),
-        sa.Column("world_championships", sa.Integer(), server_default="0", nullable=False),
+        sa.Column(
+            "world_championships", sa.Integer(), server_default="0", nullable=False
+        ),
         sa.Column("year", sa.Integer(), nullable=True),
         sa.Column(
             "created_at",
@@ -98,7 +104,9 @@ def upgrade() -> None:
         sa.Column("laps", sa.Integer(), nullable=True),
         sa.Column("fastest_lap_time", sa.String(length=20), nullable=True),
         sa.Column("fastest_lap_driver", sa.String(length=100), nullable=True),
-        sa.Column("status", sa.String(length=20), server_default="upcoming", nullable=False),
+        sa.Column(
+            "status", sa.String(length=20), server_default="upcoming", nullable=False
+        ),
         sa.Column(
             "created_at",
             sa.DateTime(timezone=True),
@@ -127,7 +135,12 @@ def upgrade() -> None:
         sa.Column("description", sa.Text(), nullable=True),
         sa.Column("max_teams", sa.Integer(), server_default="10", nullable=False),
         sa.Column("is_private", sa.Boolean(), server_default="false", nullable=False),
-        sa.Column("draft_method", sa.String(length=20), server_default="manual", nullable=False),
+        sa.Column(
+            "draft_method",
+            sa.String(length=20),
+            server_default="manual",
+            nullable=False,
+        ),
         sa.Column("draft_date", sa.DateTime(timezone=True), nullable=True),
         sa.Column("creator_id", sa.Integer(), nullable=True),
         sa.Column(
@@ -149,7 +162,9 @@ def upgrade() -> None:
     op.create_index(op.f("ix_leagues_id"), "leagues", ["id"])
     op.create_index(op.f("ix_leagues_name"), "leagues", ["name"], unique=False)
     op.create_index(op.f("ix_leagues_code"), "leagues", ["code"], unique=True)
-    op.create_index(op.f("ix_leagues_creator_id"), "leagues", ["creator_id"], unique=False)
+    op.create_index(
+        op.f("ix_leagues_creator_id"), "leagues", ["creator_id"], unique=False
+    )
 
     # Create user_leagues association table
     op.create_table(
@@ -157,9 +172,14 @@ def upgrade() -> None:
         sa.Column("user_id", sa.Integer(), autoincrement=False, nullable=False),
         sa.Column("league_id", sa.Integer(), autoincrement=False, nullable=False),
         sa.Column(
-            "joined_at", sa.DateTime(timezone=True), server_default=sa.text("NOW()"), nullable=False
+            "joined_at",
+            sa.DateTime(timezone=True),
+            server_default=sa.text("NOW()"),
+            nullable=False,
         ),
-        sa.ForeignKeyConstraint(["league_id"], ["leagues.id"], name="fk_user_league_league"),
+        sa.ForeignKeyConstraint(
+            ["league_id"], ["leagues.id"], name="fk_user_league_league"
+        ),
         sa.ForeignKeyConstraint(["user_id"], ["users.id"], name="fk_user_league_user"),
         sa.PrimaryKeyConstraint("user_id", "league_id"),
     )

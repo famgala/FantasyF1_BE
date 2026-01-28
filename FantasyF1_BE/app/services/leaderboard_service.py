@@ -185,7 +185,9 @@ class LeaderboardService:
         return wins, podiums
 
     @staticmethod
-    def _assign_ranks_with_ties(entries: list[LeaderboardEntry]) -> list[LeaderboardEntry]:
+    def _assign_ranks_with_ties(
+        entries: list[LeaderboardEntry],
+    ) -> list[LeaderboardEntry]:
         """Assign ranks to leaderboard entries with proper tie handling.
 
         Tie-breaking rules:

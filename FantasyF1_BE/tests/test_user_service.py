@@ -14,7 +14,10 @@ from app.services.user_service import UserService
 async def test_create_user_success(db_session: AsyncSession):
     """Test successful user creation."""
     user_data = UserCreate(
-        username="testuser", email="test@example.com", full_name="Test User", password="TestPass123"
+        username="testuser",
+        email="test@example.com",
+        full_name="Test User",
+        password="TestPass123",
     )
 
     user = await UserService.create_user(db_session, user_data)
@@ -63,7 +66,8 @@ async def test_create_user_weak_password(db_session: AsyncSession):
     # Test password too short
     with pytest.raises(PydanticValidationError):
         await UserService.create_user(
-            db_session, UserCreate(username="testuser", email="test@example.com", password="short")
+            db_session,
+            UserCreate(username="testuser", email="test@example.com", password="short"),
         )
 
     # Test password without uppercase
@@ -186,7 +190,10 @@ async def test_authenticate_nonexistent_user(db_session: AsyncSession):
 async def test_update_user_success(db_session: AsyncSession):
     """Test successful user update."""
     user_data = UserCreate(
-        username="testuser", email="test@example.com", full_name="Test User", password="TestPass123"
+        username="testuser",
+        email="test@example.com",
+        full_name="Test User",
+        password="TestPass123",
     )
 
     user = await UserService.create_user(db_session, user_data)

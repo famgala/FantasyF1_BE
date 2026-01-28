@@ -28,7 +28,7 @@ router = APIRouter()
 async def get_platform_statistics(
     _current_user: Annotated[User, Depends(get_current_superuser)],
     db: AsyncSession = Depends(get_db),
-) -> dict:
+) -> dict[str, object]:
     """Get comprehensive platform statistics for admin dashboard.
 
     Requires superuser privileges.
@@ -56,26 +56,30 @@ async def get_platform_statistics(
 async def get_platform_error_logs(
     _current_user: Annotated[User, Depends(get_current_superuser)],
     db: AsyncSession = Depends(get_db),
-    skip: int = 0,
+    offset: int = 0,
     limit: int = 50,
     severity: str | None = None,
     resolved: bool | None = None,
     error_type: str | None = None,
     user_id: int | None = None,
     endpoint: str | None = None,
-) -> dict:
+    start_date: str | None = None,
+    end_date: str | None = None,
+) -> dict[str, object]:
     """Get error logs with filtering and pagination.
 
     Requires superuser privileges.
 
     Args:
-        skip: Number of records to skip (for pagination), default 0
+        offset: Number of records to skip (for pagination), default 0
         limit: Maximum number of records to return, default 50
         severity: Filter by severity level (e.g., 'error', 'warning', 'info')
         resolved: Filter by resolved status (true/false)
         error_type: Filter by error type (partial match)
         user_id: Filter by user ID
         endpoint: Filter by endpoint (partial match)
+        start_date: Filter by start date (ISO format string, e.g., '2026-01-01')
+        end_date: Filter by end date (ISO format string, e.g., '2026-01-31')
         _current_user: Current authenticated superuser (unused but required for auth)
         db: Async database session
 
@@ -89,13 +93,15 @@ async def get_platform_error_logs(
     """
     logs = await get_error_logs(
         db=db,
-        skip=skip,
+        offset=offset,
         limit=limit,
         severity=severity,
         resolved=resolved,
         error_type=error_type,
         user_id=user_id,
         endpoint=endpoint,
+        start_date=start_date,
+        end_date=end_date,
     )
     return logs
 
@@ -139,13 +145,15 @@ async def update_error_log_status(
 
 @router.get("/health", response_model=HealthStatusResponse)
 async def get_system_health(
+    _current_user: Annotated[User, Depends(get_current_superuser)],
     db: AsyncSession = Depends(get_db),
-) -> dict:
+) -> dict[str, object]:
     """Get comprehensive system health status.
 
     Requires superuser privileges.
 
     Args:
+        _current_user: Current authenticated superuser (unused but required for auth)
         db: Async database session
 
     Returns:

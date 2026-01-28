@@ -72,4 +72,5 @@ fantasyf1_dev_*
 !.vscode/extensions.json
 
 # local doc
-documentation/
+documentation
+scripts/ralph/

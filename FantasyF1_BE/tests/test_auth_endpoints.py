@@ -183,7 +183,10 @@ async def test_get_current_user_profile(client: AsyncClient, db_session: AsyncSe
     """Test getting current user profile."""
     # Create user and login
     user_data = UserCreate(
-        username="testuser", email="test@example.com", full_name="Test User", password="TestPass123"
+        username="testuser",
+        email="test@example.com",
+        full_name="Test User",
+        password="TestPass123",
     )
     await UserService.create_user(db_session, user_data)
 
@@ -222,7 +225,10 @@ async def test_update_current_user_profile(client: AsyncClient, db_session: Asyn
     """Test updating current user profile."""
     # Create user and login
     user_data = UserCreate(
-        username="testuser", email="test@example.com", full_name="Test User", password="TestPass123"
+        username="testuser",
+        email="test@example.com",
+        full_name="Test User",
+        password="TestPass123",
     )
     await UserService.create_user(db_session, user_data)
 

@@ -26,7 +26,7 @@ class DailyStat(TypedDict):
     count: int
 
 
-async def get_admin_statistics(db: AsyncSession) -> dict:
+async def get_admin_statistics(db: AsyncSession) -> dict[str, object]:
     """Get comprehensive platform statistics for admin dashboard.
 
     Args:
@@ -126,31 +126,35 @@ async def _get_daily_user_registrations(db: AsyncSession, start_date: datetime) 
 
 async def get_error_logs(
     db: AsyncSession,
-    skip: int = 0,
+    offset: int = 0,
     limit: int = 50,
     severity: str | None = None,
     resolved: bool | None = None,
     error_type: str | None = None,
     user_id: int | None = None,
     endpoint: str | None = None,
-) -> dict:
+    start_date: str | None = None,
+    end_date: str | None = None,
+) -> dict[str, object]:
     """Get error logs with filtering and pagination.
 
     Args:
         db: Async database session
-        skip: Number of records to skip (for pagination)
+        offset: Number of records to skip (for pagination)
         limit: Maximum number of records to return
         severity: Filter by severity level
         resolved: Filter by resolved status
         error_type: Filter by error type
         user_id: Filter by user ID
         endpoint: Filter by endpoint
+        start_date: Filter by start date (ISO format string)
+        end_date: Filter by end date (ISO format string)
 
     Returns:
         Dictionary containing:
         - items: List of error logs
         - total: Total number of error logs matching filters
-        - page: Current page number (calculated from skip/limit)
+        - page: Current page number (calculated from offset/limit)
         - page_size: Number of items per page
         - total_pages: Total number of pages
     """
@@ -167,6 +171,18 @@ async def get_error_logs(
         query = query.where(ErrorLog.user_id == user_id)
     if endpoint:
         query = query.where(ErrorLog.endpoint.ilike(f"%{endpoint}%"))
+    if start_date:
+        try:
+            start_dt = datetime.fromisoformat(start_date)
+            query = query.where(ErrorLog.timestamp >= start_dt)
+        except ValueError:
+            pass  # Invalid date format, ignore filter
+    if end_date:
+        try:
+            end_dt = datetime.fromisoformat(end_date)
+            query = query.where(ErrorLog.timestamp <= end_dt)
+        except ValueError:
+            pass  # Invalid date format, ignore filter
 
     # Get total count
     count_query = select(func.count(ErrorLog.id))
@@ -180,17 +196,29 @@ async def get_error_logs(
         count_query = count_query.where(ErrorLog.user_id == user_id)
     if endpoint:
         count_query = count_query.where(ErrorLog.endpoint.ilike(f"%{endpoint}%"))
+    if start_date:
+        try:
+            start_dt = datetime.fromisoformat(start_date)
+            count_query = count_query.where(ErrorLog.timestamp >= start_dt)
+        except ValueError:
+            pass
+    if end_date:
+        try:
+            end_dt = datetime.fromisoformat(end_date)
+            count_query = count_query.where(ErrorLog.timestamp <= end_dt)
+        except ValueError:
+            pass
 
     total_result = await db.execute(count_query)
     total = total_result.scalar() or 0
 
     # Get paginated results, ordered by timestamp descending
-    query = query.order_by(desc(ErrorLog.timestamp)).offset(skip).limit(limit)
+    query = query.order_by(desc(ErrorLog.timestamp)).offset(offset).limit(limit)
     result = await db.execute(query)
     items = result.scalars().all()
 
     # Calculate pagination info
-    page = skip // limit + 1 if limit > 0 else 1
+    page = offset // limit + 1 if limit > 0 else 1
     page_size = limit
     total_pages = (total + limit - 1) // limit if limit > 0 else 1
 
@@ -267,7 +295,7 @@ async def _get_daily_league_creations(db: AsyncSession, start_date: datetime) ->
     return [{"date": str(row.date), "count": int(row[1])} for row in rows]
 
 
-async def check_system_health(db: AsyncSession) -> dict:
+async def check_system_health(db: AsyncSession) -> dict[str, object]:
     """Check comprehensive system health status.
 
     Args:

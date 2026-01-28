@@ -49,7 +49,7 @@ async def list_leagues(
     search: str | None = None,
     skip: int = Query(default=0, ge=0),
     limit: int = Query(default=100, ge=1, le=100),
-    current_user: Annotated[User | None, Depends(get_current_user)] = None,  # noqa: ARG001
+    current_user: Annotated[User | None, Depends(get_current_user)] = None,
 ) -> LeagueListResponse:
     """List all leagues with optional search."""
     if search:
@@ -72,7 +72,7 @@ async def search_leagues(
     query: str = Query(min_length=1),
     skip: int = Query(default=0, ge=0),
     limit: int = Query(default=20, ge=1, le=100),
-    current_user: Annotated[User | None, Depends(get_current_user)] = None,  # noqa: ARG001
+    current_user: Annotated[User | None, Depends(get_current_user)] = None,
 ) -> LeagueListResponse:
     """Search leagues by name."""
     leagues = await LeagueService.search(db, query, skip=skip, limit=limit)
@@ -266,7 +266,9 @@ async def list_league_teams(
 
 
 @router.post(
-    "/{league_id}/join", response_model=LeagueTeamResponse, status_code=status.HTTP_201_CREATED
+    "/{league_id}/join",
+    response_model=LeagueTeamResponse,
+    status_code=status.HTTP_201_CREATED,
 )
 async def join_league(
     league_id: int,
@@ -379,7 +381,9 @@ async def join_league(
 
 
 @router.get(
-    "/{league_id}/leaderboard", response_model=LeaderboardResponse, status_code=status.HTTP_200_OK
+    "/{league_id}/leaderboard",
+    response_model=LeaderboardResponse,
+    status_code=status.HTTP_200_OK,
 )
 async def get_leaderboard(
     league_id: int,

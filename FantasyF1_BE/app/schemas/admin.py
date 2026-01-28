@@ -93,8 +93,8 @@ class ErrorLogResponse(BaseModel):
     user_id: int | None = None
     stack_trace: str | None = None
     severity: str
-    request_data: dict | None = None
-    response_data: dict | None = None
+    request_data: dict[str, object] | None = None
+    response_data: dict[str, object] | None = None
     ip_address: str | None = None
     user_agent: str | None = None
     resolved: bool

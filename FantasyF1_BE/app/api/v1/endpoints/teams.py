@@ -229,7 +229,9 @@ async def list_team_picks(
 
 
 @router.post(
-    "/{team_id}/picks", response_model=TeamPickResponse, status_code=status.HTTP_201_CREATED
+    "/{team_id}/picks",
+    response_model=TeamPickResponse,
+    status_code=status.HTTP_201_CREATED,
 )
 async def add_team_pick(
     team_id: int,

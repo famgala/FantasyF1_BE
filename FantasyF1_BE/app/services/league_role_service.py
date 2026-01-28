@@ -158,7 +158,10 @@ class LeagueRoleService:
     ) -> bool:
         """Check if user is an admin (creator or co-manager)."""
         return await LeagueRoleService.has_permission(
-            session, league_id, user_id, {UserRole.CREATOR.value, UserRole.CO_MANAGER.value}
+            session,
+            league_id,
+            user_id,
+            {UserRole.CREATOR.value, UserRole.CO_MANAGER.value},
         )
 
     @staticmethod
