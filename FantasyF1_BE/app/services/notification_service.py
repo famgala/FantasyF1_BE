@@ -392,3 +392,75 @@ class NotificationService:
             message=update_message,
             link=f"/leagues/{league_id}/drafts",
         )
+
+    @staticmethod
+    async def broadcast_notification(
+        db: AsyncSession,
+        notification_type: str,
+        title: str,
+        message: str,
+        link: str | None = None,
+        recipients: str = "all",
+        league_id: int | None = None,
+        user_ids: list[int] | None = None,
+    ) -> int:
+        """Broadcast a notification to multiple recipients.
+
+        Args:
+            db: Database session
+            notification_type: Type of notification
+            title: Notification title
+            message: Notification message
+            link: Optional link for the notification
+            recipients: Recipient scope ('all', 'league', or 'users')
+            league_id: League ID if recipients is 'league'
+            user_ids: List of user IDs if recipients is 'users'
+
+        Returns:
+            Number of notifications created
+        """
+        from app.models.fantasy_team import FantasyTeam
+        from app.models.user import User
+
+        target_user_ids: list[int] = []
+
+        if recipients == "all":
+            # Send to all active users
+            result = await db.execute(select(User.id).where(User.is_active.is_(True)))
+            target_user_ids = [row[0] for row in result.all()]
+
+        elif recipients == "league" and league_id:
+            # Send to all users with teams in the specified league
+            result = await db.execute(
+                select(FantasyTeam.user_id).where(FantasyTeam.league_id == league_id).distinct()
+            )
+            target_user_ids = [row[0] for row in result.all()]
+
+        elif recipients == "users" and user_ids:
+            # Send to specific users
+            target_user_ids = user_ids
+        else:
+            logger.warning(f"Invalid broadcast recipients: {recipients}")
+            return 0
+
+        # Create notifications for all target users
+        notifications_created = 0
+        for user_id in target_user_ids:
+            try:
+                await NotificationService.create_notification(
+                    db,
+                    user_id=user_id,
+                    notification_type=notification_type,
+                    title=title,
+                    message=message,
+                    link=link,
+                )
+                notifications_created += 1
+            except Exception as e:
+                logger.error(f"Failed to create notification for user {user_id}: {e!s}")
+                continue
+
+        logger.info(
+            f"Broadcast notification created: {title} - Sent to {notifications_created} users"
+        )
+        return notifications_created

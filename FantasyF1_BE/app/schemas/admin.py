@@ -136,4 +136,13 @@ class BroadcastNotificationRequest(BaseModel):
     message: str
     link: str | None = None
     recipients: Literal["all"] | int | list[int]
-    scheduled_at: datetime | None = None
+
+    model_config = ConfigDict(extra="forbid")
+
+
+class BroadcastNotificationResponse(BaseModel):
+    """Schema for broadcast notification response."""
+
+    success: bool
+    notifications_created: int
+    message: str

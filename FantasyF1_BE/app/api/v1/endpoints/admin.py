@@ -18,12 +18,15 @@ from app.schemas.admin import (
     AdminUserBase,
     AdminUserListResponse,
     AdminUserUpdate,
+    BroadcastNotificationRequest,
+    BroadcastNotificationResponse,
     ErrorLog,
     ErrorLogListResponse,
     PlatformStats,
     SystemHealth,
 )
 from app.services.admin_service import AdminService
+from app.services.notification_service import NotificationService
 
 router = APIRouter(prefix="/admin", tags=["admin"])
 
@@ -278,9 +281,8 @@ async def delete_league(
 async def get_error_logs(
     db: Annotated[AsyncSession, Depends(get_db)],
     _: Annotated[dict, Depends(get_current_superuser)],
-    level: Literal["debug", "info", "warning", "error", "critical"] | None = Query(
-        None, description="Filter by log level"
-    ),
+    level: Literal["debug", "info", "warning", "error", "critical"]
+    | None = Query(None, description="Filter by log level"),
     module: str | None = Query(None, description="Filter by module name"),
     endpoint: str | None = Query(None, description="Filter by endpoint"),
     user_id: int | None = Query(None, description="Filter by user ID"),
@@ -348,3 +350,74 @@ async def get_system_health(
     - Celery
     """
     return await AdminService.get_system_health(db)
+
+
+@router.post(
+    "/notifications/broadcast",
+    response_model=BroadcastNotificationResponse,
+    status_code=status.HTTP_200_OK,
+)
+async def broadcast_notification(
+    notification_request: BroadcastNotificationRequest,
+    db: Annotated[AsyncSession, Depends(get_db)],
+    _: Annotated[dict, Depends(get_current_superuser)],
+) -> BroadcastNotificationResponse:
+    """Broadcast a notification to multiple recipients.
+
+    Requires superuser (admin) privileges.
+
+    Allows admins to send system-wide notifications to:
+    - All active users (recipients="all")
+    - All members of a specific league (recipients=<league_id>)
+    - Specific users (recipients=[<user_id1>, <user_id2>, ...])
+
+    Args:
+        notification_request: Broadcast notification data
+            - type: Notification type (system, announcement, alert)
+            - title: Notification title
+            - message: Notification message
+            - link: Optional link to direct users
+            - recipients: Target audience ("all", league id, or list of user ids)
+
+    Returns:
+        Broadcast notification response with success status and count of notifications created
+    """
+    # Determine recipient scope
+    recipients_str: str
+    league_id: int | None = None
+    user_ids: list[int] | None = None
+
+    if notification_request.recipients == "all":
+        recipients_str = "all"
+    elif isinstance(notification_request.recipients, int):
+        # It's a league ID
+        recipients_str = "league"
+        league_id = notification_request.recipients
+    elif isinstance(notification_request.recipients, list):
+        # It's a list of user IDs
+        recipients_str = "users"
+        user_ids = notification_request.recipients
+    else:
+        return BroadcastNotificationResponse(
+            success=False,
+            notifications_created=0,
+            message="Invalid recipients format. Use 'all', league_id, or list of user_ids.",
+        )
+
+    # Broadcast the notification
+    notifications_created = await NotificationService.broadcast_notification(
+        db=db,
+        notification_type=notification_request.type,
+        title=notification_request.title,
+        message=notification_request.message,
+        link=notification_request.link,
+        recipients=recipients_str,
+        league_id=league_id,
+        user_ids=user_ids,
+    )
+
+    return BroadcastNotificationResponse(
+        success=True,
+        notifications_created=notifications_created,
+        message=f"Successfully broadcast notification to {notifications_created} recipients.",
+    )
