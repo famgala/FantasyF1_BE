@@ -13,7 +13,7 @@ from app.services.admin_service import get_admin_statistics
 router = APIRouter()
 
 
-@router.get("/statistics", response_model=AdminStatsResponse)
+@router.get("/stats", response_model=AdminStatsResponse)
 async def get_platform_statistics(
     _current_user: Annotated[User, Depends(get_current_superuser)],
     db: AsyncSession = Depends(get_db),
