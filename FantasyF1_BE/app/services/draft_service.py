@@ -235,7 +235,7 @@ class DraftService:
         )
         result = await session.execute(count_query)
         scalar_result = result.scalar()
-        pick_count = 0 if scalar_result is None else int(scalar_result)  # type: ignore[call-overload]
+        pick_count = 0 if scalar_result is None else int(scalar_result)
 
         # Determine draft position based on order list and count
         draft_position = pick_count % len(order_list)
@@ -415,7 +415,7 @@ class DraftService:
             drivers_query = select(Driver).order_by(Driver.name)
 
         result = await session.execute(drivers_query)
-        return list(result.scalars().all())  # type: ignore[arg-type]
+        return list(result.scalars().all())
 
     @staticmethod
     async def get_next_pick_info(
