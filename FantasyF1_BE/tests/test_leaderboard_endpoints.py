@@ -4,10 +4,21 @@ import pytest
 import pytest_asyncio
 from httpx import AsyncClient
 
+from app.core.security import get_password_hash
 from app.models.fantasy_team import FantasyTeam
 from app.models.league import League
 from app.models.race import Race
 from app.models.user import User
+
+
+async def login_and_get_token(client: AsyncClient, username: str, password: str) -> str:
+    """Login and return access token."""
+    response = await client.post(
+        "/api/v1/auth/login",
+        json={"username": username, "password": password},
+    )
+    assert response.status_code == 200
+    return response.json()["access_token"]
 
 
 @pytest_asyncio.fixture()
@@ -16,7 +27,8 @@ async def test_user(db_session) -> User:
     user = User(
         username="testuser",
         email="test@example.com",
-        hashed_password="hashed_password",
+        hashed_password=get_password_hash("TestPass123"),
+        is_active=True,
     )
     db_session.add(user)
     await db_session.commit()
@@ -86,11 +98,16 @@ class TestLeaderboardEndpoints:
     async def test_get_leaderboard_success(
         self,
         client: AsyncClient,
+        test_user: User,
         test_league: League,
         test_teams: list[FantasyTeam],  # noqa: ARG002
     ) -> None:
         """Test getting league leaderboard."""
-        response = await client.get(f"/api/v1/leagues/{test_league.id}/leaderboard")
+        token = await login_and_get_token(client, test_user.username, "TestPass123")
+        response = await client.get(
+            f"/api/v1/leagues/{test_league.id}/leaderboard",
+            headers={"Authorization": f"Bearer {token}"},
+        )
 
         assert response.status_code == 200
         data = response.json()
@@ -98,22 +115,29 @@ class TestLeaderboardEndpoints:
         assert "entries" in data
 
     @pytest.mark.asyncio()
-    async def test_get_leaderboard_not_found(self, client: AsyncClient) -> None:
+    async def test_get_leaderboard_not_found(self, client: AsyncClient, test_user: User) -> None:
         """Test getting leaderboard for non-existent league."""
-        response = await client.get("/api/v1/leagues/99999/leaderboard")
+        token = await login_and_get_token(client, test_user.username, "TestPass123")
+        response = await client.get(
+            "/api/v1/leagues/99999/leaderboard",
+            headers={"Authorization": f"Bearer {token}"},
+        )
         assert response.status_code == 404
 
     @pytest.mark.asyncio()
     async def test_get_leaderboard_for_race(
         self,
         client: AsyncClient,
+        test_user: User,
         test_league: League,
         test_race: Race,
         test_teams: list[FantasyTeam],  # noqa: ARG002
     ) -> None:
         """Test getting leaderboard for specific race."""
+        token = await login_and_get_token(client, test_user.username, "TestPass123")
         response = await client.get(
-            f"/api/v1/leagues/{test_league.id}/leaderboard?race_id={test_race.id}"
+            f"/api/v1/leagues/{test_league.id}/leaderboard?race_id={test_race.id}",
+            headers={"Authorization": f"Bearer {token}"},
         )
 
         # Should return 200 or 400 if race doesn't have results yet
@@ -123,11 +147,16 @@ class TestLeaderboardEndpoints:
     async def test_get_leaderboard_with_pagination(
         self,
         client: AsyncClient,
+        test_user: User,
         test_league: League,
         test_teams: list[FantasyTeam],  # noqa: ARG002
     ) -> None:
         """Test getting leaderboard with pagination."""
-        response = await client.get(f"/api/v1/leagues/{test_league.id}/leaderboard?skip=0&limit=3")
+        token = await login_and_get_token(client, test_user.username, "TestPass123")
+        response = await client.get(
+            f"/api/v1/leagues/{test_league.id}/leaderboard?skip=0&limit=3",
+            headers={"Authorization": f"Bearer {token}"},
+        )
 
         assert response.status_code == 200
         data = response.json()
@@ -139,10 +168,15 @@ class TestLeaderboardEndpoints:
     async def test_empty_leaderboard(
         self,
         client: AsyncClient,
+        test_user: User,
         test_league: League,
     ) -> None:
         """Test getting leaderboard when league has no teams."""
-        response = await client.get(f"/api/v1/leagues/{test_league.id}/leaderboard")
+        token = await login_and_get_token(client, test_user.username, "TestPass123")
+        response = await client.get(
+            f"/api/v1/leagues/{test_league.id}/leaderboard",
+            headers={"Authorization": f"Bearer {token}"},
+        )
 
         assert response.status_code == 200
         data = response.json()
@@ -156,11 +190,16 @@ class TestLeaderboardIntegration:
     async def test_leaderboard_ordering(
         self,
         client: AsyncClient,
+        test_user: User,
         test_league: League,
         test_teams: list[FantasyTeam],  # noqa: ARG002
     ) -> None:
         """Test that leaderboard entries are properly ordered."""
-        response = await client.get(f"/api/v1/leagues/{test_league.id}/leaderboard")
+        token = await login_and_get_token(client, test_user.username, "TestPass123")
+        response = await client.get(
+            f"/api/v1/leagues/{test_league.id}/leaderboard",
+            headers={"Authorization": f"Bearer {token}"},
+        )
 
         assert response.status_code == 200
         data = response.json()
@@ -177,11 +216,16 @@ class TestLeaderboardIntegration:
     async def test_leaderboard_response_structure(
         self,
         client: AsyncClient,
+        test_user: User,
         test_league: League,
         test_teams: list[FantasyTeam],  # noqa: ARG002
     ) -> None:
         """Test that leaderboard response has expected structure."""
-        response = await client.get(f"/api/v1/leagues/{test_league.id}/leaderboard")
+        token = await login_and_get_token(client, test_user.username, "TestPass123")
+        response = await client.get(
+            f"/api/v1/leagues/{test_league.id}/leaderboard",
+            headers={"Authorization": f"Bearer {token}"},
+        )
 
         assert response.status_code == 200
         data = response.json()
@@ -198,16 +242,25 @@ class TestLeaderboardIntegration:
     async def test_leaderboard_pagination_workflow(
         self,
         client: AsyncClient,
+        test_user: User,
         test_league: League,
         test_teams: list[FantasyTeam],  # noqa: ARG002
     ) -> None:
         """Test paginating through leaderboard results."""
+        token = await login_and_get_token(client, test_user.username, "TestPass123")
+
         # Get first page
-        response1 = await client.get(f"/api/v1/leagues/{test_league.id}/leaderboard?skip=0&limit=2")
+        response1 = await client.get(
+            f"/api/v1/leagues/{test_league.id}/leaderboard?skip=0&limit=2",
+            headers={"Authorization": f"Bearer {token}"},
+        )
         assert response1.status_code == 200
 
         # Get second page
-        response2 = await client.get(f"/api/v1/leagues/{test_league.id}/leaderboard?skip=2&limit=2")
+        response2 = await client.get(
+            f"/api/v1/leagues/{test_league.id}/leaderboard?skip=2&limit=2",
+            headers={"Authorization": f"Bearer {token}"},
+        )
         assert response2.status_code == 200
 
         # Verify we get different results

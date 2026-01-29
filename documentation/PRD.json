@@ -1,0 +1,978 @@
+{
+  "product_name": "Fantasy F1 League Frontend",
+  "version": "1.0",
+  "overview": "A comprehensive frontend application for the Fantasy F1 League platform, enabling users to register, authenticate, join or create leagues, draft drivers weekly, track race results and scores, and manage their fantasy teams. The admin dashboard provides oversight capabilities for user management, league moderation, and system monitoring. Built to integrate with the existing FastAPI backend supporting JWT authentication, weekly drafting mechanics, and inverted position scoring.",
+  "requirements": [
+    {
+      "category": "Authentication",
+      "description": "Homepage Email Entry Form - The homepage serves as the initial login screen with an email address input form. When the user submits their email, the frontend makes an API call to check if the email exists in the system (requires new backend endpoint: GET /api/v1/auth/check-email?email={email}). The form should include email validation (proper format), a submit button, and clear visual feedback during the API check. Display appropriate loading states and handle network errors gracefully. The page should be accessible with proper ARIA labels and keyboard navigation support.",
+      "steps_to_verify": [
+        "1. Open homepage URL in browser",
+        "2. Verify email input field is present and focused by default",
+        "3. Enter invalid email format (e.g., 'notanemail') and submit",
+        "4. Verify client-side validation error message appears",
+        "5. Enter valid email format that exists in system (e.g., 'existing@test.com')",
+        "6. Verify loading indicator appears during API call",
+        "7. Verify redirect to login page with email pre-filled",
+        "8. Return to homepage and enter valid email that does not exist",
+        "9. Verify redirect to registration page with email pre-filled",
+        "10. Simulate network error and verify appropriate error message displays",
+        "11. Test keyboard navigation (Tab, Enter) through the form",
+        "12. Verify screen reader announces form elements correctly"
+      ],
+      "passes": true
+    },
+    {
+      "category": "Authentication",
+      "description": "Login Page with Passphrase Entry - After the email check confirms an existing user, the login page displays with the email pre-filled (read-only display or editable with 'Change Email' link). The user enters their passphrase (password) to authenticate. On submit, call POST /api/v1/auth/login with username/email and password. On success, store access_token and refresh_token securely (httpOnly cookies preferred, or secure localStorage), then redirect to dashboard. Display password visibility toggle, 'Forgot Password' link, and handle invalid credentials with clear error messaging. Include a 'Change Email' button that returns to homepage.",
+      "steps_to_verify": [
+        "1. Navigate to login page from homepage with existing email",
+        "2. Verify email is displayed (either read-only or in input field)",
+        "3. Verify password input field is present with visibility toggle",
+        "4. Click visibility toggle and verify password text becomes visible",
+        "5. Enter incorrect password and submit",
+        "6. Verify error message 'Incorrect username or password' appears",
+        "7. Verify password field is cleared but email remains",
+        "8. Enter correct password and submit",
+        "9. Verify loading state during authentication",
+        "10. Verify successful redirect to dashboard",
+        "11. Verify JWT tokens are stored securely",
+        "12. Click 'Change Email' button and verify return to homepage",
+        "13. Click 'Forgot Password' link and verify navigation to password reset",
+        "14. Test with inactive user account and verify 'Inactive user' error",
+        "15. Test rate limiting by attempting 10+ rapid login attempts"
+      ],
+      "passes": true
+    },
+    {
+      "category": "Authentication",
+      "description": "Registration Page - When email check determines the email does not exist, redirect to registration page with email pre-filled. The registration form collects: username (3-50 chars, alphanumeric and underscores), email (pre-filled, editable), password (min 8 chars, 1 uppercase, 1 lowercase, 1 number), confirm password, and optional full_name (max 100 chars). Include real-time validation feedback, password strength indicator, and submit button. On successful POST /api/v1/auth/register, show success message and redirect to login page. Handle duplicate username/email errors gracefully.",
+      "steps_to_verify": [
+        "1. Navigate to registration from homepage with non-existing email",
+        "2. Verify email field is pre-filled with entered email",
+        "3. Verify all required fields are present (username, email, password, confirm password)",
+        "4. Enter username less than 3 characters and verify validation error",
+        "5. Enter username with special characters and verify validation error",
+        "6. Enter valid username (3-50 chars, alphanumeric/underscores)",
+        "7. Enter password less than 8 characters and verify error",
+        "8. Enter password without uppercase and verify error",
+        "9. Enter password without number and verify error",
+        "10. Enter valid password and verify password strength indicator shows 'Strong'",
+        "11. Enter non-matching confirm password and verify error",
+        "12. Enter matching confirm password",
+        "13. Submit form and verify successful registration message",
+        "14. Verify redirect to login page",
+        "15. Attempt registration with existing username and verify 'Username already registered' error",
+        "16. Attempt registration with existing email and verify 'Email already registered' error",
+        "17. Test optional full_name field accepts up to 100 characters"
+      ],
+      "passes": true
+    },
+    {
+      "category": "Authentication",
+      "description": "Password Reset Flow - Accessible from login page via 'Forgot Password' link. User enters email address, and if valid, receives password reset email (requires backend: POST /api/v1/auth/forgot-password). The reset page (accessed via emailed link with token) allows setting a new password meeting strength requirements. On successful reset (POST /api/v1/auth/reset-password), redirect to login with success message. Handle expired/invalid tokens gracefully.",
+      "steps_to_verify": [
+        "1. Click 'Forgot Password' link on login page",
+        "2. Verify password reset request form appears",
+        "3. Enter email that does not exist and submit",
+        "4. Verify generic message 'If email exists, reset link sent' (security best practice)",
+        "5. Enter valid existing email and submit",
+        "6. Verify success message and loading state during request",
+        "7. Access reset link from email with valid token",
+        "8. Verify new password and confirm password fields appear",
+        "9. Enter weak password and verify validation errors",
+        "10. Enter strong password with confirmation",
+        "11. Submit and verify success message",
+        "12. Verify redirect to login page",
+        "13. Test login with new password works",
+        "14. Access reset link with expired token and verify error message",
+        "15. Access reset link with already-used token and verify error message"
+      ],
+      "passes": true
+    },
+    {
+      "category": "League Management",
+      "description": "View Constructor/Team Roster - Display constructor's drafted drivers for each race. Show: team name, owner username, season total points, per-race breakdown with drafted drivers and points earned. For current race, show active draft picks or 'Pending' if not yet drafted. Include links to driver profiles.",
+      "steps_to_verify": [
+        "1. Navigate to a constructor's roster page",
+        "2. Verify team name and owner username displayed",
+        "3. Verify season total points prominently shown",
+        "4. Verify per-race breakdown table/list",
+        "5. For completed races, show drafted drivers with points earned",
+        "6. For current race, show drafted drivers or 'Awaiting Draft'",
+        "7. For future races, show 'Upcoming' status",
+        "8. Click driver name to navigate to driver profile",
+        "9. Verify pick order (1st pick, 2nd pick) is indicated",
+        "10. Test viewing own roster vs other constructors' rosters"
+      ],
+      "passes": true
+    },
+    {
+      "category": "Routing",
+      "description": "Protected Routes and Navigation Guards - Implement route protection for authenticated pages (dashboard, leagues, drafts, profile, admin). Unauthenticated users attempting to access protected routes should be redirected to homepage with return URL parameter. After login, redirect to originally requested page. Admin routes should verify admin role before access.",
+      "steps_to_verify": [
+        "1. Without authentication, attempt to access /dashboard",
+        "2. Verify redirect to homepage with ?returnUrl=/dashboard",
+        "3. Login successfully and verify redirect to /dashboard",
+        "4. Without authentication, attempt to access /leagues/1",
+        "5. Verify redirect to homepage with returnUrl preserved",
+        "6. Login and verify redirect to /leagues/1",
+        "7. As regular user, attempt to access /admin",
+        "8. Verify 403 Forbidden page or redirect to dashboard",
+        "9. As admin user, access /admin and verify access granted",
+        "10. Test browser back/forward navigation with auth state changes"
+      ],
+      "passes": true
+    },
+    {
+      "category": "Routing",
+      "description": "Main Application Layout and Navigation - Create responsive navigation layout with header containing: logo/brand, navigation links (Dashboard, Leagues, Races, Profile), notification bell with unread count, and user menu with logout option. Mobile-responsive hamburger menu for smaller screens. Highlight active navigation item. Footer with links to help, terms, and contact.",
+      "steps_to_verify": [
+        "1. Login and verify navigation header appears",
+        "2. Verify logo links to dashboard",
+        "3. Verify Dashboard, Leagues, Races, Profile links are present",
+        "4. Click each navigation link and verify correct page loads",
+        "5. Verify active link is visually highlighted",
+        "6. Verify notification bell shows unread count (if any)",
+        "7. Click notification bell and verify dropdown/modal appears",
+        "8. Verify user menu shows username and logout option",
+        "9. Click logout and verify redirect to homepage",
+        "10. Resize browser to mobile width and verify hamburger menu appears",
+        "11. Click hamburger menu and verify navigation links appear",
+        "12. Verify footer links are present and functional"
+      ],
+      "passes": true
+    },
+    {
+      "category": "Dashboard",
+      "description": "Main User Dashboard - Landing page after login showing personalized overview. If user has no leagues, display prominent 'Join or Create League' call-to-action. If user has leagues, show: league cards with name, team name, current rank, total points; upcoming race with countdown timer; recent activity feed; quick stats (total points, leagues joined, races completed). Dashboard should fetch data from GET /api/v1/users/me, GET /api/v1/teams (user's teams), and upcoming races.",
+      "steps_to_verify": [
+        "1. Login as user with no leagues",
+        "2. Verify 'Join or Create League' prominent CTA is displayed",
+        "3. Verify no league cards are shown",
+        "4. Click 'Join League' and verify navigation to league search",
+        "5. Click 'Create League' and verify navigation to league creation",
+        "6. Login as user with leagues",
+        "7. Verify league cards show league name, team name, rank, points",
+        "8. Click league card and verify navigation to league detail",
+        "9. Verify upcoming race section shows next race with countdown",
+        "10. Verify recent activity feed shows recent events",
+        "11. Verify quick stats display total points, leagues count, races count",
+        "12. Test dashboard loading state with skeleton loaders",
+        "13. Test error state when API fails with retry button"
+      ],
+      "passes": true
+    },
+    {
+      "category": "Dashboard",
+      "description": "No League State - First-time User Experience - New users without any league memberships see a welcoming onboarding experience. Display welcome message with user's name, explanation of Fantasy F1 mechanics, and two prominent options: 'Join Existing League' (search public leagues or enter invite code) and 'Create New League'. Include brief tutorial or tooltips explaining the weekly draft system.",
+      "steps_to_verify": [
+        "1. Register new user account",
+        "2. Login and verify welcome message with user's name",
+        "3. Verify Fantasy F1 mechanics explanation is visible",
+        "4. Verify 'Join Existing League' button is prominent",
+        "5. Verify 'Create New League' button is prominent",
+        "6. Verify brief explanation of weekly drafting system",
+        "7. Click 'Join Existing League' and verify options for search and invite code",
+        "8. Click 'Create New League' and verify league creation form",
+        "9. Test dismissable tutorial/tooltip functionality",
+        "10. After joining a league, verify dashboard changes to show league info"
+      ],
+      "passes": true
+    },
+    {
+      "category": "League Management",
+      "description": "Create League Form - Authenticated users can create new leagues via POST /api/v1/leagues. Form includes: league name (3-100 chars, required), description (optional, max 500 chars), privacy toggle (private by default), max teams (2-100, default 20), draft method selector (sequential for MVP), and scoring system selector (inverted_position for MVP). On success, display generated league code and options to share/copy invite link. User becomes league manager automatically.",
+      "steps_to_verify": [
+        "1. Navigate to Create League from dashboard",
+        "2. Verify all form fields are present",
+        "3. Try submitting with empty name and verify validation error",
+        "4. Enter name less than 3 characters and verify error",
+        "5. Enter valid name (3-100 chars)",
+        "6. Enter description over 500 characters and verify error",
+        "7. Toggle privacy setting and verify visual feedback",
+        "8. Adjust max teams slider/input between 2-100",
+        "9. Submit form and verify loading state",
+        "10. Verify success message with generated league code",
+        "11. Verify copy-to-clipboard button for invite link works",
+        "12. Verify share options (email, social) if implemented",
+        "13. Verify redirect to new league dashboard",
+        "14. Verify user is listed as league manager"
+      ],
+      "passes": true
+    },
+    {
+      "category": "League Management",
+      "description": "Join League - Public Search - Allow users to search and join public leagues via GET /api/v1/leagues?is_private=false&search={query}. Display searchable/filterable list with league name, description, teams count, max teams, creator username. Each league card has 'Join' button. Joining creates a Constructor (team) entry via appropriate endpoint. Show join confirmation with team name input.",
+      "steps_to_verify": [
+        "1. Navigate to Join League from dashboard",
+        "2. Verify search input and public leagues list displayed",
+        "3. Search for non-existent league name and verify 'No results' message",
+        "4. Search for existing public league and verify results appear",
+        "5. Verify league cards show name, description, teams count, creator",
+        "6. Verify leagues at max capacity show 'Full' badge instead of Join button",
+        "7. Click 'Join' on available league",
+        "8. Verify team name input modal/form appears",
+        "9. Enter team name and confirm",
+        "10. Verify success message and redirect to league dashboard",
+        "11. Verify cannot join same league twice",
+        "12. Test pagination if many leagues exist",
+        "13. Test filter by teams count or other criteria"
+      ],
+      "passes": true
+    },
+    {
+      "category": "League Management",
+      "description": "Join League - Private Invite Code - Users can join private leagues using invite codes. Provide input field for league code (6-10 character alphanumeric). On submit, validate code exists (GET /api/v1/leagues?code={code} or dedicated endpoint). If valid and league has capacity, prompt for team name and complete join. Handle invalid codes, expired invites, and full leagues with appropriate error messages.",
+      "steps_to_verify": [
+        "1. Navigate to Join League section",
+        "2. Select 'Join with Invite Code' option",
+        "3. Verify code input field is present",
+        "4. Enter invalid code format and verify client-side validation",
+        "5. Enter non-existent code and verify 'Invalid code' error",
+        "6. Enter valid code for full league and verify 'League is full' error",
+        "7. Enter valid code for available league",
+        "8. Verify league preview shows name, description, current teams",
+        "9. Confirm join and enter team name",
+        "10. Verify successful join and redirect to league",
+        "11. Test case-insensitive code matching if applicable"
+      ],
+      "passes": true
+    },
+    {
+      "category": "League Management",
+      "description": "League Dashboard - Main league view showing: league name, description, manager info, current race/draft status, standings table with all constructors (rank, team name, username, total points), and navigation to draft room, full standings, league settings (if manager). Display draft window status (opens/closes timing). Include invite members button for managers.",
+      "steps_to_verify": [
+        "1. Navigate to joined league from dashboard",
+        "2. Verify league name and description displayed",
+        "3. Verify manager name/badge is shown",
+        "4. Verify current race name and draft status displayed",
+        "5. Verify draft window timing (opens Monday 8AM EST, closes at qualifying)",
+        "6. Verify standings table shows all constructors with rank, name, points",
+        "7. Verify current user's constructor is highlighted",
+        "8. Click constructor row to view their team details",
+        "9. For league manager, verify 'Settings' and 'Invite Members' buttons visible",
+        "10. For non-managers, verify settings button is hidden",
+        "11. Verify 'Enter Draft Room' button when draft is open",
+        "12. Test responsive layout on mobile devices"
+      ],
+      "passes": true
+    },
+    {
+      "category": "League Management",
+      "description": "League Standings and Leaderboard - Detailed standings view via GET /api/v1/leagues/{league_id}/leaderboard. Show overall season standings and per-race breakdowns. Display: rank, rank change indicator (up/down arrows), team name, username, total points, points per race columns. Allow filtering by race. Include export to CSV option for managers.",
+      "steps_to_verify": [
+        "1. Navigate to league standings/leaderboard",
+        "2. Verify overall standings table with all columns",
+        "3. Verify rank change indicators show movement since last race",
+        "4. Verify points are correct and sorted by rank",
+        "5. Click race filter dropdown and select specific race",
+        "6. Verify standings recalculate for selected race only",
+        "7. Verify clear filter option returns to overall view",
+        "8. For manager, verify 'Export CSV' button is present",
+        "9. Click export and verify CSV download with correct data",
+        "10. Test sorting by different columns (name, points)",
+        "11. Verify hover states show additional info if applicable"
+      ],
+      "passes": true
+    },
+    {
+      "category": "League Management",
+      "description": "League Settings (Manager Only) - League managers can update league settings via PATCH /api/v1/leagues/{league_id}. Editable fields: description, max_teams (cannot reduce below current count), is_private toggle, draft settings (if applicable). Show non-editable fields: name, code. Include member management: view members, remove members, assign co-manager role. Add danger zone with 'Delete League' option requiring confirmation.",
+      "steps_to_verify": [
+        "1. As league manager, navigate to league settings",
+        "2. Verify editable fields are present with current values",
+        "3. Verify non-editable fields (name, code) are displayed but disabled",
+        "4. Update description and save",
+        "5. Verify success message and updated value persists",
+        "6. Try setting max_teams below current member count and verify error",
+        "7. Toggle privacy setting and save",
+        "8. View member list with roles",
+        "9. Remove a member and verify confirmation dialog",
+        "10. Assign co-manager role to member",
+        "11. Click 'Delete League' and verify double-confirmation",
+        "12. Cancel delete and verify league remains",
+        "13. As non-manager, verify settings page shows 403 or redirects"
+      ],
+      "passes": true
+    },
+    {
+      "category": "League Management",
+      "description": "League Invitation System - Managers can invite new members via email or by sharing league code. Email invite creates LeagueInvite record with token (POST /api/v1/leagues/{league_id}/invites). Display pending invites list with status, expiration, and revoke option. Invited users see pending invite in notifications and can accept/decline. Support bulk email invite.",
+      "steps_to_verify": [
+        "1. As league manager, navigate to invite members",
+        "2. Verify invite code is displayed with copy button",
+        "3. Enter single email address and send invite",
+        "4. Verify success message and invite appears in pending list",
+        "5. Verify email format validation for invalid addresses",
+        "6. Enter multiple emails (bulk invite) and submit",
+        "7. Verify all invites created successfully",
+        "8. View pending invites list with email, status, expiration",
+        "9. Click revoke on pending invite and verify removal",
+        "10. As invited user, check notification for invite",
+        "11. Accept invite and verify league membership created",
+        "12. Test invite expiration after 7 days"
+      ],
+      "passes": true
+    },
+    {
+      "category": "League Management",
+      "description": "View Constructor/Team Roster - Display constructor's drafted drivers for each race. Show: team name, owner username, season total points, per-race breakdown with drafted drivers and points earned. For current race, show active draft picks or 'Pending' if not yet drafted. Include links to driver profiles.",
+      "steps_to_verify": [
+        "1. Navigate to a constructor's roster page",
+        "2. Verify team name and owner username displayed",
+        "3. Verify season total points prominently shown",
+        "4. Verify per-race breakdown table/list",
+        "5. For completed races, show drafted drivers with points earned",
+        "6. For current race, show drafted drivers or 'Awaiting Draft'",
+        "7. For future races, show 'Upcoming' status",
+        "8. Click driver name to navigate to driver profile",
+        "9. Verify pick order (1st pick, 2nd pick) is indicated",
+        "10. Test viewing own roster vs other constructors' rosters"
+      ],
+      "passes": true
+    },
+    {
+      "category": "Drafting",
+      "description": "Draft Room - Main Drafting Interface - Real-time draft room for selecting drivers during open draft window. Display: draft order with current picker highlighted, available drivers list with stats (name, team, price, average points), already-drafted drivers list, timer showing time until draft closes. Constructors select 2 drivers per race. Implement pick validation (max 2, no duplicates across constructors for same race). Requires WebSocket or polling for real-time updates.",
+      "steps_to_verify": [
+        "1. Navigate to draft room during open draft window",
+        "2. Verify draft order list shows all constructors in order",
+        "3. Verify current picker is clearly highlighted",
+        "4. When it's your turn, verify 'Your Pick' prominent indicator",
+        "5. Verify available drivers list with stats",
+        "6. Verify already-drafted drivers are grayed out or removed from list",
+        "7. Select a driver and verify confirmation dialog",
+        "8. Confirm pick and verify driver added to your roster",
+        "9. Verify pick count updates (1/2, 2/2)",
+        "10. Try picking third driver and verify error",
+        "11. Verify real-time update when other users pick",
+        "12. Verify draft closes timer countdown",
+        "13. Test out-of-order pick attempt shows error",
+        "14. Test draft room during closed draft shows read-only view"
+      ],
+      "passes": true
+    },
+    {
+      "category": "Drafting",
+      "description": "Draft Order Display and Rotation - Show current draft order for the race via GET /api/v1/races/{race_id}/leagues/{league_id}/draft-order. Display rotated order (last drafter from previous race picks first). For first race, show randomized order. Indicate sequential method (1,2,3,4,5 then 1,2,3,4,5 for second picks). Allow managers to view/modify order if allow_draft_change is enabled.",
+      "steps_to_verify": [
+        "1. View draft order before draft opens",
+        "2. Verify order matches rotation rule (last becomes first)",
+        "3. For first race of season, verify random order",
+        "4. Verify sequential pattern displayed (1-2-3-4-5, repeat)",
+        "5. As manager, verify edit order button if allowed",
+        "6. Modify order and save (if manager)",
+        "7. Verify order updates for all league members",
+        "8. Verify 'Manual override' indicator if order was changed",
+        "9. Test draft order display during active draft"
+      ],
+      "passes": true
+    },
+    {
+      "category": "Drafting",
+      "description": "Draft Status and Timing Display - Show draft window status: opens Monday 8AM EST before race, closes at qualifying start or when all picks complete. Display countdown timers for window open/close. Show draft status (UPCOMING, OPEN, CLOSED, COMPLETE). After draft closes, show final picks for all constructors.",
+      "steps_to_verify": [
+        "1. View draft before Monday 8AM EST",
+        "2. Verify 'UPCOMING' status with countdown to open",
+        "3. View after draft opens and verify 'OPEN' status",
+        "4. Verify countdown to qualifying start time",
+        "5. Complete all picks and verify 'COMPLETE' status",
+        "6. View after qualifying starts and verify 'CLOSED' status",
+        "7. Verify final picks display for all constructors after close",
+        "8. Test timezone conversion for user's local time",
+        "9. Verify status updates in real-time or on refresh"
+      ],
+      "passes": true
+    },
+    {
+      "category": "Drafting",
+      "description": "Driver Selection Interface - When selecting a driver during draft, show detailed driver card: name, team, number, country, price, total points, average points, recent race results. Allow sorting/filtering available drivers by team, points, price. Include search by driver name. Confirm selection with pick number indication.",
+      "steps_to_verify": [
+        "1. Open draft room during your turn",
+        "2. Verify driver list displays all active drivers",
+        "3. Verify driver cards show required information",
+        "4. Click driver to expand detailed view",
+        "5. Sort drivers by total points and verify order",
+        "6. Sort by team and verify grouping",
+        "7. Sort by price and verify order",
+        "8. Search for driver by name",
+        "9. Filter by team and verify filtered results",
+        "10. Select driver and verify pick confirmation",
+        "11. Confirm pick shows 'Pick #1' or 'Pick #2'",
+        "12. Verify driver removed from available list after pick"
+      ],
+      "passes": true
+    },
+    {
+      "category": "Drafting",
+      "description": "Draft History and Recap - View complete draft history for any race in the league. Show all picks in order: pick number, constructor name, driver selected, timestamp. Include summary stats: most picked driver, average pick value, quickest/slowest picks. Accessible after draft closes.",
+      "steps_to_verify": [
+        "1. Navigate to completed race draft history",
+        "2. Verify all picks displayed in chronological order",
+        "3. Verify pick details: number, constructor, driver, time",
+        "4. Verify summary statistics section",
+        "5. Verify links to constructor and driver profiles",
+        "6. Test draft history for multiple races",
+        "7. Verify 'No draft history' for races not yet drafted"
+      ],
+      "passes": true
+    },
+    {
+      "category": "Race Events",
+      "description": "Race Calendar View - Display full season race calendar via GET /api/v1/races?year={year}&sort=race_date&order=asc. Show: race name, circuit, country, date/time, status (upcoming/completed). Highlight current/next race. Provide month/list view toggle. Allow filtering by status. Link each race to detailed race page.",
+      "steps_to_verify": [
+        "1. Navigate to race calendar",
+        "2. Verify all races for season displayed",
+        "3. Verify race cards show name, circuit, country, date, status",
+        "4. Verify upcoming races show 'Upcoming' badge",
+        "5. Verify completed races show 'Completed' badge",
+        "6. Verify current/next race is highlighted",
+        "7. Toggle to month view and verify calendar layout",
+        "8. Toggle to list view and verify list layout",
+        "9. Filter by 'Completed' and verify only completed shown",
+        "10. Filter by 'Upcoming' and verify only upcoming shown",
+        "11. Click race to navigate to race detail page",
+        "12. Verify dates shown in user's timezone"
+      ],
+      "passes": true
+    },
+    {
+      "category": "Race Events",
+      "description": "Race Detail Page - Show comprehensive race information via GET /api/v1/races/{race_id}. Display: race name, circuit info, country, city, round number, race date/time, qualifying date/time, laps, status. For completed races, show link to results. Include draft status/link for user's leagues participating in this race.",
+      "steps_to_verify": [
+        "1. Navigate to race detail page for upcoming race",
+        "2. Verify all race info is displayed correctly",
+        "3. Verify countdown to race start",
+        "4. Verify qualifying date/time displayed",
+        "5. Verify laps count displayed",
+        "6. Verify draft status for user's leagues",
+        "7. Click 'Enter Draft' for open draft",
+        "8. Navigate to completed race detail page",
+        "9. Verify 'View Results' link is present",
+        "10. Verify status shows 'Completed'",
+        "11. Test race with cancelled status shows appropriate message"
+      ],
+      "passes": true
+    },
+    {
+      "category": "Race Events",
+      "description": "Race Results View - Display official race results via GET /api/v1/races/{race_id}/results. Show complete grid: position, driver name/number, team, grid position, laps completed, points earned, fastest lap indicator, time delta, DNF status/reason. Sortable columns. Link drivers to driver profiles. Show empty state if results not yet available.",
+      "steps_to_verify": [
+        "1. Navigate to race results for completed race",
+        "2. Verify results table shows all drivers",
+        "3. Verify columns: position, driver, team, grid, laps, points",
+        "4. Verify fastest lap driver has indicator",
+        "5. Verify DNF drivers show status and reason",
+        "6. Verify time delta shown for non-winners",
+        "7. Sort by grid position and verify order",
+        "8. Click driver name to navigate to driver profile",
+        "9. Navigate to results for race without results",
+        "10. Verify 'Results pending' message displayed"
+      ],
+      "passes": true
+    },
+    {
+      "category": "Scoring",
+      "description": "Fantasy Scoring View - Show how fantasy points are calculated for user's constructor. Display per-race breakdown: drafted drivers, their finishing positions, points earned per driver (using inverted scoring: 10th=10pts, 9th/11th=9pts, etc.). Show total points per race and cumulative total. Compare with other constructors in league.",
+      "steps_to_verify": [
+        "1. Navigate to scoring view for user's constructor",
+        "2. Verify per-race breakdown displayed",
+        "3. Verify drafted drivers shown for each race",
+        "4. Verify finishing positions shown",
+        "5. Verify inverted scoring correctly applied",
+        "6. Verify total points per race calculated",
+        "7. Verify cumulative season total",
+        "8. Verify comparison with other constructors",
+        "9. Test scoring explanation tooltip/modal",
+        "10. Verify scoring for races with DNF drivers (0 points)"
+      ],
+      "passes": true
+    },
+    {
+      "category": "Scoring",
+      "description": "Scoring Rules Explanation - Provide clear explanation of scoring system. For MVP, display inverted position scoring: 10th place = 10 points, 9th and 11th = 9 points, continuing pattern, 1st/19th/20th = 1 point. DNF = 0 points. Explain captain bonus if applicable (MVP may not include). Accessible from scoring views and help section.",
+      "steps_to_verify": [
+        "1. Navigate to scoring rules page/modal",
+        "2. Verify inverted scoring table displayed",
+        "3. Verify all positions (1-20) with point values shown",
+        "4. Verify DNF explanation (0 points)",
+        "5. Verify explanation of weekly drafting impact",
+        "6. Verify link from scoring view opens rules",
+        "7. Verify rules accessible from help/FAQ section"
+      ],
+      "passes": true
+    },
+    {
+      "category": "Drivers",
+      "description": "Driver List Page - Display all F1 drivers via GET /api/v1/drivers. Show: driver name, team, number, country, status, total points, average points. Support filtering by status (active/retired/reserve), team. Support sorting by name, points, team. Include search functionality. Link each driver to detailed profile.",
+      "steps_to_verify": [
+        "1. Navigate to drivers list page",
+        "2. Verify all drivers displayed",
+        "3. Verify driver cards show required fields",
+        "4. Sort by total points and verify order",
+        "5. Sort by name alphabetically",
+        "6. Filter by 'Active' status",
+        "7. Filter by specific team",
+        "8. Search for driver by name",
+        "9. Clear filters and verify full list",
+        "10. Click driver to navigate to profile",
+        "11. Test pagination if many drivers"
+      ],
+      "passes": true
+    },
+    {
+      "category": "Drivers",
+      "description": "Driver Profile Page - Display detailed driver information via GET /api/v1/drivers/{driver_id}. Show: full name, number, team, country, date of birth, price, total/average points, status, championships, wins, podiums. Include recent race results table. Show draft frequency stats (how often selected in fantasy leagues).",
+      "steps_to_verify": [
+        "1. Navigate to driver profile page",
+        "2. Verify all basic info displayed",
+        "3. Verify career stats (championships, wins, podiums)",
+        "4. Verify fantasy stats (price, total points, average)",
+        "5. Verify recent race results table",
+        "6. Verify status badge (active/reserve/retired)",
+        "7. Verify draft frequency if data available",
+        "8. Test profile for different driver statuses",
+        "9. Verify back navigation to driver list"
+      ],
+      "passes": true
+    },
+    {
+      "category": "Notifications",
+      "description": "Notification Center - Display user notifications via GET /api/v1/notifications. Show: notification type icon, title, message preview, timestamp, read/unread status. Support marking individual as read (PATCH /api/v1/notifications/{id}/read) and mark all as read (POST /api/v1/notifications/read-all). Include notification link navigation. Paginate or infinite scroll for many notifications.",
+      "steps_to_verify": [
+        "1. Click notification bell in header",
+        "2. Verify notification dropdown/modal opens",
+        "3. Verify unread notifications highlighted",
+        "4. Verify notification details: type, title, message, time",
+        "5. Click notification to navigate to related page",
+        "6. Verify notification marked as read after click",
+        "7. Click 'Mark all as read' button",
+        "8. Verify all notifications show read status",
+        "9. Verify unread count in header updates",
+        "10. Verify empty state when no notifications",
+        "11. Test notification types: league_invite, race_finished, score_updated",
+        "12. Test pagination with many notifications"
+      ],
+      "passes": true
+    },
+    {
+      "category": "Notifications",
+      "description": "Real-time Notification Updates - Implement real-time notification delivery using WebSocket or polling. New notifications should appear without page refresh. Show toast/snackbar for new important notifications. Update unread count in header immediately. Handle connection loss gracefully with reconnection.",
+      "steps_to_verify": [
+        "1. Open application in two browser tabs",
+        "2. Trigger notification in one tab (e.g., invite user)",
+        "3. Verify notification appears in other tab without refresh",
+        "4. Verify toast/snackbar appears for new notification",
+        "5. Verify unread count updates in real-time",
+        "6. Simulate network disconnection",
+        "7. Verify reconnection attempt and success message",
+        "8. Verify missed notifications retrieved on reconnect"
+      ],
+      "passes": true
+    },
+    {
+      "category": "User Profile",
+      "description": "User Profile View - Display current user profile via GET /api/v1/auth/me. Show: username, email, full name, bio, avatar, account created date, last login, teams count, leagues created. Include privacy settings display. Provide 'Edit Profile' button for authenticated user's own profile.",
+      "steps_to_verify": [
+        "1. Navigate to profile page",
+        "2. Verify username, email, full name displayed",
+        "3. Verify avatar image or placeholder shown",
+        "4. Verify bio text displayed",
+        "5. Verify account dates (created, last login)",
+        "6. Verify stats (teams count, leagues created)",
+        "7. Verify 'Edit Profile' button visible",
+        "8. View another user's public profile",
+        "9. Verify limited info for non-public profiles",
+        "10. Verify private profiles show appropriate message"
+      ],
+      "passes": true
+    },
+    {
+      "category": "User Profile",
+      "description": "Edit Profile Form - Allow users to update profile via PATCH /api/v1/users/me. Editable fields: full_name, bio (text area), avatar upload. Cannot change username. Email change requires verification (out of scope for MVP, show as disabled with note). Include privacy toggles: is_publicly_discoverable, is_searchable_by_email, is_searchable_by_username.",
+      "steps_to_verify": [
+        "1. Click 'Edit Profile' button",
+        "2. Verify edit form appears with current values",
+        "3. Verify username field is disabled/read-only",
+        "4. Verify email field shows note about change process",
+        "5. Update full_name and save",
+        "6. Verify success message and value updates",
+        "7. Update bio text and save",
+        "8. Upload new avatar image",
+        "9. Verify image preview before save",
+        "10. Save and verify avatar updates",
+        "11. Toggle privacy settings and save",
+        "12. Verify privacy changes reflected in profile visibility",
+        "13. Test validation for bio length limits"
+      ],
+      "passes": true
+    },
+    {
+      "category": "User Profile",
+      "description": "Change Password Form - Allow authenticated users to change password. Require current password verification, new password with strength requirements, and confirmation. Call appropriate endpoint (POST /api/v1/auth/change-password or similar). Show success message and optionally log out other sessions.",
+      "steps_to_verify": [
+        "1. Navigate to change password section in profile/settings",
+        "2. Verify current password field required",
+        "3. Enter incorrect current password and submit",
+        "4. Verify 'Incorrect password' error",
+        "5. Enter correct current password",
+        "6. Enter weak new password and verify validation errors",
+        "7. Enter strong new password",
+        "8. Enter non-matching confirmation and verify error",
+        "9. Enter matching confirmation and submit",
+        "10. Verify success message",
+        "11. Logout and login with new password",
+        "12. Verify old password no longer works"
+      ],
+      "passes": true
+    },
+    {
+      "category": "Admin Dashboard",
+      "description": "Admin Dashboard Overview - Admin-only dashboard showing platform statistics. Display: total users count, active users (last 7 days), total leagues count, active leagues, total races completed, pending races. Show activity graphs (user registrations over time, league creation trend). Requires admin role (RBAC check). Navigate via admin menu item visible only to admins.",
+      "steps_to_verify": [
+        "1. Login as admin user",
+        "2. Verify 'Admin' navigation item visible in header",
+        "3. Click Admin and navigate to admin dashboard",
+        "4. Verify total users count displayed",
+        "5. Verify active users (last 7 days) count",
+        "6. Verify total leagues count",
+        "7. Verify active leagues count",
+        "8. Verify races statistics",
+        "9. Verify activity graphs render correctly",
+        "10. Hover on graph points for detailed data",
+        "11. Login as regular user and verify Admin link hidden",
+        "12. Try direct URL access as regular user and verify 403"
+      ],
+      "passes": true
+    },
+    {
+      "category": "Admin Dashboard",
+      "description": "Admin User Management - List all users with search, filter, pagination. Display: username, email, role, status (active/inactive), created date, last login, teams count. Actions: view details, deactivate/activate user, change role (user/admin). Include bulk actions for selected users. Confirm destructive actions.",
+      "steps_to_verify": [
+        "1. Navigate to admin user management",
+        "2. Verify users list with pagination",
+        "3. Search for user by username",
+        "4. Search for user by email",
+        "5. Filter by role (user/admin)",
+        "6. Filter by status (active/inactive)",
+        "7. Click user row to view details",
+        "8. Click 'Deactivate' for active user",
+        "9. Verify confirmation dialog appears",
+        "10. Confirm and verify user status changes",
+        "11. Click 'Activate' for inactive user",
+        "12. Change user role from user to admin",
+        "13. Verify confirmation for role change",
+        "14. Select multiple users for bulk action",
+        "15. Apply bulk deactivation and confirm"
+      ],
+      "passes": true
+    },
+    {
+      "category": "Admin Dashboard",
+      "description": "Admin League Management - List all leagues with search, filter, pagination. Display: name, code, manager, privacy, status, teams count, created date. Actions: view details, change status, delete league. Include moderation capabilities for reported content. Filter by status (drafting/active/completed/cancelled).",
+      "steps_to_verify": [
+        "1. Navigate to admin league management",
+        "2. Verify leagues list with pagination",
+        "3. Search for league by name",
+        "4. Search for league by code",
+        "5. Filter by privacy (public/private)",
+        "6. Filter by status",
+        "7. Click league to view details",
+        "8. Change league status (e.g., cancel league)",
+        "9. Verify confirmation dialog",
+        "10. Delete league with confirmation",
+        "11. Verify league removed from system",
+        "12. View reported leagues if moderation exists"
+      ],
+      "passes": true
+    },
+    {
+      "category": "Admin Dashboard",
+      "description": "Admin Error Logs and Monitoring - Display system error logs and failed operations. Show: timestamp, error type, message, affected user/endpoint, stack trace (expandable). Filter by date range, error type, severity. Include log export functionality. Display system health status (API, database, Redis, Celery).",
+      "steps_to_verify": [
+        "1. Navigate to admin error logs section",
+        "2. Verify recent errors displayed in table",
+        "3. Verify error details: time, type, message, endpoint",
+        "4. Expand error row to see stack trace",
+        "5. Filter by date range (last 24h, 7d, 30d)",
+        "6. Filter by error type (validation, auth, server)",
+        "7. Filter by severity (error, warning, critical)",
+        "8. Export logs as CSV/JSON",
+        "9. View system health dashboard",
+        "10. Verify status indicators for API, DB, Redis, Celery",
+        "11. Test error log refresh/real-time updates"
+      ],
+      "passes": true
+    },
+    {
+      "category": "Admin Dashboard",
+      "description": "Admin Race and Data Management - Admin tools for managing race data. Ability to manually trigger race data sync from Jolpica API. View sync history and status. Edit race details if needed (dates, status). Manage driver data (add reserve drivers, update prices). View Celery task status for scheduled jobs.",
+      "steps_to_verify": [
+        "1. Navigate to admin race management",
+        "2. View race list with sync status",
+        "3. Click 'Sync Race Data' for specific race",
+        "4. Verify sync progress indicator",
+        "5. Verify sync completion status",
+        "6. View sync history with timestamps and results",
+        "7. Edit race date/time if needed",
+        "8. Change race status (e.g., mark cancelled)",
+        "9. Navigate to driver management",
+        "10. Edit driver price",
+        "11. Add new driver (reserve call-up scenario)",
+        "12. View Celery task queue status",
+        "13. View scheduled tasks and next run times"
+      ],
+      "passes": true
+    },
+    {
+      "category": "Admin Dashboard",
+      "description": "Admin Notifications and Broadcast - Admin ability to send system-wide notifications. Create notification with type, title, message, optional link. Select recipients: all users, specific league, specific users. View sent notification history. Schedule notifications for future delivery.",
+      "steps_to_verify": [
+        "1. Navigate to admin notifications section",
+        "2. Click 'Create Notification' button",
+        "3. Enter notification title and message",
+        "4. Select notification type (system announcement)",
+        "5. Select recipient scope (all users)",
+        "6. Preview notification before sending",
+        "7. Send notification and verify success",
+        "8. View sent notification in history",
+        "9. Send notification to specific league members",
+        "10. Send notification to specific users by search",
+        "11. Schedule notification for future date/time",
+        "12. Verify scheduled notification in pending queue"
+      ],
+      "passes": true
+    },
+    {
+      "category": "Error Handling",
+      "description": "Global Error Handling and Error Pages - Implement consistent error handling across application. Display user-friendly error pages for 404 (Not Found), 403 (Forbidden), 500 (Server Error). Include error boundary for React/Vue to catch component errors. Show retry button for recoverable errors. Log errors to monitoring service.",
+      "steps_to_verify": [
+        "1. Navigate to non-existent URL and verify 404 page",
+        "2. Verify 404 page has link to home/dashboard",
+        "3. Access forbidden resource and verify 403 page",
+        "4. Simulate server error and verify 500 page",
+        "5. Verify 500 page has 'Try Again' button",
+        "6. Click 'Try Again' and verify retry attempt",
+        "7. Simulate component crash and verify error boundary",
+        "8. Verify error boundary shows fallback UI",
+        "9. Verify errors logged to console/monitoring",
+        "10. Test error pages on mobile layout"
+      ],
+      "passes": true
+    },
+    {
+      "category": "Error Handling",
+      "description": "Form Validation and Error Display - Implement consistent form validation UX across all forms. Show inline validation errors below fields. Highlight invalid fields with red border. Display summary of errors at form top for complex forms. Support both client-side and server-side validation error display.",
+      "steps_to_verify": [
+        "1. Submit empty required form field",
+        "2. Verify inline error message appears below field",
+        "3. Verify field highlighted with error styling",
+        "4. Fix error and verify styling clears",
+        "5. Submit form with server-side validation error",
+        "6. Verify server error displayed appropriately",
+        "7. Submit complex form with multiple errors",
+        "8. Verify error summary at form top",
+        "9. Click error in summary to focus field",
+        "10. Verify real-time validation as user types (where appropriate)"
+      ],
+      "passes": true
+    },
+    {
+      "category": "Loading States",
+      "description": "Loading States and Skeleton Screens - Implement consistent loading indicators. Show skeleton screens for content loading (preserve layout shape). Show spinner/progress for actions (button presses, form submits). Disable interactive elements during loading. Show loading overlay for page transitions.",
+      "steps_to_verify": [
+        "1. Navigate to dashboard and observe skeleton loading",
+        "2. Verify skeleton shapes match expected content layout",
+        "3. Submit form and verify button shows loading spinner",
+        "4. Verify button disabled during loading",
+        "5. Observe page transition loading indicator",
+        "6. Verify loading state resolves with content or error",
+        "7. Test slow network and verify extended loading state",
+        "8. Test loading timeout and error recovery"
+      ],
+      "passes": true
+    },
+    {
+      "category": "Accessibility",
+      "description": "Accessibility Standards Compliance - Ensure WCAG 2.1 AA compliance. All interactive elements keyboard accessible. Proper focus management for modals and dialogs. ARIA labels for icons and non-text elements. Color contrast meets 4.5:1 ratio. Screen reader tested. Skip navigation link for keyboard users.",
+      "steps_to_verify": [
+        "1. Navigate entire application using only keyboard",
+        "2. Verify all buttons, links, inputs are focusable",
+        "3. Open modal and verify focus trapped inside",
+        "4. Close modal and verify focus returns to trigger",
+        "5. Test with screen reader and verify announcements",
+        "6. Verify ARIA labels on icon-only buttons",
+        "7. Verify color contrast with accessibility tool",
+        "8. Verify skip-to-content link at page start",
+        "9. Verify form labels associated with inputs",
+        "10. Verify error messages announced by screen reader"
+      ],
+      "passes": true
+    },
+    {
+      "category": "Accessibility",
+      "description": "Responsive Design and Mobile Support - Application fully functional on mobile devices. Responsive layouts for all screens. Touch-friendly tap targets (min 44x44px). Mobile navigation via hamburger menu. Support for landscape and portrait orientations. Test on iOS Safari and Android Chrome.",
+      "steps_to_verify": [
+        "1. Open application on mobile device/emulator",
+        "2. Verify layout adapts to mobile screen width",
+        "3. Verify navigation collapses to hamburger menu",
+        "4. Tap hamburger and verify menu opens",
+        "5. Navigate through app on mobile",
+        "6. Verify tap targets are adequate size",
+        "7. Test in landscape orientation",
+        "8. Test in portrait orientation",
+        "9. Test on iOS Safari browser",
+        "10. Test on Android Chrome browser",
+        "11. Verify forms usable on mobile keyboard"
+      ],
+      "passes": true
+    },
+    {
+      "category": "Performance",
+      "description": "Performance Optimization - Application loads fast and responds quickly. Initial page load under 3 seconds on 3G. Implement code splitting for routes. Lazy load images and non-critical resources. Cache API responses where appropriate. Bundle size optimized (under 500KB initial).",
+      "steps_to_verify": [
+        "1. Measure initial page load time on throttled network",
+        "2. Verify load time under 3 seconds on 3G",
+        "3. Check network tab for code splitting (multiple JS chunks)",
+        "4. Verify images lazy load below fold",
+        "5. Navigate between routes and check for cached data",
+        "6. Measure bundle size in production build",
+        "7. Verify no unnecessary re-renders with React DevTools",
+        "8. Test performance on low-end mobile device"
+      ],
+      "passes": true
+    },
+    {
+      "category": "Backend Integration",
+      "description": "New Backend Endpoint - Email Existence Check - The frontend email flow requires a new backend endpoint to check if an email exists without revealing passwords or tokens. Endpoint: GET /api/v1/auth/check-email?email={email}. Response: { exists: boolean }. Rate limited to prevent enumeration attacks. This endpoint must be created in the backend to support the homepage email flow.",
+      "steps_to_verify": [
+        "1. Verify endpoint exists at GET /api/v1/auth/check-email",
+        "2. Send valid email that exists and verify { exists: true }",
+        "3. Send valid email that doesn't exist and verify { exists: false }",
+        "4. Send invalid email format and verify 400 error",
+        "5. Test rate limiting by sending 100+ requests",
+        "6. Verify rate limit error after threshold",
+        "7. Verify response doesn't leak additional user info"
+      ],
+      "passes": true
+    },
+    {
+      "category": "Backend Integration",
+      "description": "New Backend Endpoint - Admin Statistics - Admin dashboard requires aggregated statistics endpoint. Endpoint: GET /api/v1/admin/stats. Response includes: total_users, active_users_7d, total_leagues, active_leagues, completed_races, upcoming_races, registrations_by_day (last 30 days), leagues_by_day (last 30 days). Requires admin role.",
+      "steps_to_verify": [
+        "1. Verify endpoint exists at GET /api/v1/admin/stats",
+        "2. Call as admin user and verify all stats returned",
+        "3. Verify registrations_by_day array has 30 day entries",
+        "4. Verify leagues_by_day array has 30 day entries",
+        "5. Call as regular user and verify 403 Forbidden",
+        "6. Call without authentication and verify 401",
+        "7. Verify data accuracy matches actual database counts"
+      ],
+      "passes": true
+    },
+    {
+      "category": "Backend Integration",
+      "description": "New Backend Endpoint - Admin Error Logs - Admin error monitoring requires logs endpoint. Endpoint: GET /api/v1/admin/logs. Query params: start_date, end_date, type, severity, limit, offset. Response: paginated log entries with id, timestamp, type, message, endpoint, user_id, stack_trace. Requires admin role.",
+      "steps_to_verify": [
+        "1. Verify endpoint exists at GET /api/v1/admin/logs",
+        "2. Call as admin and verify log entries returned",
+        "3. Filter by date range and verify filtered results",
+        "4. Filter by error type and verify results",
+        "5. Verify pagination with limit/offset",
+        "6. Call as regular user and verify 403",
+        "7. Verify log entries contain required fields"
+      ],
+      "passes": true
+    },
+    {
+      "category": "Backend Integration",
+      "description": "New Backend Endpoint - System Health Check - System monitoring requires health endpoint. Endpoint: GET /api/v1/admin/health. Response: {api: 'healthy', database: 'healthy', redis: 'healthy', celery: 'healthy'} or degraded states. Includes response times and connection status. Admin access only.",
+      "steps_to_verify": [
+        "1. Verify endpoint exists at GET /api/v1/admin/health",
+        "2. Call as admin and verify health status for all services",
+        "3. Verify response includes api, database, redis, celery status",
+        "4. Verify response times included",
+        "5. Simulate database connection issue and verify degraded status",
+        "6. Call as regular user and verify 403"
+      ],
+      "passes": true
+    },
+    {
+      "category": "Backend Integration",
+      "description": "New Backend Endpoint - Admin Broadcast Notification - Admin needs to send system notifications. Endpoint: POST /api/v1/admin/notifications/broadcast. Request body: {type, title, message, link, recipients: 'all' | league_id | [user_ids]}. Creates notification for specified recipients. Requires admin role.",
+      "steps_to_verify": [
+        "1. Verify endpoint exists at POST /api/v1/admin/notifications/broadcast",
+        "2. Send notification to all users as admin",
+        "3. Verify notification created for all users",
+        "4. Send notification to specific league",
+        "5. Verify only league members receive notification",
+        "6. Send notification to specific users by ID",
+        "7. Verify only specified users receive notification",
+        "8. Call as regular user and verify 403"
+      ],
+      "passes": true
+    },
+    {
+      "category": "Testing",
+      "description": "Frontend Unit Tests - Implement unit tests for utility functions, hooks, and business logic. Test form validation, date formatting, points calculation, API response handling. Aim for 80% code coverage on logic functions. Use Jest or Vitest for testing framework.",
+      "steps_to_verify": [
+        "1. Verify test framework configured (Jest/Vitest)",
+        "2. Run unit test suite",
+        "3. Verify all utility function tests pass",
+        "4. Verify hook tests pass",
+        "5. Verify form validation logic tests",
+        "6. Check code coverage report",
+        "7. Verify coverage exceeds 80% for logic",
+        "8. Verify tests run in CI pipeline"
+      ],
+      "passes": false
+    },
+    {
+      "category": "Testing",
+      "description": "Frontend Component Tests - Implement component tests for key UI components. Test rendering, user interactions, state changes. Use React Testing Library or Vue Test Utils. Test form components, navigation, modals, and complex UI flows.",
+      "steps_to_verify": [
+        "1. Verify component testing library configured",
+        "2. Run component test suite",
+        "3. Verify login form component tests pass",
+        "4. Verify navigation component tests pass",
+        "5. Verify modal/dialog component tests pass",
+        "6. Verify form submission flow tested",
+        "7. Verify error state handling tested",
+        "8. Verify tests run in CI pipeline"
+      ],
+      "passes": false
+    },
+    {
+      "category": "Testing",
+      "description": "End-to-End Tests - Implement E2E tests for critical user flows using Playwright or Cypress. Test: registration flow, login flow, create league, join league, draft flow, view results. Run against staging environment. Include visual regression tests for key pages.",
+      "steps_to_verify": [
+        "1. Verify E2E framework configured (Playwright/Cypress)",
+        "2. Run E2E test suite against staging",
+        "3. Verify registration flow test passes",
+        "4. Verify login flow test passes",
+        "5. Verify create league flow test passes",
+        "6. Verify join league flow test passes",
+        "7. Verify draft flow test passes",
+        "8. Verify visual regression tests configured",
+        "9. Verify E2E tests run in CI pipeline"
+      ],
+      "passes": false
+    },
+    {
+      "category": "Documentation",
+      "description": "Developer Documentation - Create comprehensive frontend documentation. Include: project setup instructions, architecture overview, component library documentation, state management guide, API integration patterns, testing guide, deployment instructions. Keep documentation updated with code changes.",
+      "steps_to_verify": [
+        "1. Verify README with setup instructions exists",
+        "2. Follow setup instructions and verify working project",
+        "3. Verify architecture documentation exists",
+        "4. Verify component library documentation (Storybook or similar)",
+        "5. Verify state management guide exists",
+        "6. Verify API integration documentation exists",
+        "7. Verify testing guide exists",
+        "8. Verify deployment documentation exists"
+      ],
+      "passes": false
+    }
+  ]
+}
