@@ -74,3 +74,5 @@ fantasyf1_dev_*
 # local doc
 documentation/
 scripts/ralph/
+.cline/
+tasks/
