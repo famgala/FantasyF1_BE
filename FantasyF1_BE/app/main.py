@@ -3,11 +3,13 @@
 from collections.abc import AsyncGenerator
 from contextlib import asynccontextmanager
 
-from fastapi import FastAPI
+from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import JSONResponse
 from fastapi.routing import APIRouter
 
 from app.api.v1.endpoints import (
+    admin,
     auth,
     constructors,
     drafts,
@@ -22,6 +24,15 @@ from app.api.v1.endpoints import (
 )
 from app.cache.client import close_redis, init_redis
 from app.core.config import settings
+from app.core.exceptions import (
+    BadRequestError,
+    ConflictError,
+    FantasyF1Error,
+    ForbiddenError,
+    NotFoundError,
+    UnauthorizedError,
+    ValidationError,
+)
 from app.core.logging import setup_logging
 
 # Setup logging
@@ -59,6 +70,30 @@ app.add_middleware(
     allow_headers=settings.CORS_ALLOW_HEADERS,
 )
 
+
+# Exception handlers
+@app.exception_handler(FantasyF1Error)
+async def fantasy_f1_exception_handler(_: Request, exc: FantasyF1Error) -> JSONResponse:
+    """Handle custom Fantasy F1 exceptions"""
+    status_code = 500
+    if isinstance(exc, NotFoundError):
+        status_code = 404
+    elif isinstance(exc, BadRequestError):
+        status_code = 400
+    elif isinstance(exc, UnauthorizedError):
+        status_code = 401
+    elif isinstance(exc, ForbiddenError):
+        status_code = 403
+    elif isinstance(exc, ConflictError):
+        status_code = 409
+    elif isinstance(exc, ValidationError):
+        status_code = 422
+    return JSONResponse(
+        status_code=status_code,
+        content={"detail": exc.message, "details": exc.details},
+    )
+
+
 # Create API v1 router
 api_v1_router = APIRouter(prefix=settings.API_V1_PREFIX)
 api_v1_router.include_router(auth.router, prefix="/auth", tags=["Authentication"])
@@ -72,6 +107,7 @@ api_v1_router.include_router(drafts.router, prefix="/leagues", tags=["Drafts"])
 api_v1_router.include_router(invitations.router, prefix="/invitations", tags=["Invitations"])
 api_v1_router.include_router(notifications.router, prefix="/notifications", tags=["Notifications"])
 api_v1_router.include_router(constructors.router, prefix="/constructors", tags=["Constructors"])
+api_v1_router.include_router(admin.router, prefix="/admin", tags=["Admin"])
 
 # Include API v1 router
 app.include_router(api_v1_router)

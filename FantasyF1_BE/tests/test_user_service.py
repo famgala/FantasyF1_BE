@@ -10,11 +10,14 @@ from app.schemas.user import UserCreate, UserUpdate
 from app.services.user_service import UserService
 
 
-@pytest.mark.asyncio()
+@pytest.mark.asyncio
 async def test_create_user_success(db_session: AsyncSession):
     """Test successful user creation."""
     user_data = UserCreate(
-        username="testuser", email="test@example.com", full_name="Test User", password="TestPass123"
+        username="testuser",
+        email="test@example.com",
+        full_name="Test User",
+        password="TestPass123",
     )
 
     user = await UserService.create_user(db_session, user_data)
@@ -27,7 +30,7 @@ async def test_create_user_success(db_session: AsyncSession):
     assert user.hashed_password != "TestPass123"  # Password should be hashed
 
 
-@pytest.mark.asyncio()
+@pytest.mark.asyncio
 async def test_create_user_duplicate_username(db_session: AsyncSession):
     """Test creating user with duplicate username raises ConflictError."""
     user_data = UserCreate(username="testuser", email="test@example.com", password="TestPass123")
@@ -41,7 +44,7 @@ async def test_create_user_duplicate_username(db_session: AsyncSession):
         await UserService.create_user(db_session, user_data2)
 
 
-@pytest.mark.asyncio()
+@pytest.mark.asyncio
 async def test_create_user_duplicate_email(db_session: AsyncSession):
     """Test creating user with duplicate email raises ConflictError."""
     user_data = UserCreate(username="testuser", email="test@example.com", password="TestPass123")
@@ -55,7 +58,7 @@ async def test_create_user_duplicate_email(db_session: AsyncSession):
         await UserService.create_user(db_session, user_data2)
 
 
-@pytest.mark.asyncio()
+@pytest.mark.asyncio
 async def test_create_user_weak_password(db_session: AsyncSession):
     """Test creating user with weak password raises ValidationError."""
     from pydantic import ValidationError as PydanticValidationError
@@ -63,7 +66,8 @@ async def test_create_user_weak_password(db_session: AsyncSession):
     # Test password too short
     with pytest.raises(PydanticValidationError):
         await UserService.create_user(
-            db_session, UserCreate(username="testuser", email="test@example.com", password="short")
+            db_session,
+            UserCreate(username="testuser", email="test@example.com", password="short"),
         )
 
     # Test password without uppercase
@@ -88,7 +92,7 @@ async def test_create_user_weak_password(db_session: AsyncSession):
         )
 
 
-@pytest.mark.asyncio()
+@pytest.mark.asyncio
 async def test_get_user_by_id_success(db_session: AsyncSession):
     """Test getting user by ID."""
     user_data = UserCreate(username="testuser", email="test@example.com", password="TestPass123")
@@ -100,14 +104,14 @@ async def test_get_user_by_id_success(db_session: AsyncSession):
     assert retrieved_user.username == "testuser"
 
 
-@pytest.mark.asyncio()
+@pytest.mark.asyncio
 async def test_get_user_by_id_not_found(db_session: AsyncSession):
     """Test getting non-existent user raises NotFoundError."""
     with pytest.raises(NotFoundError, match="User not found"):
         await UserService.get_user_by_id(db_session, 99999)
 
 
-@pytest.mark.asyncio()
+@pytest.mark.asyncio
 async def test_get_user_by_username_success(db_session: AsyncSession):
     """Test getting user by username."""
     user_data = UserCreate(username="testuser", email="test@example.com", password="TestPass123")
@@ -119,14 +123,14 @@ async def test_get_user_by_username_success(db_session: AsyncSession):
     assert retrieved_user.username == "testuser"
 
 
-@pytest.mark.asyncio()
+@pytest.mark.asyncio
 async def test_get_user_by_username_not_found(db_session: AsyncSession):
     """Test getting non-existent user by username returns None."""
     user = await UserService.get_user_by_username(db_session, "nonexistent")
     assert user is None
 
 
-@pytest.mark.asyncio()
+@pytest.mark.asyncio
 async def test_get_user_by_email_success(db_session: AsyncSession):
     """Test getting user by email."""
     user_data = UserCreate(username="testuser", email="test@example.com", password="TestPass123")
@@ -138,14 +142,14 @@ async def test_get_user_by_email_success(db_session: AsyncSession):
     assert retrieved_user.email == "test@example.com"
 
 
-@pytest.mark.asyncio()
+@pytest.mark.asyncio
 async def test_get_user_by_email_not_found(db_session: AsyncSession):
     """Test getting non-existent user by email returns None."""
     user = await UserService.get_user_by_email(db_session, "nonexistent@example.com")
     assert user is None
 
 
-@pytest.mark.asyncio()
+@pytest.mark.asyncio
 async def test_authenticate_success(db_session: AsyncSession):
     """Test successful authentication."""
     user_data = UserCreate(username="testuser", email="test@example.com", password="TestPass123")
@@ -159,7 +163,7 @@ async def test_authenticate_success(db_session: AsyncSession):
     assert authenticated_user.username == "testuser"
 
 
-@pytest.mark.asyncio()
+@pytest.mark.asyncio
 async def test_authenticate_wrong_password(db_session: AsyncSession):
     """Test authentication with wrong password returns None."""
     user_data = UserCreate(username="testuser", email="test@example.com", password="TestPass123")
@@ -172,7 +176,7 @@ async def test_authenticate_wrong_password(db_session: AsyncSession):
     assert authenticated_user is None
 
 
-@pytest.mark.asyncio()
+@pytest.mark.asyncio
 async def test_authenticate_nonexistent_user(db_session: AsyncSession):
     """Test authentication with non-existent user returns None."""
     authenticated_user = await UserService.authenticate(
@@ -182,11 +186,14 @@ async def test_authenticate_nonexistent_user(db_session: AsyncSession):
     assert authenticated_user is None
 
 
-@pytest.mark.asyncio()
+@pytest.mark.asyncio
 async def test_update_user_success(db_session: AsyncSession):
     """Test successful user update."""
     user_data = UserCreate(
-        username="testuser", email="test@example.com", full_name="Test User", password="TestPass123"
+        username="testuser",
+        email="test@example.com",
+        full_name="Test User",
+        password="TestPass123",
     )
 
     user = await UserService.create_user(db_session, user_data)
@@ -200,7 +207,7 @@ async def test_update_user_success(db_session: AsyncSession):
     assert updated_user.username == "testuser"  # Username unchanged
 
 
-@pytest.mark.asyncio()
+@pytest.mark.asyncio
 async def test_update_user_password(db_session: AsyncSession):
     """Test updating user password."""
     user_data = UserCreate(username="testuser", email="test@example.com", password="TestPass123")
@@ -216,7 +223,7 @@ async def test_update_user_password(db_session: AsyncSession):
     assert updated_user.hashed_password != old_password_hash
 
 
-@pytest.mark.asyncio()
+@pytest.mark.asyncio
 async def test_delete_user_success(db_session: AsyncSession):
     """Test successful user deletion."""
     user_data = UserCreate(username="testuser", email="test@example.com", password="TestPass123")
@@ -233,7 +240,7 @@ async def test_delete_user_success(db_session: AsyncSession):
         await UserService.get_user_by_id(db_session, user_id)
 
 
-@pytest.mark.asyncio()
+@pytest.mark.asyncio
 async def test_delete_user_not_found(db_session: AsyncSession):
     """Test deleting non-existent user raises NotFoundError."""
     with pytest.raises(NotFoundError):

@@ -1,5 +1,7 @@
 """Redis client factory and management"""
 
+from typing import TYPE_CHECKING
+
 from redis import asyncio as aioredis
 from redis.backoff import ExponentialBackoff
 from redis.exceptions import RedisError
@@ -7,11 +9,14 @@ from redis.retry import Retry
 
 from app.core.config import settings
 
+if TYPE_CHECKING:
+    from redis.asyncio import Redis
+
 # Create retry policy
 retry_policy = Retry(ExponentialBackoff(), retries=3)
 
 
-async def get_redis_client() -> aioredis.Redis:
+async def get_redis_client() -> "Redis":
     """Get Redis client instance"""
     return aioredis.from_url(
         settings.REDIS_URL,
@@ -25,7 +30,7 @@ async def get_redis_client() -> aioredis.Redis:
 
 
 # Global Redis client instance (will be initialized on startup)
-redis_client: aioredis.Redis | None = None
+redis_client: "Redis | None" = None
 
 
 async def init_redis() -> None:

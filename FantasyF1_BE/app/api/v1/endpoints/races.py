@@ -5,7 +5,7 @@ from typing import Annotated
 from fastapi import APIRouter, Depends, Query, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.api.deps import get_current_superuser, get_current_user, get_db
+from app.api.deps import get_current_superuser, get_db
 from app.core.exceptions import NotFoundError
 from app.models.user import User
 from app.schemas.race import RaceListResponse, RaceResponse, RaceUpdate
@@ -19,10 +19,10 @@ async def list_races(
     db: Annotated[AsyncSession, Depends(get_db)],
     skip: int = Query(default=0, ge=0),
     limit: int = Query(default=100, ge=1, le=100),
-    status: str
-    | None = Query(default=None, description="Filter by status (upcoming, completed, cancelled)"),
+    status: str | None = Query(
+        default=None, description="Filter by status (upcoming, completed, cancelled)"
+    ),
     country: str | None = Query(default=None, description="Filter by country"),
-    current_user: Annotated[User | None, Depends(get_current_user)] = None,  # noqa: ARG001
 ) -> RaceListResponse:
     """List all races with optional filtering."""
     races = await RaceService.get_all(db, skip=skip, limit=limit, status=status, country=country)
@@ -39,7 +39,6 @@ async def list_races(
 async def list_upcoming_races(
     db: Annotated[AsyncSession, Depends(get_db)],
     limit: int = Query(default=10, ge=1, le=100, description="Maximum number of races to return"),
-    current_user: Annotated[User | None, Depends(get_current_user)] = None,  # noqa: ARG001
 ) -> RaceListResponse:
     """List upcoming races sorted by date."""
     races = await RaceService.get_upcoming(db, limit=limit)
@@ -55,7 +54,6 @@ async def list_upcoming_races(
 async def list_past_races(
     db: Annotated[AsyncSession, Depends(get_db)],
     limit: int = Query(default=10, ge=1, le=100, description="Maximum number of races to return"),
-    current_user: Annotated[User | None, Depends(get_current_user)] = None,  # noqa: ARG001
 ) -> RaceListResponse:
     """List past/completed races sorted by date (most recent first)."""
     races = await RaceService.get_completed(db, limit=limit)
@@ -71,7 +69,6 @@ async def list_past_races(
 async def get_race(
     race_id: int,
     db: Annotated[AsyncSession, Depends(get_db)],
-    current_user: Annotated[User | None, Depends(get_current_user)] = None,  # noqa: ARG001
 ) -> RaceResponse:
     """Get race by ID."""
     race = await RaceService.get_by_id(db, race_id)

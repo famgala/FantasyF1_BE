@@ -185,7 +185,9 @@ class LeaderboardService:
         return wins, podiums
 
     @staticmethod
-    def _assign_ranks_with_ties(entries: list[LeaderboardEntry]) -> list[LeaderboardEntry]:
+    def _assign_ranks_with_ties(
+        entries: list[LeaderboardEntry],
+    ) -> list[LeaderboardEntry]:
         """Assign ranks to leaderboard entries with proper tie handling.
 
         Tie-breaking rules:
@@ -367,10 +369,10 @@ class LeaderboardService:
             raise ValueError(f"League {league_id} not found")
 
         # Get race if specified
-        race: "Race | None" = None
+        race: Race | None = None
         if race_id:
             result = await db.execute(select(Race).where(Race.id == race_id))
-            race = result.scalar_one_or_none()  # type: ignore[assignment]
+            race = cast("Race | None", result.scalar_one_or_none())
             if not race:
                 raise ValueError(f"Race {race_id} not found")
 
@@ -432,10 +434,10 @@ class LeaderboardService:
             return None
 
         # Get race if specified
-        race: "Race | None" = None
+        race: Race | None = None
         if race_id:
             result = await db.execute(select(Race).where(Race.id == race_id))
-            race = result.scalar_one_or_none()  # type: ignore[assignment]
+            race = cast("Race | None", result.scalar_one_or_none())
             if not race:
                 return None
 

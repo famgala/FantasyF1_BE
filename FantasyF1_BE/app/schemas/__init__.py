@@ -77,19 +77,16 @@ from app.schemas.user import (
 )
 
 __all__ = [
-    # Constructor
     "ConstructorBase",
     "ConstructorCreate",
     "ConstructorListResponse",
     "ConstructorResponse",
     "ConstructorUpdate",
-    # Driver
     "DriverBase",
     "DriverCreate",
     "DriverListResponse",
     "DriverResponse",
     "DriverUpdate",
-    # Invitation
     "InvitationAccept",
     "InvitationCreateCode",
     "InvitationCreateEmail",
@@ -99,7 +96,8 @@ __all__ = [
     "InvitationListResponse",
     "InvitationReject",
     "InvitationResponse",
-    # League
+    "LeaderboardEntry",
+    "LeaderboardResponse",
     "LeagueBase",
     "LeagueCreate",
     "LeagueDetailResponse",
@@ -107,29 +105,19 @@ __all__ = [
     "LeagueListResponse",
     "LeagueResponse",
     "LeagueUpdate",
-    # Leaderboard
-    "LeaderboardEntry",
-    "LeaderboardResponse",
-    "UserRankResponse",
-    # Notification
+    "LoginRequest",
     "MarkAsReadRequest",
     "NotificationCreate",
     "NotificationListResponse",
     "NotificationResponse",
     "NotificationType",
     "NotificationUpdate",
-    # Auth
-    "LoginRequest",
-    # Race
     "RaceBase",
     "RaceCreate",
     "RaceListResponse",
     "RaceResponse",
     "RaceUpdate",
     "RefreshTokenRequest",
-    "TokenPayload",
-    "TokenResponse",
-    # Team
     "TeamBase",
     "TeamCreate",
     "TeamListResponse",
@@ -137,9 +125,11 @@ __all__ = [
     "TeamPickResponse",
     "TeamResponse",
     "TeamUpdate",
-    # User
+    "TokenPayload",
+    "TokenResponse",
     "UserBase",
     "UserCreate",
+    "UserRankResponse",
     "UserResponse",
     "UserUpdate",
 ]

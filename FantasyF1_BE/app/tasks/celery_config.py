@@ -2,13 +2,17 @@
 
 import os
 from datetime import timedelta
+from typing import TYPE_CHECKING, Any
 
-from celery.schedules import crontab  # type: ignore
+from celery.schedules import crontab
 
 from app.core.config import settings
 
+if TYPE_CHECKING:
+    from celery.schedules import Schedule
+
 # Celery Beat Schedule Configuration
-beat_schedule = {
+beat_schedule: dict[str, dict[str, Any]] = {
     # Sync race results every 2 hours
     "sync_race_results": {
         "task": "app.tasks.data_sync.sync_race_results",
@@ -66,7 +70,7 @@ beat_schedule = {
 
 # Apply schedule only if DATABASE_URL is set (enables environment-based control)
 if not settings.DATABASE_URL:
-    beat_schedule = {}
+    beat_schedule.clear()
 
 # Worker configuration
 worker_prefetch_multiplier = 4  # Number of tasks to prefetch

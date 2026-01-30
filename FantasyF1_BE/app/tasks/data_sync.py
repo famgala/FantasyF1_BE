@@ -6,10 +6,10 @@ and handling scheduled operations like drafts and race result polling.
 
 import json
 from datetime import datetime, timedelta
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING, Any, cast
 
 try:
-    from celery import signals  # type: ignore
+    from celery import signals
 
     task_postrun = signals.task_postrun
 except ImportError:
@@ -23,8 +23,9 @@ from app.services.external_data_service import ExternalDataService
 from app.tasks.celery_app import celery_app
 
 if TYPE_CHECKING:
-    from app.models.league import League
     from celery import Task
+
+    from app.models.league import League
 
 logger = get_logger(__name__)
 settings = get_settings()

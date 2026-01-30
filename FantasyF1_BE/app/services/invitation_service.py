@@ -281,7 +281,10 @@ class InvitationService:
 
     @staticmethod
     async def create_username_invitation(
-        db: AsyncSession, league_id: int, inviter_id: int, data: InvitationCreateUsername
+        db: AsyncSession,
+        league_id: int,
+        inviter_id: int,
+        data: InvitationCreateUsername,
     ) -> LeagueInvitation:
         """Create an invitation by username.
 

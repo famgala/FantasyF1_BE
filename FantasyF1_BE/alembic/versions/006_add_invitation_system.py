@@ -74,9 +74,15 @@ def upgrade() -> None:
         sa.PrimaryKeyConstraint("id"),
     )
     op.create_index(op.f("ix_league_invitations_id"), "league_invitations", ["id"])
-    op.create_index(op.f("ix_league_invitations_league_id"), "league_invitations", ["league_id"])
-    op.create_index(op.f("ix_league_invitations_inviter_id"), "league_invitations", ["inviter_id"])
-    op.create_index(op.f("ix_league_invitations_invitee_id"), "league_invitations", ["invitee_id"])
+    op.create_index(
+        op.f("ix_league_invitations_league_id"), "league_invitations", ["league_id"]
+    )
+    op.create_index(
+        op.f("ix_league_invitations_inviter_id"), "league_invitations", ["inviter_id"]
+    )
+    op.create_index(
+        op.f("ix_league_invitations_invitee_id"), "league_invitations", ["invitee_id"]
+    )
     op.create_index(
         op.f("ix_league_invitations_invitee_email"),
         "league_invitations",
@@ -93,7 +99,9 @@ def upgrade() -> None:
         ["invite_code"],
         unique=True,
     )
-    op.create_index(op.f("ix_league_invitations_status"), "league_invitations", ["status"])
+    op.create_index(
+        op.f("ix_league_invitations_status"), "league_invitations", ["status"]
+    )
     op.create_index(
         op.f("ix_league_invitations_expires_at"),
         "league_invitations",
@@ -103,13 +111,27 @@ def upgrade() -> None:
 
 def downgrade() -> None:
     """Drop league_invitations table."""
-    op.drop_index(op.f("ix_league_invitations_expires_at"), table_name="league_invitations")
+    op.drop_index(
+        op.f("ix_league_invitations_expires_at"), table_name="league_invitations"
+    )
     op.drop_index(op.f("ix_league_invitations_status"), table_name="league_invitations")
-    op.drop_index(op.f("ix_league_invitations_invite_code"), table_name="league_invitations")
-    op.drop_index(op.f("ix_league_invitations_invitee_username"), table_name="league_invitations")
-    op.drop_index(op.f("ix_league_invitations_invitee_email"), table_name="league_invitations")
-    op.drop_index(op.f("ix_league_invitations_invitee_id"), table_name="league_invitations")
-    op.drop_index(op.f("ix_league_invitations_inviter_id"), table_name="league_invitations")
-    op.drop_index(op.f("ix_league_invitations_league_id"), table_name="league_invitations")
+    op.drop_index(
+        op.f("ix_league_invitations_invite_code"), table_name="league_invitations"
+    )
+    op.drop_index(
+        op.f("ix_league_invitations_invitee_username"), table_name="league_invitations"
+    )
+    op.drop_index(
+        op.f("ix_league_invitations_invitee_email"), table_name="league_invitations"
+    )
+    op.drop_index(
+        op.f("ix_league_invitations_invitee_id"), table_name="league_invitations"
+    )
+    op.drop_index(
+        op.f("ix_league_invitations_inviter_id"), table_name="league_invitations"
+    )
+    op.drop_index(
+        op.f("ix_league_invitations_league_id"), table_name="league_invitations"
+    )
     op.drop_index(op.f("ix_league_invitations_id"), table_name="league_invitations")
     op.drop_table("league_invitations")

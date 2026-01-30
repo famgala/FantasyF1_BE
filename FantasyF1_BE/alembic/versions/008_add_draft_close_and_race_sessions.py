@@ -22,7 +22,12 @@ def upgrade() -> None:
     # Add draft_close_condition to leagues
     op.add_column(
         "leagues",
-        sa.Column("draft_close_condition", sa.String(20), nullable=False, server_default="manual"),
+        sa.Column(
+            "draft_close_condition",
+            sa.String(20),
+            nullable=False,
+            server_default="manual",
+        ),
     )
 
     # Add scoring_settings to leagues
@@ -36,8 +41,12 @@ def upgrade() -> None:
     op.add_column("races", sa.Column("sprint_date", sa.DateTime(), nullable=True))
 
     # Add winning_constructor_id to races
-    op.add_column("races", sa.Column("winning_constructor_id", sa.Integer(), nullable=True))
-    op.create_index("ix_races_winning_constructor_id", "races", ["winning_constructor_id"])
+    op.add_column(
+        "races", sa.Column("winning_constructor_id", sa.Integer(), nullable=True)
+    )
+    op.create_index(
+        "ix_races_winning_constructor_id", "races", ["winning_constructor_id"]
+    )
 
 
 def downgrade() -> None:

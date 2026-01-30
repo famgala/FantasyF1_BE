@@ -2,12 +2,15 @@
 
 import json
 import logging
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
 from redis.exceptions import RedisError
 
 from app.cache.client import redis_client
 from app.core.config import settings
+
+if TYPE_CHECKING:
+    pass
 
 logger = logging.getLogger(__name__)
 
@@ -97,7 +100,8 @@ async def invalidate_pattern(pattern: str) -> int:
         if redis_client:
             keys = []
             async for key in redis_client.scan_iter(match=pattern):
-                keys.append(key)
+                if isinstance(key, bytes | str):
+                    keys.append(key)
             if keys:
                 await redis_client.delete(*keys)
                 return len(keys)

@@ -25,9 +25,8 @@ class LeagueRole(Base):
     user_id: Mapped[int] = mapped_column(
         ForeignKey("users.id", ondelete="CASCADE"), nullable=False, index=True
     )
-    role: Mapped[str] = mapped_column(
-        String(20), nullable=False, default="member"
-    )  # 'creator', 'co_manager', 'member'
+    # 'creator', 'co_manager', 'member'
+    role: Mapped[str] = mapped_column(String(20), nullable=False, default="member")
     created_at: Mapped[datetime] = mapped_column(DateTime, nullable=False, default=datetime.utcnow)
     updated_at: Mapped[datetime] = mapped_column(
         DateTime, nullable=False, default=datetime.utcnow, onupdate=datetime.utcnow
@@ -40,5 +39,6 @@ class LeagueRole(Base):
     def __repr__(self) -> str:
         """String representation of LeagueRole."""
         return (
-            f"<LeagueRole(league_id={self.league_id}, user_id={self.user_id}, role='{self.role}')>"
+            f"<LeagueRole(league_id={self.league_id}, "
+            f"user_id={self.user_id}, role='{self.role}')>"
         )

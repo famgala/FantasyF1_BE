@@ -19,7 +19,6 @@ async def list_drivers(
     db: Annotated[AsyncSession, Depends(get_db)],
     skip: int = Query(default=0, ge=0),
     limit: int = Query(default=100, ge=1, le=100),
-    current_user: Annotated[User | None, Depends(get_current_user)] = None,  # noqa: ARG001
 ) -> DriverListResponse:
     """List all drivers with optional filtering."""
     drivers = await DriverService.get_all(db, skip=skip, limit=limit)
@@ -38,7 +37,6 @@ async def search_drivers(
     query: str = Query(min_length=1),
     skip: int = Query(default=0, ge=0),
     limit: int = Query(default=20, ge=1, le=100),
-    current_user: Annotated[User | None, Depends(get_current_user)] = None,  # noqa: ARG001
 ) -> DriverListResponse:
     """Search drivers by name."""
     results = await DriverService.search(db, query, skip=skip, limit=limit)
@@ -55,7 +53,6 @@ async def search_drivers(
 async def get_driver(
     driver_id: int,
     db: Annotated[AsyncSession, Depends(get_db)],
-    current_user: Annotated[User | None, Depends(get_current_user)] = None,  # noqa: ARG001
 ) -> DriverResponse:
     """Get driver by ID."""
     driver = await DriverService.get_by_id(db, driver_id)
