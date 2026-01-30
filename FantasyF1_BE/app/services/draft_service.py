@@ -235,7 +235,7 @@ class DraftService:
         )
         result = await session.execute(count_query)
         scalar_result = result.scalar()
-        pick_count = 0 if scalar_result is None else int(scalar_result)
+        pick_count = 0 if scalar_result is None else int(scalar_result)  # type: ignore[arg-type, call-overload]
 
         # Determine draft position based on order list and count
         draft_position = pick_count % len(order_list)
@@ -298,7 +298,7 @@ class DraftService:
         )
         result = await session.execute(count_query)
         scalar_val = result.scalar()
-        pick_count = 0 if scalar_val is None else int(scalar_val)
+        pick_count = 0 if scalar_val is None else int(scalar_val)  # type: ignore[arg-type, call-overload]
 
         # Check if all picks are made
         total_teams = len(order_list)
@@ -320,7 +320,9 @@ class DraftService:
             )
         )
         result = await session.execute(picked_driver_ids_query)
-        picked_ids = [row[0] for row in result]
+        picked_ids: list[int] = [
+            int(did) for did in result.scalars().all() if did is not None  # type: ignore[arg-type, call-overload]
+        ]
 
         # Get all available drivers (simple strategy: pick highest ID available)
         if picked_ids:
@@ -406,7 +408,9 @@ class DraftService:
             )
         )
         result = await session.execute(picked_driver_ids_query)
-        picked_ids = [row[0] for row in result]
+        picked_ids: list[int] = [
+            int(did) for did in result.scalars().all() if did is not None  # type: ignore[arg-type, call-overload]
+        ]
 
         # Get available drivers
         if picked_ids:
@@ -415,7 +419,8 @@ class DraftService:
             drivers_query = select(Driver).order_by(Driver.name)
 
         result = await session.execute(drivers_query)
-        return list(result.scalars().all())
+        drivers = list(result.scalars().unique().all())
+        return drivers  # type: ignore[return-value]
 
     @staticmethod
     async def get_next_pick_info(

@@ -2,7 +2,7 @@
 
 from typing import TYPE_CHECKING, Any
 
-from celery import Celery
+from celery import Celery  # type: ignore[import-untyped]
 
 from app.tasks.celery_config import (
     beat_schedule,
