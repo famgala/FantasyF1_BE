@@ -1,6 +1,5 @@
 """Schemas for leaderboard responses."""
 
-
 from pydantic import BaseModel, Field
 
 

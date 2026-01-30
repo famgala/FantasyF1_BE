@@ -4,7 +4,6 @@ This service handles the creation, management, and operations of fantasy teams,
 including team creation, pick management, and team validation.
 """
 
-
 from sqlalchemy import and_, select
 from sqlalchemy.ext.asyncio import AsyncSession
 

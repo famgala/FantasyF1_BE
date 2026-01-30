@@ -201,17 +201,19 @@ async def get_draft_picks(
                     "pick_number": pick.pick_number,
                     "draft_position": pick.draft_position,
                     "driver_id": pick.driver_id,
-                    "driver": {
-                        "id": driver.id,
-                        "name": driver.name,
-                        "number": driver.number,
-                        "code": driver.code,
-                        "team_name": driver.team_name,
-                        "price": driver.price,
-                        "total_points": driver.total_points,
-                    }
-                    if driver
-                    else None,
+                    "driver": (
+                        {
+                            "id": driver.id,
+                            "name": driver.name,
+                            "number": driver.number,
+                            "code": driver.code,
+                            "team_name": driver.team_name,
+                            "price": driver.price,
+                            "total_points": driver.total_points,
+                        }
+                        if driver
+                        else None
+                    ),
                     "is_auto_pick": pick.is_auto_pick,
                     "picked_at": pick.picked_at,
                 }
@@ -283,17 +285,19 @@ async def make_draft_pick(
                 "round_number": pick.pick_round,
                 "pick_number": pick.pick_number,
                 "draft_position": pick.draft_position,
-                "driver": {
-                    "id": driver.id,
-                    "name": driver.name,
-                    "number": driver.number,
-                    "code": driver.code,
-                    "team_name": driver.team_name,
-                    "price": driver.price,
-                    "total_points": driver.total_points,
-                }
-                if driver
-                else None,
+                "driver": (
+                    {
+                        "id": driver.id,
+                        "name": driver.name,
+                        "number": driver.number,
+                        "code": driver.code,
+                        "team_name": driver.team_name,
+                        "price": driver.price,
+                        "total_points": driver.total_points,
+                    }
+                    if driver
+                    else None
+                ),
                 "is_auto_pick": pick.is_auto_pick,
                 "picked_at": pick.picked_at,
             },

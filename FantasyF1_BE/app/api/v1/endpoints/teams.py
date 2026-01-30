@@ -2,7 +2,6 @@
 Teams API endpoints for fantasy team management.
 """
 
-
 from fastapi import APIRouter, Depends, HTTPException, Query, status
 from sqlalchemy.ext.asyncio import AsyncSession
 

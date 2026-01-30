@@ -6,10 +6,10 @@ and handling scheduled operations like drafts and race result polling.
 
 import json
 from datetime import datetime, timedelta
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING, Any, cast
 
 try:
-    from celery import signals  # type: ignore
+    from celery import signals
 
     task_postrun = signals.task_postrun
 except ImportError:
@@ -44,7 +44,7 @@ def get_sync_db() -> Session:
     return SyncSessionLocal()
 
 
-@celery_app.task(  # type: ignore[misc]
+@celery_app.task(
     bind=True,
     max_retries=3,
     default_retry_delay=3600,  # 1 hour retry delay
@@ -86,7 +86,7 @@ def sync_drivers_task(self: "Task", year: int | None = None) -> dict[str, Any]:
         return {"status": "error", "message": str(e)}
 
 
-@celery_app.task(bind=True, max_retries=3, name="tasks.sync_race_calendar")  # type: ignore[misc]
+@celery_app.task(bind=True, max_retries=3, name="tasks.sync_race_calendar")
 def sync_race_calendar_task(self: "Task", year: int | None = None) -> dict[str, Any]:
     """Sync race calendar from external API.
 
@@ -122,7 +122,7 @@ def sync_race_calendar_task(self: "Task", year: int | None = None) -> dict[str, 
         return {"status": "error", "message": str(e)}
 
 
-@celery_app.task(bind=True, max_retries=5, name="tasks.sync_race_results")  # type: ignore[misc]
+@celery_app.task(bind=True, max_retries=5, name="tasks.sync_race_results")
 def sync_race_results_task(self: "Task") -> dict[str, Any]:
     """Sync race results from external API with retry logic.
 
@@ -255,7 +255,7 @@ def _save_race_results(db: Session, race_id: int, race_data: dict[str, Any]) -> 
             db.add(new_result)
 
 
-@celery_app.task(name="tasks.start_drafts")  # type: ignore[misc]
+@celery_app.task(name="tasks.start_drafts")
 def start_drafts_task() -> dict[str, Any]:
     """Auto-start drafts at 0800 Eastern Time on Monday.
 
@@ -366,7 +366,7 @@ def _create_draft_order(db: Session, league: "League") -> None:
     db.add(draft_order)
 
 
-@celery_app.task(name="tasks.check_draft_closures")  # type: ignore[misc]
+@celery_app.task(name="tasks.check_draft_closures")
 def check_draft_closures_task() -> dict[str, Any]:
     """Check and close drafts based on session start times.
 
@@ -457,7 +457,7 @@ def _close_draft(db: Session, league_id: int, race_id: int) -> None:
         logger.info(f"Draft closed for league_id={league_id}, race_id={race_id}")
 
 
-@celery_app.task(name="tasks.calculate_constructor_points")  # type: ignore[misc]
+@celery_app.task(name="tasks.calculate_constructor_points")
 def calculate_constructor_points_task() -> dict[str, Any]:
     """Calculate and update constructor championship points.
 
@@ -529,7 +529,7 @@ def calculate_constructor_points_task() -> dict[str, Any]:
         db.close()
 
 
-@celery_app.task(name="tasks.update_fantasy_team_points")  # type: ignore[misc]
+@celery_app.task(name="tasks.update_fantasy_team_points")
 def update_fantasy_team_points_task() -> dict[str, Any]:
     """Update fantasy team points after race results.
 
@@ -574,7 +574,7 @@ def update_fantasy_team_points_task() -> dict[str, Any]:
         db.close()
 
 
-@celery_app.task(name="app.tasks.data_sync.cleanup_old_notifications")  # type: ignore[misc]
+@celery_app.task(name="app.tasks.data_sync.cleanup_old_notifications")
 def cleanup_old_notifications_task() -> dict[str, Any]:
     """Clean up old notifications to keep database size manageable.
 
@@ -610,7 +610,7 @@ def cleanup_old_notifications_task() -> dict[str, Any]:
         db.close()
 
 
-@celery_app.task(  # type: ignore[misc]
+@celery_app.task(
     bind=True,
     max_retries=3,
     default_retry_delay=3600,
@@ -657,7 +657,7 @@ def sync_external_data_task(self: "Task", year: int | None = None) -> dict[str, 
 # Register signal handlers for task monitoring
 if task_postrun is not None:
 
-    @task_postrun.connect  # type: ignore[misc]
+    @task_postrun.connect
     def task_postrun_handler(**kwargs: Any) -> None:
         """Handle task completion logging."""
         task_name = kwargs.get("task_name", "unknown")

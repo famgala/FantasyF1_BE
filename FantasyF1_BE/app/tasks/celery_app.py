@@ -1,6 +1,8 @@
 """Celery Application Configuration."""
 
-from celery import Celery  # type: ignore
+from typing import TYPE_CHECKING, Any
+
+from celery import Celery
 
 from app.tasks.celery_config import (
     beat_schedule,
@@ -19,8 +21,11 @@ from app.tasks.celery_config import (
     worker_prefetch_multiplier,
 )
 
+if TYPE_CHECKING:
+    from celery import Celery as CeleryType
+
 # Create Celery app
-celery_app = Celery(
+celery_app: "CeleryType" = Celery(
     "fantasyf1",
     broker="redis://redis:6379/1",
     backend="redis://redis:6379/2",

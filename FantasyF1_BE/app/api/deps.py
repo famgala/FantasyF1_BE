@@ -13,9 +13,9 @@ from app.services.user_service import UserService
 
 __all__ = [
     "get_current_active_user",
+    "get_current_superuser",
     "get_current_user",
     "get_current_user_id",
-    "get_current_superuser",
     "get_db",
 ]
 

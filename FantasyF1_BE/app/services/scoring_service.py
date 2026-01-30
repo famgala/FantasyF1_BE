@@ -8,7 +8,7 @@ This service handles all scoring calculations including:
 """
 
 import json
-from typing import TYPE_CHECKING, Any, ClassVar
+from typing import TYPE_CHECKING, ClassVar
 
 from sqlalchemy.orm import Session
 
@@ -163,11 +163,12 @@ class ScoringService:
             return None
 
         try:
-            result: Any = json.loads(league.scoring_settings)
+            result = json.loads(league.scoring_settings)
             if isinstance(result, dict):
-                return result
+                # Ensure all values are integers
+                return {str(k): int(v) for k, v in result.items()}
             return None
-        except (json.JSONDecodeError, TypeError):
+        except (json.JSONDecodeError, TypeError, ValueError):
             return None
 
     @staticmethod
