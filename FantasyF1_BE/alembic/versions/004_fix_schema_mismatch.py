@@ -32,9 +32,7 @@ def upgrade() -> None:
         "drivers",
         sa.Column("external_id", sa.Integer(), nullable=True),
     )
-    op.create_index(
-        op.f("ix_drivers_external_id"), "drivers", ["external_id"], unique=True
-    )
+    op.create_index(op.f("ix_drivers_external_id"), "drivers", ["external_id"], unique=True)
 
     op.add_column(
         "drivers",
@@ -58,9 +56,7 @@ def upgrade() -> None:
 
     op.add_column(
         "drivers",
-        sa.Column(
-            "status", sa.String(length=50), server_default="active", nullable=False
-        ),
+        sa.Column("status", sa.String(length=50), server_default="active", nullable=False),
     )
     op.create_index(op.f("ix_drivers_status"), "drivers", ["status"], unique=False)
 
@@ -73,9 +69,7 @@ def upgrade() -> None:
             type_=sa.String(length=255),
             nullable=False,
         )
-        batch_op.add_column(
-            sa.Column("temp_team_name", sa.String(length=100), nullable=True)
-        )
+        batch_op.add_column(sa.Column("temp_team_name", sa.String(length=100), nullable=True))
 
     # Migrate data from team to temp_team_name
     op.execute("UPDATE drivers SET temp_team_name = team WHERE team IS NOT NULL")
@@ -134,9 +128,7 @@ def upgrade() -> None:
             type_=sa.String(length=255),
             nullable=False,
         )
-        batch_op.add_column(
-            sa.Column("temp_circuit_name", sa.String(length=100), nullable=True)
-        )
+        batch_op.add_column(sa.Column("temp_circuit_name", sa.String(length=100), nullable=True))
 
     # Migrate data from circuit to temp_circuit_name
     op.execute("UPDATE races SET temp_circuit_name = circuit WHERE circuit IS NOT NULL")
@@ -222,19 +214,11 @@ def downgrade() -> None:
         batch_op.add_column(sa.Column("team", sa.String(length=100), nullable=True))
         batch_op.add_column(sa.Column("year", sa.Integer(), nullable=True))
         batch_op.add_column(
-            sa.Column(
-                "world_championships", sa.Integer(), server_default="0", nullable=False
-            )
+            sa.Column("world_championships", sa.Integer(), server_default="0", nullable=False)
         )
-        batch_op.add_column(
-            sa.Column("podiums", sa.Integer(), server_default="0", nullable=False)
-        )
-        batch_op.add_column(
-            sa.Column("wins", sa.Integer(), server_default="0", nullable=False)
-        )
-        batch_op.add_column(
-            sa.Column("points", sa.Integer(), server_default="0", nullable=False)
-        )
+        batch_op.add_column(sa.Column("podiums", sa.Integer(), server_default="0", nullable=False))
+        batch_op.add_column(sa.Column("wins", sa.Integer(), server_default="0", nullable=False))
+        batch_op.add_column(sa.Column("points", sa.Integer(), server_default="0", nullable=False))
 
     with op.batch_alter_table("drivers") as batch_op:
         batch_op.alter_column(
@@ -273,12 +257,8 @@ def downgrade() -> None:
             sa.Column("is_sprint", sa.Boolean(), server_default="false", nullable=False)
         )
         batch_op.add_column(sa.Column("laps", sa.Integer(), nullable=True))
-        batch_op.add_column(
-            sa.Column("fastest_lap_time", sa.String(length=20), nullable=True)
-        )
-        batch_op.add_column(
-            sa.Column("fastest_lap_driver", sa.String(length=100), nullable=True)
-        )
+        batch_op.add_column(sa.Column("fastest_lap_time", sa.String(length=20), nullable=True))
+        batch_op.add_column(sa.Column("fastest_lap_driver", sa.String(length=100), nullable=True))
         batch_op.add_column(sa.Column("city", sa.String(length=50), nullable=True))
         batch_op.add_column(sa.Column("circuit", sa.String(length=100), nullable=False))
 

@@ -41,12 +41,8 @@ def upgrade() -> None:
     op.add_column("races", sa.Column("sprint_date", sa.DateTime(), nullable=True))
 
     # Add winning_constructor_id to races
-    op.add_column(
-        "races", sa.Column("winning_constructor_id", sa.Integer(), nullable=True)
-    )
-    op.create_index(
-        "ix_races_winning_constructor_id", "races", ["winning_constructor_id"]
-    )
+    op.add_column("races", sa.Column("winning_constructor_id", sa.Integer(), nullable=True))
+    op.create_index("ix_races_winning_constructor_id", "races", ["winning_constructor_id"])
 
 
 def downgrade() -> None:

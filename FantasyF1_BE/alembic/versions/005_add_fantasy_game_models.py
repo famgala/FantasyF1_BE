@@ -30,9 +30,7 @@ def upgrade() -> None:
         sa.Column("league_id", sa.Integer(), nullable=False),
         sa.Column("name", sa.String(length=100), nullable=False),
         sa.Column("total_points", sa.Integer(), server_default="0", nullable=False),
-        sa.Column(
-            "budget_remaining", sa.Integer(), server_default="100", nullable=False
-        ),
+        sa.Column("budget_remaining", sa.Integer(), server_default="100", nullable=False),
         sa.Column("is_active", sa.Boolean(), server_default="true", nullable=False),
         sa.Column(
             "created_at",
@@ -46,22 +44,16 @@ def upgrade() -> None:
             server_default=sa.text("NOW()"),
             nullable=False,
         ),
-        sa.ForeignKeyConstraint(
-            ["league_id"], ["leagues.id"], name="fk_fantasy_team_league"
-        ),
+        sa.ForeignKeyConstraint(["league_id"], ["leagues.id"], name="fk_fantasy_team_league"),
         sa.ForeignKeyConstraint(["user_id"], ["users.id"], name="fk_fantasy_team_user"),
         sa.PrimaryKeyConstraint("id"),
     )
     op.create_index(op.f("ix_fantasy_teams_id"), "fantasy_teams", ["id"])
-    op.create_index(
-        op.f("ix_fantasy_teams_user_id"), "fantasy_teams", ["user_id"], unique=False
-    )
+    op.create_index(op.f("ix_fantasy_teams_user_id"), "fantasy_teams", ["user_id"], unique=False)
     op.create_index(
         op.f("ix_fantasy_teams_league_id"), "fantasy_teams", ["league_id"], unique=False
     )
-    op.create_index(
-        op.f("ix_fantasy_teams_name"), "fantasy_teams", ["name"], unique=False
-    )
+    op.create_index(op.f("ix_fantasy_teams_name"), "fantasy_teams", ["name"], unique=False)
     op.create_index(
         op.f("ix_fantasy_teams_total_points"),
         "fantasy_teams",
@@ -98,9 +90,7 @@ def upgrade() -> None:
         sa.ForeignKeyConstraint(
             ["constructor_id"], ["constructors.id"], name="fk_team_pick_constructor"
         ),
-        sa.ForeignKeyConstraint(
-            ["driver_id"], ["drivers.id"], name="fk_team_pick_driver"
-        ),
+        sa.ForeignKeyConstraint(["driver_id"], ["drivers.id"], name="fk_team_pick_driver"),
         sa.ForeignKeyConstraint(
             ["fantasy_team_id"], ["fantasy_teams.id"], name="fk_team_pick_fantasy_team"
         ),
@@ -113,18 +103,14 @@ def upgrade() -> None:
         ["fantasy_team_id"],
         unique=False,
     )
-    op.create_index(
-        op.f("ix_team_picks_driver_id"), "team_picks", ["driver_id"], unique=False
-    )
+    op.create_index(op.f("ix_team_picks_driver_id"), "team_picks", ["driver_id"], unique=False)
     op.create_index(
         op.f("ix_team_picks_constructor_id"),
         "team_picks",
         ["constructor_id"],
         unique=False,
     )
-    op.create_index(
-        op.f("ix_team_picks_race_id"), "team_picks", ["race_id"], unique=False
-    )
+    op.create_index(op.f("ix_team_picks_race_id"), "team_picks", ["race_id"], unique=False)
 
     # ========================================
     # CREATE DRAFT_ORDERS TABLE
@@ -155,22 +141,14 @@ def upgrade() -> None:
             server_default=sa.text("NOW()"),
             nullable=False,
         ),
-        sa.ForeignKeyConstraint(
-            ["last_modified_by"], ["users.id"], name="fk_draft_order_user"
-        ),
+        sa.ForeignKeyConstraint(["last_modified_by"], ["users.id"], name="fk_draft_order_user"),
         sa.ForeignKeyConstraint(["race_id"], ["races.id"], name="fk_draft_order_race"),
-        sa.ForeignKeyConstraint(
-            ["league_id"], ["leagues.id"], name="fk_draft_order_league"
-        ),
+        sa.ForeignKeyConstraint(["league_id"], ["leagues.id"], name="fk_draft_order_league"),
         sa.PrimaryKeyConstraint("id"),
     )
     op.create_index(op.f("ix_draft_orders_id"), "draft_orders", ["id"])
-    op.create_index(
-        op.f("ix_draft_orders_league_id"), "draft_orders", ["league_id"], unique=False
-    )
-    op.create_index(
-        op.f("ix_draft_orders_race_id"), "draft_orders", ["race_id"], unique=False
-    )
+    op.create_index(op.f("ix_draft_orders_league_id"), "draft_orders", ["league_id"], unique=False)
+    op.create_index(op.f("ix_draft_orders_race_id"), "draft_orders", ["race_id"], unique=False)
     op.create_index(
         op.f("ix_draft_orders_last_modified_by"),
         "draft_orders",
@@ -210,37 +188,25 @@ def upgrade() -> None:
             server_default=sa.text("NOW()"),
             nullable=False,
         ),
-        sa.ForeignKeyConstraint(
-            ["driver_id"], ["drivers.id"], name="fk_draft_pick_driver"
-        ),
+        sa.ForeignKeyConstraint(["driver_id"], ["drivers.id"], name="fk_draft_pick_driver"),
         sa.ForeignKeyConstraint(
             ["fantasy_team_id"], ["fantasy_teams.id"], name="fk_draft_pick_fantasy_team"
         ),
         sa.ForeignKeyConstraint(["race_id"], ["races.id"], name="fk_draft_pick_race"),
-        sa.ForeignKeyConstraint(
-            ["league_id"], ["leagues.id"], name="fk_draft_pick_league"
-        ),
+        sa.ForeignKeyConstraint(["league_id"], ["leagues.id"], name="fk_draft_pick_league"),
         sa.PrimaryKeyConstraint("id"),
     )
     op.create_index(op.f("ix_draft_picks_id"), "draft_picks", ["id"])
-    op.create_index(
-        op.f("ix_draft_picks_league_id"), "draft_picks", ["league_id"], unique=False
-    )
-    op.create_index(
-        op.f("ix_draft_picks_race_id"), "draft_picks", ["race_id"], unique=False
-    )
+    op.create_index(op.f("ix_draft_picks_league_id"), "draft_picks", ["league_id"], unique=False)
+    op.create_index(op.f("ix_draft_picks_race_id"), "draft_picks", ["race_id"], unique=False)
     op.create_index(
         op.f("ix_draft_picks_fantasy_team_id"),
         "draft_picks",
         ["fantasy_team_id"],
         unique=False,
     )
-    op.create_index(
-        op.f("ix_draft_picks_driver_id"), "draft_picks", ["driver_id"], unique=False
-    )
-    op.create_index(
-        op.f("ix_draft_picks_picked_at"), "draft_picks", ["picked_at"], unique=False
-    )
+    op.create_index(op.f("ix_draft_picks_driver_id"), "draft_picks", ["driver_id"], unique=False)
+    op.create_index(op.f("ix_draft_picks_picked_at"), "draft_picks", ["picked_at"], unique=False)
 
     # ========================================
     # CREATE RACE_RESULTS TABLE
@@ -279,18 +245,14 @@ def upgrade() -> None:
         sa.PrimaryKeyConstraint("id"),
     )
     op.create_index(op.f("ix_race_results_id"), "race_results", ["id"])
-    op.create_index(
-        op.f("ix_race_results_race_id"), "race_results", ["race_id"], unique=False
-    )
+    op.create_index(op.f("ix_race_results_race_id"), "race_results", ["race_id"], unique=False)
     op.create_index(
         op.f("ix_race_results_driver_external_id"),
         "race_results",
         ["driver_external_id"],
         unique=False,
     )
-    op.create_index(
-        op.f("ix_race_results_position"), "race_results", ["position"], unique=False
-    )
+    op.create_index(op.f("ix_race_results_position"), "race_results", ["position"], unique=False)
 
     # ========================================
     # CREATE DRIVER_STATS TABLE
@@ -310,14 +272,10 @@ def upgrade() -> None:
         sa.Column("dnf_count", sa.Integer(), server_default="0", nullable=False),
         sa.Column("dns_count", sa.Integer(), server_default="0", nullable=False),
         sa.Column("dsq_count", sa.Integer(), server_default="0", nullable=False),
-        sa.Column(
-            "average_finish_position", sa.Numeric(precision=5, scale=2), nullable=True
-        ),
+        sa.Column("average_finish_position", sa.Numeric(precision=5, scale=2), nullable=True),
         sa.Column("best_finish_position", sa.Integer(), nullable=True),
         sa.Column("worst_finish_position", sa.Integer(), nullable=True),
-        sa.Column(
-            "average_grid_position", sa.Numeric(precision=5, scale=2), nullable=True
-        ),
+        sa.Column("average_grid_position", sa.Numeric(precision=5, scale=2), nullable=True),
         sa.Column("retirement_rate", sa.Numeric(precision=5, scale=4), nullable=True),
         sa.Column("podium_rate", sa.Numeric(precision=5, scale=4), nullable=True),
         sa.Column("win_rate", sa.Numeric(precision=5, scale=4), nullable=True),
@@ -335,18 +293,12 @@ def upgrade() -> None:
             server_default=sa.text("NOW()"),
             nullable=False,
         ),
-        sa.ForeignKeyConstraint(
-            ["driver_id"], ["drivers.id"], name="fk_driver_stats_driver"
-        ),
+        sa.ForeignKeyConstraint(["driver_id"], ["drivers.id"], name="fk_driver_stats_driver"),
         sa.PrimaryKeyConstraint("id"),
     )
     op.create_index(op.f("ix_driver_stats_id"), "driver_stats", ["id"])
-    op.create_index(
-        op.f("ix_driver_stats_driver_id"), "driver_stats", ["driver_id"], unique=False
-    )
-    op.create_index(
-        op.f("ix_driver_stats_season"), "driver_stats", ["season"], unique=False
-    )
+    op.create_index(op.f("ix_driver_stats_driver_id"), "driver_stats", ["driver_id"], unique=False)
+    op.create_index(op.f("ix_driver_stats_season"), "driver_stats", ["season"], unique=False)
 
 
 def downgrade() -> None:
