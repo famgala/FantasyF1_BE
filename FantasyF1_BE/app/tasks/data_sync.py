@@ -9,7 +9,7 @@ from datetime import datetime, timedelta
 from typing import TYPE_CHECKING, Any, cast
 
 try:
-    from celery import signals
+    from celery import signals  # type: ignore[import-untyped]
 
     task_postrun = signals.task_postrun
 except ImportError:

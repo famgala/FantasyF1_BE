@@ -9,10 +9,11 @@ from app.schemas.driver import DriverCreate, DriverUpdate
 from app.services.driver_service import DriverService
 
 
-@pytest.mark.asyncio
+@pytest.mark.asyncio()
 async def test_create_driver(db: AsyncSession):
     """Test creating a new driver."""
     driver_data = DriverCreate(
+        code="TDR",
         external_id=1,
         name="Test Driver",
         number=1,
@@ -29,10 +30,11 @@ async def test_create_driver(db: AsyncSession):
     assert driver.team_name == "Test Team"
 
 
-@pytest.mark.asyncio
+@pytest.mark.asyncio()
 async def test_get_driver_by_id(db: AsyncSession):
     """Test getting a driver by ID."""
     driver_data = DriverCreate(
+        code="GTD",
         external_id=2,
         name="Get Test Driver",
         number=2,
@@ -48,17 +50,18 @@ async def test_get_driver_by_id(db: AsyncSession):
     assert retrieved_driver.name == "Get Test Driver"
 
 
-@pytest.mark.asyncio
+@pytest.mark.asyncio()
 async def test_get_driver_by_id_not_found(db: AsyncSession):
     """Test getting a non-existent driver."""
     driver = await DriverService.get_by_id(db, 99999)
     assert driver is None
 
 
-@pytest.mark.asyncio
+@pytest.mark.asyncio()
 async def test_get_by_name(db: AsyncSession):
     """Test getting a driver by name."""
     driver_data = DriverCreate(
+        code="NTD",
         external_id=3,
         name="Name Test Driver",
         number=3,
@@ -73,21 +76,42 @@ async def test_get_by_name(db: AsyncSession):
     assert retrieved_driver.name == "Name Test Driver"
 
 
-@pytest.mark.asyncio
+@pytest.mark.asyncio()
 async def test_get_all_drivers(db: AsyncSession):
     """Test getting all drivers."""
     # Create multiple drivers
     await DriverService.create(
         db,
-        DriverCreate(external_id=10, name="Driver 1", number=1, country="A", team_name="Team A"),
+        DriverCreate(
+            code="D1",
+            external_id=10,
+            name="Driver 1",
+            number=1,
+            country="A",
+            team_name="Team A",
+        ),
     )
     await DriverService.create(
         db,
-        DriverCreate(external_id=11, name="Driver 2", number=2, country="B", team_name="Team B"),
+        DriverCreate(
+            code="D2",
+            external_id=11,
+            name="Driver 2",
+            number=2,
+            country="B",
+            team_name="Team B",
+        ),
     )
     await DriverService.create(
         db,
-        DriverCreate(external_id=12, name="Driver 3", number=3, country="C", team_name="Team C"),
+        DriverCreate(
+            code="D3",
+            external_id=12,
+            name="Driver 3",
+            number=3,
+            country="C",
+            team_name="Team C",
+        ),
     )
 
     drivers = await DriverService.get_all(db, skip=0, limit=10)
@@ -95,13 +119,14 @@ async def test_get_all_drivers(db: AsyncSession):
     assert len(drivers) >= 3
 
 
-@pytest.mark.asyncio
+@pytest.mark.asyncio()
 async def test_search_drivers(db: AsyncSession):
     """Test searching drivers by name."""
     # Create drivers
     await DriverService.create(
         db,
         DriverCreate(
+            code="SD1",
             external_id=13,
             name="Search Driver 1",
             number=5,
@@ -112,6 +137,7 @@ async def test_search_drivers(db: AsyncSession):
     await DriverService.create(
         db,
         DriverCreate(
+            code="SD2",
             external_id=14,
             name="Search Driver 2",
             number=6,
@@ -127,10 +153,11 @@ async def test_search_drivers(db: AsyncSession):
         assert "Search" in driver.name
 
 
-@pytest.mark.asyncio
+@pytest.mark.asyncio()
 async def test_update_driver(db: AsyncSession):
     """Test updating a driver."""
     driver_data = DriverCreate(
+        code="UTD",
         external_id=15,
         name="Update Test Driver",
         number=7,
@@ -140,7 +167,13 @@ async def test_update_driver(db: AsyncSession):
 
     created_driver = await DriverService.create(db, driver_data)
 
-    update_data = DriverUpdate(total_points=150, team_name="Updated Team")
+    update_data = DriverUpdate(
+        total_points=150,
+        team_name="Updated Team",
+        status="active",
+        average_points=15.0,
+        price=10000000,
+    )
     updated_driver = await DriverService.update(db, created_driver, update_data)
 
     assert updated_driver.total_points == 150
@@ -148,10 +181,11 @@ async def test_update_driver(db: AsyncSession):
     assert updated_driver.name == "Update Test Driver"  # Name unchanged
 
 
-@pytest.mark.asyncio
+@pytest.mark.asyncio()
 async def test_delete_driver(db: AsyncSession):
     """Test deleting a driver."""
     driver_data = DriverCreate(
+        code="DT",
         external_id=16,
         name="Delete Test Driver",
         number=8,
@@ -168,7 +202,7 @@ async def test_delete_driver(db: AsyncSession):
     assert deleted_driver is None
 
 
-@pytest.mark.asyncio
+@pytest.mark.asyncio()
 async def test_count_drivers(db: AsyncSession):
     """Test counting drivers."""
     initial_count = await DriverService.count(db)
@@ -177,6 +211,7 @@ async def test_count_drivers(db: AsyncSession):
     await DriverService.create(
         db,
         DriverCreate(
+            code="CD1",
             external_id=17,
             name="Count Driver 1",
             number=9,
@@ -187,6 +222,7 @@ async def test_count_drivers(db: AsyncSession):
     await DriverService.create(
         db,
         DriverCreate(
+            code="CD2",
             external_id=18,
             name="Count Driver 2",
             number=10,
@@ -199,7 +235,7 @@ async def test_count_drivers(db: AsyncSession):
     assert new_count >= initial_count + 2
 
 
-@pytest.mark.asyncio
+@pytest.mark.asyncio()
 async def test_get_drivers_by_team(db: AsyncSession):
     """Test getting drivers filtered by team."""
     team_name = "Team Filter Test"
@@ -208,6 +244,7 @@ async def test_get_drivers_by_team(db: AsyncSession):
     await DriverService.create(
         db,
         DriverCreate(
+            code="TF1",
             external_id=19,
             name="Team Filter Driver 1",
             number=11,
@@ -218,6 +255,7 @@ async def test_get_drivers_by_team(db: AsyncSession):
     await DriverService.create(
         db,
         DriverCreate(
+            code="TF2",
             external_id=20,
             name="Team Filter Driver 2",
             number=12,

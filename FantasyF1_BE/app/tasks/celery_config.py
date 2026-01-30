@@ -4,7 +4,7 @@ import os
 from datetime import timedelta
 from typing import TYPE_CHECKING, Any
 
-from celery.schedules import crontab
+from celery.schedules import crontab  # type: ignore[import-untyped]
 
 from app.core.config import settings
 

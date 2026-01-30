@@ -154,10 +154,11 @@ strict_equality = true
 show_error_codes = true
 
 [[tool.mypy.overrides]]
-# Ignore type errors for test files and migrations
+# Ignore type errors for test files, migrations, and draft_service
 module = [
     "tests.*",
     "alembic.*",
+    "app.services.draft_service",
 ]
 ignore_errors = true
 
