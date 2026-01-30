@@ -49,6 +49,11 @@ services:
       - mosquitto_config:/mosquitto/config
       - mosquitto_data:/mosquitto/data
       - mosquitto_logs:/mosquitto/log
+      - ./docker-entrypoint.sh:/docker-entrypoint.sh:ro
+    environment:
+      - MQTT_USERNAME=${MQTT_USERNAME:-fantasyf1_dev}
+      - MQTT_PASSWORD=${MQTT_PASSWORD:-dev_mqtt_123}
+    entrypoint: ["/bin/sh", "/docker-entrypoint.sh"]
     networks:
       - fantasyf1_dev_network
     healthcheck:

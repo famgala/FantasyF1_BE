@@ -87,6 +87,4 @@ result_backend_transport_options = {
     "retry_on_timeout": True,
 }
 
-# timezone for Celery
-timezone = "America/New_York"
-enable_utc = False  # Use local timezone
+# Removed timezone configuration - should be set only at Celery app level in celery_app.py

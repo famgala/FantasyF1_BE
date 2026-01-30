@@ -55,8 +55,11 @@ services:
       - mosquitto_config:/mosquitto/config
       - mosquitto_data:/mosquitto/data
       - mosquitto_logs:/mosquitto/log
-    env_file:
-      - .env
+      - ./docker-entrypoint.sh:/docker-entrypoint.sh:ro
+    environment:
+      - MQTT_USERNAME=${MQTT_USERNAME:-fantasyf1_mqtt}
+      - MQTT_PASSWORD=${MQTT_PASSWORD}
+    entrypoint: ["/bin/sh", "/docker-entrypoint.sh"]
     networks:
       - fantasyf1_network
     restart: unless-stopped

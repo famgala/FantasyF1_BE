@@ -62,6 +62,7 @@ postgres-data/
 redis-data/
 mosquitto_data/
 mosquitto_logs/
+mosquitto.conf
 fantasyf1_dev_*
 
 # Dev container specific
