@@ -52,7 +52,7 @@ celery_app.conf.update(
     accept_content=["json"],
     result_serializer="json",
     timezone="America/New_York",
-    enable_utc=False,
+    enable_utc=True,
     task_routes={
         "app.tasks.data_sync.sync_race_results": {"queue": "data_sync"},
         "app.tasks.data_sync.check_draft_closures": {"queue": "draft"},

@@ -1,6 +1,5 @@
 """FastAPI Application Entry Point"""
 
-import subprocess
 from collections.abc import AsyncGenerator
 from contextlib import asynccontextmanager
 
@@ -40,26 +39,10 @@ from app.core.logging import setup_logging
 setup_logging()
 
 
-def run_migrations() -> None:
-    """Run Alembic migrations on startup"""
-    try:
-        subprocess.run(
-            ["alembic", "upgrade", "head"],
-            check=True,
-            capture_output=True,
-        )
-    except subprocess.CalledProcessError as e:
-        print(f"Migration failed: {e}")
-        print(f"stdout: {e.stdout.decode()}")
-        print(f"stderr: {e.stderr.decode()}")
-        raise
-
-
 @asynccontextmanager
 async def lifespan(_: FastAPI) -> AsyncGenerator[None, None]:
     """Application lifespan manager"""
     # Startup
-    run_migrations()
     await init_redis()
     yield
     # Shutdown
