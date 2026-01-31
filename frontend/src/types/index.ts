@@ -1,0 +1,176 @@
+// User Types
+export interface User {
+  id: string;
+  username: string;
+  email: string;
+  full_name: string;
+  is_active: boolean;
+  is_superuser: boolean;
+  created_at: string;
+}
+
+// Auth Types
+export interface LoginRequest {
+  username: string;
+  password: string;
+}
+
+export interface RegisterRequest {
+  username: string;
+  email: string;
+  full_name: string;
+  password: string;
+}
+
+export interface AuthResponse {
+  access_token: string;
+  refresh_token?: string;
+  token_type: string;
+  user: User;
+}
+
+export interface RefreshTokenRequest {
+  refresh_token: string;
+}
+
+// League Types
+export interface League {
+  id: string;
+  name: string;
+  description: string;
+  code: string;
+  creator_id: string;
+  max_teams: number;
+  privacy: 'public' | 'private';
+  draft_method: 'random' | 'sequential' | 'snake';
+  draft_close_condition: string;
+  scoring_settings: Record<string, any>;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface LeagueMember {
+  user_id: string;
+  username: string;
+  full_name: string;
+  role: 'creator' | 'co_manager' | 'member';
+  joined_at: string;
+}
+
+// Team Types
+export interface FantasyTeam {
+  id: string;
+  name: string;
+  league_id: string;
+  user_id: string;
+  total_points: number;
+  budget: number;
+  budget_remaining: number;
+  is_active: boolean;
+  created_at: string;
+  updated_at: string;
+}
+
+// Driver Types
+export interface Driver {
+  id: string;
+  code: string;
+  number: number;
+  name: string;
+  team: string;
+  country: string;
+  price: number;
+  total_points: number;
+  average_points: number;
+  is_active: boolean;
+}
+
+// Race Types
+export interface Race {
+  id: string;
+  name: string;
+  circuit: string;
+  country: string;
+  date: string;
+  round_number: number;
+  status: 'upcoming' | 'ongoing' | 'completed';
+  winning_constructor?: string;
+}
+
+// Notification Types
+export interface Notification {
+  id: string;
+  user_id: string;
+  type: string;
+  title: string;
+  message: string;
+  is_read: boolean;
+  created_at: string;
+  link?: string;
+}
+
+// Invitation Types
+export interface Invitation {
+  id: string;
+  league_id: string;
+  league_name: string;
+  inviter_id: string;
+  inviter_username: string;
+  invitee_email?: string;
+  invitee_username?: string;
+  invitee_user_id?: string;
+  status: 'pending' | 'accepted' | 'rejected' | 'expired';
+  message?: string;
+  created_at: string;
+  expires_at: string;
+}
+
+// Draft Types
+export interface DraftPick {
+  id: string;
+  league_id: string;
+  team_id: string;
+  team_name: string;
+  driver_id: string;
+  driver_name: string;
+  round: number;
+  pick_number: number;
+  is_auto_pick: boolean;
+  created_at: string;
+}
+
+export interface DraftStatus {
+  league_id: string;
+  current_round: number;
+  current_pick: number;
+  total_rounds: number;
+  total_picks: number;
+  current_team_id?: string;
+  current_team_name?: string;
+  is_draft_complete: boolean;
+  draft_started_at?: string;
+  draft_completed_at?: string;
+}
+
+// API Response Types
+export interface PaginatedResponse<T> {
+  items: T[];
+  total: number;
+  page: number;
+  page_size: number;
+  total_pages: number;
+}
+
+export interface ApiError {
+  detail: string;
+  status_code?: number;
+}
+
+// Form Types
+export interface FormFieldError {
+  field: string;
+  message: string;
+}
+
+// Axios Types (re-export for convenience)
+export type { AxiosInstance } from 'axios';
