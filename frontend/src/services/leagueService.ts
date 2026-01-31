@@ -1,5 +1,5 @@
 import { apiClient as api } from './api';
-import type { League, PaginatedResponse } from '../types';
+import type { League, PaginatedResponse, CreateLeagueRequest } from '../types';
 
 export interface GetLeaguesRequest {
   page?: number;
@@ -55,4 +55,11 @@ export async function getLeagueById(leagueId: string): Promise<League> {
  */
 export async function getLeagueByCode(code: string): Promise<League> {
   return api.get<League>(`/leagues/code/${code}`);
+}
+
+/**
+ * Create a new league
+ */
+export async function createLeague(data: CreateLeagueRequest): Promise<League> {
+  return api.post<League>('/leagues', data);
 }

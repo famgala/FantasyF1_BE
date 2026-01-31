@@ -218,3 +218,59 @@ Started: Sat Jan 31 01:12:40 CST 2026
 - Manual browser verification is recommended to test league browsing and search
 
 ---
+
+## 1/31/2026 - US-004
+- Implemented complete league creation functionality with React + TypeScript
+- Created CreateLeagueForm component with comprehensive form validation
+- Extended leagueService with createLeague method for creating new leagues
+- Created CreateLeague page wrapping the CreateLeagueForm component
+- Created LeagueDetail page as placeholder for future implementation
+- Added TypeScript types for league creation (CreateLeagueRequest interface)
+- Implemented form validation for all required fields:
+  - League name: required, 3-100 characters
+  - Description: optional, max 500 characters
+  - Max teams: required, 2-50 teams
+  - Privacy: required (public/private)
+  - Draft method: required (random/sequential/snake)
+  - Draft close condition: required (race_start/manual/time_limit)
+- Real-time validation on input change and blur events
+- Form submission with loading state and error handling
+- Success message with shareable league code displayed prominently
+- Auto-redirect to league detail page after 2 seconds on successful creation
+- Cancel button navigates back to leagues page
+- Added comprehensive CSS styling for:
+  - Create league page and form container
+  - League code display with prominent styling
+  - League detail page structure (header, meta, info sections)
+  - Settings grid for league configuration display
+  - Loading spinner for async operations
+- Added CreateLeague route to App.tsx with ProtectedRoute wrapper
+- Added LeagueDetail route to App.tsx with ProtectedRoute wrapper
+- Added "Create League" button to Dashboard navigation
+- All TypeScript checks pass successfully (npm run build)
+- Files created/modified:
+  - frontend/src/components/CreateLeagueForm.tsx - Create league form component with validation
+  - frontend/src/pages/CreateLeague.tsx - Create league page wrapper
+  - frontend/src/pages/LeagueDetail.tsx - League detail page placeholder
+  - frontend/src/services/leagueService.ts - Added createLeague method
+  - frontend/src/types/index.ts - Added CreateLeagueRequest interface
+  - frontend/src/App.css - Added styling for create league and league detail pages
+  - frontend/src/App.tsx - Added CreateLeague and LeagueDetail routes
+  - frontend/src/pages/Dashboard.tsx - Added Create League button to navigation
+
+**Learnings for future iterations:**
+- Form validation should be performed on both change and blur events for better UX
+- Use touched state to track which fields have been interacted with
+- Display validation errors inline below each field for clarity
+- League code should be displayed prominently after creation for easy sharing
+- Auto-redirect with delay (2 seconds) allows users to see success message before navigation
+- Form submission should disable all inputs and buttons during API call
+- The createLeague API returns the created league object with code and ID
+- League detail page is a placeholder that will be fully implemented in US-005
+- CSS classes follow consistent naming convention (create-league-form, league-detail, etc.)
+- League code display uses monospace font with letter spacing for readability
+- Settings grid uses responsive layout with minmax for different screen sizes
+- All acceptance criteria for US-004 have been met
+- Manual browser verification is recommended to test league creation flow
+
+---

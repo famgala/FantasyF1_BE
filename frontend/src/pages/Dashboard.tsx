@@ -24,6 +24,12 @@ export const Dashboard: React.FC = () => {
                 Welcome, {user?.full_name || user?.username}
               </span>
               <Link
+                to="/leagues/create"
+                className="bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded-md text-sm font-medium mr-2"
+              >
+                Create League
+              </Link>
+              <Link
                 to="/leagues"
                 className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-md text-sm font-medium mr-2"
               >

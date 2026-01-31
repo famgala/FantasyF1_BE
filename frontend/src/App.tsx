@@ -6,6 +6,8 @@ import { Register } from './pages/Register';
 import { Dashboard } from './pages/Dashboard';
 import { Profile } from './pages/Profile';
 import BrowseLeagues from './pages/BrowseLeagues';
+import CreateLeague from './pages/CreateLeague';
+import LeagueDetail from './pages/LeagueDetail';
 
 function App() {
   return (
@@ -38,6 +40,22 @@ function App() {
             element={
               <ProtectedRoute>
                 <BrowseLeagues />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/leagues/create"
+            element={
+              <ProtectedRoute>
+                <CreateLeague />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/leagues/:id"
+            element={
+              <ProtectedRoute>
+                <LeagueDetail />
               </ProtectedRoute>
             }
           />

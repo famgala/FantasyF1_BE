@@ -69,6 +69,22 @@ export interface GetLeaguesRequest {
   privacy?: 'public' | 'private';
 }
 
+export interface CreateLeagueRequest {
+  name: string;
+  description?: string;
+  max_teams: number;
+  privacy: 'public' | 'private';
+  draft_method: 'random' | 'sequential' | 'snake';
+  draft_close_condition: string;
+  scoring_settings?: Record<string, any>;
+}
+
+export interface ScoringSettings {
+  // Add specific scoring settings as needed
+  // This is a placeholder for future expansion
+  [key: string]: any;
+}
+
 export interface LeagueMember {
   user_id: string;
   username: string;

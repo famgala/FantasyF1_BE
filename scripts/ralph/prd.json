@@ -84,8 +84,8 @@
         "Verify in browser using dev-browser skill"
       ],
       "priority": 4,
-      "passes": false,
-      "notes": ""
+      "passes": true,
+      "notes": "Implemented CreateLeagueForm component with comprehensive validation, leagueService.createLeague method, CreateLeague page, LeagueDetail placeholder page, added routes in App.tsx, added Create League button to Dashboard, and added CSS styling. Typecheck passes."
     },
     {
       "id": "US-005",
