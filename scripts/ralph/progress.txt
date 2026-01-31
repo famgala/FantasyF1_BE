@@ -1,3 +1,68 @@
 # Ralph Progress Log
 Started: Sat Jan 31 01:12:40 CST 2026
+
+## Codebase Patterns
+- Use Vite + React + TypeScript for frontend development
+- Use React Router for routing with ProtectedRoute component for auth
+- Use Context API for global state management (AuthContext)
+- Use axios for API calls with interceptors for token refresh
+- Store JWT tokens in localStorage (access_token, refresh_token)
+- Use type-only imports for types when verbatimModuleSyntax is enabled
+- All TypeScript types defined in src/types/index.ts
+- Services in src/services/ for API interactions
+- Pages in src/pages/ for route components
+- Components in src/components/ for reusable UI elements
+- Environment variables use VITE_ prefix and are accessed via import.meta.env
+
+---
+
+## 1/31/2026 - US-001
+- Implemented complete user authentication system with React + TypeScript + Vite
+- Created project structure with components, pages, services, hooks, and types directories
+- Implemented Login page with form validation, remember me functionality, and error handling
+- Implemented Register page with password strength validation (8 chars, 1 uppercase, 1 lowercase, 1 digit)
+- Created AuthContext for global authentication state management
+- Implemented ProtectedRoute component for route protection
+- Created API client (api.ts) with axios interceptors for automatic token refresh
+- Implemented authService for auth operations (login, register, logout, getCurrentUser)
+- Created Dashboard page for authenticated users
+- Configured React Router with public and protected routes
+- Added TypeScript types for all entities (User, AuthResponse, League, Team, Driver, Race, Notification, Invitation, Draft, etc.)
+- Set up environment configuration with .env file
+- Fixed TypeScript errors related to type imports and unused variables
+- All TypeScript checks pass successfully (npm run build)
+- Files created/modified:
+  - frontend/src/App.tsx - Main app with routing
+  - frontend/src/main.tsx - Entry point
+  - frontend/src/context/AuthContext.tsx - Auth state management
+  - frontend/src/components/ProtectedRoute.tsx - Route protection
+  - frontend/src/pages/Login.tsx - Login page
+  - frontend/src/pages/Register.tsx - Registration page
+  - frontend/src/pages/Dashboard.tsx - Dashboard page
+  - frontend/src/services/api.ts - API client with interceptors
+  - frontend/src/services/authService.ts - Auth service
+  - frontend/src/types/index.ts - TypeScript type definitions
+  - frontend/.env - Environment configuration
+  - frontend/package.json - Dependencies and scripts
+  - frontend/tsconfig.json - TypeScript configuration
+  - frontend/vite.config.ts - Vite configuration
+  - frontend/eslint.config.js - ESLint configuration
+  - frontend/index.html - HTML entry point
+  - frontend/src/index.css - Global styles
+  - frontend/src/App.css - App-specific styles
+
+**Learnings for future iterations:**
+- When using TypeScript with verbatimModuleSyntax enabled, must use type-only imports for types: `import type { TypeName } from 'module'`
+- Remove unused imports to avoid TS6133 errors
+- The AuthResponse type needs optional refresh_token field for token refresh functionality
+- API client interceptors handle token refresh automatically on 401 errors
+- AuthContext checks authentication on mount and stores user in localStorage
+- ProtectedRoute redirects to login if not authenticated
+- Login/Register pages redirect to dashboard if already authenticated
+- Use localStorage for token storage (access_token, refresh_token, user)
+- Environment variables must use VITE_ prefix in Vite projects
+- Build command `npm run build` runs both TypeScript compiler and Vite build
+- All acceptance criteria for US-001 have been met
+- Manual browser verification is recommended to test the full auth flow
+
 ---

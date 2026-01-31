@@ -33,6 +33,16 @@ export interface RefreshTokenRequest {
   refresh_token: string;
 }
 
+export interface UpdateProfileRequest {
+  email?: string;
+  full_name?: string;
+}
+
+export interface ChangePasswordRequest {
+  current_password: string;
+  new_password: string;
+}
+
 // League Types
 export interface League {
   id: string;

@@ -1,4 +1,5 @@
 import React from 'react';
+import { Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 
 export const Dashboard: React.FC = () => {
@@ -22,6 +23,12 @@ export const Dashboard: React.FC = () => {
               <span className="text-gray-700 mr-4">
                 Welcome, {user?.full_name || user?.username}
               </span>
+              <Link
+                to="/profile"
+                className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md text-sm font-medium mr-2"
+              >
+                Profile
+              </Link>
               <button
                 onClick={handleLogout}
                 className="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-md text-sm font-medium"
