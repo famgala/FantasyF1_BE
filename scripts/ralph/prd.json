@@ -108,8 +108,8 @@
         "Verify in browser using dev-browser skill"
       ],
       "priority": 5,
-      "passes": false,
-      "notes": ""
+      "passes": true,
+      "notes": "Implemented complete league detail page with comprehensive information display. Extended leagueService with getLeagueMembers and getLeagueTeams methods. LeagueDetail page fetches all data in parallel and displays league info, members with roles, teams with owners, and conditional action buttons based on user's role. Added role-based UI logic for Join/Leave/Edit/Delete/Invite buttons. Added leaderboard link. Comprehensive CSS styling for members list, teams list, role badges, and action buttons. Typecheck passes."
     },
     {
       "id": "US-006",

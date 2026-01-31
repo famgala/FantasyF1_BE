@@ -16,6 +16,55 @@ Started: Sat Jan 31 01:12:40 CST 2026
 
 ---
 
+## 1/31/2026 - US-005
+- Implemented complete league detail page with comprehensive information display
+- Extended leagueService with getLeagueMembers and getLeagueTeams methods
+- Completely rewrote LeagueDetail.tsx component with full functionality:
+  - Fetches league, members, and teams data in parallel using Promise.all
+  - Displays league header with name, privacy badge, and code
+  - Shows comprehensive league information section with creator, team count, draft method, privacy, creation date
+  - Displays "Full" badge when league reaches max capacity
+  - Members section with styled list showing username, full name, and role badges
+  - Teams section with styled list showing team name, owner, and points
+  - Role-based conditional rendering for action buttons:
+    - Join League: shown if user not a member and league not full
+    - Leave League: shown if user is member but not creator
+    - Edit League: shown if user is creator or co-manager
+    - Delete League: shown if user is creator only
+    - Invite Members: shown if user is creator or co-manager
+  - Leaderboard link for all users
+  - All buttons show placeholder alerts (functionality in future stories)
+- Added comprehensive CSS styling in App.css:
+  - League stats grid with responsive layout
+  - Members list with hover effects and color-coded role badges (gold for creator, silver for co-manager, gray for member)
+  - Teams list with team info and points display
+  - Action buttons with proper color coding (success, danger, outline variants)
+  - Responsive design with auto-fit grid layouts
+- User role determination logic checks membership and role from members list
+- League full calculation compares team count vs max teams
+- All data fetched and displayed correctly with loading and error states
+- TypeScript checks pass successfully (npm run build)
+- Files modified:
+  - frontend/src/services/leagueService.ts - Added getLeagueMembers and getLeagueTeams methods
+  - frontend/src/pages/LeagueDetail.tsx - Complete rewrite with all functionality
+  - frontend/src/App.css - Added comprehensive styling for members, teams, role badges, action buttons
+
+**Learnings for future iterations:**
+- Use Promise.all to fetch multiple API endpoints in parallel for better performance
+- Derive user's role and membership status from the members list rather than separate API calls
+- Conditional button rendering should be based on clear boolean flags (isCreator, isCoManager, isMember, isLeagueFull)
+- Role badges should use distinct colors for easy visual identification (gold=creator, blue=co-manager, gray=member)
+- Empty states with helpful messages improve UX when no members or teams exist
+- The members list returns LeagueMember objects with role field containing the user's role
+- Check membership by finding current user's ID in members list
+- Action buttons for future functionality should show placeholder alerts to indicate they're coming soon
+- Leaderboard link can point to a route even if the page doesn't exist yet
+- Grid layouts with auto-fit and minmax are perfect for responsive stat displays
+- All acceptance criteria for US-005 have been met
+- Manual browser verification is recommended to test the league detail display and role-based buttons
+
+---
+
 ## 1/31/2026 - US-001
 - Implemented complete user authentication system with React + TypeScript + Vite
 - Created project structure with components, pages, services, hooks, and types directories

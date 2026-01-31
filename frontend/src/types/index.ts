@@ -79,6 +79,10 @@ export interface CreateLeagueRequest {
   scoring_settings?: Record<string, any>;
 }
 
+export interface JoinLeagueRequest {
+  team_name: string;
+}
+
 export interface ScoringSettings {
   // Add specific scoring settings as needed
   // This is a placeholder for future expansion

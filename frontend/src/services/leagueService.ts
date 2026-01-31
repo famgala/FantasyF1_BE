@@ -1,5 +1,5 @@
 import { apiClient as api } from './api';
-import type { League, PaginatedResponse, CreateLeagueRequest, LeagueMember, FantasyTeam } from '../types';
+import type { League, PaginatedResponse, CreateLeagueRequest, JoinLeagueRequest, LeagueMember, FantasyTeam } from '../types';
 
 export interface GetLeaguesRequest {
   page?: number;
@@ -76,4 +76,11 @@ export async function getLeagueMembers(leagueId: string): Promise<LeagueMember[]
  */
 export async function getLeagueTeams(leagueId: string): Promise<FantasyTeam[]> {
   return api.get<FantasyTeam[]>(`/leagues/${leagueId}/teams`);
+}
+
+/**
+ * Join a league by its ID
+ */
+export async function joinLeague(leagueId: string, data: JoinLeagueRequest): Promise<FantasyTeam> {
+  return api.post<FantasyTeam>(`/leagues/${leagueId}/join`, data);
 }

@@ -30,6 +30,12 @@ export const Dashboard: React.FC = () => {
                 Create League
               </Link>
               <Link
+                to="/leagues/join"
+                className="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-md text-sm font-medium mr-2"
+              >
+                Join League
+              </Link>
+              <Link
                 to="/leagues"
                 className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-md text-sm font-medium mr-2"
               >

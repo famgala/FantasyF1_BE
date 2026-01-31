@@ -7,6 +7,7 @@ import { Dashboard } from './pages/Dashboard';
 import { Profile } from './pages/Profile';
 import BrowseLeagues from './pages/BrowseLeagues';
 import CreateLeague from './pages/CreateLeague';
+import JoinLeague from './pages/JoinLeague';
 import LeagueDetail from './pages/LeagueDetail';
 
 function App() {
@@ -48,6 +49,14 @@ function App() {
             element={
               <ProtectedRoute>
                 <CreateLeague />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/leagues/join"
+            element={
+              <ProtectedRoute>
+                <JoinLeague />
               </ProtectedRoute>
             }
           />
