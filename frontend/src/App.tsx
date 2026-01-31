@@ -5,6 +5,7 @@ import { Login } from './pages/Login';
 import { Register } from './pages/Register';
 import { Dashboard } from './pages/Dashboard';
 import { Profile } from './pages/Profile';
+import BrowseLeagues from './pages/BrowseLeagues';
 
 function App() {
   return (
@@ -29,6 +30,14 @@ function App() {
             element={
               <ProtectedRoute>
                 <Profile />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/leagues"
+            element={
+              <ProtectedRoute>
+                <BrowseLeagues />
               </ProtectedRoute>
             }
           />

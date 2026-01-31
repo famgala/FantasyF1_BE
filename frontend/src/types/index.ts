@@ -59,6 +59,16 @@ export interface League {
   updated_at: string;
 }
 
+export interface LeagueWithTeamCount extends League {
+  team_count: number;
+}
+
+export interface GetLeaguesRequest {
+  page?: number;
+  page_size?: number;
+  privacy?: 'public' | 'private';
+}
+
 export interface LeagueMember {
   user_id: string;
   username: string;

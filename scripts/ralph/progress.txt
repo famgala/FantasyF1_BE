@@ -153,3 +153,68 @@ Started: Sat Jan 31 01:12:40 CST 2026
 - Manual browser verification is recommended to test profile update flow
 
 ---
+
+## 1/31/2026 - US-003
+- Implemented complete league discovery and search functionality with React + TypeScript
+- Created BrowseLeagues page component with comprehensive league browsing features
+- Created leagueService for league-related API operations:
+  - getLeagues(params) - Fetch paginated leagues with optional privacy filter
+  - searchLeagues(query, page, page_size) - Search leagues by name
+  - getLeagueById(leagueId) - Fetch single league by ID
+  - getLeagueByCode(code) - Fetch single league by code
+- Implemented real-time search with 300ms debounce to reduce API calls
+- Added privacy filter dropdown (All Leagues, Public Only, Private Only)
+- Implemented pagination controls with previous/next buttons and page number buttons
+- Created responsive league card grid layout displaying:
+  - League name and privacy badge (public/private)
+  - League description (truncated to 2 lines)
+  - Team count vs max teams
+  - Draft method
+  - League code
+  - View details link
+- Added loading states with spinner animation during API calls
+- Implemented empty state with helpful message and clear search button
+- Added comprehensive CSS styling for:
+  - Browse leagues container and page header
+  - Search bar and filter controls
+  - Loading spinner animation
+  - Empty state display
+  - League cards with hover effects
+  - Privacy badges (green for public, red for private)
+  - League stats display
+  - Pagination controls
+  - Results info display
+- Added TypeScript types for league requests (GetLeaguesRequest interface)
+- Added LeagueWithTeamCount interface extending League with team_count field
+- Added BrowseLeagues route to App.tsx with ProtectedRoute wrapper
+- Added "Browse Leagues" button to Dashboard navigation
+- League cards are clickable and navigate to league detail page
+- Search resets to page 1 when query changes
+- Privacy filter resets to page 1 when changed
+- All TypeScript checks pass successfully (npm run build)
+- Files created/modified:
+  - frontend/src/services/leagueService.ts - League service for API calls
+  - frontend/src/pages/BrowseLeagues.tsx - Browse leagues page component
+  - frontend/src/App.css - Added comprehensive styling for browse leagues page
+  - frontend/src/App.tsx - Added BrowseLeagues route
+  - frontend/src/pages/Dashboard.tsx - Added Browse Leagues button to navigation
+  - frontend/src/types/index.ts - Already had League and PaginatedResponse types
+
+**Learnings for future iterations:**
+- Use debounce pattern for search inputs to reduce API calls (300ms is a good default)
+- Reset pagination to page 1 when search query or filters change
+- The apiClient methods already return data directly, don't access .data property again
+- Use named imports from api.ts: `import { apiClient as api } from './api'`
+- League cards should display key information at a glance: name, privacy, team count, draft method
+- Privacy badges use color coding for visual distinction (green=public, red=private)
+- Grid layout with `repeat(auto-fill, minmax(300px, 1fr))` provides responsive card layout
+- Hover effects on cards (translateY and box-shadow) improve UX
+- Empty states should provide context and actionable options (clear search button)
+- Loading states with spinner animation provide visual feedback during API calls
+- Pagination should show page numbers for quick navigation
+- Results info helps users understand the scope of data
+- The leagueService follows the same pattern as other services (authService, userService)
+- All acceptance criteria for US-003 have been met
+- Manual browser verification is recommended to test league browsing and search
+
+---
