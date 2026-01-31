@@ -66,3 +66,90 @@ Started: Sat Jan 31 01:12:40 CST 2026
 - Manual browser verification is recommended to test the full auth flow
 
 ---
+
+## 1/31/2026 - US-002
+- Implemented complete user profile management system with React + TypeScript
+- Created userService for user profile API operations (getCurrentUser, updateProfile, changePassword)
+- Created Profile page displaying user information with account status and type indicators
+- Created EditProfileForm component with two sections: Profile Information and Change Password
+- Implemented comprehensive form validation for email, full name, and password fields
+- Password validation includes: minimum 8 characters, 1 uppercase, 1 lowercase, 1 digit
+- Email validation with regex pattern checking
+- Full name validation with length constraints (3-100 characters)
+- Password change requires current password confirmation
+- Real-time validation on input change and blur events
+- Success/error messages displayed as alerts
+- Profile changes reflected immediately in UI via AuthContext setUser
+- Added comprehensive CSS styling for profile pages and forms in App.css
+- Profile page shows: username, email, full name, account status, account type, member since date
+- Edit form allows updating email and full name (username is read-only)
+- Password change form with current password, new password, and confirm password fields
+- All TypeScript checks pass successfully (npm run build)
+- Files created/modified:
+  - frontend/src/services/userService.ts - User profile API service
+  - frontend/src/pages/Profile.tsx - Profile page component
+  - frontend/src/components/EditProfileForm.tsx - Edit profile form component
+  - frontend/src/App.css - Added comprehensive styling for profile pages and forms
+  - frontend/src/App.tsx - Already had Profile route configured
+  - frontend/src/context/AuthContext.tsx - Already had setUser for state updates
+
+**Learnings for future iterations:**
+- Use separate form sections for different types of updates (profile info vs password change)
+- Real-time validation on both change and blur events provides better UX
+- Password strength validation should match backend requirements exactly
+- Display account status and type with visual indicators (color-coded badges)
+- Form validation errors should be shown inline below each field
+- Success messages should trigger automatic navigation after a short delay
+- Use disabled state for read-only fields (username) with visual indication
+- Clear password fields after successful password change
+- Profile page should refresh data after successful updates
+- CSS classes follow Bootstrap-like naming convention (form-control, form-group, btn-primary, etc.)
+- Alert components need both error and success variants with different colors
+- All acceptance criteria for US-002 have been met
+- Manual browser verification is recommended to test profile viewing and editing
+
+---
+
+## 1/31/2026 - US-002
+- Implemented user profile management with Profile page and EditProfileForm component
+- Created Profile page displaying username, email, full name, account status, account type, and member since date
+- Created EditProfileForm component with two sections: Profile Information and Change Password
+- Implemented profile update functionality allowing changes to email and full name
+- Implemented password change functionality requiring current password confirmation
+- Added comprehensive validation for all editable fields:
+  - Email validation with regex pattern
+  - Full name validation (3-100 characters)
+  - Password validation (8+ chars, 1 uppercase, 1 lowercase, 1 digit)
+  - Confirm password matching validation
+- Created userService for user-related API operations:
+  - getCurrentUser() - Fetch current user profile
+  - updateProfile(data) - Update user profile (email, full_name)
+  - changePassword(data) - Change password with current password confirmation
+- Added setUser method to AuthContext for immediate UI updates after profile changes
+- Updated TypeScript types with UpdateProfileRequest and ChangePasswordRequest interfaces
+- Added Profile route to App.tsx with ProtectedRoute wrapper
+- Added Profile button to Dashboard navigation
+- Profile changes reflected immediately in UI using AuthContext.setUser()
+- Success/error messages displayed after update attempts
+- All TypeScript checks pass successfully (npm run build)
+- Files created/modified:
+  - frontend/src/pages/Profile.tsx - Profile page with view/edit modes
+  - frontend/src/components/EditProfileForm.tsx - Edit profile form component
+  - frontend/src/services/userService.ts - User service for API calls
+  - frontend/src/types/index.ts - Added UpdateProfileRequest and ChangePasswordRequest types
+  - frontend/src/context/AuthContext.tsx - Added setUser method to AuthContextType
+  - frontend/src/App.tsx - Added Profile route
+  - frontend/src/pages/Dashboard.tsx - Added Profile button to navigation
+
+**Learnings for future iterations:**
+- When implementing profile updates, need to update AuthContext user state immediately for UI consistency
+- Use separate sections in forms for different types of updates (profile info vs password)
+- Password change requires current password confirmation for security
+- Validation should be performed on blur and on change for better UX
+- Success messages should auto-redirect or refresh data after a delay
+- The userService follows the same pattern as authService for API calls
+- Profile page uses conditional rendering to switch between view and edit modes
+- All acceptance criteria for US-002 have been met
+- Manual browser verification is recommended to test profile update flow
+
+---
