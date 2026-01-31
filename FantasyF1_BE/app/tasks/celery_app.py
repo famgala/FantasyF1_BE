@@ -6,7 +6,6 @@ from celery import Celery  # type: ignore[import-untyped]
 
 from app.tasks.celery_config import (
     beat_schedule,
-    enable_utc,
     result_backend_transport_options,
     result_expires,
     task_acks_late,
@@ -15,7 +14,6 @@ from app.tasks.celery_config import (
     task_soft_time_limit,
     task_time_limit,
     task_track_started,
-    timezone,
     worker_concurrency,
     worker_max_tasks_per_child,
     worker_prefetch_multiplier,
@@ -35,8 +33,6 @@ celery_app: "CeleryType" = Celery(
 # Apply configuration settings from celery_config.py
 celery_app.conf.update(
     beat_schedule=beat_schedule,
-    timezone=timezone,
-    enable_utc=enable_utc,
     task_acks_late=task_acks_late,
     task_reject_on_worker_lost=task_reject_on_worker_lost,
     task_time_limit=task_time_limit,
@@ -56,7 +52,7 @@ celery_app.conf.update(
     accept_content=["json"],
     result_serializer="json",
     timezone="America/New_York",
-    enable_utc=False,
+    enable_utc=True,
     task_routes={
         "app.tasks.data_sync.sync_race_results": {"queue": "data_sync"},
         "app.tasks.data_sync.check_draft_closures": {"queue": "draft"},

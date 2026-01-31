@@ -29,9 +29,8 @@ beat_schedule: dict[str, dict[str, Any]] = {
     "start_drafts": {
         "task": "app.tasks.data_sync.start_drafts",
         "schedule": crontab(
-            hour=18,  # 6 PM
-            minute=0,
-            timezone="America/New_York",
+            hour="18",  # 6 PM
+            minute="0",
         ),
         "options": {"expires": 3600},  # Task expires if not run within 1 hour
     },
@@ -39,9 +38,8 @@ beat_schedule: dict[str, dict[str, Any]] = {
     "calculate_constructor_points": {
         "task": "app.tasks.data_sync.calculate_constructor_points",
         "schedule": crontab(
-            hour=1,  # 1 AM
-            minute=0,
-            timezone="America/New_York",
+            hour="1",  # 1 AM
+            minute="0",
         ),
         "options": {"expires": 3600},  # Task expires if not run within 1 hour
     },
@@ -50,9 +48,8 @@ beat_schedule: dict[str, dict[str, Any]] = {
         "task": "app.tasks.data_sync.cleanup_old_notifications",
         "schedule": crontab(
             day_of_week="sun",  # Sunday
-            hour=2,  # 2 AM
-            minute=0,
-            timezone="America/New_York",
+            hour="2",  # 2 AM
+            minute="0",
         ),
         "options": {"expires": 3600},
     },
@@ -60,9 +57,8 @@ beat_schedule: dict[str, dict[str, Any]] = {
     "sync_external_data": {
         "task": "app.tasks.data_sync.sync_external_data",
         "schedule": crontab(
-            hour=3,  # 3 AM
-            minute=0,
-            timezone="America/New_York",
+            hour="3",  # 3 AM
+            minute="0",
         ),
         "options": {"expires": 3600},
     },
@@ -91,6 +87,4 @@ result_backend_transport_options = {
     "retry_on_timeout": True,
 }
 
-# timezone for Celery
-timezone = "America/New_York"
-enable_utc = False  # Use local timezone
+# Removed timezone configuration - should be set only at Celery app level in celery_app.py
