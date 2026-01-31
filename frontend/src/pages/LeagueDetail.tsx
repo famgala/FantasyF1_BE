@@ -1,17 +1,20 @@
-import { useParams, Link } from 'react-router-dom';
+import { useParams, Link, useNavigate } from 'react-router-dom';
 import { useState, useEffect } from 'react';
 import type { League, LeagueMember, FantasyTeam } from '../types';
-import { getLeagueById, getLeagueMembers, getLeagueTeams } from '../services/leagueService';
+import { getLeagueById, getLeagueMembers, getLeagueTeams, leaveLeague } from '../services/leagueService';
 import { useAuth } from '../context/AuthContext';
 
 export default function LeagueDetail() {
   const { id } = useParams<{ id: string }>();
+  const navigate = useNavigate();
   const { user } = useAuth();
   const [league, setLeague] = useState<League | null>(null);
   const [members, setMembers] = useState<LeagueMember[]>([]);
   const [teams, setTeams] = useState<FantasyTeam[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  const [successMessage, setSuccessMessage] = useState('');
+  const [isLeaving, setIsLeaving] = useState(false);
 
   // Determine user's role and membership status
   const currentMember = members.find((m) => m.user_id === user?.id);
@@ -54,8 +57,31 @@ export default function LeagueDetail() {
     alert('Join League functionality coming soon! (US-006)');
   };
 
-  const handleLeaveLeague = () => {
-    alert('Leave League functionality coming soon! (US-007)');
+  const handleLeaveLeague = async () => {
+    if (!id) return;
+
+    // Show confirmation dialog
+    const confirmed = window.confirm(
+      'Are you sure you want to leave this league? Your team will be deactivated and you will no longer be able to participate in this league.'
+    );
+
+    if (!confirmed) return;
+
+    try {
+      setIsLeaving(true);
+      await leaveLeague(id);
+      setSuccessMessage('You have successfully left the league!');
+      
+      // Redirect to dashboard after 2 seconds
+      setTimeout(() => {
+        navigate('/dashboard');
+      }, 2000);
+    } catch (err: any) {
+      console.error('Error leaving league:', err);
+      setError(err.response?.data?.detail || 'Failed to leave league. Please try again.');
+    } finally {
+      setIsLeaving(false);
+    }
   };
 
   const handleEditLeague = () => {
@@ -108,6 +134,10 @@ export default function LeagueDetail() {
       </div>
 
       <div className="league-info">
+        {/* Success Message */}
+        {successMessage && (
+          <div className="alert alert-success">{successMessage}</div>
+        )}
         {/* Description Section */}
         <div className="info-section">
           <h3>Description</h3>
@@ -216,8 +246,12 @@ export default function LeagueDetail() {
 
             {/* Leave League Button - shown if member but not creator */}
             {isMember && !isCreator && (
-              <button className="btn btn-secondary" onClick={handleLeaveLeague}>
-                Leave League
+              <button 
+                className="btn btn-secondary" 
+                onClick={handleLeaveLeague}
+                disabled={isLeaving}
+              >
+                {isLeaving ? 'Leaving...' : 'Leave League'}
               </button>
             )}
 

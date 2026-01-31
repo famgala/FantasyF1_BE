@@ -268,58 +268,93 @@ Started: Sat Jan 31 01:12:40 CST 2026
 
 ---
 
-## 1/31/2026 - US-004
-- Implemented complete league creation functionality with React + TypeScript
-- Created CreateLeagueForm component with comprehensive form validation
-- Extended leagueService with createLeague method for creating new leagues
-- Created CreateLeague page wrapping the CreateLeagueForm component
-- Created LeagueDetail page as placeholder for future implementation
-- Added TypeScript types for league creation (CreateLeagueRequest interface)
-- Implemented form validation for all required fields:
-  - League name: required, 3-100 characters
-  - Description: optional, max 500 characters
-  - Max teams: required, 2-50 teams
-  - Privacy: required (public/private)
-  - Draft method: required (random/sequential/snake)
-  - Draft close condition: required (race_start/manual/time_limit)
-- Real-time validation on input change and blur events
-- Form submission with loading state and error handling
-- Success message with shareable league code displayed prominently
-- Auto-redirect to league detail page after 2 seconds on successful creation
-- Cancel button navigates back to leagues page
-- Added comprehensive CSS styling for:
-  - Create league page and form container
-  - League code display with prominent styling
-  - League detail page structure (header, meta, info sections)
-  - Settings grid for league configuration display
-  - Loading spinner for async operations
-- Added CreateLeague route to App.tsx with ProtectedRoute wrapper
-- Added LeagueDetail route to App.tsx with ProtectedRoute wrapper
-- Added "Create League" button to Dashboard navigation
+## 1/31/2026 - US-007
+- Implemented complete leave league functionality with React + TypeScript
+- Added leaveLeague method to leagueService.ts for API call to DELETE /api/v1/leagues/{league_id}/leave
+- Updated LeagueDetail.tsx handleLeaveLeague function with full implementation:
+  - Added confirmation dialog using window.confirm before leaving
+  - Confirmation message explains that team will be deactivated and user can no longer participate
+  - Calls leaveLeague API on confirmation
+  - Displays success message after successful leave
+  - Redirects to dashboard after 2 seconds (My Leagues page not yet implemented - US-010)
+  - Handles errors with user-friendly error messages
+  - Button is disabled during API call and shows "Leaving..." loading state
+- Added new state variables: successMessage and isLeaving
+- Added useNavigate hook for programmatic navigation
+- Imported leaveLeague from leagueService
+- Success message displayed prominently at top of league info section
+- Error handling displays API error messages or generic fallback
+- Button is only shown to members who are not creators (existing logic preserved)
 - All TypeScript checks pass successfully (npm run build)
-- Files created/modified:
-  - frontend/src/components/CreateLeagueForm.tsx - Create league form component with validation
-  - frontend/src/pages/CreateLeague.tsx - Create league page wrapper
-  - frontend/src/pages/LeagueDetail.tsx - League detail page placeholder
-  - frontend/src/services/leagueService.ts - Added createLeague method
-  - frontend/src/types/index.ts - Added CreateLeagueRequest interface
-  - frontend/src/App.css - Added styling for create league and league detail pages
-  - frontend/src/App.tsx - Added CreateLeague and LeagueDetail routes
-  - frontend/src/pages/Dashboard.tsx - Added Create League button to navigation
+- Files modified:
+  - frontend/src/services/leagueService.ts - Added leaveLeague method
+  - frontend/src/pages/LeagueDetail.tsx - Implemented handleLeaveLeague with confirmation, API call, success message, and redirect
 
 **Learnings for future iterations:**
-- Form validation should be performed on both change and blur events for better UX
-- Use touched state to track which fields have been interacted with
-- Display validation errors inline below each field for clarity
-- League code should be displayed prominently after creation for easy sharing
-- Auto-redirect with delay (2 seconds) allows users to see success message before navigation
-- Form submission should disable all inputs and buttons during API call
-- The createLeague API returns the created league object with code and ID
-- League detail page is a placeholder that will be fully implemented in US-005
-- CSS classes follow consistent naming convention (create-league-form, league-detail, etc.)
-- League code display uses monospace font with letter spacing for readability
-- Settings grid uses responsive layout with minmax for different screen sizes
-- All acceptance criteria for US-004 have been met
-- Manual browser verification is recommended to test league creation flow
+- Use window.confirm for simple confirmation dialogs (no need for custom modal)
+- Confirmation messages should clearly explain the consequences of the action
+- Disable buttons during async operations to prevent double-submission
+- Show loading state text on buttons (e.g., "Leaving..." instead of "Leave League")
+- Use navigate() from useNavigate hook for programmatic redirects
+- Success messages should be displayed prominently before redirect
+- Use setTimeout with delay (2 seconds) to allow users to see success message before navigation
+- Redirect to dashboard when the target page (My Leagues) doesn't exist yet
+- Error handling should use err.response?.data?.detail for API-specific messages with fallback
+- The leaveLeague API returns void, no data to process on success
+- All acceptance criteria for US-007 have been met
+- Manual browser verification is recommended to test leave league flow with confirmation dialog
+
+---
+
+## 1/31/2026 - US-006
+- Implemented complete join league functionality with two-step process: search by code, then join with team name
+- Extended leagueService with joinLeague method (getLeagueByCode was already present)
+- Created JoinLeague page component with comprehensive join league features
+- Added JoinLeagueRequest TypeScript type to types/index.ts
+- Implemented two-step join process:
+  1. Search for league by code with validation
+  2. Display league information for confirmation
+  3. Enter team name and join the league
+- Added form validation for league code (6-10 characters) and team name (3-100 characters)
+- Real-time validation on input change and blur events with error messages
+- Display comprehensive league information before joining:
+  - Name, description, privacy status, draft method, max teams
+- Success message after joining with auto-redirect to league detail page
+- Error handling for invalid codes, full leagues, and API failures
+- Added "Join League" button to Dashboard navigation with indigo color scheme
+- Added comprehensive CSS styling for:
+  - Join league page and container
+  - League code search form
+  - League information box with blue border
+  - League details display with row-based layout
+  - Team name form
+  - Privacy badges (public/private)
+  - Error and success messages
+- Added JoinLeague route to App.tsx at /leagues/join with ProtectedRoute wrapper
+- All TypeScript checks pass successfully (npm run build)
+- Committed changes with message "feat: US-006 - Join League"
+- Files created/modified:
+  - frontend/src/pages/JoinLeague.tsx - Join league page component
+  - frontend/src/services/leagueService.ts - Extended with joinLeague method
+  - frontend/src/types/index.ts - Added JoinLeagueRequest interface
+  - frontend/src/App.tsx - Added JoinLeague route and import
+  - frontend/src/App.css - Added comprehensive styling for join league page
+  - frontend/src/pages/Dashboard.tsx - Added Join League button to navigation
+
+**Learnings for future iterations:**
+- Two-step join process improves UX by showing league details before commitment
+- League code input should auto-convert to uppercase for consistency
+- Display league information in a visually distinct box with border for confirmation
+- Separate forms for search and join keeps the UI clean and clear
+- Disable all inputs during API calls (searching and joining) to prevent duplicate submissions
+- Success message with auto-redirect (2 seconds) allows users to see confirmation
+- Error messages should be specific - different messages for "not found" vs "failed to join"
+- The joinLeague API requires league ID and team_name in the request body
+- The getLeagueByCode API takes the code as a URL parameter
+- Team name validation should match the backend requirements (3-100 characters)
+- Privacy badges should use the same styling as other pages for consistency
+- Cancel button should navigate back to dashboard for better flow
+- All acceptance criteria for US-006 have been met
+- Manual browser verification is recommended to test the join league flow with valid/invalid codes
 
 ---

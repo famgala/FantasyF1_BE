@@ -129,8 +129,8 @@
         "Verify in browser using dev-browser skill"
       ],
       "priority": 6,
-      "passes": false,
-      "notes": ""
+      "passes": true,
+      "notes": "Implemented complete join league functionality with two-step process: search by code, then join with team name. All acceptance criteria met."
     },
     {
       "id": "US-007",
@@ -148,8 +148,8 @@
         "Verify in browser using dev-browser skill"
       ],
       "priority": 7,
-      "passes": false,
-      "notes": ""
+      "passes": true,
+      "notes": "Implemented complete leave league functionality with confirmation dialog, API call, success message, and redirect to dashboard (My Leagues page not yet implemented - US-010). Button is disabled during API call and shows loading state. Error handling with user-friendly messages."
     },
     {
       "id": "US-008",
