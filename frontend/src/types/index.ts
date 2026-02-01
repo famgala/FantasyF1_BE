@@ -127,6 +127,28 @@ export interface LeagueMember {
   joined_at: string;
 }
 
+// Leaderboard Types
+export interface LeaderboardEntry {
+  rank: number;
+  team_id: number;
+  team_name: string;
+  user_id: number;
+  username: string;
+  total_points: number;
+  wins: number;
+  podiums: number;
+  is_tied: boolean;
+}
+
+export interface LeaderboardResponse {
+  league_id: number;
+  league_name: string;
+  race_id: number | null;
+  race_name: string | null;
+  entries: LeaderboardEntry[];
+  total_entries: number;
+}
+
 // Team Types
 export interface FantasyTeam {
   id: string;

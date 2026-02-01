@@ -631,8 +631,8 @@
         "Verify in browser using dev-browser skill"
       ],
       "priority": 31,
-      "passes": false,
-      "notes": ""
+      "passes": true,
+      "notes": "Implemented complete League Leaderboard page at /leagues/:id/leaderboard. Created leaderboardService.ts with getLeaderboard method. Added LeaderboardEntry and LeaderboardResponse types to types/index.ts. Created LeagueLeaderboard.tsx page component with visual podium display for top 3, ranked table for remaining entries, race filter dropdown, scroll to user's position button, user position summary, and current user highlighting. Added route in App.tsx. Added 'Leaderboard' button in LeagueDetail.tsx for all league members. Comprehensive CSS styling added for podium, table, badges, and responsive design. Typecheck passes. All acceptance criteria met."
     },
     {
       "id": "US-032",

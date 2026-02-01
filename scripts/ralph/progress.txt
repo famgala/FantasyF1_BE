@@ -65,3 +65,42 @@
   - CSS: Use flexbox and grid for responsive layouts
 
 ---
+
+## 2/1/2026, 2:50 AM - US-031: League Leaderboard
+- **Implemented complete League Leaderboard feature:**
+  - Created `leaderboardService.ts` with `getLeaderboard` method
+  - Added TypeScript types for `LeaderboardEntry` and `LeaderboardResponse` to `types/index.ts`
+  - Created `LeagueLeaderboard.tsx` page component at `/leagues/:id/leaderboard`
+  - Visual podium display for top 3 teams with rank badges, team names, usernames, points, wins, and podiums
+  - Ranked table for remaining entries (4th place onwards) with rank, team name, owner, points, wins, and podiums
+  - Race filter dropdown to filter by specific race or view overall season standings
+  - Scroll to user's position button with smooth scrolling animation
+  - User position summary showing current rank and points
+  - Current user highlighting with green background and "You" badge
+  - Tie indicator (=) for tied positions
+  - Empty state when no teams in league
+  - Loading states and error handling
+  - Added 'Leaderboard' button in `LeagueDetail.tsx` for all league members
+  - Added route in `App.tsx`
+  - Comprehensive CSS styling for podium, table, badges, and responsive design
+
+- **Files changed:**
+  - `frontend/src/types/index.ts` - Added LeaderboardEntry and LeaderboardResponse types
+  - `frontend/src/services/leaderboardService.ts` - Created
+  - `frontend/src/pages/LeagueLeaderboard.tsx` - Created
+  - `frontend/src/App.tsx` - Added route
+  - `frontend/src/pages/LeagueDetail.tsx` - Added Leaderboard button
+  - `frontend/src/App.css` - Added CSS styling
+
+- **Learnings for future iterations:**
+  - API client import: Use named import `import { apiClient as api }` instead of default import
+  - API response handling: The `api.get` method already returns data directly, don't use `.data`
+  - Type safety: Use `selectedRaceId ?? undefined` to convert null to undefined for optional parameters
+  - Race type: Use `race.race_date` not `race.date` for the Race interface
+  - Type comparison: Use `r.id === previewOrder.race_id` for number/number comparison
+  - Podium display: Extract top 3 entries for visual podium, remaining entries for table
+  - User highlighting: Compare `entry.user_id === parseInt(user?.id || '0')` for number/string comparison
+  - Scroll to element: Use `useRef` with `scrollIntoView({ behavior: 'smooth', block: 'center' })`
+  - CSS: Use flexbox with `gap` for podium layout, table styling for leaderboard
+
+---

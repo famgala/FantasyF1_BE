@@ -136,7 +136,7 @@ export default function CreateDraftOrder() {
               <option value="">-- Select a race --</option>
               {races.map((race) => (
                 <option key={race.id} value={race.id}>
-                  Round {race.round_number}: {race.name} - {formatDate(race.date)}
+                  Round {race.round_number}: {race.name} - {formatDate(race.race_date)}
                 </option>
               ))}
             </select>
@@ -192,7 +192,7 @@ export default function CreateDraftOrder() {
               <div className="draft-order-preview">
                 <h3>Draft Order Preview</h3>
                 <div className="draft-info">
-                  <p><strong>Race:</strong> {races.find(r => r.id === previewOrder.race_id.toString())?.name}</p>
+                  <p><strong>Race:</strong> {races.find(r => r.id === previewOrder.race_id)?.name}</p>
                   <p><strong>Method:</strong> {previewOrder.draft_method}</p>
                   <p><strong>Total Teams:</strong> {previewOrder.draft_orders.length}</p>
                 </div>

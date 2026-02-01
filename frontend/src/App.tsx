@@ -24,6 +24,7 @@ import ViewDraftOrder from './pages/ViewDraftOrder';
 import DraftStatus from './pages/DraftStatus';
 import MakeDraftPick from './pages/MakeDraftPick';
 import DraftBoard from './pages/DraftBoard';
+import LeagueLeaderboard from './pages/LeagueLeaderboard';
 import Drivers from './pages/Drivers';
 import DriverDetail from './pages/DriverDetail';
 import Constructors from './pages/Constructors';
@@ -157,6 +158,14 @@ function App() {
             element={
               <ProtectedRoute>
                 <DraftBoard />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/leagues/:id/leaderboard"
+            element={
+              <ProtectedRoute>
+                <LeagueLeaderboard />
               </ProtectedRoute>
             }
           />
