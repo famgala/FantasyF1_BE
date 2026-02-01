@@ -25,6 +25,7 @@ import DraftStatus from './pages/DraftStatus';
 import MakeDraftPick from './pages/MakeDraftPick';
 import DraftBoard from './pages/DraftBoard';
 import Drivers from './pages/Drivers';
+import DriverDetail from './pages/DriverDetail';
 
 function App() {
   return (
@@ -216,7 +217,7 @@ function App() {
             path="/drivers/:id"
             element={
               <ProtectedRoute>
-                <Drivers />
+                <DriverDetail />
               </ProtectedRoute>
             }
           />

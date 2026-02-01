@@ -2971,35 +2971,6 @@
   flex-shrink: 0;
 }
 
-/* Responsive */
-@media (max-width: 768px) {
-  .team-header {
-    flex-direction: column;
-  }
-
-  .team-actions {
-    width: 100%;
-  }
-
-  .team-actions .btn {
-    flex: 1;
-  }
-
-  .team-stats {
-    grid-template-columns: repeat(2, 1fr);
-  }
-
-  .picks-grid {
-    grid-template-columns: 1fr;
-  }
-
-  .race-header {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 0.5rem;
-  }
-}
-
 /* Add Picks Page Styles */
 .page-container {
   max-width: 1200px;
@@ -4631,5 +4602,303 @@
 
   .filter-bar .form-control {
     width: 100%;
+  }
+}
+
+/* Driver Detail Page Styles */
+.driver-detail-container {
+  max-width: 1000px;
+  margin: 0 auto;
+  padding: 2rem;
+}
+
+.driver-detail-header {
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  padding: 2rem;
+  margin-bottom: 2rem;
+  border: 1px solid #e5e7eb;
+}
+
+.header-top {
+  margin-bottom: 1.5rem;
+}
+
+.back-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: #3b82f6;
+  text-decoration: none;
+  font-size: 0.875rem;
+  font-weight: 600;
+  transition: color 0.15s ease-in-out;
+}
+
+.back-link:hover {
+  color: #2563eb;
+}
+
+.driver-header-content {
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+}
+
+.driver-number-section {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.driver-number-large {
+  background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+  color: white;
+  padding: 1rem 1.5rem;
+  border-radius: 12px;
+  font-size: 2rem;
+  font-weight: 700;
+  min-width: 80px;
+  text-align: center;
+}
+
+.driver-code-badge {
+  background: #f3f4f6;
+  color: #374151;
+  padding: 0.5rem 1rem;
+  border-radius: 6px;
+  font-size: 1rem;
+  font-weight: 700;
+  min-width: 60px;
+  text-align: center;
+}
+
+.driver-title-section {
+  flex: 1;
+}
+
+.driver-name-large {
+  margin: 0 0 0.75rem 0;
+  font-size: 2rem;
+  color: #111827;
+  font-weight: 700;
+}
+
+.driver-meta {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.status-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.375rem;
+  padding: 0.375rem 0.75rem;
+  border-radius: 9999px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.status-badge.status-active {
+  background-color: #d1fae5;
+  color: #065f46;
+}
+
+.status-badge.status-injured {
+  background-color: #fef3c7;
+  color: #92400e;
+}
+
+.status-badge.status-retired {
+  background-color: #fee2e2;
+  color: #991b1b;
+}
+
+.driver-country {
+  color: #6b7280;
+  font-size: 1rem;
+  font-weight: 500;
+}
+
+.driver-detail-content {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+}
+
+.detail-card {
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  padding: 1.5rem;
+  border: 1px solid #e5e7eb;
+}
+
+.detail-card h3 {
+  margin: 0 0 1rem 0;
+  font-size: 1.25rem;
+  color: #111827;
+  font-weight: 600;
+  padding-bottom: 0.75rem;
+  border-bottom: 2px solid #e5e7eb;
+}
+
+.team-card {
+  border-left: 4px solid #3b82f6;
+}
+
+.team-info {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.team-name {
+  font-size: 1.125rem;
+  color: #111827;
+  font-weight: 600;
+}
+
+.view-team-link {
+  color: #3b82f6;
+  text-decoration: none;
+  font-weight: 600;
+  font-size: 0.875rem;
+  transition: color 0.15s ease-in-out;
+}
+
+.view-team-link:hover {
+  color: #2563eb;
+}
+
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1rem;
+}
+
+.stat-card {
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  padding: 1.5rem;
+  border: 1px solid #e5e7eb;
+  text-align: center;
+}
+
+.stat-card .stat-label {
+  font-size: 0.75rem;
+  color: #6b7280;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.025em;
+  margin-bottom: 0.5rem;
+}
+
+.stat-card .stat-value {
+  font-size: 1.5rem;
+  color: #111827;
+  font-weight: 700;
+}
+
+.stat-card .price-value {
+  color: #3b82f6;
+}
+
+.performance-card {
+  border-left: 4px solid #059669;
+}
+
+.performance-stats {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.performance-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem;
+  background: #f9fafb;
+  border-radius: 6px;
+  border: 1px solid #e5e7eb;
+}
+
+.performance-label {
+  font-size: 0.875rem;
+  color: #6b7280;
+  font-weight: 600;
+}
+
+.performance-value {
+  font-size: 1.125rem;
+  color: #111827;
+  font-weight: 700;
+}
+
+.rating-excellent {
+  color: #059669;
+}
+
+.rating-good {
+  color: #3b82f6;
+}
+
+.rating-fair {
+  color: #f59e0b;
+}
+
+.rating-poor {
+  color: #dc2626;
+}
+
+.driver-actions {
+  display: flex;
+  gap: 1rem;
+  justify-content: flex-start;
+}
+
+/* Responsive for Driver Detail Page */
+@media (max-width: 768px) {
+  .driver-detail-header {
+    padding: 1.5rem;
+  }
+
+  .driver-header-content {
+    flex-direction: column;
+    text-align: center;
+  }
+
+  .driver-number-large {
+    font-size: 1.5rem;
+    padding: 0.75rem 1rem;
+  }
+
+  .driver-name-large {
+    font-size: 1.5rem;
+  }
+
+  .driver-meta {
+    justify-content: center;
+  }
+
+  .stats-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .performance-item {
+    flex-direction: column;
+    gap: 0.5rem;
+    text-align: center;
+  }
+
+  .driver-actions {
+    justify-content: center;
   }
 }
