@@ -1,9 +1,26 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import { invitationService } from '../services/invitationService';
 
 export const Dashboard: React.FC = () => {
   const { user, logout } = useAuth();
+  const [pendingCount, setPendingCount] = useState(0);
+
+  useEffect(() => {
+    fetchPendingInvitations();
+  }, []);
+
+  const fetchPendingInvitations = async () => {
+    try {
+      const response = await invitationService.getReceivedInvitations();
+      const pending = response.items.filter((inv) => inv.status === 'pending');
+      setPendingCount(pending.length);
+    } catch {
+      // Silently fail - badge will just show 0
+      setPendingCount(0);
+    }
+  };
 
   const handleLogout = async () => {
     await logout();
@@ -40,6 +57,17 @@ export const Dashboard: React.FC = () => {
                 className="bg-amber-600 hover:bg-amber-700 text-white px-4 py-2 rounded-md text-sm font-medium mr-2"
               >
                 My Leagues
+              </Link>
+              <Link
+                to="/invitations"
+                className="bg-teal-600 hover:bg-teal-700 text-white px-4 py-2 rounded-md text-sm font-medium mr-2 relative"
+              >
+                Invitations
+                {pendingCount > 0 && (
+                  <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
+                    {pendingCount > 99 ? '99+' : pendingCount}
+                  </span>
+                )}
               </Link>
               <Link
                 to="/leagues"

@@ -229,6 +229,26 @@ export interface SentInvitation {
   expires_at: string;
 }
 
+export interface ReceivedInvitation {
+  id: string;
+  league_id: string;
+  league_name: string;
+  inviter_id: string;
+  inviter_username: string;
+  status: 'pending' | 'accepted' | 'rejected' | 'expired';
+  message?: string;
+  created_at: string;
+  expires_at: string;
+}
+
+export interface AcceptInvitationRequest {
+  team_name: string;
+}
+
+export interface RejectInvitationRequest {
+  reason?: string;
+}
+
 // Draft Types
 export interface DraftPick {
   id: string;

@@ -12,6 +12,7 @@ import LeagueDetail from './pages/LeagueDetail';
 import EditLeague from './pages/EditLeague';
 import MyLeagues from './pages/MyLeagues';
 import SendInvitations from './pages/SendInvitations';
+import ReceivedInvitations from './pages/ReceivedInvitations';
 
 function App() {
   return (
@@ -92,6 +93,14 @@ function App() {
             element={
               <ProtectedRoute>
                 <MyLeagues />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/invitations"
+            element={
+              <ProtectedRoute>
+                <ReceivedInvitations />
               </ProtectedRoute>
             }
           />

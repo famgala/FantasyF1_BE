@@ -5,6 +5,8 @@ import type {
   UserIdInvitationRequest,
   CodeInvitationRequest,
   SentInvitation,
+  AcceptInvitationRequest,
+  RejectInvitationRequest,
 } from '../types';
 
 const BASE_URL = '/invitations';
@@ -76,6 +78,33 @@ export const invitationService = {
    */
   cancelInvitation: async (invitationId: string): Promise<void> => {
     await apiClient.delete<void>(`${BASE_URL}/invitations/${invitationId}`);
+  },
+
+  /**
+   * Get received invitations for the current user
+   */
+  getReceivedInvitations: async (): Promise<InvitationListResponse> => {
+    return await apiClient.get<InvitationListResponse>(`${BASE_URL}/received`);
+  },
+
+  /**
+   * Accept an invitation
+   */
+  acceptInvitation: async (
+    invitationId: string,
+    data: AcceptInvitationRequest
+  ): Promise<void> => {
+    await apiClient.post<void>(`${BASE_URL}/${invitationId}/accept`, data);
+  },
+
+  /**
+   * Reject an invitation
+   */
+  rejectInvitation: async (
+    invitationId: string,
+    data?: RejectInvitationRequest
+  ): Promise<void> => {
+    await apiClient.post<void>(`${BASE_URL}/${invitationId}/reject`, data || {});
   },
 };
 
