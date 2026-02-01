@@ -150,3 +150,43 @@
   - CSS: Use flexbox with `gap` for podium layout, table styling for leaderboard
 
 ---
+
+---
+
+## 2/1/2026, 3:23 AM - US-033: Notification Badge & Summary
+- **Implemented notification dropdown component with badge and recent notifications:**
+  - Refactored Dashboard.tsx to use NotificationDropdown component (already created)
+  - NotificationDropdown component features:
+    - Bell icon button in navbar with unread count badge
+    - Badge displays number of unread notifications (disappears when 0)
+    - Dropdown menu opens on click showing recent notifications (last 5)
+    - Each notification shows type icon, title, message, timestamp (relative time)
+    - Visual distinction for unread notifications (unread dot indicator)
+    - Mark as read button on individual notifications
+    - Mark as read on click/navigate
+    - "View All Notifications" link at bottom
+    - Click outside to close dropdown
+    - Auto-refresh every 60 seconds
+    - Loading spinner while fetching
+    - Empty state when no notifications
+  - Uses GET /api/v1/notifications (with limit=5) and GET /api/v1/notifications/summary APIs
+  - Type icons for different notification types (🏁 race_finished, 📝 draft_update, etc.)
+  - Relative time formatting (Just now, 5m ago, 2h ago, 3d ago)
+  - Comprehensive CSS styling for dropdown, badges, items, and responsive design
+
+- **Files changed:**
+  - `frontend/src/pages/Dashboard.tsx` - Refactored to use NotificationDropdown component
+  - `frontend/src/App.css` - Added notification dropdown styles (already present)
+  - `frontend/src/components/NotificationDropdown.tsx` - Component already created
+
+- **Learnings for future iterations:**
+  - Reusable component pattern: Create standalone NotificationDropdown component for cleaner Dashboard code
+  - Click outside handling: Use useRef and mousedown event listener with contains() check
+  - Auto-refresh: Use setInterval with cleanup in useEffect, 60 seconds is good for notifications
+  - Relative time: Use Date difference calculation with thresholds (60s, 3600s, 86400s, 604800s)
+  - Badge styling: Position absolute with negative offsets (-top-1 -right-1), min-width for "99+"
+  - Accessibility: Add aria-label, aria-expanded, aria-haspopup for dropdown buttons
+  - Stop propagation: Use e.stopPropagation() on mark-read button to prevent navigation
+  - Type mapping: Use Record<NotificationType, string> for icon mapping with fallback
+  - Dropdown positioning: Use absolute positioning with top: calc(100% + 8px) and right: 0
+

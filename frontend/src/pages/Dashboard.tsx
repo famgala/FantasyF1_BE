@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { invitationService } from '../services/invitationService';
@@ -8,20 +8,30 @@ export const Dashboard: React.FC = () => {
   const { user, logout } = useAuth();
   const [pendingCount, setPendingCount] = useState(0);
 
-  const fetchPendingInvitations = useCallback(async () => {
-    try {
-      const response = await invitationService.getReceivedInvitations();
-      const pending = response.items.filter((inv) => inv.status === 'pending');
-      setPendingCount(pending.length);
-    } catch {
-      // Silently fail - badge will just show 0
-      setPendingCount(0);
-    }
-  }, []);
-
   useEffect(() => {
+    let isMounted = true;
+
+    const fetchPendingInvitations = async () => {
+      try {
+        const response = await invitationService.getReceivedInvitations();
+        const pending = response.items.filter((inv) => inv.status === 'pending');
+        if (isMounted) {
+          setPendingCount(pending.length);
+        }
+      } catch {
+        // Silently fail - badge will just show 0
+        if (isMounted) {
+          setPendingCount(0);
+        }
+      }
+    };
+
     fetchPendingInvitations();
-  }, [fetchPendingInvitations]);
+
+    return () => {
+      isMounted = false;
+    };
+  }, []);
 
   const handleLogout = async () => {
     await logout();
