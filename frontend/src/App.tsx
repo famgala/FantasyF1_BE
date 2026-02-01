@@ -22,6 +22,8 @@ import AddPicks from './pages/AddPicks';
 import CreateDraftOrder from './pages/CreateDraftOrder';
 import ViewDraftOrder from './pages/ViewDraftOrder';
 import DraftStatus from './pages/DraftStatus';
+import MakeDraftPick from './pages/MakeDraftPick';
+import DraftBoard from './pages/DraftBoard';
 
 function App() {
   return (
@@ -134,6 +136,22 @@ function App() {
             element={
               <ProtectedRoute>
                 <DraftStatus />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/leagues/:id/make-draft-pick"
+            element={
+              <ProtectedRoute>
+                <MakeDraftPick />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/leagues/:id/draft-board"
+            element={
+              <ProtectedRoute>
+                <DraftBoard />
               </ProtectedRoute>
             }
           />

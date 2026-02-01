@@ -356,6 +356,37 @@ export interface CreateDraftOrderRequest {
   draft_method: 'random' | 'sequential' | 'snake';
 }
 
+export interface AvailableDriver {
+  id: string;
+  code: string;
+  number: number;
+  name: string;
+  team: string;
+  country: string;
+  price: number;
+  total_points: number;
+  average_points: number;
+  is_active: boolean;
+  is_drafted?: boolean;
+}
+
+export interface MakeDraftPickRequest {
+  driver_id: string;
+}
+
+export interface DraftPickResponse {
+  id: string;
+  league_id: string;
+  team_id: string;
+  team_name: string;
+  driver_id: string;
+  driver_name: string;
+  round: number;
+  pick_number: number;
+  is_auto_pick: boolean;
+  created_at: string;
+}
+
 // API Response Types
 export interface PaginatedResponse<T> {
   items: T[];

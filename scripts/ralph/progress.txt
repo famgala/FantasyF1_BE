@@ -634,4 +634,119 @@
   - Legend uses same color coding as draft order for consistency
 - **Typecheck**: Passed with no errors (npm run build)
 - **Commit**: `feat: US-015 - Add View Draft Order page for league members`
+
+---
+
+## 2/1/2026, 7:08 AM UTC - US-023
+- **Story**: Draft Status & Current Turn - View Real-Time Draft Progress
+- **What was implemented**:
+  - Extended `draftService.ts` with 2 new methods:
+    - `getDraftStatus(leagueId, raceId)`: Fetches draft status using GET /api/v1/drafts/{league_id}/draft-status
+    - `getDraftPicks(leagueId, raceId, teamId?)`: Fetches draft picks using GET /api/v1/drafts/{league_id}/draft-picks
+  - Added TypeScript types: `DraftStatus`, `DraftPick` to `types/index.ts`
+  - Created `DraftStatus.tsx` page component at `/leagues/:id/draft-status` with:
+    - Draft info section showing draft method, total rounds, total teams
+    - Progress bar showing draft completion percentage with color coding
+    - "Your Turn!" banner with pulse animation when user is on the clock
+    - Draft summary stats: current round, current pick, total picks made, total picks remaining
+    - Recent picks list showing driver name, team, pick number, round, and auto-pick indicator
+    - Loading states, error handling, and empty states
+    - Responsive design for mobile and desktop
+  - Added "Draft Status" button in `LeagueDetail.tsx` (visible to all league members)
+  - Added route `/leagues/:id/draft-status` in `App.tsx`
+  - Comprehensive CSS styling for page, banners, progress bars, cards, and stats
+- **Files changed**:
+  - `frontend/src/services/draftService.ts` - Added getDraftStatus and getDraftPicks methods
+  - `frontend/src/types/index.ts` - Added DraftStatus and DraftPick types
+  - `frontend/src/pages/DraftStatus.tsx` - New page component
+  - `frontend/src/App.tsx` - Added route
+  - `frontend/src/pages/LeagueDetail.tsx` - Added Draft Status button for all members
+  - `frontend/src/App.css` - Added styling for draft status page
+- **Learnings for future iterations**:
+  - Draft status API returns: current_round, current_pick, total_rounds, total_teams, total_picks_made, total_picks_remaining, draft_completion_percentage, is_draft_complete, current_team_on_clock, current_team_owner
+  - Draft picks API returns: draft_picks array with pick_number, round, team_id, team_name, driver_id, driver_name, driver_team, is_auto_pick, picked_at
+  - Progress bar uses color coding: green (high completion), yellow (medium), gray (low/zero)
+  - "Your Turn!" banner uses pulse animation (@keyframes pulse) to draw attention
+  - Draft summary stats are displayed in a 2x2 grid for easy scanning
+  - Recent picks list shows the most recent 10 picks in reverse chronological order
+  - Auto-pick indicator shows "Auto" badge for picks made automatically
+  - Draft Status button is visible to all league members (not just creator)
+  - Empty state shows when no draft status exists for the league
+  - Error handling catches 404 (draft status not found) and 403 (not a member) errors
+  - Responsive design: cards stack vertically on mobile, grid layout on desktop
+  - Draft info section shows key stats: method, total rounds, total teams
+  - Draft method labels: Random, Sequential, Snake for user-friendly display
+  - Progress bar shows percentage with color coding based on completion
+  - "Your Turn!" banner uses yellow background (#fef3c7) with border (#fcd34d) for prominence
+  - Draft summary stats use a grid layout with labels and values
+  - Recent picks list shows pick number, round, driver name, driver team, and auto-pick indicator
+  - Auto-pick badge uses orange color (#f97316) for visual distinction
+  - Draft status page is accessible from LeagueDetail via Draft Status button
+  - The page polls for updates every 5 seconds (using useEffect with setInterval) for real-time updates
+  - Polling is cleaned up on component unmount to prevent memory leaks
+- **Typecheck**: Passed with no errors (npm run build)
+- **Commit**: `feat: US-023 - Add Draft Status page with real-time draft progress tracking`
+
+---
+
+## 2/1/2026, 7:16 AM UTC - US-024
+- **Story**: Make Draft Pick - Select Driver During Draft Turn
+- **What was implemented**:
+  - Extended `draftService.ts` with 2 new methods:
+    - `getAvailableDrivers(leagueId, raceId)`: Fetches available drivers using GET /api/v1/drafts/{league_id}/available-drivers
+    - `makeDraftPick(leagueId, raceId, request)`: Makes a draft pick using POST /api/v1/drafts/{league_id}/draft-picks
+  - Added TypeScript types: `AvailableDriver`, `MakeDraftPickRequest`, `DraftPickResponse` to `types/index.ts`
+  - Created `MakeDraftPick.tsx` page component at `/leagues/:id/make-draft-pick` with:
+    - Driver cards showing name, number, team, country, price, total points, average points
+    - Team filter dropdown to filter drivers by constructor
+    - Search input to filter drivers by name, code, or number
+    - Draft info section showing current round, current position, team on clock, and draft method
+    - "Your Turn!" banner when user is on the clock with pulse animation
+    - Radio button selection for single driver pick (draft picks one driver at a time)
+    - Success message with redirect to draft status after making pick
+    - Error handling for not user's turn, draft complete, and other validation errors
+    - Loading states, error handling, and empty states
+    - Responsive grid layout for driver cards
+  - Updated `DraftStatus.tsx` to link to MakeDraftPick page when it's user's turn
+  - Added route `/leagues/:id/make-draft-pick` in `App.tsx`
+  - Comprehensive CSS styling for page, driver cards, filters, draft info, and banners
+- **Files changed**:
+  - `frontend/src/services/draftService.ts` - Added getAvailableDrivers and makeDraftPick methods
+  - `frontend/src/types/index.ts` - Added AvailableDriver, MakeDraftPickRequest, DraftPickResponse types
+  - `frontend/src/pages/MakeDraftPick.tsx` - New page component
+  - `frontend/src/pages/DraftStatus.tsx` - Added link to MakeDraftPick page
+  - `frontend/src/App.tsx` - Added route
+  - `frontend/src/App.css` - Added styling for make draft pick page
+- **Learnings for future iterations**:
+  - Make Draft Pick page uses leagueId and raceId from URL params to identify league and race
+  - Driver cards use radio button for selection (single driver pick per turn in draft)
+  - Team filter dropdown uses useMemo to extract unique teams from drivers list
+  - Search filters by name, code, or number using case-insensitive matching
+  - Draft info section shows current round, current position, team on clock, and draft method
+  - "Your Turn!" banner uses pulse animation (@keyframes pulse) to draw attention
+  - Draft picks one driver at a time (unlike Add Picks which selects multiple drivers)
+  - Success message shows and redirects to draft status after 2 seconds
+  - Error handling catches 400 (not your turn), 403 (not a member), 404 (not found), 409 (draft complete) errors
+  - DraftStatus page links to MakeDraftPick page when it's user's turn with "Make Your Pick" button
+  - Driver cards display stats in a grid: price, total points, average points
+  - Empty state shows when no drivers match filters with clear filters button
+  - Draft info section uses a grid layout with labels and values
+  - "Your Turn!" banner uses yellow background (#fef3c7) with border (#fcd34d) for prominence
+  - Draft method labels: Random, Sequential, Snake for user-friendly display
+  - Team on clock shows team name and owner name for context
+  - Submit button is disabled when no driver is selected
+  - After successful pick, user is redirected to draft status to see updated draft board
+  - Make Draft Pick page is accessible from DraftStatus via "Make Your Pick" button
+  - The page checks if it's user's turn on mount and shows error if not
+  - Draft complete check prevents making picks when draft is finished
+  - Driver cards show country flag emoji for visual appeal
+  - Team filter uses team_id as value, displays team name
+  - Search input debounces to avoid excessive filtering
+  - Loading state shows spinner while fetching available drivers
+  - Error state shows error message with "Go Back" button
+  - Draft info section shows current round and position for context
+  - Total teams shown to understand draft size
+  - Draft method shown to understand draft format
+- **Typecheck**: Passed with no errors (npm run build)
+- **Commit**: `feat: US-024 - Make Draft Pick page with driver selection UI`
 ---

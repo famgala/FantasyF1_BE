@@ -469,8 +469,8 @@
         "Verify in browser using dev-browser skill"
       ],
       "priority": 23,
-      "passes": false,
-      "notes": ""
+      "passes": true,
+      "notes": "Implemented complete Draft Status page at /leagues/:id/draft-status. Created DraftStatus.tsx page component with draft info section (method, total rounds, total teams), progress bar with percentage, 'Your Turn!' banner with pulse animation when user is on the clock, recent picks list with auto-pick indicators, draft summary stats. Added 'Draft Status' button in LeagueDetail.tsx for all league members. Added route in App.tsx. Extended draftService.ts with getDraftStatus and getDraftPicks methods. Added DraftStatus and DraftPick types to types/index.ts. Comprehensive CSS styling for page, banners, progress bars, cards, and stats. Typecheck passes. All acceptance criteria met."
     },
     {
       "id": "US-024",
@@ -492,8 +492,8 @@
         "Verify in browser using dev-browser skill"
       ],
       "priority": 24,
-      "passes": false,
-      "notes": ""
+      "passes": true,
+      "notes": "Implemented complete Make Draft Pick page at /leagues/:id/make-draft-pick. Created MakeDraftPick.tsx page component with driver selection UI. Extended draftService.ts with getAvailableDrivers and makeDraftPick methods. Added AvailableDriver, MakeDraftPickRequest, DraftPickResponse types to types/index.ts. Features: driver cards with stats (name, number, team, country, price, points, average), team filter dropdown, search by name/code/number, radio button selection for single driver pick, draft info section showing current round/position/team on clock, 'Your Turn!' banner when user is on the clock, success message with redirect to draft status, error handling for not user's turn or draft complete, loading states, empty states. Updated DraftStatus.tsx to link to MakeDraftPick page. Added route in App.tsx. Comprehensive CSS styling added. Typecheck passes. All acceptance criteria met."
     },
     {
       "id": "US-025",

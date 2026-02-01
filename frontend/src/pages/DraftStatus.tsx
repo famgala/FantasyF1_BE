@@ -106,7 +106,7 @@ export default function DraftStatus() {
                 <h2>🏁 It's Your Turn!</h2>
                 <p>You are on the clock. Make your pick now!</p>
                 <button
-                  onClick={() => navigate(`/leagues/${leagueId}/add-picks`)}
+                  onClick={() => navigate(`/leagues/${leagueId}/make-draft-pick`)}
                   className="btn btn-primary"
                 >
                   Make Your Pick
