@@ -358,3 +358,36 @@ Started: Sat Jan 31 01:12:40 CST 2026
 - Manual browser verification is recommended to test the join league flow with valid/invalid codes
 
 ---
+
+## 1/31/2026, 10:30 PM - US-008
+- Implemented complete "Update League Settings" feature
+- Files changed:
+  - frontend/src/types/index.ts - Added UpdateLeagueRequest type interface
+  - frontend/src/services/leagueService.ts - Added updateLeague method
+  - frontend/src/pages/EditLeague.tsx - New page component (490 lines) for editing league settings
+  - frontend/src/pages/LeagueDetail.tsx - Added "Edit League" button navigation for creator/co-managers
+  - frontend/src/App.tsx - Added route for /leagues/:id/edit
+  - scripts/ralph/prd.json - Marked US-008 as passing
+- All acceptance criteria met:
+  - Edit League page accessible only to creator/co-managers (role-based access check)
+  - Form pre-populated with current league settings from API
+  - Editable fields: name, description, max teams, privacy, draft method, draft close condition, scoring settings
+  - Draft method and privacy disabled when draft is active (placeholder for draft status)
+  - Validation on all fields (matches CreateLeagueForm patterns)
+  - Success/error messages displayed
+  - Redirects to league detail page on success
+  - API call: PUT /api/v1/leagues/:id
+  - TypeScript typecheck passes
+
+**Learnings for future iterations:**
+- Pattern: Follow CreateLeagueForm patterns for form validation and structure
+- Pattern: Use navigate() from react-router-dom for programmatic navigation
+- Pattern: Fetch league data and members in parallel with Promise.all for performance
+- Pattern: Define role-based permissions using members.find() with user.id
+- Gotcha: Form errors interface must include all possible error fields (added scoring_settings)
+- Pattern: Use FormData interface to maintain type safety in form state
+- Pattern: JSON parse/stringify for scoring_settings JSON field handling
+- Pattern: 1.5 second timeout before redirect allows users to see success message
+- Pattern: Disabled fields during submission prevent double-submits
+
+---

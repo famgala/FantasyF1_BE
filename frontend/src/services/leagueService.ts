@@ -98,3 +98,10 @@ export async function updateLeague(leagueId: string, data: UpdateLeagueRequest):
 export async function leaveLeague(leagueId: string): Promise<void> {
   return api.delete<void>(`/leagues/${leagueId}/leave`);
 }
+
+/**
+ * Delete a league (creator only)
+ */
+export async function deleteLeague(leagueId: string): Promise<void> {
+  return api.delete<void>(`/leagues/${leagueId}`);
+}

@@ -1,7 +1,7 @@
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import { useState, useEffect } from 'react';
 import type { League, LeagueMember, FantasyTeam } from '../types';
-import { getLeagueById, getLeagueMembers, getLeagueTeams, leaveLeague } from '../services/leagueService';
+import { getLeagueById, getLeagueMembers, getLeagueTeams, leaveLeague, deleteLeague } from '../services/leagueService';
 import { useAuth } from '../context/AuthContext';
 
 export default function LeagueDetail() {
@@ -15,6 +15,11 @@ export default function LeagueDetail() {
   const [error, setError] = useState('');
   const [successMessage, setSuccessMessage] = useState('');
   const [isLeaving, setIsLeaving] = useState(false);
+  
+  // Delete league modal state
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [deleteConfirmName, setDeleteConfirmName] = useState('');
+  const [isDeleting, setIsDeleting] = useState(false);
 
   // Determine user's role and membership status
   const currentMember = members.find((m) => m.user_id === user?.id);
@@ -88,8 +93,43 @@ export default function LeagueDetail() {
     navigate(`/leagues/${id}/edit`);
   };
 
-  const handleDeleteLeague = () => {
-    alert('Delete League functionality coming soon! (US-009)');
+  const openDeleteModal = () => {
+    setShowDeleteModal(true);
+    setDeleteConfirmName('');
+  };
+
+  const closeDeleteModal = () => {
+    setShowDeleteModal(false);
+    setDeleteConfirmName('');
+  };
+
+  const handleDeleteLeague = async () => {
+    if (!id) return;
+    if (!league) return;
+    
+    // Validate that user typed the correct league name
+    if (deleteConfirmName !== league.name) {
+      setError('Please type the league name exactly to confirm deletion.');
+      return;
+    }
+
+    try {
+      setIsDeleting(true);
+      setError('');
+      await deleteLeague(id);
+      setShowDeleteModal(false);
+      setSuccessMessage('League deleted successfully!');
+      
+      // Redirect to dashboard after 2 seconds
+      setTimeout(() => {
+        navigate('/dashboard');
+      }, 2000);
+    } catch (err: any) {
+      console.error('Error deleting league:', err);
+      setError(err.response?.data?.detail || 'Failed to delete league. Please try again.');
+    } finally {
+      setIsDeleting(false);
+    }
   };
 
   const handleInviteMembers = () => {
@@ -264,7 +304,7 @@ export default function LeagueDetail() {
 
             {/* Delete League Button - shown if creator */}
             {isCreator && (
-              <button className="btn btn-danger" onClick={handleDeleteLeague}>
+              <button className="btn btn-danger" onClick={openDeleteModal}>
                 Delete League
               </button>
             )}
@@ -283,6 +323,54 @@ export default function LeagueDetail() {
           </div>
         </div>
       </div>
+
+      {/* Delete League Confirmation Modal */}
+      {showDeleteModal && league && (
+        <div className="modal-overlay">
+          <div className="modal-container">
+            <div className="modal-header">
+              <h3>Delete League</h3>
+            </div>
+            <div className="modal-content">
+              <div className="delete-warning">
+                <p className="warning-text">
+                  <strong>Warning:</strong> This action is permanent and cannot be undone.
+                </p>
+                <p className="warning-details">
+                  All league data, including teams, members, settings, and history will be permanently deleted.
+                </p>
+              </div>
+              <p className="confirm-instruction">
+                To confirm deletion, please type the league name: <strong>{league.name}</strong>
+              </p>
+              <input
+                type="text"
+                className="form-control"
+                placeholder="Type league name to confirm"
+                value={deleteConfirmName}
+                onChange={(e) => setDeleteConfirmName(e.target.value)}
+                autoFocus
+              />
+            </div>
+            <div className="modal-actions">
+              <button
+                className="btn btn-secondary"
+                onClick={closeDeleteModal}
+                disabled={isDeleting}
+              >
+                Cancel
+              </button>
+              <button
+                className="btn btn-danger"
+                onClick={handleDeleteLeague}
+                disabled={isDeleting || deleteConfirmName !== league.name}
+              >
+                {isDeleting ? 'Deleting...' : 'Delete League'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
