@@ -449,8 +449,8 @@
         "Verify in browser using dev-browser skill"
       ],
       "priority": 22,
-      "passes": false,
-      "notes": ""
+      "passes": true,
+      "notes": "Implemented complete View Draft Order page at /leagues/:id/draft-order. Extended draftService.ts with getDraftOrder method. Created ViewDraftOrder.tsx page component with draft info section (method, total rounds, total teams), draft order organized by rounds with pick numbers, team names, and owner names. Highlights current user's team with green background and badge. Added 'View Draft Order' button in LeagueDetail.tsx for all league members. Added route in App.tsx. Comprehensive CSS styling for page, rounds, tables, pick numbers, team badges, and legend. Responsive design for mobile. Typecheck passes. All acceptance criteria met."
     },
     {
       "id": "US-023",

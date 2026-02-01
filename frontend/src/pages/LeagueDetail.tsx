@@ -352,6 +352,13 @@ export default function LeagueDetail() {
               </button>
             )}
 
+            {/* Draft Status Button - shown to all members */}
+            {isMember && (
+              <button className="btn btn-primary" onClick={() => navigate(`/leagues/${id}/draft-status`)}>
+                Draft Status
+              </button>
+            )}
+
             {/* Leaderboard Link */}
             <Link to={`/leagues/${id}/leaderboard`} className="btn btn-outline">
               View Leaderboard

@@ -318,15 +318,23 @@ export interface DraftPick {
 
 export interface DraftStatus {
   league_id: string;
-  current_round: number;
-  current_pick: number;
-  total_rounds: number;
-  total_picks: number;
-  current_team_id?: string;
-  current_team_name?: string;
+  race_id: number;
+  draft_method: 'random' | 'sequential' | 'snake';
   is_draft_complete: boolean;
-  draft_started_at?: string;
-  draft_completed_at?: string;
+  total_teams: number;
+  total_picks_made: number;
+  current_round: number;
+  current_position: number;
+  current_team?: {
+    id: string;
+    name: string;
+    user_id: string;
+  };
+  next_pick?: {
+    fantasy_team_id: string;
+    pick_round: number;
+    draft_position: number;
+  };
 }
 
 export interface DraftOrderTeam {

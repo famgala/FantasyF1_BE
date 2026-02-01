@@ -592,3 +592,46 @@
 - **Typecheck**: Passed with no errors (npm run build)
 - **Commit**: `feat: US-021 - Draft Order Creation`
 ---
+
+## 2/1/2026, 6:59 AM UTC - US-022
+- **Story**: View Draft Order - View Draft Order for League
+- **What was implemented**:
+  - Extended `draftService.ts` with `getDraftOrder(leagueId)` method using GET /api/v1/drafts/{league_id}/draft-order
+  - Created `ViewDraftOrder.tsx` page component at `/leagues/:id/draft-order` with:
+    - Draft info section showing draft method, total rounds, total teams
+    - Draft order organized by rounds with pick numbers, team names, and owner names
+    - Highlights current user's team with green background and "Your Team" badge
+    - Legend explaining the color coding (green = your team)
+    - Loading states, error handling, and empty states
+    - Responsive design for mobile and desktop
+  - Added "View Draft Order" button in `LeagueDetail.tsx` (visible to all league members)
+  - Added route `/leagues/:id/draft-order` in `App.tsx`
+  - Comprehensive CSS styling for page, rounds, tables, pick numbers, team badges, and legend
+- **Files changed**:
+  - `frontend/src/services/draftService.ts` - Added getDraftOrder method
+  - `frontend/src/pages/ViewDraftOrder.tsx` - New page component
+  - `frontend/src/App.tsx` - Added route
+  - `frontend/src/pages/LeagueDetail.tsx` - Added View Draft Order button for all members
+  - `frontend/src/App.css` - Added styling for view draft order page
+- **Learnings for future iterations**:
+  - Draft order API returns: id, league_id, race_id, draft_method, draft_order (array of team_id strings), created_at
+  - Draft order is organized by rounds: total_rounds = ceil(total_teams / 5), picks per round = 5
+  - Team names and owner names are fetched from league members to display in draft order
+  - Current user's team is highlighted with green background (#dcfce7) and "Your Team" badge
+  - Pick numbers are displayed in a circle with position number (1-based)
+  - Draft order is displayed in a table format with columns: Pick #, Team Name, Owner
+  - Each round is displayed in a separate section with round number header
+  - Legend section explains the color coding for user-friendly experience
+  - View Draft Order button is visible to all league members (not just creator)
+  - Empty state shows when no draft order exists for the league
+  - Error handling catches 404 (draft order not found) and 403 (not a member) errors
+  - Responsive design: table scrolls horizontally on mobile, cards stack vertically
+  - Draft info section shows key stats: method, total rounds, total teams
+  - Draft method labels: Random, Sequential, Snake for user-friendly display
+  - Team badges use blue color (#3b82f6) for visual distinction
+  - Pick number circles use gray background (#f3f4f6) with dark text (#1f2937)
+  - Your team rows use green background (#dcfce7) with green border (#22c55e)
+  - Legend uses same color coding as draft order for consistency
+- **Typecheck**: Passed with no errors (npm run build)
+- **Commit**: `feat: US-015 - Add View Draft Order page for league members`
+---
