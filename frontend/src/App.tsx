@@ -19,6 +19,7 @@ import SentInvitations from './pages/SentInvitations';
 import LeagueInvitations from './pages/LeagueInvitations';
 import LeagueRoles from './pages/LeagueRoles';
 import AddPicks from './pages/AddPicks';
+import CreateDraftOrder from './pages/CreateDraftOrder';
 
 function App() {
   return (
@@ -107,6 +108,14 @@ function App() {
             element={
               <ProtectedRoute>
                 <LeagueRoles />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/leagues/:id/create-draft-order"
+            element={
+              <ProtectedRoute>
+                <CreateDraftOrder />
               </ProtectedRoute>
             }
           />

@@ -541,4 +541,54 @@
   - Pick details show: race name, driver name, driver team, and price for user confirmation
 - **Typecheck**: Passed with no errors (npm run build)
 - **Commit**: `feat: US-020 - Remove Team Picks`
+
+---
+
+## 2/1/2026, 6:51 AM UTC - US-021
+- **Story**: Draft Order Creation - Create Draft Order for League Race
+- **What was implemented**:
+  - Created `draftService.ts` with 2 API methods:
+    - `getUpcomingRaces(limit)`: Fetches upcoming races using GET /api/v1/races/upcoming
+    - `createDraftOrder(leagueId, raceId, draftMethod)`: Creates draft order using POST /api/v1/drafts/{league_id}/draft-order/create
+  - Added TypeScript types: `Race`, `DraftOrder` to `types/index.ts`
+  - Created `CreateDraftOrder.tsx` page component at `/leagues/:id/create-draft-order` with:
+    - Race selection dropdown populated from upcoming races
+    - Draft method selection (random, sequential, snake) with descriptions
+    - Preview section showing draft order before confirming
+    - Confirmation modal with full draft order list showing team positions
+    - Success message after creation with info banner about notifications
+    - Loading states, error handling, and validation
+    - Empty state when no upcoming races available
+  - Updated `api.ts` to support params in POST requests (added optional params parameter)
+  - Added "Create Draft Order" button in `LeagueDetail.tsx` (visible to creators only)
+  - Added route `/leagues/:id/create-draft-order` in `App.tsx`
+  - Comprehensive CSS styling for page, preview, draft order list, and modals
+- **Files changed**:
+  - `frontend/src/services/draftService.ts` - New service file
+  - `frontend/src/types/index.ts` - Added Race and DraftOrder types
+  - `frontend/src/pages/CreateDraftOrder.tsx` - New page component
+  - `frontend/src/services/api.ts` - Updated post method to support params
+  - `frontend/src/App.tsx` - Added route
+  - `frontend/src/pages/LeagueDetail.tsx` - Added Create Draft Order button for creators
+  - `frontend/src/App.css` - Added styling for create draft order page
+- **Learnings for future iterations**:
+  - Draft order creation uses POST with query params (race_id, draft_method) instead of request body
+  - API client needed to be updated to support params in POST requests
+  - Race selection dropdown uses race_id as value, displays race name and round number
+  - Draft methods: random (random order), sequential (1-2-3-4...), snake (1-2-3-4-4-3-2-1...)
+  - Preview section shows draft order in a numbered list with team names and positions
+  - Confirmation modal displays full draft order with position numbers and team names
+  - Success message includes info banner about notifications being sent to all league members
+  - Create Draft Order button only visible to league creators (isCreator check)
+  - Empty state shows when no upcoming races are available
+  - Draft order response includes: id, league_id, race_id, draft_method, draft_order (array of team_id strings), created_at
+  - Team names are fetched from league members to display in draft order list
+  - Race info includes: id, name, round_number, circuit_name, country, date, status
+  - Draft order list uses position numbers (1-based) for display
+  - Modal pattern: overlay + container with header (title + close button), body (description + draft order list), actions (cancel + confirm buttons)
+  - Info banner uses blue background (#eff6ff) with border (#bfdbfe) for informational content
+  - After successful creation, success message shows and redirects after 2 seconds
+  - Error handling catches 400 (invalid params), 403 (not creator), 404 (not found), 409 (draft order already exists) errors
+- **Typecheck**: Passed with no errors (npm run build)
+- **Commit**: `feat: US-021 - Draft Order Creation`
 ---

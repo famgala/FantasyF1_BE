@@ -338,6 +338,13 @@ export default function LeagueDetail() {
               </button>
             )}
 
+            {/* Create Draft Order Button - shown if creator */}
+            {isCreator && (
+              <button className="btn btn-primary" onClick={() => navigate(`/leagues/${id}/create-draft-order`)}>
+                Create Draft Order
+              </button>
+            )}
+
             {/* Leaderboard Link */}
             <Link to={`/leagues/${id}/leaderboard`} className="btn btn-outline">
               View Leaderboard

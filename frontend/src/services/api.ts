@@ -73,8 +73,8 @@ class ApiClient {
     return response.data;
   }
 
-  async post<T>(url: string, data?: any): Promise<T> {
-    const response = await this.client.post<T>(url, data);
+  async post<T>(url: string, data?: any, params?: any): Promise<T> {
+    const response = await this.client.post<T>(url, data, { params });
     return response.data;
   }
 

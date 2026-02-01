@@ -329,6 +329,25 @@ export interface DraftStatus {
   draft_completed_at?: string;
 }
 
+export interface DraftOrderTeam {
+  draft_order_number: number;
+  team_id: string;
+  team_name: string;
+  user_id: string;
+}
+
+export interface DraftOrder {
+  league_id: string;
+  race_id: number;
+  draft_method: 'random' | 'sequential' | 'snake';
+  draft_orders: DraftOrderTeam[];
+}
+
+export interface CreateDraftOrderRequest {
+  race_id: number;
+  draft_method: 'random' | 'sequential' | 'snake';
+}
+
 // API Response Types
 export interface PaginatedResponse<T> {
   items: T[];

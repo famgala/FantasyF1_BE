@@ -430,8 +430,8 @@
         "Verify in browser using dev-browser skill"
       ],
       "priority": 21,
-      "passes": false,
-      "notes": ""
+      "passes": true,
+      "notes": "Implemented complete Create Draft Order page at /leagues/:id/create-draft-order. Created draftService.ts with getUpcomingRaces and createDraftOrder methods. Added Race and DraftOrder types to types/index.ts. Page displays race selection dropdown, draft method selection (random, sequential, snake), preview of draft order before confirming, confirmation modal with full draft order list showing team positions. Success message after creation with info banner about notifications. Added 'Create Draft Order' button in LeagueDetail.tsx for creators only. Added route in App.tsx. Updated api.ts to support params in POST requests. Comprehensive CSS styling added for page, preview, draft order list, and modals. Typecheck passes. All acceptance criteria met."
     },
     {
       "id": "US-022",
