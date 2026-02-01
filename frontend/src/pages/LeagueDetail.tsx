@@ -140,6 +140,10 @@ export default function LeagueDetail() {
     navigate(`/leagues/${id}/invitations`);
   };
 
+  const handleManageRoles = () => {
+    navigate(`/leagues/${id}/roles`);
+  };
+
   if (loading) {
     return (
       <div className="league-detail">
@@ -324,6 +328,13 @@ export default function LeagueDetail() {
             {(isCreator || isCoManager) && (
               <button className="btn btn-secondary" onClick={handleManageInvitations}>
                 Manage Invitations
+              </button>
+            )}
+
+            {/* Manage Roles Button - shown if creator */}
+            {isCreator && (
+              <button className="btn btn-primary" onClick={handleManageRoles}>
+                Manage Roles
               </button>
             )}
 

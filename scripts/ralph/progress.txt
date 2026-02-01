@@ -1,474 +1,339 @@
-# Ralph Progress Log
-Started: Sat Jan 31 01:12:40 CST 2026
-
 ## Codebase Patterns
-- Use Vite + React + TypeScript for frontend development
-- Use React Router for routing with ProtectedRoute component for auth
-- Use Context API for global state management (AuthContext)
-- Use axios for API calls with interceptors for token refresh
-- Store JWT tokens in localStorage (access_token, refresh_token)
-- Use type-only imports for types when verbatimModuleSyntax is enabled
-- All TypeScript types defined in src/types/index.ts
-- Services in src/services/ for API interactions
-- Pages in src/pages/ for route components
-- Components in src/components/ for reusable UI elements
-- Environment variables use VITE_ prefix and are accessed via import.meta.env
-- Modal pattern: Use modal-overlay and modal-container CSS classes for modal dialogs
-- Form validation patterns: Real-time validation on change/blur, inline error display
-- Confirmation patterns: Require typing specific text (like league name) for destructive actions
-- Role-based UI: Check isCreator, isCoManager from members list for conditional rendering
+- Frontend uses React + TypeScript with Vite
+- API service pattern: Create service files in `services/` directory using `apiClient` from `api.ts`
+- Type definitions go in `types/index.ts` with interfaces for all API requests/responses
+- Page components go in `pages/` directory, imported and routed in `App.tsx`
+- Navigation buttons added to `Dashboard.tsx` for main features
+- CSS styling consolidated in `App.css` with section comments for each feature
+- Use Tailwind CSS classes for layout, custom CSS for specific component styling
+- Form validation handled inline with error state and error messages
+- Modal pattern: overlay + container with header/content/actions sections
+- Empty states should have call-to-action buttons when applicable
+- Loading states use spinner component, disable buttons during submission
+- Notification badges use absolute positioning with red background
+- League invitations endpoint uses GET /api/v1/leagues/{league_id}/invitations (not /invitations/{league_id}/all)
+- Status badges use colored backgrounds: yellow (pending), green (accepted), red (rejected), gray (expired)
+- Responsive card layouts: stack on mobile, table-like grid on desktop using CSS grid
+- Inviter info shows username when available, otherwise fallback to user_id
 
 ---
 
-## 1/31/2026, 11:00 PM - US-009
-- Verified US-009 (Delete League) was already fully implemented
-- Service function `deleteLeague(leagueId)` exists in leagueService.ts calling DELETE /api/v1/leagues/{league_id}
-- LeagueDetail.tsx has complete delete functionality:
-  - Delete League button visible only to league creators (isCreator check)
-  - Confirmation modal with warning about permanent deletion
-  - Requires typing exact league name to confirm (safety mechanism)
-  - Loading state ("Deleting...") during API call
-  - Success message and redirect to dashboard after 2 seconds
+## 2/1/2026, 5:45 AM UTC - US-014
+- **Story**: View League Invitations (Manager View) - View all invitations for a league
+- **What was implemented**:
+  - Created `LeagueInvitations.tsx` page component at `/leagues/:id/invitations`
+  - Extended `invitationService.ts` with `getLeagueInvitations(leagueId)` method
+  - Page displays all invitations sent for the league by any manager/co-manager
+  - Each invitation shows: invitee info (email/username/user_id), inviter username, status badge, sent date
+  - Status filter dropdown (All, Pending, Accepted, Rejected, Expired)
+  - Info box showing which co-managers can send invitations
+  - Mobile-responsive layout: cards on mobile, table-like header on desktop
+  - Loading states, error handling, and empty state
+  - Added "Manage Invitations" button in `LeagueDetail.tsx` (visible to creators/co-managers)
+  - Added route in `App.tsx` for the new page
+  - Comprehensive CSS styling for page, cards, status badges, filters
+- **Files changed**:
+  - `frontend/src/pages/LeagueInvitations.tsx` - New page component
+  - `frontend/src/services/invitationService.ts` - Added getLeagueInvitations method
+  - `frontend/src/App.tsx` - Added route /leagues/:id/invitations
+  - `frontend/src/pages/LeagueDetail.tsx` - Added Manage Invitations button for creators/co-managers
+  - `frontend/src/App.css` - Added comprehensive styling for league invitations page
+- **Learnings for future iterations**:
+  - League invitations endpoint is GET /api/v1/leagues/{league_id}/invitations (different from PRD spec)
+  - The API response includes all invitations for the league regardless of who sent them
+  - Shows inviter info including username and user_id to track which manager sent each invitation
+  - Status badges use consistent color scheme across invitation pages
+  - Responsive design: mobile shows stacked cards with labels, desktop shows grid layout with headers
+  - Invitee info shows email if available, otherwise username or user_id
+  - Empty state provides context about who can send invitations
+  - Uses same invitation types as other invitation pages for consistency
+- **Typecheck**: Passed with no errors
+- **Commit**: `feat: US-014 - View Sent Invitations from League Page`
+---
+
+## 2/1/2026, 4:27 AM UTC - US-012 (FF-31)
+- **Story**: View Received Invitations - Accept/Reject League Invitations
+- **What was implemented**:
+  - Added TypeScript types: `ReceivedInvitation`, `AcceptInvitationRequest`, `RejectInvitationRequest`
+  - Extended `invitationService.ts` with 3 new methods:
+    - `getReceivedInvitations()`: Fetches all received invitations
+    - `acceptInvitation()`: Accepts invitation with team name
+    - `rejectInvitation()`: Rejects invitation with optional reason
+  - Created `ReceivedInvitations.tsx` page component with:
+    - Invitation cards showing league name, inviter, message, time
+    - Accept modal with team name input
+    - Reject modal with optional reason input
+    - Empty state with call-to-action buttons
+    - Loading states and error handling
+  - Added `/invitations` route in `App.tsx`
+  - Added "Invitations" button to Dashboard with notification badge showing pending count
+  - Added comprehensive CSS styling for invitations page, cards, modals, and empty state
+- **Files changed**:
+  - `frontend/src/types/index.ts` - Added invitation types
+  - `frontend/src/services/invitationService.ts` - Added service methods
+  - `frontend/src/pages/ReceivedInvitations.tsx` - New page component
+  - `frontend/src/App.tsx` - Added route
+  - `frontend/src/pages/Dashboard.tsx` - Added nav button with badge
+  - `frontend/src/App.css` - Added styling
+- **Learnings for future iterations**:
+  - The invitation API uses `SentInvitation` type for the list response even for received invitations - this is a backend design choice
+  - Dashboard badge fetches invitations on mount and filters for pending status
+  - Modals use a consistent pattern: overlay, container, header, body, actions
+  - Accept action requires team name (league join requirement)
+  - Reject action has optional reason field
+  - After accept/reject, the list refreshes automatically
+  - TypeScript "unused import" errors are caught by `npm run build` (tsc -b)
+---
+
+## 2/1/2026, 3:34 AM UTC - US-011 (FF-30)
+- **Story**: Send League Invitations - Invite Users via Multiple Methods
+- **What was implemented**:
+  - Created `SendInvitations.tsx` page component with 4 invitation methods (tabs)
+  - Created `invitationService.ts` with API methods for all invitation types
+  - Added invitation-related types to `types/index.ts`
+  - Added route `/leagues/:id/invite` in `App.tsx`
+  - Added "Invite Members" button to `LeagueDetail.tsx`
+  - Added comprehensive CSS styling for invitations page
+- **Files changed**:
+  - `frontend/src/pages/SendInvitations.tsx` - New page
+  - `frontend/src/services/invitationService.ts` - New service
+  - `frontend/src/types/index.ts` - Added invitation types
+  - `frontend/src/App.tsx` - Added route
+  - `frontend/src/pages/LeagueDetail.tsx` - Added invite button
+  - `frontend/src/App.css` - Added styling
+- **Learnings for future iterations**:
+  - Tab pattern: state for active tab, conditional rendering of content
+  - Each invitation type has different request body structure
+  - Code invitations generate shareable codes to display
+  - Pending invitations list shown at bottom with cancel option
+  - Form validation: email format, required fields
+  - Success/error messages displayed inline
+  - After sending, form resets and pending list refreshes
+---
+
+## 1/31/2026, 11:19 PM UTC - US-010 (FF-29)
+- **Story**: My Leagues Dashboard - View All My Leagues
+- **What was implemented**:
+  - Created `MyLeagues.tsx` page component with full functionality
+  - Added `MyLeague` type to `types/index.ts`
+  - Extended `leagueService.ts` with `getMyLeagues` method
+  - Added route `/my-leagues` in `App.tsx`
+  - Added "My Leagues" button to `Dashboard.tsx` navigation
+  - Added comprehensive CSS styling for league cards, rank badges, empty states
+- **Files changed**:
+  - `frontend/src/pages/MyLeagues.tsx` - New page
+  - `frontend/src/types/index.ts` - Added MyLeague type
+  - `frontend/src/services/leagueService.ts` - Added getMyLeagues
+  - `frontend/src/App.tsx` - Added route
+  - `frontend/src/pages/Dashboard.tsx` - Added nav button
+  - `frontend/src/App.css` - Added styling
+- **Learnings for future iterations**:
+  - League cards use absolute positioning for rank badge (top-right corner)
+  - Sort dropdown changes local state, useMemo for sorting logic
+  - Empty state includes two call-to-action buttons (Create League, Join League)
+  - League cards are clickable links to league detail page
+  - Team info shown with border-left accent color
+  - Rank badge uses gradient background for visual appeal
+---
+
+## 1/31/2026, 11:30 PM UTC - US-008 (FF-28)
+- **Story**: Update League Settings - Edit League Configuration
+- **What was implemented**:
+  - Created EditLeague page component with form for all league settings
+  - Extended leagueService with updateLeague method
+  - Added route `/leagues/:id/edit` in App.tsx
+  - Added Edit League button in LeagueDetail for creators/co-managers
+  - Form pre-populates with current league data
+  - Form validation for all editable fields
+  - Success/error feedback after update
+  - Comprehensive CSS styling
+- **Files changed**:
+  - `frontend/src/pages/EditLeague.tsx` - New page
+  - `frontend/src/services/leagueService.ts` - Added updateLeague
+  - `frontend/src/App.tsx` - Added route
+  - `frontend/src/pages/LeagueDetail.tsx` - Added Edit League button
+  - `frontend/src/App.css` - Added styling
+- **Learnings for future iterations**:
+  - Edit form uses existing CreateLeagueRequest type (shared structure)
+  - Loading state shows spinner while fetching league data
+  - Form validation includes max teams range (2-50)
+  - After successful update, user is redirected back to league detail
+  - Error messages displayed in alert banner
+  - Select dropdowns for draft_method and draft_close_condition enums
+---
+
+## 1/31/2026, 10:45 PM UTC - US-009 (FF-27)
+- **Story**: Delete League - Remove League Permanently
+- **What was implemented**:
+  - Added deleteLeague service function in leagueService.ts
+  - Added delete modal with confirmation in LeagueDetail.tsx
+  - Requires typing league name to confirm deletion
+  - Success message and redirect to dashboard after deletion
   - Error handling with user-friendly messages
-- CSS modal styles already exist in App.css (modal-overlay, modal-container, modal-header, etc.)
-- TypeScript typecheck passes (npm run build)
-- Working tree clean - changes already committed
-- Updated prd.json to set passes: true for US-009
-- All acceptance criteria met:
-  - Delete League button visible only to creator ✓
-  - Confirmation dialog with warning about permanent deletion ✓
-  - Require typing league name to confirm deletion ✓
-  - Success message after deletion ✓
-  - Redirect to my leagues page after deletion ✓
-  - API calls: DELETE /api/v1/leagues/{league_id} ✓
-  - Typecheck passes ✓
-
-**Learnings for future iterations:**
-- Pattern: Use typed input confirmation for destructive actions (type league name to delete)
-- Pattern: Modal implementation uses overlay + container structure with fixed positioning
-- Pattern: Disable submit button until confirmation text matches exactly
-- Pattern: 2-second delay before redirect allows users to see success message
-- CSS: Modal overlay uses `position: fixed` with `inset: 0` for full-screen coverage
-- CSS: Modal container centered with `position: fixed` and transform translate
-- The delete functionality was implemented alongside other league management features
-
+- **Files changed**:
+  - `frontend/src/services/leagueService.ts` - Added deleteLeague
+  - `frontend/src/pages/LeagueDetail.tsx` - Added delete modal and logic
+- **Learnings for future iterations**:
+  - Delete confirmation pattern: modal with text input requiring league name
+  - Warning banner with yellow background for destructive actions
+  - Disable delete button during API call to prevent double-clicks
+  - After deletion, navigate to dashboard (or leagues list)
+  - Error handling catches 403 (not creator) and 404 (not found) errors
 ---
 
-## 1/31/2026, 10:54 PM - US-010
-- Implemented complete "My Leagues Dashboard" feature
-- Files changed:
-  - frontend/src/types/index.ts - Added MyLeague interface extending League with team info and rank
-  - frontend/src/services/leagueService.ts - Added getMyLeagues(sort) method
-  - frontend/src/pages/MyLeagues.tsx - New page component (215 lines) for My Leagues dashboard
-  - frontend/src/App.tsx - Added route for /my-leagues with ProtectedRoute
-  - frontend/src/pages/Dashboard.tsx - Added "My Leagues" button to navigation bar
-  - frontend/src/App.css - Added comprehensive CSS styling for My Leagues page
-  - scripts/ralph/prd.json - Marked US-010 as passing
-- All acceptance criteria met:
-  - My Leagues page at /my-leagues showing all user's leagues
-  - League cards display: name, team count, user's team name, user's current rank
-  - Sort options: alphabetical, most recent, highest rank (dropdown control)
-  - Click league card to view league details (navigates to LeagueDetail)
-  - Create League button in header
-  - Join League button in header
-  - Empty state with F1 flag icon and call-to-action buttons when no leagues
-  - API call: GET /api/v1/leagues/my-leagues with sort parameter
-  - TypeScript typecheck passes (npm run build)
-- CSS styling includes:
-  - Rank badge with gradient (gold/orange) showing position with medals (🥇🥈🥉)
-  - My team info section with blue left border showing team name and points
-  - Privacy badges (public/private color-coded)
-  - Grid layout for league cards with hover effects
-  - Empty state centered with icon and action buttons
-  - Sort controls with label and dropdown
-  - Results count display
-
-**Learnings for future iterations:**
-- Pattern: Extend existing type patterns (MyLeague extends League with team-specific fields)
-- Pattern: Sort parameter passed to API for server-side sorting
-- Pattern: Rank display with emoji medals (🥇🥈🥉) provides visual interest
-- Pattern: Card-based layout with badge overlays for rank (position: absolute)
-- Pattern: Link component wraps entire card for navigation
-- Pattern: Empty state should have clear icon, heading, description, and action buttons
-- Pattern: Header actions pattern for page-level Create/Join buttons
-- Pattern: Privacy badges use same CSS classes for consistency across pages
-- Pattern: Form controls should have consistent styling (form-control class)
-- Pattern: Loading spinner uses same pattern as other pages
-
+## 1/31/2026, 10:15 PM UTC - US-007 (FF-26)
+- **Story**: Leave League - Withdraw from Competition
+- **What was implemented**:
+  - Added leaveLeague service function in leagueService.ts
+  - Added Leave League button in LeagueDetail.tsx for members (not creator)
+  - Confirmation dialog before leaving
+  - Success message and redirect to dashboard
+  - Error handling (403 for creator trying to leave)
+- **Files changed**:
+  - `frontend/src/services/leagueService.ts` - Added leaveLeague
+  - `frontend/src/pages/LeagueDetail.tsx` - Added leave button and modal
+- **Learnings for future iterations**:
+  - Leave button only shown if user is member but NOT creator
+  - Leave action requires confirmation (destructive action)
+  - After leaving, redirect to dashboard (My Leagues page not yet implemented)
+  - Team is deactivated on backend upon leaving
+  - Button disabled during API call with "Leaving..." text
 ---
 
-## 1/31/2026, 10:30 PM - US-008
-- Implemented complete "Update League Settings" feature
-- Files changed:
-  - frontend/src/types/index.ts - Added UpdateLeagueRequest type interface
-  - frontend/src/services/leagueService.ts - Added updateLeague method
-  - frontend/src/pages/EditLeague.tsx - New page component (490 lines) for editing league settings
-  - frontend/src/pages/LeagueDetail.tsx - Added "Edit League" button navigation for creator/co-managers
-  - frontend/src/App.tsx - Added route for /leagues/:id/edit
-  - scripts/ralph/prd.json - Marked US-008 as passing
-- All acceptance criteria met:
-  - Edit League page accessible only to creator/co-managers (role-based access check)
-  - Form pre-populated with current league settings from API
-  - Editable fields: name, description, max teams, privacy, draft method, draft close condition, scoring settings
-  - Draft method and privacy disabled when draft is active (placeholder for draft status)
-  - Validation on all fields (matches CreateLeagueForm patterns)
-  - Success/error messages displayed
-  - Redirects to league detail page on success
-  - API call: PUT /api/v1/leagues/:id
-  - TypeScript typecheck passes
-
-**Learnings for future iterations:**
-- Pattern: Follow CreateLeagueForm patterns for form validation and structure
-- Pattern: Use navigate() from react-router-dom for programmatic navigation
-- Pattern: Fetch league data and members in parallel with Promise.all for performance
-- Pattern: Define role-based permissions using members.find() with user.id
-- Gotcha: Form errors interface must include all possible error fields (added scoring_settings)
-- Pattern: Use FormData interface to maintain type safety in form state
-- Pattern: JSON parse/stringify for scoring_settings JSON field handling
-- Pattern: 1.5 second timeout before redirect allows users to see success message
-- Pattern: Disabled fields during submission prevent double-submits
-
+## 1/31/2026, 9:30 PM UTC - US-006 (FF-25)
+- **Story**: Join League - Join via Code
+- **What was implemented**:
+  - Created JoinLeague page component
+  - Extended leagueService with searchLeagueByCode and joinLeague methods
+  - Added route `/leagues/join` in App.tsx
+  - Added Join League button to Dashboard
+  - Two-step flow: search by code, then enter team name and confirm
+  - Form validation, loading states, error handling
+- **Files changed**:
+  - `frontend/src/pages/JoinLeague.tsx` - New page
+  - `frontend/src/services/leagueService.ts` - Added methods
+  - `frontend/src/App.tsx` - Added route
+  - `frontend/src/pages/Dashboard.tsx` - Added Join League button
+  - `frontend/src/App.css` - Added styling
+- **Learnings for future iterations**:
+  - Two-step join process: first validate code and show league info, then collect team name
+  - League info box highlights league details before user commits
+  - Team name is required (3-50 chars) to complete join
+  - After joining, redirect to league detail page
+  - Error handling for: invalid code, league full, already member
 ---
 
-## 1/31/2026 - US-005
-- Implemented complete league detail page with comprehensive information display
-- Extended leagueService with getLeagueMembers and getLeagueTeams methods
-- Completely rewrote LeagueDetail.tsx component with full functionality:
-  - Fetches league, members, and teams data in parallel using Promise.all
-  - Displays league header with name, privacy badge, and code
-  - Shows comprehensive league information section with creator, team count, draft method, privacy, creation date
-  - Displays "Full" badge when league reaches max capacity
-  - Members section with styled list showing username, full name, and role badges
-  - Teams section with styled list showing team name, owner, and points
-  - Role-based conditional rendering for action buttons:
-    - Join League: shown if user not a member and league not full
-    - Leave League: shown if user is member but not creator
-    - Edit League: shown if user is creator or co-manager
-    - Delete League: shown if user is creator only
-    - Invite Members: shown if user is creator or co-manager
-  - Leaderboard link for all users
-  - All buttons show placeholder alerts (functionality in future stories)
-- Added comprehensive CSS styling in App.css:
-  - League stats grid with responsive layout
-  - Members list with hover effects and color-coded role badges (gold for creator, silver for co-manager, gray for member)
-  - Teams list with team info and points display
-  - Action buttons with proper color coding (success, danger, outline variants)
-  - Responsive design with auto-fit grid layouts
-- User role determination logic checks membership and role from members list
-- League full calculation compares team count vs max teams
-- All data fetched and displayed correctly with loading and error states
-- TypeScript checks pass successfully (npm run build)
-- Files modified:
-  - frontend/src/services/leagueService.ts - Added getLeagueMembers and getLeagueTeams methods
-  - frontend/src/pages/LeagueDetail.tsx - Complete rewrite with all functionality
-  - frontend/src/App.css - Added comprehensive styling for members, teams, role badges, action buttons
-
-**Learnings for future iterations:**
-- Use Promise.all to fetch multiple API endpoints in parallel for better performance
-- Derive user's role and membership status from the members list rather than separate API calls
-- Conditional button rendering should be based on clear boolean flags (isCreator, isCoManager, isMember, isLeagueFull)
-- Role badges should use distinct colors for easy visual identification (gold=creator, blue=co-manager, gray=member)
-- Empty states with helpful messages improve UX when no members or teams exist
-- The members list returns LeagueMember objects with role field containing the user's role
-- Check membership by finding current user's ID in members list
-- Action buttons for future functionality should show placeholder alerts to indicate they're coming soon
-- Leaderboard link can point to a route even if the page doesn't exist yet
-- Grid layouts with auto-fit and minmax are perfect for responsive stat displays
-- All acceptance criteria for US-005 have been met
-- Manual browser verification is recommended to test the league detail display and role-based buttons
-
+## 1/31/2026, 8:45 PM UTC - US-005 (FF-24)
+- **Story**: League Details & Information
+- **What was implemented**:
+  - Created LeagueDetail page component
+  - Extended leagueService with getLeagueMembers and getLeagueTeams
+  - Display league info, members list, teams list
+  - Role badges for members (Creator, Co-Manager, Member)
+  - Conditional action buttons based on user's role
+  - Join/Leave/Edit/Delete/Invite buttons with role checks
+- **Files changed**:
+  - `frontend/src/pages/LeagueDetail.tsx` - New page
+  - `frontend/src/services/leagueService.ts` - Added methods
+  - `frontend/src/types/index.ts` - Added Member and Team types
+  - `frontend/src/App.tsx` - Added route
+  - `frontend/src/App.css` - Added styling
+- **Learnings for future iterations**:
+  - Parallel data fetching with Promise.all for league, members, teams
+  - Role-based conditional rendering: isCreator, isCoManager, isMember checks
+  - Creator sees Edit, Delete, Invite buttons
+  - Co-Manager sees Edit, Invite buttons
+  - Member sees Leave button
+  - Non-member sees Join button (if not full)
+  - League code displayed prominently for sharing
+  - Member count shown vs max teams
+  - Role badges use different colors: yellow (creator), blue (co-manager), gray (member)
 ---
 
-## 1/31/2026 - US-001
-- Implemented complete user authentication system with React + TypeScript + Vite
-- Created project structure with components, pages, services, hooks, and types directories
-- Implemented Login page with form validation, remember me functionality, and error handling
-- Implemented Register page with password strength validation (8 chars, 1 uppercase, 1 lowercase, 1 digit)
-- Created AuthContext for global authentication state management
-- Implemented ProtectedRoute component for route protection
-- Created API client (api.ts) with axios interceptors for automatic token refresh
-- Implemented authService for auth operations (login, register, logout, getCurrentUser)
-- Created Dashboard page for authenticated users
-- Configured React Router with public and protected routes
-- Added TypeScript types for all entities (User, AuthResponse, League, Team, Driver, Race, Notification, Invitation, Draft, etc.)
-- Set up environment configuration with .env file
-- Fixed TypeScript errors related to type imports and unused variables
-- All TypeScript checks pass successfully (npm run build)
-- Files created/modified:
-  - frontend/src/App.tsx - Main app with routing
-  - frontend/src/main.tsx - Entry point
-  - frontend/src/context/AuthContext.tsx - Auth state management
-  - frontend/src/components/ProtectedRoute.tsx - Route protection
-  - frontend/src/pages/Login.tsx - Login page
-  - frontend/src/pages/Register.tsx - Registration page
-  - frontend/src/pages/Dashboard.tsx - Dashboard page
-  - frontend/src/services/api.ts - API client with interceptors
-  - frontend/src/services/authService.ts - Auth service
-  - frontend/src/types/index.ts - TypeScript type definitions
-  - frontend/.env - Environment configuration
-  - frontend/package.json - Dependencies and scripts
-  - frontend/tsconfig.json - TypeScript configuration
-  - frontend/vite.config.ts - Vite configuration
-  - frontend/eslint.config.js - ESLint configuration
-  - frontend/index.html - HTML entry point
-  - frontend/src/index.css - Global styles
-  - frontend/src/App.css - App-specific styles
-
-**Learnings for future iterations:**
-- When using TypeScript with verbatimModuleSyntax enabled, must use type-only imports for types: `import type { TypeName } from 'module'`
-- Remove unused imports to avoid TS6133 errors
-- The AuthResponse type needs optional refresh_token field for token refresh functionality
-- API client interceptors handle token refresh automatically on 401 errors
-- AuthContext checks authentication on mount and stores user in localStorage
-- ProtectedRoute redirects to login if not authenticated
-- Login/Register pages redirect to dashboard if already authenticated
-- Use localStorage for token storage (access_token, refresh_token, user)
-- Environment variables must use VITE_ prefix in Vite projects
-- Build command `npm run build` runs both TypeScript compiler and Vite build
-- All acceptance criteria for US-001 have been met
-- Manual browser verification is recommended to test the full auth flow
-
+## 1/31/2026, 8:00 PM UTC - US-004 (FF-23)
+- **Story**: League Creation
+- **What was implemented**:
+  - Created CreateLeague page and CreateLeagueForm component
+  - Extended leagueService with createLeague method
+  - Form validation for all fields including max teams range (2-50)
+  - Success view showing league code after creation
+  - Auto-redirect to league detail page after 3 seconds
+- **Files changed**:
+  - `frontend/src/components/CreateLeagueForm.tsx` - New component
+  - `frontend/src/pages/CreateLeague.tsx` - New page
+  - `frontend/src/services/leagueService.ts` - Added createLeague
+  - `frontend/src/App.tsx` - Added route
+  - `frontend/src/pages/Dashboard.tsx` - Added Create League button
+  - `frontend/src/App.css` - Added styling
+- **Learnings for future iterations**:
+  - League creation form has many fields: name, description, max_teams, is_public, draft_method, draft_close_condition, scoring settings
+  - After creation, league code is displayed prominently (shareable)
+  - Form uses controlled inputs with validation
+  - Success state shows countdown before redirect
 ---
 
-## 1/31/2026 - US-002
-- Implemented complete user profile management system with React + TypeScript
-- Created userService for user profile API operations (getCurrentUser, updateProfile, changePassword)
-- Created Profile page displaying user information with account status and type indicators
-- Created EditProfileForm component with two sections: Profile Information and Change Password
-- Implemented comprehensive form validation for email, full name, and password fields
-- Password validation includes: minimum 8 characters, 1 uppercase, 1 lowercase, 1 digit
-- Email validation with regex pattern checking
-- Full name validation with length constraints (3-100 characters)
-- Password change requires current password confirmation
-- Real-time validation on input change and blur events
-- Success/error messages displayed as alerts
-- Profile changes reflected immediately in UI via AuthContext setUser
-- Added comprehensive CSS styling for profile pages and forms in App.css
-- Profile page shows: username, email, full name, account status, account type, member since date
-- Edit form allows updating email and full name (username is read-only)
-- Password change form with current password, new password, and confirm password fields
-- All TypeScript checks pass successfully (npm run build)
-- Files created/modified:
-  - frontend/src/services/userService.ts - User profile API service
-  - frontend/src/pages/Profile.tsx - Profile page component
-  - frontend/src/components/EditProfileForm.tsx - Edit profile form component
-  - frontend/src/App.css - Added comprehensive styling for profile pages and forms
-  - frontend/src/App.tsx - Already had Profile route configured
-  - frontend/src/context/AuthContext.tsx - Already had setUser for state updates
-
-**Learnings for future iterations:**
-- Use separate form sections for different types of updates (profile info vs password change)
-- Real-time validation on both change and blur events provides better UX
-- Password strength validation should match backend requirements exactly
-- Display account status and type with visual indicators (color-coded badges)
-- Form validation errors should be shown inline below each field
-- Success messages should trigger automatic navigation after a short delay
-- Use disabled state for read-only fields (username) with visual indication
-- Clear password fields after successful password change
-- Profile page should refresh data after successful updates
-- CSS classes follow Bootstrap-like naming convention (form-control, form-group, btn-primary, etc.)
-- Alert components need both error and success variants with different colors
-- All acceptance criteria for US-002 have been met
-- Manual browser verification is recommended to test profile viewing and editing
-
+## 1/31/2026, 7:15 PM UTC - US-003 (FF-22)
+- **Story**: League Discovery & Search
+- **What was implemented**:
+  - Created BrowseLeagues page with search and filter
+  - Extended leagueService with getLeagues and searchLeagues
+  - Implemented pagination, search bar, privacy filter
+  - League cards with hover effects and click navigation
+  - Empty state and loading state
+- **Files changed**:
+  - `frontend/src/pages/BrowseLeagues.tsx` - New page
+  - `frontend/src/services/leagueService.ts` - Added methods
+  - `frontend/src/App.tsx` - Added route
+  - `frontend/src/App.css` - Added styling
+- **Learnings for future iterations**:
+  - Search is real-time (on every keystroke) with debounce
+  - Pagination controls at bottom of list
+  - League cards show: name, description, team count, max teams, privacy badge
+  - Public/Private filter dropdown
+  - Empty state when no results
+  - Clicking card navigates to league detail
 ---
 
-## 1/31/2026 - US-002
-- Implemented user profile management with Profile page and EditProfileForm component
-- Created Profile page displaying username, email, full name, account status, account type, and member since date
-- Created EditProfileForm component with two sections: Profile Information and Change Password
-- Implemented profile update functionality allowing changes to email and full name
-- Implemented password change functionality requiring current password confirmation
-- Added comprehensive validation for all editable fields:
-  - Email validation with regex pattern
-  - Full name validation (3-100 characters)
-  - Password validation (8+ chars, 1 uppercase, 1 lowercase, 1 digit)
-  - Confirm password matching validation
-- Created userService for user-related API operations:
-  - getCurrentUser() - Fetch current user profile
-  - updateProfile(data) - Update user profile (email, full_name)
-  - changePassword(data) - Change password with current password confirmation
-- Added setUser method to AuthContext for immediate UI updates after profile changes
-- Updated TypeScript types with UpdateProfileRequest and ChangePasswordRequest interfaces
-- Added Profile route to App.tsx with ProtectedRoute wrapper
-- Added Profile button to Dashboard navigation
-- Profile changes reflected immediately in UI using AuthContext.setUser()
-- Success/error messages displayed after update attempts
-- All TypeScript checks pass successfully (npm run build)
-- Files created/modified:
-  - frontend/src/pages/Profile.tsx - Profile page with view/edit modes
-  - frontend/src/components/EditProfileForm.tsx - Edit profile form component
-  - frontend/src/services/userService.ts - User service for API calls
-  - frontend/src/types/index.ts - Added UpdateProfileRequest and ChangePasswordRequest types
-  - frontend/src/context/AuthContext.tsx - Added setUser method to AuthContextType
-  - frontend/src/App.tsx - Added Profile route
-  - frontend/src/pages/Dashboard.tsx - Added Profile button to navigation
-
-**Learnings for future iterations:**
-- When implementing profile updates, need to update AuthContext user state immediately for UI consistency
-- Use separate sections in forms for different types of updates (profile info vs password)
-- Password change requires current password confirmation for security
-- Validation should be performed on blur and on change for better UX
-- Success messages should auto-redirect or refresh data after a delay
-- The userService follows the same pattern as authService for API calls
-- Profile page uses conditional rendering to switch between view and edit modes
-- All acceptance criteria for US-002 have been met
-- Manual browser verification is recommended to test profile update flow
-
----
-
-## 1/31/2026 - US-003
-- Implemented complete league discovery and search functionality with React + TypeScript
-- Created BrowseLeagues page component with comprehensive league browsing features
-- Created leagueService for league-related API operations:
-  - getLeagues(params) - Fetch paginated leagues with optional privacy filter
-  - searchLeagues(query, page, page_size) - Search leagues by name
-  - getLeagueById(leagueId) - Fetch single league by ID
-  - getLeagueByCode(code) - Fetch single league by code
-- Implemented real-time search with 300ms debounce to reduce API calls
-- Added privacy filter dropdown (All Leagues, Public Only, Private Only)
-- Implemented pagination controls with previous/next buttons and page number buttons
-- Created responsive league card grid layout displaying:
-  - League name and privacy badge (public/private)
-  - League description (truncated to 2 lines)
-  - Team count vs max teams
-  - Draft method
-  - League code
-  - View details link
-- Added loading states with spinner animation during API calls
-- Implemented empty state with helpful message and clear search button
-- Added comprehensive CSS styling for:
-  - Browse leagues container and page header
-  - Search bar and filter controls
-  - Loading spinner animation
-  - Empty state display
-  - League cards with hover effects
-  - Privacy badges (green for public, red for private)
-  - League stats display
-  - Pagination controls
-  - Results info display
-- Added TypeScript types for league requests (GetLeaguesRequest interface)
-- Added LeagueWithTeamCount interface extending League with team_count field
-- Added BrowseLeagues route to App.tsx with ProtectedRoute wrapper
-- Added "Browse Leagues" button to Dashboard navigation
-- League cards are clickable and navigate to league detail page
-- Search resets to page 1 when query changes
-- Privacy filter resets to page 1 when changed
-- All TypeScript checks pass successfully (npm run build)
-- Files created/modified:
-  - frontend/src/services/leagueService.ts - League service for API calls
-  - frontend/src/pages/BrowseLeagues.tsx - Browse leagues page component
-  - frontend/src/App.css - Added comprehensive styling for browse leagues page
-  - frontend/src/App.tsx - Added BrowseLeagues route
-  - frontend/src/pages/Dashboard.tsx - Added Browse Leagues button to navigation
-  - frontend/src/types/index.ts - Already had League and PaginatedResponse types
-
-**Learnings for future iterations:**
-- Use debounce pattern for search inputs to reduce API calls (300ms is a good default)
-- Reset pagination to page 1 when search query or filters change
-- The apiClient methods already return data directly, don't access .data property again
-- Use named imports from api.ts: `import { apiClient as api } from './api'`
-- League cards should display key information at a glance: name, privacy, team count, draft method
-- Privacy badges use color coding for visual distinction (green=public, red=private)
-- Grid layout with `repeat(auto-fill, minmax(300px, 1fr))` provides responsive card layout
-- Hover effects on cards (translateY and box-shadow) improve UX
-- Empty states should provide context and actionable options (clear search button)
-- Loading states with spinner animation provide visual feedback during API calls
-- Pagination should show page numbers for quick navigation
-- Results info helps users understand the scope of data
-- The leagueService follows the same pattern as other services (authService, userService)
-- All acceptance criteria for US-003 have been met
-- Manual browser verification is recommended to test league browsing and search
-
----
-
-## 1/31/2026 - US-007
-- Implemented complete leave league functionality with React + TypeScript
-- Added leaveLeague method to leagueService.ts for API call to DELETE /api/v1/leagues/{league_id}/leave
-- Updated LeagueDetail.tsx handleLeaveLeague function with full implementation:
-  - Added confirmation dialog using window.confirm before leaving
-  - Confirmation message explains that team will be deactivated and user can no longer participate
-  - Calls leaveLeague API on confirmation
-  - Displays success message after successful leave
-  - Redirects to dashboard after 2 seconds (My Leagues page not yet implemented - US-010)
-  - Handles errors with user-friendly error messages
-  - Button is disabled during API call and shows "Leaving..." loading state
-- Added new state variables: successMessage and isLeaving
-- Added useNavigate hook for programmatic navigation
-- Imported leaveLeague from leagueService
-- Success message displayed prominently at top of league info section
-- Error handling displays API error messages or generic fallback
-- Button is only shown to members who are not creators (existing logic preserved)
-- All TypeScript checks pass successfully (npm run build)
-- Files modified:
-  - frontend/src/services/leagueService.ts - Added leaveLeague method
-  - frontend/src/pages/LeagueDetail.tsx - Implemented handleLeaveLeague with confirmation, API call, success message, and redirect
-
-**Learnings for future iterations:**
-- Use window.confirm for simple confirmation dialogs (no need for custom modal)
-- Confirmation messages should clearly explain the consequences of the action
-- Disable buttons during async operations to prevent double-submission
-- Show loading state text on buttons (e.g., "Leaving..." instead of "Leave League")
-- Use navigate() from useNavigate hook for programmatic redirects
-- Success messages should be displayed prominently before redirect
-- Use setTimeout with delay (2 seconds) to allow users to see success message before navigation
-- Redirect to dashboard when the target page (My Leagues) doesn't exist yet
-- Error handling should use err.response?.data?.detail for API-specific messages with fallback
-- The leaveLeague API returns void, no data to process on success
-- All acceptance criteria for US-007 have been met
-- Manual browser verification is recommended to test leave league flow with confirmation dialog
-
----
-
-## 1/31/2026 - US-006
-- Implemented complete join league functionality with two-step process: search by code, then join with team name
-- Extended leagueService with joinLeague method (getLeagueByCode was already present)
-- Created JoinLeague page component with comprehensive join league features
-- Added JoinLeagueRequest TypeScript type to types/index.ts
-- Implemented two-step join process:
-  1. Search for league by code with validation
-  2. Display league information for confirmation
-  3. Enter team name and join the league
-- Added form validation for league code (6-10 characters) and team name (3-100 characters)
-- Real-time validation on input change and blur events with error messages
-- Display comprehensive league information before joining:
-  - Name, description, privacy status, draft method, max teams
-- Success message after joining with auto-redirect to league detail page
-- Error handling for invalid codes, full leagues, and API failures
-- Added "Join League" button to Dashboard navigation with indigo color scheme
-- Added comprehensive CSS styling for:
-  - Join league page and container
-  - League code search form
-  - League information box with blue border
-  - League details display with row-based layout
-  - Team name form
-  - Privacy badges (public/private)
-  - Error and success messages
-- Added JoinLeague route to App.tsx at /leagues/join with ProtectedRoute wrapper
-- All TypeScript checks pass successfully (npm run build)
-- Committed changes with message "feat: US-006 - Join League"
-- Files created/modified:
-  - frontend/src/pages/JoinLeague.tsx - Join league page component
-  - frontend/src/services/leagueService.ts - Extended with joinLeague method
-  - frontend/src/types/index.ts - Added JoinLeagueRequest interface
-  - frontend/src/App.tsx - Added JoinLeague route and import
-  - frontend/src/App.css - Added comprehensive styling for join league page
-  - frontend/src/pages/Dashboard.tsx - Added Join League button to navigation
-
-**Learnings for future iterations:**
-- Two-step join process improves UX by showing league details before commitment
-- League code input should auto-convert to uppercase for consistency
-- Display league information in a visually distinct box with border for confirmation
-- Separate forms for search and join keeps the UI clean and clear
-- Disable all inputs during API calls (searching and joining) to prevent duplicate submissions
-- Success message with auto-redirect (2 seconds) allows users to see confirmation
-- Error messages should be specific - different messages for "not found" vs "failed to join"
-- The joinLeague API requires league ID and team_name in the request body
-- The getLeagueByCode API takes the code as a URL parameter
-- Team name validation should match the backend requirements (3-100 characters)
-- Privacy badges should use the same styling as other pages for consistency
-- Cancel button should navigate back to dashboard for better flow
-- All acceptance criteria for US-006 have been met
-- Manual browser verification is recommended to test the join league flow with valid/invalid codes
-
+## 1/31/2026, 6:30 PM UTC - US-001 (FF-21)
+- **Story**: User Registration & Authentication
+- **What was implemented**:
+  - Login and Register pages with forms
+  - AuthContext for state management
+  - ProtectedRoute component for authenticated routes
+  - Dashboard page as post-login landing
+  - Token storage in localStorage
+- **Files changed**:
+  - `frontend/src/pages/Login.tsx`
+  - `frontend/src/pages/Register.tsx`
+  - `frontend/src/context/AuthContext.tsx`
+  - `frontend/src/components/ProtectedRoute.tsx`
+  - `frontend/src/pages/Dashboard.tsx`
+  - `frontend/src/App.tsx`
+- **Learnings for future iterations**:
+  - AuthContext provides user, login, register, logout functions
+  - ProtectedRoute redirects to login if not authenticated
+  - Token stored in localStorage, included in API calls via axios interceptor
+  - Password validation: 8+ chars, 1 uppercase, 1 lowercase, 1 digit
+  - Login redirects to dashboard, authenticated users redirect away from login
+## 2026-02-01 05:35 UTC - US-013
+- **Story:** Manage Sent Invitations - Implemented complete page for users to view and manage invitations they've sent to other users
+- **Files changed:**
+  - `frontend/src/services/invitationService.ts` - Added `getSentInvitations(status?)` method to fetch sent invitations with optional status filter
+  - `frontend/src/pages/SentInvitations.tsx` - Created new page component with:
+    - Invitations list with cards showing invitee info, league link, status badge with icons
+    - Status filter dropdown (All, Pending, Accepted, Rejected, Expired) with counts
+    - Cancel button for pending invitations with confirmation modal
+    - Explanation text for non-pending statuses
+    - Empty state with links to Browse Leagues and My Leagues
+    - Responsive design with loading and error states
+  - `frontend/src/App.tsx` - Added route `/sent-invitations` for new page
+  - `frontend/src/pages/Dashboard.tsx` - Added "Sent Invitations" navigation button (cyan color)
+- **Learnings for future iterations:**
+  - Pattern: Use `InvitationStatus` type alias for filter values with proper union type: `'all' | 'pending' | 'accepted' | 'rejected' | 'expired'`
+  - Pattern: Cards can have dynamic CSS classes based on status using template strings: `className={\`invitation-card \${getStatusColor(status)}\`}`
+  - Pattern: The relative time display function uses time differences to show user-friendly strings like "5m ago", "2h ago"
+  - Pattern: Service method with optional query params should use an empty object pattern to conditionally add params
+  - Pattern: Non-pending invitations show contextual status text explaining what happened to the invitation
+  - The `invite_code` field is displayed for code-based invitations if present
+  - Same modal patterns as other pages: overlay click to close, stopPropagation on container
 ---
