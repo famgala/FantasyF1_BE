@@ -9,6 +9,7 @@ import BrowseLeagues from './pages/BrowseLeagues';
 import CreateLeague from './pages/CreateLeague';
 import JoinLeague from './pages/JoinLeague';
 import LeagueDetail from './pages/LeagueDetail';
+import EditLeague from './pages/EditLeague';
 
 function App() {
   return (
@@ -65,6 +66,14 @@ function App() {
             element={
               <ProtectedRoute>
                 <LeagueDetail />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/leagues/:id/edit"
+            element={
+              <ProtectedRoute>
+                <EditLeague />
               </ProtectedRoute>
             }
           />

@@ -1,5 +1,5 @@
 import { apiClient as api } from './api';
-import type { League, PaginatedResponse, CreateLeagueRequest, JoinLeagueRequest, LeagueMember, FantasyTeam } from '../types';
+import type { League, PaginatedResponse, CreateLeagueRequest, JoinLeagueRequest, LeagueMember, FantasyTeam, UpdateLeagueRequest } from '../types';
 
 export interface GetLeaguesRequest {
   page?: number;
@@ -83,4 +83,18 @@ export async function getLeagueTeams(leagueId: string): Promise<FantasyTeam[]> {
  */
 export async function joinLeague(leagueId: string, data: JoinLeagueRequest): Promise<FantasyTeam> {
   return api.post<FantasyTeam>(`/leagues/${leagueId}/join`, data);
+}
+
+/**
+ * Update an existing league
+ */
+export async function updateLeague(leagueId: string, data: UpdateLeagueRequest): Promise<League> {
+  return api.patch<League>(`/leagues/${leagueId}`, data);
+}
+
+/**
+ * Leave a league
+ */
+export async function leaveLeague(leagueId: string): Promise<void> {
+  return api.delete<void>(`/leagues/${leagueId}/leave`);
 }

@@ -27,23 +27,23 @@
       "notes": "Implemented complete auth system with React + TypeScript. All acceptance criteria met."
     },
     {
-      "id": "US-002",
-      "title": "User Profile Management",
-      "description": "As a user, I want to view and update my profile information so that I can keep my account current.",
+      "id": "US-007",
+      "title": "Leave League",
+      "description": "As a user, I want to leave a league so that I can withdraw from competitions I no longer wish to participate in.",
       "acceptanceCriteria": [
-        "Profile page displaying username, email, full name, account creation date",
-        "Edit profile form allowing updates to email, full name, and password",
-        "Password change requires current password confirmation",
-        "Validation on all editable fields",
-        "Success/error messages after update attempts",
-        "Profile changes reflected immediately in UI",
-        "API calls: GET /api/v1/users/me, PUT /api/v1/users/me",
+        "Leave League button on league detail page",
+        "Confirmation dialog before leaving",
+        "Cannot leave if user is league creator (must delete or transfer)",
+        "Success message after leaving",
+        "Redirect to my leagues page after leaving",
+        "Team is deactivated upon leaving",
+        "API calls: DELETE /api/v1/leagues/{league_id}/leave",
         "Typecheck passes",
         "Verify in browser using dev-browser skill"
       ],
-      "priority": 2,
+      "priority": 7,
       "passes": true,
-      "notes": "Implemented Profile page with EditProfileForm component, userService for API calls, and added setUser to AuthContext for immediate UI updates. Added comprehensive CSS styling for profile pages and forms."
+      "notes": "Implemented complete leave league functionality with confirmation dialog, success message, and redirect. All acceptance criteria met."
     },
     {
       "id": "US-003",

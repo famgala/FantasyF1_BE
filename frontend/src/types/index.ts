@@ -83,6 +83,16 @@ export interface JoinLeagueRequest {
   team_name: string;
 }
 
+export interface UpdateLeagueRequest {
+  name?: string;
+  description?: string;
+  max_teams?: number;
+  is_private?: boolean;
+  draft_method?: 'random' | 'sequential' | 'snake';
+  draft_close_condition?: 'race_start' | 'manual' | 'time_limit';
+  scoring_settings?: Record<string, any>;
+}
+
 export interface ScoringSettings {
   // Add specific scoring settings as needed
   // This is a placeholder for future expansion

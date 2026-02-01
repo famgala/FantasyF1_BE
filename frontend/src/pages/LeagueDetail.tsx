@@ -85,7 +85,7 @@ export default function LeagueDetail() {
   };
 
   const handleEditLeague = () => {
-    alert('Edit League functionality coming soon! (US-008)');
+    navigate(`/leagues/${id}/edit`);
   };
 
   const handleDeleteLeague = () => {
