@@ -152,6 +152,43 @@ export interface MyTeam {
   created_at: string;
 }
 
+export interface TeamDetail {
+  id: string;
+  name: string;
+  league_id: string;
+  league_name: string;
+  user_id: string;
+  username: string;
+  total_points: number;
+  budget: number;
+  budget_remaining: number;
+  is_active: boolean;
+  can_delete: boolean;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface TeamPick {
+  id: string;
+  team_id: string;
+  driver_id: string;
+  driver_name: string;
+  driver_number: number;
+  driver_team: string;
+  driver_price: number;
+  points_earned: number;
+  race_id: string;
+  race_name: string;
+  race_date: string;
+  race_round: number;
+  race_status: 'upcoming' | 'ongoing' | 'completed';
+  created_at: string;
+}
+
+export interface UpdateTeamNameRequest {
+  name: string;
+}
+
 // Driver Types
 export interface Driver {
   id: string;
