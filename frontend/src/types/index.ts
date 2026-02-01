@@ -141,6 +141,17 @@ export interface FantasyTeam {
   updated_at: string;
 }
 
+export interface MyTeam {
+  id: string;
+  name: string;
+  league_id: string;
+  league_name: string;
+  total_points: number;
+  budget_remaining: number;
+  is_active: boolean;
+  created_at: string;
+}
+
 // Driver Types
 export interface Driver {
   id: string;

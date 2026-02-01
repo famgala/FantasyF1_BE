@@ -336,4 +336,78 @@
   - Pattern: Non-pending invitations show contextual status text explaining what happened to the invitation
   - The `invite_code` field is displayed for code-based invitations if present
   - Same modal patterns as other pages: overlay click to close, stopPropagation on container
+
+---
+
+## 2/1/2026, 5:59 AM UTC - US-015
+- **Story**: Manage League Roles - Promote/Demote Members to Co-Managers
+- **What was implemented**:
+  - Created `leagueRoleService.ts` with 3 API methods:
+    - `getLeagueRoles(leagueId)`: Fetches all members with their roles
+    - `promoteMember(leagueId, userId)`: Promotes member to co-manager
+    - `demoteMember(leagueId, userId)`: Demotes co-manager to member
+  - Created `LeagueRoles.tsx` page component at `/leagues/:id/roles` with:
+    - Member cards showing username, full name, joined date, current role badge
+    - Promote button for regular members (creator only)
+    - Demote button for co-managers (creator only)
+    - Creator role locked with "League Creator" badge
+    - Confirmation modals for promote/demote actions with warning messages
+    - Loading states, error handling, and success messages
+    - Empty state when no members found
+  - Added "Manage Roles" button in `LeagueDetail.tsx` (visible to creators only)
+  - Added route `/leagues/:id/roles` in `App.tsx`
+  - Comprehensive CSS styling for page, member cards, role badges, avatars, and modals
+- **Files changed**:
+  - `frontend/src/services/leagueRoleService.ts` - New service file
+  - `frontend/src/pages/LeagueRoles.tsx` - New page component
+  - `frontend/src/App.tsx` - Added route
+  - `frontend/src/pages/LeagueDetail.tsx` - Added Manage Roles button for creators
+  - `frontend/src/App.css` - Added styling for league roles page
+- **Learnings for future iterations**:
+  - League roles API uses GET /api/v1/league-roles/{league_id}/roles to fetch members with roles
+  - Promote/demote endpoints use PUT with user_id in path: /api/v1/league-roles/{league_id}/promote/{user_id}
+  - Role badges use different colors: gold (creator), blue (co-manager), gray (member)
+  - Creator role is immutable - no action buttons shown for creator
+  - Only creator can promote/demote members - button visibility based on isCreator check
+  - Confirmation modals include warning messages about permissions changes
+  - After successful promote/demote, the member list refreshes automatically
+  - Member cards use avatar with initials (first letter of username) for visual appeal
+  - Joined date formatted as "Joined {relative time}" for user-friendly display
+- **Typecheck**: Passed with no errors
+- **Commit**: `feat: US-015 - Add League Roles Management page`
+---
+
+## 2/1/2026, 6:06 AM UTC - US-016
+- **Story**: My Teams Overview - View All My Fantasy Teams
+- **What was implemented**:
+  - Created `teamService.ts` with `getMyTeams()` method using GET /api/v1/teams/my-teams
+  - Added `MyTeam` type to `types/index.ts` with fields: id, name, league_id, league_name, total_points, budget_remaining, is_active
+  - Created `MyTeams.tsx` page component at `/my-teams` with:
+    - Team cards showing team name, league name, total points, budget remaining, and status badge
+    - Sort options: by points (descending), by league name (alphabetical), alphabetically (team name)
+    - Empty state with call-to-action to join a league
+    - Loading states and error handling
+    - Responsive grid layout for team cards
+  - Added route `/my-teams` in `App.tsx`
+  - Added "My Teams" button to `Dashboard.tsx` navigation (orange color)
+  - Comprehensive CSS styling for page, cards, stats, status badges, and empty states
+- **Files changed**:
+  - `frontend/src/services/teamService.ts` - New service file
+  - `frontend/src/types/index.ts` - Added MyTeam type
+  - `frontend/src/pages/MyTeams.tsx` - New page component
+  - `frontend/src/App.tsx` - Added route
+  - `frontend/src/pages/Dashboard.tsx` - Added My Teams button
+  - `frontend/src/App.css` - Added styling for my teams page
+- **Learnings for future iterations**:
+  - Team service follows same pattern as other services: apiClient, typed request/response
+  - Team cards display key stats in a 2-column grid: total points and budget remaining
+  - Points display uses color coding: green (high), amber (medium), gray (low/zero)
+  - Budget display uses blue color for visual distinction
+  - Status badge shows "Active" or "Inactive" with appropriate colors
+  - Sort dropdown uses local state with useMemo for efficient sorting
+  - Empty state provides clear call-to-action to join a league
+  - Team cards are clickable links (placeholder for team detail page - US-017)
+  - League info section uses border-left accent color for visual hierarchy
+- **Typecheck**: Passed with no errors (npm run build)
+- **Commit**: `feat: US-016 - Add My Teams Overview page`
 ---

@@ -59,6 +59,12 @@ export const Dashboard: React.FC = () => {
                 My Leagues
               </Link>
               <Link
+                to="/my-teams"
+                className="bg-orange-600 hover:bg-orange-700 text-white px-4 py-2 rounded-md text-sm font-medium mr-2"
+              >
+                My Teams
+              </Link>
+              <Link
                 to="/invitations"
                 className="bg-teal-600 hover:bg-teal-700 text-white px-4 py-2 rounded-md text-sm font-medium mr-2 relative"
               >

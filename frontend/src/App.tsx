@@ -11,6 +11,7 @@ import JoinLeague from './pages/JoinLeague';
 import LeagueDetail from './pages/LeagueDetail';
 import EditLeague from './pages/EditLeague';
 import MyLeagues from './pages/MyLeagues';
+import MyTeams from './pages/MyTeams';
 import SendInvitations from './pages/SendInvitations';
 import ReceivedInvitations from './pages/ReceivedInvitations';
 import SentInvitations from './pages/SentInvitations';
@@ -112,6 +113,14 @@ function App() {
             element={
               <ProtectedRoute>
                 <MyLeagues />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/my-teams"
+            element={
+              <ProtectedRoute>
+                <MyTeams />
               </ProtectedRoute>
             }
           />

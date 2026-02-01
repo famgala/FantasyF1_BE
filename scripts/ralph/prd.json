@@ -311,8 +311,8 @@
         "Verify in browser using dev-browser skill"
       ],
       "priority": 15,
-      "passes": false,
-      "notes": ""
+      "passes": true,
+      "notes": "Implemented complete League Roles management page at /leagues/:id/roles. Created leagueRoleService.ts with getLeagueRoles, promoteMember, and demoteMember methods. Created LeagueRoles.tsx page component with member cards showing username, full name, joined date, current role, and action buttons. Promote button for members, Demote button for co-managers, Creator role locked. Confirmation modals for promote/demote actions with warning messages. Added 'Manage Roles' button in LeagueDetail.tsx for creators only. Added route in App.tsx. Comprehensive CSS styling for page, member cards, role badges, avatars, and modals. Typecheck passes. All acceptance criteria met."
     },
     {
       "id": "US-016",
@@ -329,8 +329,8 @@
         "Verify in browser using dev-browser skill"
       ],
       "priority": 16,
-      "passes": false,
-      "notes": ""
+      "passes": true,
+      "notes": "Implemented complete My Teams overview page at /my-teams. Created teamService.ts with getMyTeams method using GET /api/v1/teams/my-teams. Added MyTeam type to types/index.ts. Created MyTeams.tsx page component with team cards showing team name, league name, total points, budget remaining, and status. Added sort options (by points, by league name, alphabetically). Added empty state with call-to-action. Added route in App.tsx. Added My Teams navigation button in Dashboard.tsx. Comprehensive CSS styling added for page, cards, stats, status badges, and empty states. Typecheck passes. All acceptance criteria met."
     },
     {
       "id": "US-017",
