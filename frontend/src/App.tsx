@@ -14,6 +14,7 @@ import MyLeagues from './pages/MyLeagues';
 import SendInvitations from './pages/SendInvitations';
 import ReceivedInvitations from './pages/ReceivedInvitations';
 import SentInvitations from './pages/SentInvitations';
+import LeagueInvitations from './pages/LeagueInvitations';
 
 function App() {
   return (
@@ -86,6 +87,14 @@ function App() {
             element={
               <ProtectedRoute>
                 <SendInvitations />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/leagues/:id/invitations"
+            element={
+              <ProtectedRoute>
+                <LeagueInvitations />
               </ProtectedRoute>
             }
           />

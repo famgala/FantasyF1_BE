@@ -136,6 +136,10 @@ export default function LeagueDetail() {
     navigate(`/leagues/${id}/invite`);
   };
 
+  const handleManageInvitations = () => {
+    navigate(`/leagues/${id}/invitations`);
+  };
+
   if (loading) {
     return (
       <div className="league-detail">
@@ -313,6 +317,13 @@ export default function LeagueDetail() {
             {(isCreator || isCoManager) && (
               <button className="btn btn-primary" onClick={handleInviteMembers}>
                 Invite Members
+              </button>
+            )}
+
+            {/* Manage Invitations Button - shown if creator or co-manager */}
+            {(isCreator || isCoManager) && (
+              <button className="btn btn-secondary" onClick={handleManageInvitations}>
+                Manage Invitations
               </button>
             )}
 

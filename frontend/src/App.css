@@ -1814,3 +1814,305 @@
   padding: 0 4px;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
 }
+
+/* League Invitations Page Styles */
+.league-invitations-page {
+  max-width: 1000px;
+  margin: 0 auto;
+  padding: 2rem;
+}
+
+.league-invitations-page .page-nav {
+  background: white;
+  border-bottom: 1px solid #e5e7eb;
+  padding: 1rem 0;
+  margin-bottom: 2rem;
+}
+
+.league-invitations-page .page-header {
+  text-align: left;
+  border-bottom: 1px solid #e5e7eb;
+  padding-bottom: 1.5rem;
+  margin-bottom: 2rem;
+}
+
+.league-invitations-page .page-header h1 {
+  margin: 0 0 0.25rem 0;
+  font-size: 1.75rem;
+  color: #111827;
+}
+
+.league-invitations-page .page-header .league-name {
+  margin: 0 0 0.5rem 0;
+  font-size: 1rem;
+  color: #3b82f6;
+  font-weight: 600;
+}
+
+.league-invitations-page .page-header .page-description {
+  margin: 0;
+  color: #6b7280;
+  font-size: 0.875rem;
+}
+
+.page-actions {
+  margin-bottom: 1.5rem;
+}
+
+.filter-controls {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+  flex-wrap: wrap;
+}
+
+.filter-group {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.filter-group label {
+  font-weight: 600;
+  color: #374151;
+  font-size: 0.875rem;
+  white-space: nowrap;
+}
+
+.filter-group .form-control {
+  min-width: 150px;
+  width: auto;
+}
+
+.results-count {
+  color: #6b7280;
+  font-size: 0.875rem;
+  margin-left: auto;
+}
+
+/* Invitations Table Header */
+.invitations-table-header {
+  display: none;
+  grid-template-columns: 2fr 1.5fr 1fr 1fr 1fr;
+  gap: 1rem;
+  padding: 0.75rem 1.5rem;
+  background: #f9fafb;
+  border-radius: 8px 8px 0 0;
+  font-weight: 600;
+  color: #374151;
+  font-size: 0.875rem;
+  border-bottom: 2px solid #e5e7eb;
+}
+
+@media (min-width: 768px) {
+  .invitations-table-header {
+    display: grid;
+  }
+}
+
+/* Invitation Cards */
+.league-invitations-page .invitations-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.league-invitations-page .invitation-card {
+  background: #f9fafb;
+  border-radius: 8px;
+  border: 1px solid #e5e7eb;
+  padding: 1rem 1.5rem;
+  transition: box-shadow 0.15s ease-in-out;
+}
+
+.league-invitations-page .invitation-card:hover {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+}
+
+.invitation-row {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 0.75rem;
+}
+
+@media (min-width: 768px) {
+  .invitation-row {
+    grid-template-columns: 2fr 1.5fr 1fr 1fr 1fr;
+    align-items: center;
+    gap: 1rem;
+  }
+}
+
+.cell-label {
+  display: block;
+  font-size: 0.75rem;
+  color: #9ca3af;
+  font-weight: 600;
+  text-transform: uppercase;
+  margin-bottom: 0.25rem;
+}
+
+@media (min-width: 768px) {
+  .cell-label {
+    display: none;
+  }
+}
+
+.invitee-cell .invitee-name {
+  font-weight: 600;
+  color: #111827;
+  font-size: 0.875rem;
+}
+
+.inviter-cell .inviter-name {
+  color: #6b7280;
+  font-size: 0.875rem;
+}
+
+/* Status Badges */
+.status-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.375rem;
+  padding: 0.375rem 0.75rem;
+  border-radius: 9999px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.status-pending {
+  background-color: #fef3c7;
+  color: #92400e;
+}
+
+.status-accepted {
+  background-color: #d1fae5;
+  color: #065f46;
+}
+
+.status-rejected {
+  background-color: #fee2e2;
+  color: #991b1b;
+}
+
+.status-expired {
+  background-color: #f3f4f6;
+  color: #6b7280;
+}
+
+.status-icon {
+  font-size: 0.875rem;
+}
+
+.date-cell .date-text {
+  color: #6b7280;
+  font-size: 0.875rem;
+}
+
+.actions-cell .status-note {
+  color: #6b7280;
+  font-size: 0.875rem;
+  font-style: italic;
+}
+
+/* Mobile Details */
+.invitation-details-mobile {
+  margin-top: 1rem;
+  padding-top: 1rem;
+  border-top: 1px solid #e5e7eb;
+}
+
+@media (min-width: 768px) {
+  .invitation-details-mobile {
+    display: none;
+  }
+}
+
+.invitation-details-mobile .detail-row {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 0.5rem;
+}
+
+.invitation-details-mobile .detail-label {
+  font-size: 0.75rem;
+  color: #9ca3af;
+  font-weight: 600;
+  text-transform: uppercase;
+  min-width: 80px;
+}
+
+.invitation-details-mobile .detail-value {
+  color: #374151;
+  font-size: 0.875rem;
+}
+
+.code-value {
+  background: #f3f4f6;
+  padding: 0.25rem 0.5rem;
+  border-radius: 0.25rem;
+  font-family: monospace;
+  font-size: 0.75rem;
+  color: #374151;
+}
+
+/* Inviters Info */
+.inviters-info {
+  margin-top: 1.5rem;
+  padding: 1rem;
+  background: #eff6ff;
+  border-radius: 8px;
+  border-left: 4px solid #3b82f6;
+}
+
+.inviters-info p {
+  margin: 0;
+  color: #1e40af;
+  font-size: 0.875rem;
+}
+
+/* Empty State */
+.league-invitations-page .empty-state {
+  text-align: center;
+  padding: 4rem 2rem;
+  background: #f9fafb;
+  border-radius: 8px;
+  border: 2px dashed #e5e7eb;
+}
+
+.league-invitations-page .empty-icon {
+  font-size: 4rem;
+  margin-bottom: 1rem;
+}
+
+.league-invitations-page .empty-state h2 {
+  margin: 0 0 0.5rem 0;
+  font-size: 1.5rem;
+  color: #374151;
+}
+
+.league-invitations-page .empty-state p {
+  margin: 0 0 1.5rem 0;
+  color: #6b7280;
+  font-size: 1rem;
+}
+
+/* Warning Banner */
+.warning-banner {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1rem;
+  background: #fef3c7;
+  border-radius: 6px;
+  margin-top: 1rem;
+  color: #92400e;
+  font-size: 0.875rem;
+}
+
+.warning-icon {
+  font-size: 1rem;
+}
