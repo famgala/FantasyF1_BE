@@ -1,99 +1,67 @@
-## Codebase Patterns
-- Frontend uses React + TypeScript with Vite
-- API service pattern: Create service files in `services/` directory using `apiClient` from `api.ts`
-- Type definitions go in `types/index.ts` with interfaces for all API requests/responses
-- Page components go in `pages/` directory, imported and routed in `App.tsx`
-- Navigation buttons added to `Dashboard.tsx` for main features
-- CSS styling consolidated in `App.css` with section comments for each feature
-- Use Tailwind CSS classes for layout, custom CSS for specific component styling
-- Form validation handled inline with error state and error messages
-- Modal pattern: overlay + container with header/content/actions sections
-- Empty states should have call-to-action buttons when applicable
-- Loading states use spinner component, disable buttons during submission
-- Notification badges use absolute positioning with red background
-- League invitations endpoint uses GET /api/v1/leagues/{league_id}/invitations (not /invitations/{league_id}/all)
-- Status badges use colored backgrounds: yellow (pending), green (accepted), red (rejected), gray (expired)
-- Responsive card layouts: stack on mobile, table-like grid on desktop using CSS grid
-- Inviter info shows username when available, otherwise fallback to user_id
 
----
+## 2/1/2026, 2:27 AM - US-029: Race Calendar & Schedule
+- **Implemented complete Race Calendar & Schedule feature:**
+  - Created `RaceCalendar.tsx` page at `/races`
+  - Created `raceService.ts` with getRaces, getUpcomingRaces, and getPastRaces methods
+  - Added TypeScript types for `Race` interface (id, name, circuit, country, date, round, status, fp1_date, fp2_date, fp3_date, quali_date, sprint_date, race_date)
+  - Added countdown timer component with real-time updates
+  - Race cards display name, circuit, country, date, round number, and status badges
+  - Separate sections for upcoming races and past races
+  - Visual status indicators: upcoming, ongoing, completed
+  - Loading states and error handling
+  - Click race card navigates to race details (placeholder)
+  - Added route in App.tsx
+  - Added Race Calendar navigation button in Dashboard.tsx
+  - Comprehensive CSS styling for page, cards, countdown timer, and responsive design
 
-## 2/1/2026, 8:17 AM UTC - US-028
-- **Story**: Constructor List & Details - Browse F1 Constructors/Teams
-- **What was implemented**:
-  - Created `constructorService.ts` with 3 API methods:
-    - `getConstructors(params)`: Fetches paginated constructors using GET /api/v1/constructors
-    - `getConstructor(constructorId)`: Fetches single constructor details using GET /api/v1/constructors/{id}
-    - `getConstructorStandings()`: Fetches constructor standings using GET /api/v1/constructors/standings
-  - Added TypeScript types: `Constructor`, `ConstructorWithDrivers`, `PaginatedConstructorsResponse`, `GetConstructorsRequest` to `types/index.ts`
-  - Created `Constructors.tsx` page component at `/constructors` with:
-    - Constructor cards showing name, code, nationality, team principal, engine supplier
-    - Stats display: constructor championships, wins, total points
-    - Status badge (Active/Inactive) with color coding
-    - Sort by dropdown (name, points, wins, championships)
-    - Sort order toggle (ascending/descending)
-    - Pagination controls with page numbers
-    - Loading states, error handling, and empty state
-    - Responsive grid layout for constructor cards
-    - Clickable cards linking to constructor detail page (placeholder)
-  - Added "Constructors" button to `Dashboard.tsx` navigation (teal color)
-  - Added route `/constructors` in `App.tsx`
-  - Comprehensive CSS styling for page, constructor cards, stats, filters, and pagination
-- **Files changed**:
-  - `frontend/src/services/constructorService.ts` - New service file
-  - `frontend/src/types/index.ts` - Added constructor types
-  - `frontend/src/pages/Constructors.tsx` - New page component
+- **Files changed:**
+  - `frontend/src/types/index.ts` - Added Race type
+  - `frontend/src/services/raceService.ts` - Created
+  - `frontend/src/pages/RaceCalendar.tsx` - Created
   - `frontend/src/App.tsx` - Added route
-  - `frontend/src/pages/Dashboard.tsx` - Added Constructors button
-  - `frontend/src/App.css` - Added styling for constructors page
-- **Learnings for future iterations**:
-  - Constructor service follows same pattern as driver service: apiClient with typed request/response
-  - Constructor cards display key stats in a row: points (blue), wins (green), championships (amber)
-  - Constructor code badge uses red gradient for visual distinction
-  - Status badges use consistent colors: green (active), red (inactive)
-  - Sort by and sort order work together to control sorting direction
-  - Constructor cards show country flag emoji and nationality for context
-  - Team principal and engine supplier shown in info section
-  - Empty state provides context about constructors and clear filters button
-  - Pagination uses page numbers with active state highlighting
-  - Constructor type includes: id, name, code, nationality, team_principal, engine_supplier, championships, wins, total_points, is_active, drivers (optional)
-  - Paginated response pattern matches drivers page for consistency
-  - Sort by uses enum values: 'name', 'points', 'wins', 'championships'
-  - Sort order uses enum values: 'asc', 'desc'
-  - Constructor cards are clickable links to constructor detail page (route ready for future implementation)
-- **Typecheck**: Passed with no errors (npm run build)
-- **Commit**: `feat: US-028 - Constructor List & Details`
+  - `frontend/src/pages/Dashboard.tsx` - Added navigation button
+
+- **Learnings for future iterations:**
+  - Countdown timers: Use `setInterval` with `useEffect` cleanup in React
+  - Reuse `formatDateTime` utility for consistent date formatting
+  - Race status logic: Use date comparisons with race_date + 2 hours for completion
+  - API pattern: Consistent error handling with ApiError check
+  - CSS: Use flexbox with `gap` property for clean grid layouts
+  - Separate race sections by status for better UX
+
 ---
 
-## 2/1/2026, 5:45 AM UTC - US-014
-- **Story**: View League Invitations (Manager View) - View all invitations for a league
-- **What was implemented**:
-  - Created `LeagueInvitations.tsx` page component at `/leagues/:id/invitations`
-  - Extended `invitationService.ts` with `getLeagueInvitations(leagueId)` method
-  - Page displays all invitations sent for the league by any manager/co-manager
-  - Each invitation shows: invitee info (email/username/user_id), inviter username, status badge, sent date
-  - Status filter dropdown (All, Pending, Accepted, Rejected, Expired)
-  - Info box showing which co-managers can send invitations
-  - Mobile-responsive layout: cards on mobile, table-like header on desktop
-  - Loading states, error handling, and empty state
-  - Added "Manage Invitations" button in `LeagueDetail.tsx` (visible to creators/co-managers)
-  - Added route in `App.tsx` for the new page
-  - Comprehensive CSS styling for page, cards, status badges, filters
-- **Files changed**:
-  - `frontend/src/pages/LeagueInvitations.tsx` - New page component
-  - `frontend/src/services/invitationService.ts` - Added getLeagueInvitations method
-  - `frontend/src/App.tsx` - Added route /leagues/:id/invitations
-  - `frontend/src/pages/LeagueDetail.tsx` - Added Manage Invitations button for creators/co-managers
-  - `frontend/src/App.css` - Added comprehensive styling for league invitations page
-- **Learnings for future iterations**:
-  - League invitations endpoint is GET /api/v1/leagues/{league_id}/invitations (different from PRD spec)
-  - The API response includes all invitations for the league regardless of who sent them
-  - Shows inviter info including username and user_id to track which manager sent each invitation
-  - Status badges use consistent color scheme across invitation pages
-  - Responsive design: mobile shows stacked cards with labels, desktop shows grid layout with headers
-  - Invitee info shows email if available, otherwise username or user_id
-  - Empty state provides context about who can send invitations
-  - Uses same invitation types as other invitation pages for consistency
-- **Typecheck**: Passed with no errors
-- **Commit**: `feat: US-014 - View Sent Invitations from League Page`
+## 2/1/2026, 2:37 AM - US-030: Race Detail Page
+- **Implemented complete Race Detail Page feature:**
+  - Created `RaceDetail.tsx` page at `/races/:id`
+  - Extended `raceService.ts` with `getRaceById` method
+  - Added helper components: `CountdownTimer`, `StatusBadge`, `SessionTimeCard`, `UserPicksSection`
+  - Race info card displays name, circuit, country, date, round number, and status badge
+  - Countdown timer for upcoming races with real-time updates (days, hours, minutes, seconds)
+  - Session times grid showing FP1, FP2, FP3, Qualifying, and Race times
+  - Winning constructor display for completed races
+  - User's picks section showing driver picks for the race with stats
+  - Back button to return to Race Calendar
+  - Loading states and error handling
+  - Empty state for no user picks
+  - Placeholder for race results link (US-045)
+  - Added route in App.tsx
+  - Comprehensive CSS styling for page, cards, countdown timer, session times, and picks grid
+
+- **Files changed:**
+  - `frontend/src/services/raceService.ts` - Added getRaceById method
+  - `frontend/src/pages/RaceDetail.tsx` - Created
+  - `frontend/src/App.tsx` - Added route
+  - `frontend/src/App.css` - Added CSS styling
+
+- **Learnings for future iterations:**
+  - Countdown timer: Use `setInterval` with 1-second updates and cleanup in useEffect
+  - Date formatting: Create reusable `formatDate` and `formatTime` helper functions
+  - Status badges: Use color-coded badges for visual status indicators
+  - Session times: Display all session times in a grid layout with icons
+  - User picks: Fetch picks from all user's teams and filter by race_id
+  - Type safety: Use `String(pick.race_id) === id` for string/number comparison
+  - Component organization: Extract reusable components (CountdownTimer, StatusBadge, SessionTimeCard)
+  - CSS: Use flexbox and grid for responsive layouts
+
 ---

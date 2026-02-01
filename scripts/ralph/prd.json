@@ -590,8 +590,8 @@
         "Verify in browser using dev-browser skill"
       ],
       "priority": 29,
-      "passes": false,
-      "notes": ""
+      "passes": true,
+      "notes": "Implemented complete Race Calendar page at /races. Created raceService.ts with getRaces, getUpcomingRaces, and getPastRaces methods. Created RaceCalendar.tsx page component with race cards showing name, circuit, country, date, round number, and status badges. Features: separate sections for upcoming and past races, countdown timer to next race with real-time updates, visual indicators for race status (upcoming/ongoing/completed), click race card to navigate to race details (placeholder), loading states, error handling, empty states. Added route in App.tsx. Added Race Calendar navigation button in Dashboard.tsx. Comprehensive CSS styling added for page, cards, countdown timer, and responsive design. Typecheck passes. All acceptance criteria met."
     },
     {
       "id": "US-030",
@@ -610,8 +610,8 @@
         "Verify in browser using dev-browser skill"
       ],
       "priority": 30,
-      "passes": false,
-      "notes": ""
+      "passes": true,
+      "notes": "Implemented complete Race Detail page at /races/:id. Created RaceDetail.tsx page component with race info card, countdown timer for upcoming races, session times grid (FP1, FP2, FP3, Qualifying, Race), winning constructor display for completed races, and user's picks section. Added helper components: CountdownTimer, StatusBadge, SessionTimeCard, UserPicksSection. Extended raceService.ts with getRaceById method. Added route in App.tsx. Comprehensive CSS styling added for page, cards, countdown timer, session times, and picks grid. Typecheck passes. All acceptance criteria met."
     },
     {
       "id": "US-031",

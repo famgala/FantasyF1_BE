@@ -28,6 +28,7 @@ import Drivers from './pages/Drivers';
 import DriverDetail from './pages/DriverDetail';
 import Constructors from './pages/Constructors';
 import RaceCalendar from './pages/RaceCalendar';
+import RaceDetail from './pages/RaceDetail';
 
 function App() {
   return (
@@ -236,6 +237,14 @@ function App() {
             element={
               <ProtectedRoute>
                 <RaceCalendar />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/races/:id"
+            element={
+              <ProtectedRoute>
+                <RaceDetail />
               </ProtectedRoute>
             }
           />
