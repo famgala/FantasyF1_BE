@@ -2,12 +2,11 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { invitationService } from '../services/invitationService';
-import { notificationService } from '../services/notificationService';
+import { NotificationDropdown } from '../components/NotificationDropdown';
 
 export const Dashboard: React.FC = () => {
   const { user, logout } = useAuth();
   const [pendingCount, setPendingCount] = useState(0);
-  const [unreadNotificationCount, setUnreadNotificationCount] = useState(0);
 
   const fetchPendingInvitations = useCallback(async () => {
     try {
@@ -20,20 +19,9 @@ export const Dashboard: React.FC = () => {
     }
   }, []);
 
-  const fetchUnreadNotificationCount = useCallback(async () => {
-    try {
-      const summary = await notificationService.getNotificationSummary();
-      setUnreadNotificationCount(summary.unread_count);
-    } catch {
-      // Silently fail - badge will just show 0
-      setUnreadNotificationCount(0);
-    }
-  }, []);
-
   useEffect(() => {
     fetchPendingInvitations();
-    fetchUnreadNotificationCount();
-  }, [fetchPendingInvitations, fetchUnreadNotificationCount]);
+  }, [fetchPendingInvitations]);
 
   const handleLogout = async () => {
     await logout();
@@ -118,17 +106,9 @@ export const Dashboard: React.FC = () => {
               >
                 Race Calendar
               </Link>
-              <Link
-                to="/notifications"
-                className="bg-lime-600 hover:bg-lime-700 text-white px-4 py-2 rounded-md text-sm font-medium mr-2 relative"
-              >
-                Notifications
-                {unreadNotificationCount > 0 && (
-                  <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
-                    {unreadNotificationCount > 99 ? '99+' : unreadNotificationCount}
-                  </span>
-                )}
-              </Link>
+              <div className="mr-2">
+                <NotificationDropdown />
+              </div>
               <Link
                 to="/profile"
                 className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md text-sm font-medium mr-2"
