@@ -195,6 +195,40 @@ export interface Invitation {
   expires_at: string;
 }
 
+// Send Invitation Request Types
+export interface EmailInvitationRequest {
+  email: string;
+  message?: string;
+}
+
+export interface UsernameInvitationRequest {
+  username: string;
+  message?: string;
+}
+
+export interface UserIdInvitationRequest {
+  user_id: string;
+  message?: string;
+}
+
+export interface CodeInvitationRequest {
+  message?: string;
+}
+
+export interface SentInvitation {
+  id: string;
+  league_id: string;
+  inviter_id: string;
+  invitee_email?: string;
+  invitee_username?: string;
+  invitee_user_id?: string;
+  status: 'pending' | 'accepted' | 'rejected' | 'expired';
+  message?: string;
+  invite_code?: string;
+  created_at: string;
+  expires_at: string;
+}
+
 // Draft Types
 export interface DraftPick {
   id: string;

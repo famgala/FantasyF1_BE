@@ -11,6 +11,7 @@ import JoinLeague from './pages/JoinLeague';
 import LeagueDetail from './pages/LeagueDetail';
 import EditLeague from './pages/EditLeague';
 import MyLeagues from './pages/MyLeagues';
+import SendInvitations from './pages/SendInvitations';
 
 function App() {
   return (
@@ -75,6 +76,14 @@ function App() {
             element={
               <ProtectedRoute>
                 <EditLeague />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/leagues/:id/invite"
+            element={
+              <ProtectedRoute>
+                <SendInvitations />
               </ProtectedRoute>
             }
           />

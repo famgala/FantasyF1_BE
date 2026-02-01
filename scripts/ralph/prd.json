@@ -187,8 +187,8 @@
         "Verify in browser using dev-browser skill"
       ],
       "priority": 9,
-      "passes": false,
-      "notes": ""
+      "passes": true,
+      "notes": "Fully implemented in LeagueDetail.tsx with deleteLeague service function. Features: delete button (creator only), confirmation modal, league name typing requirement, warning messages, API call, success message, redirect to dashboard."
     },
     {
       "id": "US-010",
@@ -230,8 +230,8 @@
         "Verify in browser using dev-browser skill"
       ],
       "priority": 11,
-      "passes": false,
-      "notes": ""
+      "passes": true,
+      "notes": "Implemented SendInvitations page with all 4 invitation methods: email, username, user ID, and invite code. Created invitationService.ts with API methods using apiClient. Added invitation types to types/index.ts. Page includes tab navigation for each method, form validation, success/error messages, and pending invitations list with cancel option. Route added to App.tsx. Button added to LeagueDetail.tsx. Comprehensive CSS styling in App.css. Typecheck passes."
     },
     {
       "id": "US-012",

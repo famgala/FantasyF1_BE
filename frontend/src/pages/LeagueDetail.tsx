@@ -133,7 +133,7 @@ export default function LeagueDetail() {
   };
 
   const handleInviteMembers = () => {
-    alert('Invite Members functionality coming soon! (US-011)');
+    navigate(`/leagues/${id}/invite`);
   };
 
   if (loading) {
