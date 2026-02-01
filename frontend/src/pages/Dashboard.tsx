@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { invitationService } from '../services/invitationService';
 import { NotificationDropdown } from '../components/NotificationDropdown';
+import { MobileNav } from '../components/MobileNav';
 
 export const Dashboard: React.FC = () => {
   const { user, logout } = useAuth();
@@ -39,7 +40,8 @@ export const Dashboard: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <nav className="bg-white shadow">
+      {/* Desktop Navigation */}
+      <nav className="desktop-nav bg-white shadow">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between h-16">
             <div className="flex">
@@ -135,6 +137,9 @@ export const Dashboard: React.FC = () => {
           </div>
         </div>
       </nav>
+
+      {/* Mobile Navigation */}
+      <MobileNav />
 
       <main className="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
         <div className="px-4 py-6 sm:px-0">

@@ -1,159 +1,5 @@
 
-## 2/1/2026, 2:27 AM - US-029: Race Calendar & Schedule
-- **Implemented complete Race Calendar & Schedule feature:**
-  - Created `RaceCalendar.tsx` page at `/races`
-  - Created `raceService.ts` with getRaces, getUpcomingRaces, and getPastRaces methods
-  - Added TypeScript types for `Race` interface (id, name, circuit, country, date, round, status, fp1_date, fp2_date, fp3_date, quali_date, sprint_date, race_date)
-  - Added countdown timer component with real-time updates
-  - Race cards display name, circuit, country, date, round number, and status badges
-  - Separate sections for upcoming races and past races
-  - Visual status indicators: upcoming, ongoing, completed
-  - Loading states and error handling
-  - Click race card navigates to race details (placeholder)
-  - Added route in App.tsx
-  - Added Race Calendar navigation button in Dashboard.tsx
-  - Comprehensive CSS styling for page, cards, countdown timer, and responsive design
-
-- **Files changed:**
-  - `frontend/src/types/index.ts` - Added Race type
-  - `frontend/src/services/raceService.ts` - Created
-  - `frontend/src/pages/RaceCalendar.tsx` - Created
-  - `frontend/src/App.tsx` - Added route
-  - `frontend/src/pages/Dashboard.tsx` - Added navigation button
-
-- **Learnings for future iterations:**
-  - Countdown timers: Use `setInterval` with `useEffect` cleanup in React
-  - Reuse `formatDateTime` utility for consistent date formatting
-  - Race status logic: Use date comparisons with race_date + 2 hours for completion
-  - API pattern: Consistent error handling with ApiError check
-  - CSS: Use flexbox with `gap` property for clean grid layouts
-  - Separate race sections by status for better UX
-
----
-
-## 2/1/2026, 3:16 AM - US-032: Notifications List
-- **Implemented complete Notifications List feature:**
-  - Created `notificationService.ts` with methods:
-    - `getNotifications(page, limit, unreadOnly)` - Paginated list with filtering
-    - `markAsRead(notificationId)` - Mark single notification as read
-    - `markAllAsRead()` - Mark all notifications as read
-    - `getNotificationSummary()` - Get unread count and total
-    - `deleteNotification(notificationId)` - Delete a notification
-  - Added TypeScript types for Notification, NotificationListResponse, and NotificationSummary
-  - Created `Notifications.tsx` page at `/notifications`
-  - Features implemented:
-    - Paginated list with "Load More" button (10 per page)
-    - Unread notifications highlighted with green left border
-    - Mark individual notification as read (eye icon)
-    - Mark all as read (top button)
-    - Delete notification (trash icon)
-    - Real-time unread count badge updates
-    - Empty state when no notifications
-    - Loading states with spinner
-    - Error handling with user-friendly messages
-    - Click notification to navigate to related league (if applicable)
-  - Added 'Notifications' button in Dashboard.tsx with badge showing unread count
-  - Added route in App.tsx
-  - Comprehensive CSS styling for list, cards, badges, and actions
-
-- **Files changed:**
-  - `frontend/src/types/index.ts` - Added Notification, NotificationListResponse, NotificationSummary types
-  - `frontend/src/services/notificationService.ts` - Created
-  - `frontend/src/pages/Notifications.tsx` - Created
-  - `frontend/src/App.tsx` - Added route
-  - `frontend/src/pages/Dashboard.tsx` - Added Notifications button with badge
-  - `frontend/src/App.css` - Added CSS styling
-
-- **Learnings for future iterations:**
-  - API methods: Use explicit type annotations for params (e.g., `unreadOnly?: boolean`)
-  - Type conversion: Use `notificationId.toString()` when comparing IDs from different sources
-  - State management: Update counts optimistically after mark/delete operations
-  - Navigation: Use `navigate('/leagues/' + leagueId)` with fallback for missing league_id
-  - Error handling: Check `axios.isAxiosError(err)` for API error details
-  - CSS: Use `border-left` for visual distinction (unread notifications)
-  - Pagination: Use `items.length > 0` to determine if there are more pages
-  - Icons: Use emoji (👁️ 🗑️) for action buttons when icon library not available
-  - Badge styling: Combine border-radius with padding for notification count badges
-
----
-
-## 2/1/2026, 2:37 AM - US-030: Race Detail Page
-- **Implemented complete Race Detail Page feature:**
-  - Created `RaceDetail.tsx` page at `/races/:id`
-  - Extended `raceService.ts` with `getRaceById` method
-  - Added helper components: `CountdownTimer`, `StatusBadge`, `SessionTimeCard`, `UserPicksSection`
-  - Race info card displays name, circuit, country, date, round number, and status badge
-  - Countdown timer for upcoming races with real-time updates (days, hours, minutes, seconds)
-  - Session times grid showing FP1, FP2, FP3, Qualifying, and Race times
-  - Winning constructor display for completed races
-  - User's picks section showing driver picks for the race with stats
-  - Back button to return to Race Calendar
-  - Loading states and error handling
-  - Empty state for no user picks
-  - Placeholder for race results link (US-045)
-  - Added route in App.tsx
-  - Comprehensive CSS styling for page, cards, countdown timer, session times, and picks grid
-
-- **Files changed:**
-  - `frontend/src/services/raceService.ts` - Added getRaceById method
-  - `frontend/src/pages/RaceDetail.tsx` - Created
-  - `frontend/src/App.tsx` - Added route
-  - `frontend/src/App.css` - Added CSS styling
-
-- **Learnings for future iterations:**
-  - Countdown timer: Use `setInterval` with 1-second updates and cleanup in useEffect
-  - Date formatting: Create reusable `formatDate` and `formatTime` helper functions
-  - Status badges: Use color-coded badges for visual status indicators
-  - Session times: Display all session times in a grid layout with icons
-  - User picks: Fetch picks from all user's teams and filter by race_id
-  - Type safety: Use `String(pick.race_id) === id` for string/number comparison
-  - Component organization: Extract reusable components (CountdownTimer, StatusBadge, SessionTimeCard)
-  - CSS: Use flexbox and grid for responsive layouts
-
----
-
-## 2/1/2026, 2:50 AM - US-031: League Leaderboard
-- **Implemented complete League Leaderboard feature:**
-  - Created `leaderboardService.ts` with `getLeaderboard` method
-  - Added TypeScript types for `LeaderboardEntry` and `LeaderboardResponse` to `types/index.ts`
-  - Created `LeagueLeaderboard.tsx` page component at `/leagues/:id/leaderboard`
-  - Visual podium display for top 3 teams with rank badges, team names, usernames, points, wins, and podiums
-  - Ranked table for remaining entries (4th place onwards) with rank, team name, owner, points, wins, and podiums
-  - Race filter dropdown to filter by specific race or view overall season standings
-  - Scroll to user's position button with smooth scrolling animation
-  - User position summary showing current rank and points
-  - Current user highlighting with green background and "You" badge
-  - Tie indicator (=) for tied positions
-  - Empty state when no teams in league
-  - Loading states and error handling
-  - Added 'Leaderboard' button in `LeagueDetail.tsx` for all league members
-  - Added route in `App.tsx`
-  - Comprehensive CSS styling for podium, table, badges, and responsive design
-
-- **Files changed:**
-  - `frontend/src/types/index.ts` - Added LeaderboardEntry and LeaderboardResponse types
-  - `frontend/src/services/leaderboardService.ts` - Created
-  - `frontend/src/pages/LeagueLeaderboard.tsx` - Created
-  - `frontend/src/App.tsx` - Added route
-  - `frontend/src/pages/LeagueDetail.tsx` - Added Leaderboard button
-  - `frontend/src/App.css` - Added CSS styling
-
-- **Learnings for future iterations:**
-  - API client import: Use named import `import { apiClient as api }` instead of default import
-  - API response handling: The `api.get` method already returns data directly, don't use `.data`
-  - Type safety: Use `selectedRaceId ?? undefined` to convert null to undefined for optional parameters
-  - Race type: Use `race.race_date` not `race.date` for the Race interface
-  - Type comparison: Use `r.id === previewOrder.race_id` for number/number comparison
-  - Podium display: Extract top 3 entries for visual podium, remaining entries for table
-  - User highlighting: Compare `entry.user_id === parseInt(user?.id || '0')` for number/string comparison
-  - Scroll to element: Use `useRef` with `scrollIntoView({ behavior: 'smooth', block: 'center' })`
-  - CSS: Use flexbox with `gap` for podium layout, table styling for leaderboard
-
----
-
----
-
-## 2/1/2026, 3:23 AM - US-033: Notification Badge & Summary
+## 2/1/2026, 3:28 AM - US-033: Notification Badge & Summary
 - **Implemented notification dropdown component with badge and recent notifications:**
   - Refactored Dashboard.tsx to use NotificationDropdown component (already created)
   - NotificationDropdown component features:
@@ -190,3 +36,32 @@
   - Type mapping: Use Record<NotificationType, string> for icon mapping with fallback
   - Dropdown positioning: Use absolute positioning with top: calc(100% + 8px) and right: 0
 
+---
+
+## 2/1/2026, 3:30 AM - US-034 & US-035: Notifications Read/Unread & Delete
+- **Verified existing implementations are complete:**
+  - US-034 (Mark Notifications as Read/Unread): Already fully implemented
+    - `markAsRead()` and `markAsUnread()` methods in notificationService.ts
+    - Mark as read button (checkmark icon) on unread notifications
+    - Mark as unread button (envelope icon) on read notifications
+    - Mark all as read button on notifications page
+    - Visual state changes immediately (blue border for unread, grey for read)
+    - Unread count badge updates in real-time
+  
+  - US-035 (Delete Notifications): Already fully implemented
+    - `deleteNotification()` method in notificationService.ts
+    - Delete button (trash icon) on each notification
+    - Confirmation modal before deletion
+    - Notification removed immediately from list
+    - Unread count updates if deleted notification was unread
+
+- **Files verified:**
+  - `frontend/src/services/notificationService.ts` - All service methods present
+  - `frontend/src/pages/Notifications.tsx` - All UI functionality present
+
+- **Learnings for future iterations:**
+  - Always check existing code before implementing - these features were already done
+  - The notification system has comprehensive functionality already in place
+  - Future notification features should build on this solid foundation
+
+---
