@@ -357,7 +357,10 @@ export const TeamDetailPage: React.FC = () => {
 
                     {isUpcoming && (
                       <div className="race-actions">
-                        <button className="btn btn-primary">
+                        <button 
+                          className="btn btn-primary"
+                          onClick={() => navigate(`/teams/${id}/picks/${raceId}`)}
+                        >
                           + Add Pick for {race.race_name}
                         </button>
                       </div>

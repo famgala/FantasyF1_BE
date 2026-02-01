@@ -272,8 +272,8 @@
         "Verify in browser using dev-browser skill"
       ],
       "priority": 13,
-      "passes": false,
-      "notes": ""
+      "passes": true,
+      "notes": "Implemented complete SentInvitations page at /sent-invitations. Created invitationService.getSentInvitations method with optional status filter. Page displays invitation cards with invitee info, league link, status badge with icons, and sent date. Status filter dropdown (All, Pending, Accepted, Rejected, Expired) with counts. Cancel button for pending invitations with confirmation modal. Explanation text for non-pending statuses. Empty state with links to Browse Leagues and My Leagues. Responsive design with loading and error states. Added Sent Invitations navigation button in Dashboard. Typecheck passes. All acceptance criteria met."
     },
     {
       "id": "US-014",
@@ -350,8 +350,8 @@
         "Verify in browser using dev-browser skill"
       ],
       "priority": 17,
-      "passes": false,
-      "notes": ""
+      "passes": true,
+      "notes": "Implemented complete TeamDetailPage at /teams/:id. Created TeamDetail, TeamPick, DriverStats types. Extended teamService with getTeamDetail, getTeamPicks, updateTeamName, deleteTeam methods. Page displays team info, stats, and roster organized by race with visual indicators for upcoming/ongoing/completed races. Shows driver cards with name, number, team, price, points earned. Edit team name modal with validation. Delete team modal with confirmation. Empty state for no picks. Added route in App.tsx. Comprehensive CSS styling. Typecheck passes. All acceptance criteria met."
     },
     {
       "id": "US-018",
@@ -368,8 +368,8 @@
         "Verify in browser using dev-browser skill"
       ],
       "priority": 18,
-      "passes": false,
-      "notes": ""
+      "passes": true,
+      "notes": "Implemented as part of TeamDetailPage. Edit Team Name modal with input field pre-populated with current name. Validation: 3-100 characters with inline error messages. Success message after update. Updated name reflected immediately in UI. API call via teamService.updateTeamName. Typecheck passes. All acceptance criteria met."
     },
     {
       "id": "US-019",

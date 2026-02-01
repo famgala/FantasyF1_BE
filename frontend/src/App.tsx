@@ -18,6 +18,7 @@ import ReceivedInvitations from './pages/ReceivedInvitations';
 import SentInvitations from './pages/SentInvitations';
 import LeagueInvitations from './pages/LeagueInvitations';
 import LeagueRoles from './pages/LeagueRoles';
+import AddPicks from './pages/AddPicks';
 
 function App() {
   return (
@@ -130,6 +131,14 @@ function App() {
             element={
               <ProtectedRoute>
                 <TeamDetailPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/teams/:teamId/picks/:raceId"
+            element={
+              <ProtectedRoute>
+                <AddPicks />
               </ProtectedRoute>
             }
           />

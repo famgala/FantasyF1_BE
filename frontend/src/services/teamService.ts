@@ -1,5 +1,5 @@
 import { apiClient as api } from './api';
-import type { MyTeam, TeamDetail, TeamPick, UpdateTeamNameRequest } from '../types';
+import type { MyTeam, TeamDetail, TeamPick, UpdateTeamNameRequest, AddPickRequest, Driver } from '../types';
 
 /**
  * Get all teams for the current user
@@ -38,4 +38,24 @@ export async function updateTeamName(teamId: string, data: UpdateTeamNameRequest
  */
 export async function deleteTeam(teamId: string): Promise<void> {
   return api.delete<void>(`/teams/${teamId}`);
+}
+
+/**
+ * Add picks to a team for a specific race
+ */
+export async function addTeamPick(teamId: string, data: AddPickRequest): Promise<TeamPick[]> {
+  return api.post<TeamPick[]>(`/teams/${teamId}/picks`, data);
+}
+
+/**
+ * Get available drivers for a race (with optional filters)
+ */
+export async function getAvailableDrivers(filters?: {
+  team?: string;
+  search?: string;
+  sort?: string;
+}): Promise<Driver[]> {
+  return api.get<Driver[]>('/drivers', {
+    params: filters,
+  });
 }

@@ -411,3 +411,46 @@
 - **Typecheck**: Passed with no errors (npm run build)
 - **Commit**: `feat: US-016 - Add My Teams Overview page`
 ---
+
+## 2/1/2026, 6:20 AM UTC - US-017 & US-018
+- **Story**: Team Detail & Roster Management + Update Team Name
+- **What was implemented**:
+  - Created `TeamDetail.tsx` page component at `/teams/:id` with:
+    - Team info header showing name, league name, total points, budget remaining
+    - Edit Team Name button with modal for updating team name
+    - Delete Team button with confirmation modal
+    - Team roster organized by race with visual indicators (upcoming/ongoing/completed)
+    - Driver cards for each pick showing name, number, team, price, points earned
+    - Empty state when no picks exist
+    - Loading states, error handling, and success messages
+  - Extended `teamService.ts` with 4 new methods:
+    - `getTeamDetail(teamId)`: Fetches team details
+    - `getTeamPicks(teamId)`: Fetches team picks organized by race
+    - `updateTeamName(teamId, name)`: Updates team name
+    - `deleteTeam(teamId)`: Deletes team
+  - Added TypeScript types: `TeamDetail`, `TeamPick`, `DriverStats`
+  - Added route `/teams/:id` in `App.tsx` (imported as `TeamDetailPage`)
+  - `MyTeams.tsx` already links to team detail page via team cards
+  - Comprehensive CSS styling for page, team info, driver cards, modals, and empty states
+- **Files changed**:
+  - `frontend/src/pages/TeamDetail.tsx` - New page component
+  - `frontend/src/services/teamService.ts` - Added 4 new methods
+  - `frontend/src/types/index.ts` - Added TeamDetail, TeamPick, DriverStats types
+  - `frontend/src/App.tsx` - Added route /teams/:id
+  - `frontend/src/App.css` - Added styling for team detail page
+- **Learnings for future iterations**:
+  - Team detail page combines US-017 and US-018 functionality in a single component
+  - Team picks are organized by race with race status indicators (upcoming/ongoing/completed)
+  - Race status badges use different colors: green (upcoming), yellow (ongoing), gray (completed)
+  - Driver cards display key stats in a grid layout: name, number, team, price, points
+  - Edit team name modal uses inline validation (3-100 characters) with error messages
+  - Delete team modal requires confirmation with warning message
+  - After successful name update, team info refreshes automatically
+  - After successful deletion, user is redirected to My Teams page
+  - Empty state provides context about adding picks for upcoming races
+  - Team detail page is accessible from My Teams page via clickable team cards
+  - Points display uses color coding: green (positive), gray (zero)
+  - Budget display uses blue color for visual distinction
+- **Typecheck**: Passed with no errors (npm run build)
+- **Commit**: `feat: team-detail-page - Add team detail page with full CRUD functionality`
+---

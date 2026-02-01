@@ -189,6 +189,11 @@ export interface UpdateTeamNameRequest {
   name: string;
 }
 
+export interface AddPickRequest {
+  race_id: string;
+  driver_ids: string[];
+}
+
 // Driver Types
 export interface Driver {
   id: string;
