@@ -30,6 +30,7 @@ import DriverDetail from './pages/DriverDetail';
 import Constructors from './pages/Constructors';
 import RaceCalendar from './pages/RaceCalendar';
 import RaceDetail from './pages/RaceDetail';
+import Notifications from './pages/Notifications';
 
 function App() {
   return (
@@ -254,6 +255,14 @@ function App() {
             element={
               <ProtectedRoute>
                 <RaceDetail />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/notifications"
+            element={
+              <ProtectedRoute>
+                <Notifications />
               </ProtectedRoute>
             }
           />

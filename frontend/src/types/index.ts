@@ -275,15 +275,38 @@ export interface GetRacesRequest {
 }
 
 // Notification Types
+export type NotificationType =
+  | 'race_finished'
+  | 'draft_update'
+  | 'pick_turn'
+  | 'league_invite'
+  | 'team_update'
+  | 'points_updated'
+  | 'system';
+
 export interface Notification {
   id: string;
   user_id: string;
-  type: string;
+  type: NotificationType;
   title: string;
   message: string;
   is_read: boolean;
   created_at: string;
+  read_at?: string;
   link?: string;
+}
+
+export interface NotificationListResponse {
+  notifications: Notification[];
+  total: number;
+  unread_count: number;
+}
+
+export interface NotificationFilters {
+  skip?: number;
+  limit?: number;
+  unread_only?: boolean;
+  notification_type?: NotificationType;
 }
 
 // Invitation Types

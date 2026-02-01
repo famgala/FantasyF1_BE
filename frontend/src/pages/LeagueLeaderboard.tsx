@@ -31,9 +31,10 @@ export default function LeagueLeaderboard() {
         // Fetch leaderboard
         const leaderboardData = await getLeaderboard(id, selectedRaceId ?? undefined);
         setLeaderboard(leaderboardData);
-      } catch (err: any) {
+      } catch (err: unknown) {
         console.error('Error fetching leaderboard data:', err);
-        setError(err.response?.data?.detail || 'Failed to load leaderboard');
+        const errorMessage = err instanceof Error ? err.message : 'Failed to load leaderboard';
+        setError(errorMessage);
       } finally {
         setLoading(false);
       }

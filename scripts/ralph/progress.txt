@@ -31,6 +31,52 @@
 
 ---
 
+## 2/1/2026, 3:16 AM - US-032: Notifications List
+- **Implemented complete Notifications List feature:**
+  - Created `notificationService.ts` with methods:
+    - `getNotifications(page, limit, unreadOnly)` - Paginated list with filtering
+    - `markAsRead(notificationId)` - Mark single notification as read
+    - `markAllAsRead()` - Mark all notifications as read
+    - `getNotificationSummary()` - Get unread count and total
+    - `deleteNotification(notificationId)` - Delete a notification
+  - Added TypeScript types for Notification, NotificationListResponse, and NotificationSummary
+  - Created `Notifications.tsx` page at `/notifications`
+  - Features implemented:
+    - Paginated list with "Load More" button (10 per page)
+    - Unread notifications highlighted with green left border
+    - Mark individual notification as read (eye icon)
+    - Mark all as read (top button)
+    - Delete notification (trash icon)
+    - Real-time unread count badge updates
+    - Empty state when no notifications
+    - Loading states with spinner
+    - Error handling with user-friendly messages
+    - Click notification to navigate to related league (if applicable)
+  - Added 'Notifications' button in Dashboard.tsx with badge showing unread count
+  - Added route in App.tsx
+  - Comprehensive CSS styling for list, cards, badges, and actions
+
+- **Files changed:**
+  - `frontend/src/types/index.ts` - Added Notification, NotificationListResponse, NotificationSummary types
+  - `frontend/src/services/notificationService.ts` - Created
+  - `frontend/src/pages/Notifications.tsx` - Created
+  - `frontend/src/App.tsx` - Added route
+  - `frontend/src/pages/Dashboard.tsx` - Added Notifications button with badge
+  - `frontend/src/App.css` - Added CSS styling
+
+- **Learnings for future iterations:**
+  - API methods: Use explicit type annotations for params (e.g., `unreadOnly?: boolean`)
+  - Type conversion: Use `notificationId.toString()` when comparing IDs from different sources
+  - State management: Update counts optimistically after mark/delete operations
+  - Navigation: Use `navigate('/leagues/' + leagueId)` with fallback for missing league_id
+  - Error handling: Check `axios.isAxiosError(err)` for API error details
+  - CSS: Use `border-left` for visual distinction (unread notifications)
+  - Pagination: Use `items.length > 0` to determine if there are more pages
+  - Icons: Use emoji (👁️ 🗑️) for action buttons when icon library not available
+  - Badge styling: Combine border-radius with padding for notification count badges
+
+---
+
 ## 2/1/2026, 2:37 AM - US-030: Race Detail Page
 - **Implemented complete Race Detail Page feature:**
   - Created `RaceDetail.tsx` page at `/races/:id`

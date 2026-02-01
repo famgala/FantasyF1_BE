@@ -653,8 +653,8 @@
         "Verify in browser using dev-browser skill"
       ],
       "priority": 32,
-      "passes": false,
-      "notes": ""
+      "passes": true,
+      "notes": "Implemented complete Notifications List page at /notifications. Created notificationService.ts with methods: getNotifications, markAsRead, markAllAsRead, getNotificationSummary, deleteNotification. Added Notification, NotificationListResponse, NotificationSummary types. Features: paginated list with Load More button, unread notifications highlighted with green left border, mark individual as read (eye icon), mark all as read button, delete notification (trash icon), click to navigate to related league. Added Notifications button in Dashboard.tsx with badge showing unread count. Typecheck passes."
     },
     {
       "id": "US-033",
