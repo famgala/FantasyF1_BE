@@ -93,6 +93,26 @@ export interface UpdateLeagueRequest {
   scoring_settings?: Record<string, any>;
 }
 
+export interface MyLeague {
+  id: string;
+  name: string;
+  description: string;
+  code: string;
+  creator_id: string;
+  max_teams: number;
+  privacy: 'public' | 'private';
+  draft_method: 'random' | 'sequential' | 'snake';
+  draft_close_condition: string;
+  scoring_settings: Record<string, any>;
+  created_at: string;
+  updated_at: string;
+  team_count: number;
+  my_team_id: string;
+  my_team_name: string;
+  my_team_rank: number;
+  my_team_points: number;
+}
+
 export interface ScoringSettings {
   // Add specific scoring settings as needed
   // This is a placeholder for future expansion

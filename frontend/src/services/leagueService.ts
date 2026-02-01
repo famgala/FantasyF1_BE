@@ -1,5 +1,5 @@
 import { apiClient as api } from './api';
-import type { League, PaginatedResponse, CreateLeagueRequest, JoinLeagueRequest, LeagueMember, FantasyTeam, UpdateLeagueRequest } from '../types';
+import type { League, PaginatedResponse, CreateLeagueRequest, JoinLeagueRequest, LeagueMember, FantasyTeam, UpdateLeagueRequest, MyLeague } from '../types';
 
 export interface GetLeaguesRequest {
   page?: number;
@@ -104,4 +104,15 @@ export async function leaveLeague(leagueId: string): Promise<void> {
  */
 export async function deleteLeague(leagueId: string): Promise<void> {
   return api.delete<void>(`/leagues/${leagueId}`);
+}
+
+/**
+ * Get all leagues that the current user is a member of
+ */
+export async function getMyLeagues(sort: string = 'alphabetical'): Promise<MyLeague[]> {
+  return api.get<MyLeague[]>('/leagues/my-leagues', {
+    params: {
+      sort,
+    },
+  });
 }

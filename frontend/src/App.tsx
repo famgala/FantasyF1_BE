@@ -10,6 +10,7 @@ import CreateLeague from './pages/CreateLeague';
 import JoinLeague from './pages/JoinLeague';
 import LeagueDetail from './pages/LeagueDetail';
 import EditLeague from './pages/EditLeague';
+import MyLeagues from './pages/MyLeagues';
 
 function App() {
   return (
@@ -77,7 +78,15 @@ function App() {
               </ProtectedRoute>
             }
           />
-          
+          <Route
+            path="/my-leagues"
+            element={
+              <ProtectedRoute>
+                <MyLeagues />
+              </ProtectedRoute>
+            }
+          />
+
           {/* Default redirect */}
           <Route path="/" element={<Navigate to="/login" replace />} />
           

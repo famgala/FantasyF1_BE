@@ -208,8 +208,8 @@
         "Verify in browser using dev-browser skill"
       ],
       "priority": 10,
-      "passes": false,
-      "notes": ""
+      "passes": true,
+      "notes": "Implemented complete My Leagues dashboard at /my-leagues. Created MyLeagues.tsx page component with full functionality. Added MyLeague type to types/index.ts. Extended leagueService.ts with getMyLeagues method. Added route in App.tsx. Added My Leagues navigation button in Dashboard.tsx. Comprehensive CSS styling added for page, cards, rank badges, empty states, and sort controls. Typecheck passes. All acceptance criteria met."
     },
     {
       "id": "US-011",

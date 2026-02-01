@@ -391,3 +391,46 @@ Started: Sat Jan 31 01:12:40 CST 2026
 - Pattern: Disabled fields during submission prevent double-submits
 
 ---
+
+## 1/31/2026, 10:54 PM - US-010
+- Implemented complete "My Leagues Dashboard" feature
+- Files changed:
+  - frontend/src/types/index.ts - Added MyLeague interface extending League with team info and rank
+  - frontend/src/services/leagueService.ts - Added getMyLeagues(sort) method
+  - frontend/src/pages/MyLeagues.tsx - New page component (215 lines) for My Leagues dashboard
+  - frontend/src/App.tsx - Added route for /my-leagues with ProtectedRoute
+  - frontend/src/pages/Dashboard.tsx - Added "My Leagues" button to navigation bar
+  - frontend/src/App.css - Added comprehensive CSS styling for My Leagues page
+  - scripts/ralph/prd.json - Marked US-010 as passing
+- All acceptance criteria met:
+  - My Leagues page at /my-leagues showing all user's leagues
+  - League cards display: name, team count, user's team name, user's current rank
+  - Sort options: alphabetical, most recent, highest rank (dropdown control)
+  - Click league card to view league details (navigates to LeagueDetail)
+  - Create League button in header
+  - Join League button in header
+  - Empty state with F1 flag icon and call-to-action buttons when no leagues
+  - API call: GET /api/v1/leagues/my-leagues with sort parameter
+  - TypeScript typecheck passes (npm run build)
+- CSS styling includes:
+  - Rank badge with gradient (gold/orange) showing position with medals (🥇🥈🥉)
+  - My team info section with blue left border showing team name and points
+  - Privacy badges (public/private color-coded)
+  - Grid layout for league cards with hover effects
+  - Empty state centered with icon and action buttons
+  - Sort controls with label and dropdown
+  - Results count display
+
+**Learnings for future iterations:**
+- Pattern: Extend existing type patterns (MyLeague extends League with team-specific fields)
+- Pattern: Sort parameter passed to API for server-side sorting
+- Pattern: Rank display with emoji medals (🥇🥈🥉) provides visual interest
+- Pattern: Card-based layout with badge overlays for rank (position: absolute)
+- Pattern: Link component wraps entire card for navigation
+- Pattern: Empty state should have clear icon, heading, description, and action buttons
+- Pattern: Header actions pattern for page-level Create/Join buttons
+- Pattern: Privacy badges use same CSS classes for consistency across pages
+- Pattern: Form controls should have consistent styling (form-control class)
+- Pattern: Loading spinner uses same pattern as other pages
+
+---
