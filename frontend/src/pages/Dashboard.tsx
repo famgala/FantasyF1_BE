@@ -94,6 +94,12 @@ export const Dashboard: React.FC = () => {
                 Drivers
               </Link>
               <Link
+                to="/constructors"
+                className="bg-rose-600 hover:bg-rose-700 text-white px-4 py-2 rounded-md text-sm font-medium mr-2"
+              >
+                Constructors
+              </Link>
+              <Link
                 to="/profile"
                 className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md text-sm font-medium mr-2"
               >

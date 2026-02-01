@@ -397,6 +397,24 @@ export interface DraftPickResponse {
   created_at: string;
 }
 
+// Constructor Types
+export interface Constructor {
+  id: string;
+  name: string;
+  code: string;
+  engine: string;
+  nationality: string;
+  points: number;
+  wins: number;
+  championships: number;
+  is_active: boolean;
+  created_at: string;
+}
+
+export interface ConstructorWithDrivers extends Constructor {
+  drivers: Driver[];
+}
+
 // API Response Types
 export interface PaginatedResponse<T> {
   items: T[];

@@ -26,6 +26,7 @@ import MakeDraftPick from './pages/MakeDraftPick';
 import DraftBoard from './pages/DraftBoard';
 import Drivers from './pages/Drivers';
 import DriverDetail from './pages/DriverDetail';
+import Constructors from './pages/Constructors';
 
 function App() {
   return (
@@ -218,6 +219,14 @@ function App() {
             element={
               <ProtectedRoute>
                 <DriverDetail />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/constructors"
+            element={
+              <ProtectedRoute>
+                <Constructors />
               </ProtectedRoute>
             }
           />
