@@ -20,6 +20,7 @@ import LeagueInvitations from './pages/LeagueInvitations';
 import LeagueRoles from './pages/LeagueRoles';
 import AddPicks from './pages/AddPicks';
 import CreateDraftOrder from './pages/CreateDraftOrder';
+import ViewDraftOrder from './pages/ViewDraftOrder';
 
 function App() {
   return (
@@ -116,6 +117,14 @@ function App() {
             element={
               <ProtectedRoute>
                 <CreateDraftOrder />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/leagues/:id/draft-order"
+            element={
+              <ProtectedRoute>
+                <ViewDraftOrder />
               </ProtectedRoute>
             }
           />

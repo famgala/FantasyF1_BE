@@ -3548,3 +3548,213 @@
 .modal-body .info-banner p {
   margin: 0.5rem 0;
 }
+
+/* View Draft Order Page Styles */
+.draft-info-section {
+  display: flex;
+  gap: 2rem;
+  margin-bottom: 1.5rem;
+  flex-wrap: wrap;
+}
+
+.draft-info-item {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.draft-info-label {
+  font-size: 0.75rem;
+  color: #6b7280;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.025em;
+}
+
+.draft-info-value {
+  font-size: 1rem;
+  color: #111827;
+  font-weight: 700;
+}
+
+.draft-method-description {
+  color: #6b7280;
+  font-size: 0.875rem;
+  font-style: italic;
+  margin-bottom: 1rem;
+}
+
+.draft-order-container {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+  margin-top: 2rem;
+}
+
+.draft-round {
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  padding: 1.5rem;
+  border: 1px solid #e5e7eb;
+}
+
+.draft-round-title {
+  margin: 0 0 1rem 0;
+  font-size: 1.25rem;
+  color: #111827;
+  font-weight: 600;
+  padding-bottom: 0.75rem;
+  border-bottom: 2px solid #e5e7eb;
+}
+
+.draft-round-table {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.draft-table-header {
+  display: grid;
+  grid-template-columns: 80px 1fr 1fr;
+  gap: 1rem;
+  padding: 0.75rem 1rem;
+  background: #f9fafb;
+  border-radius: 6px;
+  font-weight: 600;
+  color: #374151;
+  font-size: 0.875rem;
+  border-bottom: 2px solid #e5e7eb;
+}
+
+.draft-table-row {
+  display: grid;
+  grid-template-columns: 80px 1fr 1fr;
+  gap: 1rem;
+  padding: 0.75rem 1rem;
+  background: #f9fafb;
+  border-radius: 6px;
+  border: 1px solid #e5e7eb;
+  transition: all 0.15s ease-in-out;
+  align-items: center;
+}
+
+.draft-table-row:hover {
+  border-color: #3b82f6;
+  box-shadow: 0 2px 8px rgba(59, 130, 246, 0.1);
+}
+
+.draft-table-row.my-team {
+  background: #f0fdf4;
+  border-color: #059669;
+  box-shadow: 0 2px 8px rgba(5, 150, 105, 0.1);
+}
+
+.draft-table-row.my-team:hover {
+  border-color: #047857;
+  box-shadow: 0 4px 12px rgba(5, 150, 105, 0.15);
+}
+
+.draft-table-cell {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.draft-table-cell-pick {
+  justify-content: center;
+}
+
+.pick-number {
+  background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+  color: white;
+  padding: 0.375rem 0.75rem;
+  border-radius: 6px;
+  font-size: 0.875rem;
+  font-weight: 700;
+  min-width: 48px;
+  text-align: center;
+}
+
+.team-name {
+  font-weight: 600;
+  color: #111827;
+  font-size: 0.875rem;
+}
+
+.my-team-badge {
+  background: #059669;
+  color: white;
+  padding: 0.25rem 0.5rem;
+  border-radius: 9999px;
+  font-size: 0.625rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.025em;
+  white-space: nowrap;
+}
+
+.owner-name {
+  color: #6b7280;
+  font-size: 0.875rem;
+}
+
+.draft-legend {
+  display: flex;
+  gap: 1.5rem;
+  padding: 1rem;
+  background: #f9fafb;
+  border-radius: 8px;
+  border: 1px solid #e5e7eb;
+  margin-top: 1rem;
+}
+
+.legend-item {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.875rem;
+  color: #374151;
+}
+
+.legend-indicator {
+  width: 16px;
+  height: 16px;
+  border-radius: 4px;
+  border: 2px solid;
+}
+
+.my-team-indicator {
+  background: #f0fdf4;
+  border-color: #059669;
+}
+
+/* Responsive for View Draft Order */
+@media (max-width: 768px) {
+  .draft-info-section {
+    flex-direction: column;
+    gap: 1rem;
+  }
+
+  .draft-table-header {
+    display: none;
+  }
+
+  .draft-table-row {
+    grid-template-columns: 1fr;
+    gap: 0.5rem;
+  }
+
+  .draft-table-cell {
+    justify-content: flex-start;
+  }
+
+  .draft-table-cell-pick {
+    justify-content: flex-start;
+  }
+
+  .draft-legend {
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+}

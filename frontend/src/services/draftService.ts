@@ -25,3 +25,10 @@ export async function createDraftOrder(
     },
   });
 }
+
+/**
+ * Get draft order for a league
+ */
+export async function getDraftOrder(leagueId: string): Promise<DraftOrder> {
+  return api.get<DraftOrder>(`/drafts/${leagueId}/draft-order`);
+}
