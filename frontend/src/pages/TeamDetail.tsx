@@ -24,6 +24,11 @@ export const TeamDetailPage: React.FC = () => {
   const [deleteConfirmation, setDeleteConfirmation] = useState('');
   const [isDeleting, setIsDeleting] = useState(false);
 
+  // Remove pick modal state
+  const [showRemoveModal, setShowRemoveModal] = useState(false);
+  const [pickToRemove, setPickToRemove] = useState<TeamPick | null>(null);
+  const [isRemoving, setIsRemoving] = useState(false);
+
   useEffect(() => {
     if (id) {
       fetchTeamData();
@@ -133,6 +138,39 @@ export const TeamDetailPage: React.FC = () => {
       closeDeleteModal();
     } finally {
       setIsDeleting(false);
+    }
+  };
+
+  const openRemoveModal = (pick: TeamPick) => {
+    setPickToRemove(pick);
+    setShowRemoveModal(true);
+  };
+
+  const closeRemoveModal = () => {
+    setShowRemoveModal(false);
+    setPickToRemove(null);
+  };
+
+  const handleRemovePick = async () => {
+    if (!id || !pickToRemove) return;
+
+    try {
+      setIsRemoving(true);
+      await teamService.removePick(id, pickToRemove.id);
+
+      setSuccessMessage('Pick removed successfully');
+      closeRemoveModal();
+
+      // Refresh team data to update budget
+      await fetchTeamData();
+
+      setTimeout(() => setSuccessMessage(null), 3000);
+    } catch (err: unknown) {
+      const error = err as { response?: { data?: { detail?: string } } };
+      setError(error.response?.data?.detail || 'Failed to remove pick');
+      closeRemoveModal();
+    } finally {
+      setIsRemoving(false);
     }
   };
 
@@ -346,8 +384,17 @@ export const TeamDetailPage: React.FC = () => {
                           </div>
                           {isUpcoming && (
                             <div className="pick-actions">
-                              <button className="btn btn-sm btn-outline">
+                              <button 
+                                className="btn btn-sm btn-outline"
+                                onClick={() => navigate(`/teams/${id}/picks/${raceId}`)}
+                              >
                                 Modify Pick
+                              </button>
+                              <button 
+                                className="btn btn-sm btn-danger"
+                                onClick={() => openRemoveModal(pick)}
+                              >
+                                Remove
                               </button>
                             </div>
                           )}
@@ -476,6 +523,65 @@ export const TeamDetailPage: React.FC = () => {
                   disabled={isDeleting || deleteConfirmation !== team.name}
                 >
                   {isDeleting ? 'Deleting...' : 'Delete Team'}
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Remove Pick Modal */}
+      {showRemoveModal && pickToRemove && (
+        <div className="modal-overlay" onClick={closeRemoveModal}>
+          <div className="modal-container" onClick={(e) => e.stopPropagation()}>
+            <div className="modal-header">
+              <h2>Remove Pick</h2>
+              <button className="modal-close" onClick={closeRemoveModal}>
+                ×
+              </button>
+            </div>
+            <div className="modal-body">
+              <p className="modal-description">
+                Are you sure you want to remove <strong>{pickToRemove.driver_name}</strong> from your team?
+              </p>
+              <div className="pick-details">
+                <div className="detail-row">
+                  <span className="detail-label">Race:</span>
+                  <span className="detail-value">{pickToRemove.race_name}</span>
+                </div>
+                <div className="detail-row">
+                  <span className="detail-label">Driver:</span>
+                  <span className="detail-value">#{pickToRemove.driver_number} {pickToRemove.driver_name}</span>
+                </div>
+                <div className="detail-row">
+                  <span className="detail-label">Team:</span>
+                  <span className="detail-value">{pickToRemove.driver_team}</span>
+                </div>
+                <div className="detail-row">
+                  <span className="detail-label">Price:</span>
+                  <span className="detail-value">${pickToRemove.driver_price.toLocaleString()}</span>
+                </div>
+              </div>
+              <div className="info-banner">
+                <span className="info-icon">ℹ️</span>
+                <span>Removing this pick will refund ${pickToRemove.driver_price.toLocaleString()} to your team budget.</span>
+              </div>
+              <div className="modal-actions">
+                <button
+                  type="button"
+                  className="btn btn-secondary"
+                  onClick={closeRemoveModal}
+                  disabled={isRemoving}
+                >
+                  Cancel
+                </button>
+                <button
+                  type="button"
+                  className="btn btn-danger"
+                  onClick={handleRemovePick}
+                  disabled={isRemoving}
+                >
+                  {isRemoving ? 'Removing...' : 'Remove Pick'}
                 </button>
               </div>
             </div>

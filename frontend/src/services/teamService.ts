@@ -59,3 +59,10 @@ export async function getAvailableDrivers(filters?: {
     params: filters,
   });
 }
+
+/**
+ * Remove a pick from a team
+ */
+export async function removePick(teamId: string, pickId: string): Promise<void> {
+  return api.delete<void>(`/teams/${teamId}/picks/${pickId}`);
+}

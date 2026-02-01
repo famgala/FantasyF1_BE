@@ -390,8 +390,8 @@
         "Verify in browser using dev-browser skill"
       ],
       "priority": 19,
-      "passes": false,
-      "notes": ""
+      "passes": true,
+      "notes": "Implemented complete Add Picks page at /teams/:teamId/add-picks/:raceId. Created AddPicks.tsx page component with driver selection UI. Extended teamService.ts with addTeamPick and getAvailableDrivers methods. Added TypeScript types for AddPickRequest, AvailableDriver, LeaguePickLimits. Features: driver cards with stats, team filter dropdown, search by name/code/number, budget display with progress bar, selection summary, max per team validation (2 drivers per team), max drivers validation (5 total), budget validation, error messages, success message with redirect, loading states, empty states. Added route in App.tsx. Added 'Add Picks' button in TeamDetail.tsx for upcoming races. Comprehensive CSS styling added. Typecheck passes. All acceptance criteria met."
     },
     {
       "id": "US-020",
@@ -408,8 +408,8 @@
         "Verify in browser using dev-browser skill"
       ],
       "priority": 20,
-      "passes": false,
-      "notes": ""
+      "passes": true,
+      "notes": "Implemented complete remove pick functionality. Added removePick method to teamService.ts. Added Remove Pick button and confirmation modal to TeamDetail.tsx for upcoming races. Modal displays pick details (race, driver, team, price) and info banner about budget refund. Success message after removal with team data refresh. Comprehensive CSS styling added for pick details and info banner. Typecheck passes. All acceptance criteria met."
     },
     {
       "id": "US-021",

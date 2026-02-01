@@ -453,4 +453,92 @@
   - Budget display uses blue color for visual distinction
 - **Typecheck**: Passed with no errors (npm run build)
 - **Commit**: `feat: team-detail-page - Add team detail page with full CRUD functionality`
+
+---
+
+## 2/1/2026, 6:34 AM UTC - US-019
+- **Story**: Add Team Picks - Select Drivers for Team for Each Race
+- **What was implemented**:
+  - Created `AddPicks.tsx` page component at `/teams/:teamId/add-picks/:raceId` with:
+    - Driver cards showing name, number, team, country, price, total points, average points
+    - Team filter dropdown to filter drivers by constructor
+    - Search input to filter drivers by name, code, or number
+    - Budget display showing total budget, remaining budget, and selected cost with progress bar
+    - Selection summary showing drivers selected count and max per team limit
+    - Max per team validation (2 drivers per team) with visual indicators
+    - Max drivers validation (5 total drivers) with visual indicators
+    - Budget validation preventing selection that exceeds remaining budget
+    - Error messages for all validation failures
+    - Success message with redirect to team detail after adding picks
+    - Loading states, error handling, and empty states
+    - Responsive grid layout for driver cards
+  - Extended `teamService.ts` with 2 new methods:
+    - `addTeamPick(teamId, request)`: Adds picks for a team using POST /api/v1/teams/{team_id}/picks
+    - `getAvailableDrivers()`: Fetches all available drivers using GET /api/v1/drivers
+  - Added TypeScript types: `AddPickRequest`, `AvailableDriver`, `LeaguePickLimits`
+  - Added route `/teams/:teamId/add-picks/:raceId` in `App.tsx`
+  - Added "Add Picks" button in `TeamDetail.tsx` for upcoming races
+  - Comprehensive CSS styling for page, driver cards, budget display, filters, and validation messages
+- **Files changed**:
+  - `frontend/src/pages/AddPicks.tsx` - New page component
+  - `frontend/src/services/teamService.ts` - Added addTeamPick and getAvailableDrivers methods
+  - `frontend/src/types/index.ts` - Added AddPickRequest, AvailableDriver, LeaguePickLimits types
+  - `frontend/src/App.tsx` - Added route
+  - `frontend/src/pages/TeamDetail.tsx` - Added Add Picks button for upcoming races
+  - `frontend/src/App.css` - Added styling for add picks page
+- **Learnings for future iterations**:
+  - Add Picks page uses teamId and raceId from URL params to identify team and race
+  - Driver cards use checkbox for selection with visual feedback (selected state)
+  - Team filter dropdown uses useMemo to extract unique teams from drivers list
+  - Search filters by name, code, or number using case-insensitive matching
+  - Budget display shows total budget, remaining budget, and selected cost with color coding
+  - Budget bar visualizes spending as percentage of total budget
+  - Selection errors are calculated using useMemo for efficient validation
+  - Max per team validation tracks count per team and disables selection when limit reached
+  - Driver cards show warning when max per team limit reached for that team
+  - Submit button is disabled when selection is invalid or no drivers selected
+  - After successful submission, success message shows and redirects after 2 seconds
+  - Existing picks for the race are checked and error shown if picks already exist
+  - Team detail page shows "Add Picks" button only for upcoming races (not completed races)
+  - Driver cards display stats in a grid: price, total points, average points
+  - Empty state shows when no drivers match filters with clear filters button
+- **Typecheck**: Passed with no errors (npm run build)
+- **Commit**: `feat: US-019 - Add Picks Page`
+
+---
+
+## 2/1/2026, 6:43 AM UTC - US-020
+- **Story**: Remove Team Picks - Remove Drivers from Lineup
+- **What was implemented**:
+  - Extended `teamService.ts` with `removePick(teamId, pickId)` method using DELETE /api/v1/teams/{team_id}/picks/{pick_id}
+  - Updated `TeamDetail.tsx` with:
+    - Remove Pick button on driver cards for upcoming races only
+    - Confirmation modal showing pick details (race, driver, team, price)
+    - Info banner explaining budget refund after removal
+    - Success message after removal with team data refresh
+    - Loading states, error handling, and validation
+  - Added comprehensive CSS styling for:
+    - Pick details section in modal with detail rows
+    - Info banner with blue background and icon
+    - Remove Pick button styling
+  - Remove Pick button only shown for upcoming races (not ongoing or completed)
+  - Modal displays full pick information before confirmation
+  - After successful removal, team data refreshes automatically
+- **Files changed**:
+  - `frontend/src/services/teamService.ts` - Added removePick method
+  - `frontend/src/pages/TeamDetail.tsx` - Added Remove Pick button and modal
+  - `frontend/src/App.css` - Added styling for pick details and info banner
+- **Learnings for future iterations**:
+  - Remove Pick button only shown for upcoming races (race.status === 'upcoming')
+  - Modal pattern: overlay + container with header (title + close button), body (description + details + info banner), actions (cancel + confirm buttons)
+  - Pick details section uses detail-row pattern with label and value columns
+  - Info banner uses blue background (#eff6ff) with border (#bfdbfe) for informational content
+  - After successful removal, team data refreshes by calling fetchTeamData() to update budget and picks
+  - Error handling catches 403 (race started/deadline passed) and 404 (pick not found) errors
+  - Success message shows "Pick removed successfully" and auto-dismisses after 3 seconds
+  - Remove Pick button uses btn-danger styling (red background) for destructive action
+  - Modal uses same overlay pattern as other modals (click outside to close, stopPropagation on container)
+  - Pick details show: race name, driver name, driver team, and price for user confirmation
+- **Typecheck**: Passed with no errors (npm run build)
+- **Commit**: `feat: US-020 - Remove Team Picks`
 ---
