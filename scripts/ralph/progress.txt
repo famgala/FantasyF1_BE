@@ -749,4 +749,78 @@
   - Draft method shown to understand draft format
 - **Typecheck**: Passed with no errors (npm run build)
 - **Commit**: `feat: US-024 - Make Draft Pick page with driver selection UI`
+
+---
+
+## 2/1/2026, 7:25 AM UTC - US-025
+- **Story**: View Draft Picks History - View All Draft Picks Made So Far
+- **What was implemented**:
+  - Extended `draftService.ts` with `getDraftPicks(leagueId, raceId)` method using GET /api/v1/drafts/{league_id}/draft-picks
+  - Created `DraftBoard.tsx` page component at `/leagues/:id/draft-board` with:
+    - Draft board table showing all picks organized by round and pick number
+    - Table columns: Round, Pick #, Team, Driver, Auto Pick, Time
+    - Filter by team dropdown (All Teams + individual teams)
+    - Filter by round dropdown (All Rounds + individual rounds)
+    - Export to CSV functionality with all draft data
+    - Visual highlighting for user's picks (green background)
+    - Auto-pick indicator badge (Auto/Manual)
+    - Statistics summary: total picks, total rounds, your picks, auto picks
+    - Legend explaining color coding (your picks, auto picks)
+    - Loading states, error handling, and empty states
+    - Responsive design for mobile and desktop
+  - Added "Draft Board" button in `LeagueDetail.tsx` (visible to all league members)
+  - Added route `/leagues/:id/draft-board` in `App.tsx`
+  - Comprehensive CSS styling for page, table, filters, legend, stats, and responsive design
+- **Files changed**:
+  - `frontend/src/services/draftService.ts` - Added getDraftPicks method
+  - `frontend/src/pages/DraftBoard.tsx` - New page component
+  - `frontend/src/App.tsx` - Added route
+  - `frontend/src/pages/LeagueDetail.tsx` - Added Draft Board button for all members
+  - `frontend/src/App.css` - Added styling for draft board page
+- **Learnings for future iterations**:
+  - Draft board API returns: draft_picks array with id, round, pick_number, team_id, team_name, driver_id, driver_name, driver_team, is_auto_pick, created_at
+  - Draft board table shows picks in chronological order (by pick_number)
+  - Filter by team uses team_name from draft picks to populate dropdown
+  - Filter by round uses round number from draft picks to populate dropdown
+  - Export to CSV functionality creates a downloadable file with all draft data
+  - CSV export includes headers: Round, Pick Number, Team, Driver, Auto Pick, Timestamp
+  - User's picks are highlighted with green background (#dcfce7) based on team_name matching user.username
+  - Auto-pick indicator shows "Auto" badge (orange) or "Manual" badge (green)
+  - Statistics summary shows: total picks, total rounds, your picks, auto picks
+  - Legend section explains color coding for user-friendly experience
+  - Draft Board button is visible to all league members (not just creator)
+  - Empty state shows when no draft picks have been made yet
+  - Error handling catches 404 (draft picks not found) and 403 (not a member) errors
+  - Responsive design: table scrolls horizontally on mobile, cards stack vertically
+  - Draft board table uses striped rows for better readability
+  - Pick number column shows "#" prefix for visual distinction
+  - Timestamp column shows formatted date/time using toLocaleString()
+  - Auto-pick badge uses orange color (#f97316) for visual distinction
+  - Manual pick badge uses green color (#22c55e) for visual distinction
+  - Your pick rows use green background (#dcfce7) with green border (#22c55e)
+  - Legend uses same color coding as draft board for consistency
+  - Statistics summary uses a grid layout with labels and values
+  - Export CSV functionality uses Blob and URL.createObjectURL for file download
+  - CSV filename includes league ID for identification: `draft-board-{leagueId}.csv`
+  - Draft board page is accessible from LeagueDetail via Draft Board button
+  - The page uses raceId = 1 as default (TODO: get from league data or URL params)
+  - Filter dropdowns use "all" as default value to show all picks
+  - Filtered picks are calculated using useMemo for efficient filtering
+  - Team filter extracts unique team names from draft picks
+  - Round filter extracts unique round numbers from draft picks and sorts them
+  - Draft board table uses CSS grid for responsive layout
+  - Table header uses sticky positioning for better UX on long lists
+  - Empty state provides call-to-action to go to Draft Status page
+  - Loading state shows spinner while fetching draft picks
+  - Error state shows error message with "Go Back" button
+  - Draft board page shows all picks regardless of draft status (complete or in-progress)
+  - Draft picks are sorted by pick_number for chronological order
+  - Draft board table shows pick timestamps in user's local timezone
+  - Auto-pick status is boolean in API response, converted to badge in UI
+  - Your pick check compares team_name with user.username (assuming team_name is username)
+  - Draft board page uses same draftService.getDraftPicks method as DraftStatus page
+  - Draft board page is read-only (no editing or deleting picks)
+  - Draft board page provides comprehensive view of all draft picks for analysis
+- **Typecheck**: Passed with no errors (npm run build)
+- **Commit**: `feat: US-025 - View Draft Picks History with Draft Board page`
 ---

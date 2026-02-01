@@ -88,6 +88,12 @@ export const Dashboard: React.FC = () => {
                 Browse Leagues
               </Link>
               <Link
+                to="/drivers"
+                className="bg-pink-600 hover:bg-pink-700 text-white px-4 py-2 rounded-md text-sm font-medium mr-2"
+              >
+                Drivers
+              </Link>
+              <Link
                 to="/profile"
                 className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md text-sm font-medium mr-2"
               >

@@ -208,6 +208,16 @@ export interface Driver {
   is_active: boolean;
 }
 
+export interface GetDriversRequest {
+  page?: number;
+  page_size?: number;
+  team?: string;
+  sort_by?: 'name' | 'points' | 'price' | 'number';
+  sort_order?: 'asc' | 'desc';
+}
+
+export interface PaginatedDriversResponse extends PaginatedResponse<Driver> {}
+
 // Race Types
 export interface Race {
   id: string;

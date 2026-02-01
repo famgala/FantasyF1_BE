@@ -24,6 +24,7 @@ import ViewDraftOrder from './pages/ViewDraftOrder';
 import DraftStatus from './pages/DraftStatus';
 import MakeDraftPick from './pages/MakeDraftPick';
 import DraftBoard from './pages/DraftBoard';
+import Drivers from './pages/Drivers';
 
 function App() {
   return (
@@ -200,6 +201,22 @@ function App() {
             element={
               <ProtectedRoute>
                 <SentInvitations />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/drivers"
+            element={
+              <ProtectedRoute>
+                <Drivers />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/drivers/:id"
+            element={
+              <ProtectedRoute>
+                <Drivers />
               </ProtectedRoute>
             }
           />
