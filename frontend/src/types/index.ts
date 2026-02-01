@@ -220,14 +220,36 @@ export interface PaginatedDriversResponse extends PaginatedResponse<Driver> {}
 
 // Race Types
 export interface Race {
-  id: string;
+  id: number;
+  external_id: number;
   name: string;
-  circuit: string;
+  circuit_name: string;
   country: string;
-  date: string;
   round_number: number;
+  race_date: string;
   status: 'upcoming' | 'ongoing' | 'completed';
+  fp1_date?: string;
+  fp2_date?: string;
+  fp3_date?: string;
+  qualifying_date?: string;
+  winning_constructor_id?: number;
   winning_constructor?: string;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface RaceListResponse {
+  races: Race[];
+  total: number;
+  skip: number;
+  limit: number;
+}
+
+export interface GetRacesRequest {
+  skip?: number;
+  limit?: number;
+  status?: 'upcoming' | 'ongoing' | 'completed';
+  country?: string;
 }
 
 // Notification Types

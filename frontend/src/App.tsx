@@ -27,6 +27,7 @@ import DraftBoard from './pages/DraftBoard';
 import Drivers from './pages/Drivers';
 import DriverDetail from './pages/DriverDetail';
 import Constructors from './pages/Constructors';
+import RaceCalendar from './pages/RaceCalendar';
 
 function App() {
   return (
@@ -227,6 +228,14 @@ function App() {
             element={
               <ProtectedRoute>
                 <Constructors />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/races"
+            element={
+              <ProtectedRoute>
+                <RaceCalendar />
               </ProtectedRoute>
             }
           />
