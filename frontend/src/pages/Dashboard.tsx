@@ -70,6 +70,12 @@ export const Dashboard: React.FC = () => {
                 )}
               </Link>
               <Link
+                to="/sent-invitations"
+                className="bg-cyan-600 hover:bg-cyan-700 text-white px-4 py-2 rounded-md text-sm font-medium mr-2"
+              >
+                Sent Invitations
+              </Link>
+              <Link
                 to="/leagues"
                 className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-md text-sm font-medium mr-2"
               >

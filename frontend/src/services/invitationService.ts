@@ -88,6 +88,17 @@ export const invitationService = {
   },
 
   /**
+   * Get sent invitations for the current user
+   */
+  getSentInvitations: async (status?: string): Promise<InvitationListResponse> => {
+    const params: Record<string, string> = {};
+    if (status) {
+      params.status = status;
+    }
+    return await apiClient.get<InvitationListResponse>(`${BASE_URL}/sent`, params);
+  },
+
+  /**
    * Accept an invitation
    */
   acceptInvitation: async (
