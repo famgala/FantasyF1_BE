@@ -63,3 +63,17 @@ async def get_constructor_by_code(
 
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Constructor not found")
     return ConstructorResponse.model_validate(constructor)
+
+
+@router.get("/standings", response_model=list[ConstructorResponse], status_code=status.HTTP_200_OK)
+async def get_constructor_standings(
+    db: Annotated[AsyncSession, Depends(get_db)],
+    year: int | None = Query(default=None),
+) -> list[ConstructorResponse]:
+    """Get constructor championship standings ordered by points.
+
+    Returns constructors sorted by current_points in descending order.
+    Optional year filter to get standings for a specific season.
+    """
+    constructors = await ConstructorService.get_standings(db, year=year)
+    return [ConstructorResponse.model_validate(c) for c in constructors]

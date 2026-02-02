@@ -64,6 +64,53 @@
 - Position styling: gold/silver/bronze for podium, red strikethrough for DNF
 - Color-coded bars in chart (blue for points, red for DNF, gray for zero points)
 - Tab navigation between Overview and Performance views
+- Backend joins RaceResult with Race to get race details for each performance record
+
+---
+
+## 2/2/2026, 7:26 AM - US-046: Driver Performance History (Implementation Completed)
+- **Completed implementation of backend and frontend for Driver Performance:**
+  - Created backend endpoint `GET /api/v1/drivers/{driver_id}/performance`:
+    - Returns DriverPerformanceResponse with driver info, statistics, and race results
+    - Joins RaceResult with Race to get race details
+    - Calculates statistics: total points, avg points, best/worst finish, podiums, DNFs
+  - Created Pydantic schemas in driver.py:
+    - DriverRaceResult: Individual race performance data
+    - DriverPerformanceStats: Aggregated statistics
+    - DriverPerformanceResponse: Combined response structure
+  - Implemented get_driver_performance service method in driver_service.py:
+    - Fetches all race results for driver joined with race data
+    - Builds race results list with position, grid, points, DNF status
+    - Calculates comprehensive statistics from race data
+    - Raises NotFoundError if driver doesn't exist
+  - Frontend already had full implementation:
+    - Performance tab on DriverDetail.tsx with all features
+    - Race-by-race performance table with all required columns
+    - SVG bar chart showing points per race
+    - Season statistics summary card
+
+- **Files changed:**
+  - `FantasyF1_BE/app/api/v1/endpoints/drivers.py` - Added GET /{id}/performance endpoint
+  - `FantasyF1_BE/app/services/driver_service.py` - Added get_driver_performance method
+  - `FantasyF1_BE/app/schemas/driver.py` - Added performance-related Pydantic schemas
+  - `frontend/src/pages/DriverDetail.tsx` - Already had performance tab (verified)
+  - `frontend/src/services/driverService.ts` - Already had getDriverPerformance (verified)
+  - `frontend/src/types/index.ts` - Already had Driver performance types (verified)
+
+- **Quality checks:**
+  - ✅ TypeScript check passed (npx tsc --noEmit)
+  - ✅ Black formatting passed
+  - ✅ Ruff linting passed (all checks passed)
+  - ✅ Commit successful: `feat: US-046 - Driver Performance History`
+  - ✅ Updated prd.json to mark US-046 as passing
+
+- **Learnings for future iterations:**
+  - When joining tables in SQLAlchemy, use `select(ModelA, ModelB).join(...)` pattern
+  - Calculate statistics by iterating over fetched results rather than multiple queries
+  - SVG charts are lightweight alternative to heavy charting libraries
+  - Position-based styling (gold/silver/bronze) provides immediate visual hierarchy
+  - DNF status should be prominent with distinct red styling
+  - NotFoundError expects dict for details parameter: `{"driver_id": driver_id}`
 
 ---
 

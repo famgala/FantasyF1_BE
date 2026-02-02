@@ -264,3 +264,23 @@ class ConstructorService:
         else:
             # Create new constructor
             return await ConstructorService.create(db, constructor_data)
+
+    @staticmethod
+    async def get_standings(db: AsyncSession, year: int | None = None) -> list[Constructor]:
+        """Get constructor championship standings ordered by points.
+
+        Args:
+            db: Database session
+            year: Filter by season year (optional)
+
+        Returns:
+            List of Constructor objects sorted by current_points DESC
+        """
+        query = select(Constructor)
+
+        if year:
+            query = query.where(Constructor.year == year)
+
+        query = query.order_by(Constructor.current_points.desc())
+        result = await db.execute(query)
+        return list(result.scalars().all())
