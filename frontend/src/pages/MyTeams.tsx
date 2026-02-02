@@ -3,6 +3,7 @@ import { useNavigate, Link } from 'react-router-dom';
 import type { MyTeam } from '../types';
 import { getMyTeams } from '../services/teamService';
 import { MobileNav } from '../components/MobileNav';
+import { PageLoader, ErrorDisplay, SkeletonCard } from '../components';
 
 type SortOption = 'alphabetical' | 'points' | 'league';
 
@@ -47,11 +48,19 @@ export default function MyTeams() {
 
   if (loading) {
     return (
-    <>
-      <MobileNav />
-      <div className="my-teams">
-        <div className="loading-spinner">Loading your teams...</div>
-      </div>
+      <>
+        <MobileNav />
+        <div className="my-teams">
+          <div className="page-header">
+            <h1>My Teams</h1>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            {Array.from({ length: 6 }).map((_, index) => (
+              <SkeletonCard key={index} />
+            ))}
+          </div>
+        </div>
+      </>
     );
   }
 
@@ -62,8 +71,25 @@ export default function MyTeams() {
         <h1>My Teams</h1>
       </div>
 
-      {/* Error Message */}
-      {error && <div className="alert alert-error">{error}</div>}
+      {/* Error Display */}
+      {error && (
+        <ErrorDisplay
+          title="Failed to Load Teams"
+          message={error}
+          onRetry={() => {
+            setLoading(true);
+            setError('');
+            getMyTeams(sortBy)
+              .then((data) => setTeams(data))
+              .catch((err: any) => {
+                console.error('Error fetching my teams:', err);
+                setError(err.response?.data?.detail || 'Failed to load your teams');
+              })
+              .finally(() => setLoading(false));
+          }}
+          isRetrying={loading}
+        />
+      )}
 
       {/* Empty State */}
       {!loading && teams.length === 0 && !error && (

@@ -3,6 +3,7 @@ import { useNavigate, Link } from 'react-router-dom';
 import type { MyLeague } from '../types';
 import { getMyLeagues } from '../services/leagueService';
 import { MobileNav } from '../components/MobileNav';
+import { PageLoader, ErrorDisplay, SkeletonCard } from '../components';
 
 type SortOption = 'alphabetical' | 'recent' | 'rank';
 
@@ -52,11 +53,19 @@ export default function MyLeagues() {
 
   if (loading) {
     return (
-    <>
-      <MobileNav />
-      <div className="my-leagues">
-        <div className="loading-spinner">Loading your leagues...</div>
-      </div>
+      <>
+        <MobileNav />
+        <div className="my-leagues">
+          <div className="page-header">
+            <h1>My Leagues</h1>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            {Array.from({ length: 6 }).map((_, index) => (
+              <SkeletonCard key={index} />
+            ))}
+          </div>
+        </div>
+      </>
     );
   }
 
@@ -75,8 +84,25 @@ export default function MyLeagues() {
         </div>
       </div>
 
-      {/* Error Message */}
-      {error && <div className="alert alert-error">{error}</div>}
+      {/* Error Display */}
+      {error && (
+        <ErrorDisplay
+          title="Failed to Load Leagues"
+          message={error}
+          onRetry={() => {
+            setLoading(true);
+            setError('');
+            getMyLeagues(sortBy)
+              .then((data) => setLeagues(data))
+              .catch((err: any) => {
+                console.error('Error fetching my leagues:', err);
+                setError(err.response?.data?.detail || 'Failed to load your leagues');
+              })
+              .finally(() => setLoading(false));
+          }}
+          isRetrying={loading}
+        />
+      )}
 
       {/* Empty State */}
       {!loading && leagues.length === 0 && !error && (

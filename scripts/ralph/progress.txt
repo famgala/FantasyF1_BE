@@ -189,3 +189,71 @@
   - Use React fragments (`<>...</>`) when adding MobileNav to pages that return a single element
   - All authenticated pages now have MobileNav for responsive mobile navigation
   - AddPicks.tsx was the last page missing MobileNav - all 30+ authenticated pages now covered
+
+---
+
+## 2/1/2026, 11:03 PM - US-037: Loading States & Error Handling
+- **Implemented complete UI feedback system with loading spinners, toast notifications, skeleton screens, and error handling:**
+  - LoadingSpinner component - Small inline loading spinner with size variants (sm, md, lg) and light/dark themes
+  - PageLoader component - Full-page loading state with centered spinner and optional message, used when loading essential data
+  - ButtonLoader component - Button-integrated spinner that disables the button during async operations, supports custom text and sizes
+  - Toast notification system (ToastContext.tsx, Toast.tsx) - React context-based toast system with success, error, info, warning types
+    - ToastProvider wraps app to provide toast functionality via useToast hook
+    - Auto-dismiss after 5 seconds with manual dismiss option
+    - Positioned bottom-right with slide-in animation
+    - Icons for different toast types (check, X, info, alert)
+  - SkeletonCard component - Pulse-animated card skeleton for content loading states
+  - SkeletonList component - Configurable list of skeleton cards with columns (1-3) and item count
+  - ErrorDisplay component - Full-page error display with title, message, retry button, and icon
+    - Supports loading state on retry button with spinner
+    - Different error types: connection, generic, not-found
+    - Centered layout with visual icon
+  - ErrorBoundary component - React class component catching render errors and displaying fallback UI
+    - Supports custom fallback component
+    - Logs errors to console
+    - Prevents app crashes from component errors
+  - InlineError component - Small inline error message for form validation, supports icons
+  - Centralized component exports in index.ts for easy imports
+  - Updated BrowseLeagues page with skeleton loading cards and ErrorDisplay for error states with retry
+  - Updated Drivers page with skeleton loading and ErrorDisplay for error states with retry
+  - Updated RaceCalendar page with skeleton loading and ErrorDisplay for error states with retry
+  - Fixed RaceCalendar.tsx JSX fragment issue (removed stray MobileNav and closing fragment from CountdownTimer)
+
+- **Files changed:**
+  - `frontend/src/components/LoadingSpinner.tsx` - New inline loading spinner component
+  - `frontend/src/components/PageLoader.tsx` - New full-page loader component
+  - `frontend/src/components/ButtonLoader.tsx` - New button loading spinner component
+  - `frontend/src/components/Toast.tsx` - New toast notification UI component
+  - `frontend/src/context/ToastContext.tsx` - New toast context provider and useToast hook
+  - `frontend/src/components/SkeletonCard.tsx` - New skeleton card component
+  - `frontend/src/components/SkeletonList.tsx` - New skeleton list component
+  - `frontend/src/components/ErrorDisplay.tsx` - New error display component
+  - `frontend/src/components/ErrorBoundary.tsx` - New error boundary component
+  - `frontend/src/components/InlineError.tsx` - New inline error message component
+  - `frontend/src/components/index.ts` - New centralized component exports
+  - `frontend/src/App.tsx` - Added ToastProvider wrapper around router
+  - `frontend/src/pages/BrowseLeagues.tsx` - Integrated skeleton and error states
+  - `frontend/src/pages/Drivers.tsx` - Integrated skeleton and error states
+  - `frontend/src/pages/RaceCalendar.tsx` - Integrated skeleton and error states, fixed JSX fragment bug
+
+- **Files updated (only my changes, not pre-existing issues):**
+  - All new components use TypeScript with proper type definitions
+  - All components follow existing CSS patterns with BEM-like naming
+  - Responsive design for all loading/error states
+  - Accessible with proper ARIA attributes
+
+- **Quality checks:**
+  - ✅ RaceCalendar.tsx now compiles without errors
+  - ✅ All new components follow project patterns
+  - ✅ Committed with message: "feat: UI-FEEDBACK-001 - Implement loading spinners, toast notifications, and skeleton loading"
+  - ✅ Updated prd.json to mark US-037 as passing
+
+- **Learnings for future iterations:**
+  - Toast notification pattern: Use React Context (ToastContext) + custom hook (useToast) for global toast access
+  - Skeleton screens: Use animate-pulse Tailwind class for subtle loading animation
+  - ErrorDisplay pattern: Always provide retry callback for recoverable errors
+  - ButtonLoader: Disable button and show spinner during async operations to prevent double-clicks
+  - Component organization: Create index.ts barrel file for clean imports from components directory
+  - Toast positioning: Fixed position bottom-right works well for non-intrusive notifications
+  - Always check for stray JSX fragments when editing components - can cause cryptic TypeScript errors
+  - When adding MobileNav to CountdownTimer, don't forget to remove the fragment wrapper if no longer needed

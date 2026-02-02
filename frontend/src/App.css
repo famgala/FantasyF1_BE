@@ -7184,3 +7184,139 @@
     max-height: calc(100vh - 200px);
   }
 }
+
+/* ============================================
+   EMPTY STATE COMPONENT STYLES
+   ============================================ */
+
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 4rem 2rem;
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  border: 1px solid #e5e7eb;
+  text-align: center;
+  max-width: 600px;
+  margin: 2rem auto;
+}
+
+.empty-state--compact {
+  flex-direction: row;
+  text-align: left;
+  padding: 2rem;
+  gap: 1.5rem;
+  max-width: none;
+  margin: 1rem 0;
+}
+
+.empty-state__icon {
+  font-size: 4rem;
+  margin-bottom: 1.5rem;
+  line-height: 1;
+}
+
+.empty-state--compact .empty-state__icon {
+  font-size: 3rem;
+  margin-bottom: 0;
+  flex-shrink: 0;
+}
+
+.empty-state__content {
+  flex: 1;
+}
+
+.empty-state__title {
+  margin: 0 0 0.75rem 0;
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #111827;
+}
+
+.empty-state--compact .empty-state__title {
+  font-size: 1.25rem;
+}
+
+.empty-state__description {
+  margin: 0 0 1.5rem 0;
+  font-size: 1rem;
+  color: #6b7280;
+  line-height: 1.6;
+}
+
+.empty-state--compact .empty-state__description {
+  font-size: 0.875rem;
+  margin-bottom: 1rem;
+}
+
+.empty-state__actions {
+  display: flex;
+  gap: 1rem;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+.empty-state--compact .empty-state__actions {
+  justify-content: flex-start;
+}
+
+/* Dark theme support for empty states */
+@media (prefers-color-scheme: dark) {
+  .empty-state {
+    background: #1f2937;
+    border-color: #374151;
+  }
+
+  .empty-state__title {
+    color: #f9fafb;
+  }
+
+  .empty-state__description {
+    color: #9ca3af;
+  }
+}
+
+/* Responsive for Empty State */
+@media (max-width: 768px) {
+  .empty-state {
+    padding: 3rem 1.5rem;
+  }
+
+  .empty-state--compact {
+    flex-direction: column;
+    text-align: center;
+    padding: 2rem 1.5rem;
+  }
+
+  .empty-state__icon {
+    font-size: 3rem;
+  }
+
+  .empty-state--compact .empty-state__icon {
+    margin-bottom: 1rem;
+  }
+
+  .empty-state__title {
+    font-size: 1.25rem;
+  }
+
+  .empty-state__description {
+    font-size: 0.875rem;
+  }
+
+  .empty-state__actions {
+    flex-direction: column;
+    width: 100%;
+  }
+
+  .empty-state__actions .btn {
+    width: 100%;
+  }
+
+  .empty-state--compact .empty-state__actions {
+    justify-content: center;
+  }
+}

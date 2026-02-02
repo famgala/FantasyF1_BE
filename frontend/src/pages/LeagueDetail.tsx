@@ -4,6 +4,7 @@ import type { League, LeagueMember, FantasyTeam } from '../types';
 import { getLeagueById, getLeagueMembers, getLeagueTeams, leaveLeague, deleteLeague } from '../services/leagueService';
 import { useAuth } from '../context/AuthContext';
 import { MobileNav } from '../components/MobileNav';
+import { PageLoader, ErrorDisplay } from '../components';
 
 export default function LeagueDetail() {
   const { id } = useParams<{ id: string }>();
@@ -147,27 +148,61 @@ export default function LeagueDetail() {
 
   if (loading) {
     return (
-    <>
-      <MobileNav />
-      <div className="league-detail">
-        <div className="loading-spinner">Loading league details...</div>
-      </div>
+      <>
+        <MobileNav />
+        <PageLoader message="Loading league details..." />
+      </>
     );
   }
 
   if (error) {
     return (
-      <div className="league-detail">
-        <div className="alert alert-error">{error}</div>
-      </div>
+      <>
+        <MobileNav />
+        <div className="league-detail">
+          <ErrorDisplay
+            title="Failed to Load League"
+            message={error}
+            onRetry={() => {
+              if (!id) return;
+              setLoading(true);
+              setError('');
+              Promise.all([
+                getLeagueById(id),
+                getLeagueMembers(id),
+                getLeagueTeams(id),
+              ])
+                .then(([leagueData, membersData, teamsData]) => {
+                  setLeague(leagueData);
+                  setMembers(membersData);
+                  setTeams(teamsData);
+                })
+                .catch((err: any) => {
+                  console.error('Error fetching league data:', err);
+                  setError(err.response?.data?.detail || 'Failed to load league details');
+                })
+                .finally(() => setLoading(false));
+            }}
+            isRetrying={loading}
+          />
+        </div>
+      </>
     );
   }
 
   if (!league) {
     return (
-      <div className="league-detail">
-        <div className="alert alert-error">League not found</div>
-      </div>
+      <>
+        <MobileNav />
+        <div className="league-detail">
+          <ErrorDisplay
+            title="League Not Found"
+            message="The league you're looking for doesn't exist or you don't have permission to view it."
+            onRetry={() => navigate('/leagues')}
+            isRetrying={false}
+          />
+        </div>
+      </>
     );
   }
 
