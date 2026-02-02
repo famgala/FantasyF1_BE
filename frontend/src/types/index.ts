@@ -43,6 +43,30 @@ export interface ChangePasswordRequest {
   new_password: string;
 }
 
+// Check Email Response
+export interface CheckEmailResponse {
+  email: string;
+  exists: boolean;
+}
+
+// Password Reset Types
+export interface ForgotPasswordRequest {
+  email: string;
+}
+
+export interface ForgotPasswordResponse {
+  message: string;
+}
+
+export interface ResetPasswordRequest {
+  token: string;
+  new_password: string;
+}
+
+export interface ResetPasswordResponse {
+  message: string;
+}
+
 // League Types
 export interface League {
   id: string;

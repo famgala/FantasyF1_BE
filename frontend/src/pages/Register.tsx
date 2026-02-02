@@ -1,16 +1,20 @@
 import React, { useState, useEffect } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { authService } from '../services/authService';
 import { MobileNav } from '../components/MobileNav';
 
 export const Register: React.FC = () => {
   const navigate = useNavigate();
+  const location = useLocation();
   const { register, isAuthenticated } = useAuth();
+
+  // Get email from landing page redirect
+  const prefillEmail = (location.state as any)?.email || '';
 
   const [formData, setFormData] = useState({
     username: '',
-    email: '',
+    email: prefillEmail,
     fullName: '',
     password: '',
     confirmPassword: '',
@@ -129,6 +133,13 @@ export const Register: React.FC = () => {
               Sign in
             </Link>
           </p>
+          {prefillEmail && (
+            <div className="mt-4 p-3 bg-blue-50 border border-blue-200 rounded-md">
+              <p className="text-sm text-blue-700 text-center">
+                Welcome! Completing registration for <strong>{prefillEmail}</strong>
+              </p>
+            </div>
+          )}
         </div>
 
         <form className="mt-8 space-y-6" onSubmit={handleSubmit}>

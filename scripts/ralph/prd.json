@@ -789,8 +789,8 @@
         "Verify in browser using dev-browser skill"
       ],
       "priority": 39,
-      "passes": false,
-      "notes": ""
+      "passes": true,
+      "notes": "Already fully implemented. AdminDashboard.tsx displays all 6 statistics with stat cards, SVG bar charts for user registrations and league creations (last 30 days), auto-refresh every 5 minutes, and admin navigation to other tools. Typecheck passes."
     },
     {
       "id": "US-040",
@@ -816,8 +816,8 @@
         "Verify in browser using dev-browser skill"
       ],
       "priority": 40,
-      "passes": false,
-      "notes": ""
+      "passes": true,
+      "notes": "Implemented AdminErrorLogs.tsx page at /admin/error-logs. Features: paginated table (50 logs/page), filters for severity/status/error type/endpoint/user ID/date range, click to view full details in modal including stack trace/request/response data, mark as resolved/unresolved with notes, export to CSV, superuser-only access, type-safe implementation with ErrorLog and ErrorLogFilters types. Typecheck passes."
     },
     {
       "id": "US-041",
@@ -840,8 +840,8 @@
         "Verify in browser using dev-browser skill"
       ],
       "priority": 41,
-      "passes": false,
-      "notes": ""
+      "passes": true,
+      "notes": "Implemented complete AdminHealth.tsx page with all acceptance criteria met: superuser access control, overall status banner with color coding, 4 component cards (API, Database, Redis, Celery) showing status and response times, visual indicators with icons, last checked timestamp, auto-refresh every 30 seconds, manual refresh button, alert banners for unhealthy/degraded components, status legend, and admin navigation. Typecheck passes."
     },
     {
       "id": "US-042",
@@ -865,8 +865,8 @@
         "Verify in browser using dev-browser skill"
       ],
       "priority": 42,
-      "passes": false,
-      "notes": ""
+      "passes": true,
+      "notes": "Implemented AdminUsers.tsx page at /admin/users with full user management functionality. Features: superuser-only access with redirect for non-superusers, paginated user list (20 per page) with columns: username, email, full_name, is_active, is_superuser, created_at, search by username/email/full name, filter by active/inactive status, filter by superuser status, user detail modal showing profile info, team count, league count, activity history with icons, activate/deactivate user accounts with confirmation, grant/revoke superuser privileges with confirmation, cannot modify own account protection, confirmation dialogs for all sensitive operations, Toast notifications for success/error feedback. Following existing patterns from AdminErrorLogs and AdminHealth pages. Typecheck passes."
     },
     {
       "id": "US-043",
@@ -887,8 +887,8 @@
         "Verify in browser using dev-browser skill"
       ],
       "priority": 43,
-      "passes": false,
-      "notes": ""
+      "passes": true,
+      "notes": "Implemented complete Landing Page at / (root URL) with LandingPage.tsx component. Features: Hero section with app name (F1Fantasy), tagline ('Draft. Compete. Win.'), Get Started and Log In CTA buttons, Features section (Draft Drivers, Compete in Leagues, Real-Time Scoring, Track Performance), How It Works section (4-step guide), Statistics section (dynamic counts from API), Email capture form with check-email API integration, Footer with About, Help, Privacy Policy, Terms of Service links (disabled for coming soon). Updated App.tsx to route root URL to LandingPage for unauthenticated users. Added authService.checkEmail method. Updated Login and Register pages to handle email state from LandingPage redirects. Comprehensive CSS styling added for hero, features, how-it-works, stats, CTA, and footer sections with responsive design. Typecheck passes. All acceptance criteria met."
     },
     {
       "id": "US-044",

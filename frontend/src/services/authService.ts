@@ -4,6 +4,11 @@ import type {
   RegisterRequest,
   AuthResponse,
   User,
+  CheckEmailResponse,
+  ForgotPasswordRequest,
+  ForgotPasswordResponse,
+  ResetPasswordRequest,
+  ResetPasswordResponse,
 } from '../types';
 
 export const authService = {
@@ -97,5 +102,20 @@ export const authService = {
     // Username should be 3-20 characters, alphanumeric and underscores only
     const usernameRegex = /^[a-zA-Z0-9_]{3,20}$/;
     return usernameRegex.test(username);
+  },
+
+  // Check if email exists
+  async checkEmail(email: string): Promise<CheckEmailResponse> {
+    return apiClient.get<CheckEmailResponse>(`/auth/check-email?email=${encodeURIComponent(email)}`);
+  },
+
+  // Request password reset email
+  async forgotPassword(data: ForgotPasswordRequest): Promise<ForgotPasswordResponse> {
+    return apiClient.post<ForgotPasswordResponse>('/auth/forgot-password', data);
+  },
+
+  // Reset password with token
+  async resetPassword(data: ResetPasswordRequest): Promise<ResetPasswordResponse> {
+    return apiClient.post<ResetPasswordResponse>('/auth/reset-password', data);
   },
 };

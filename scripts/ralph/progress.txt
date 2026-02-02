@@ -1,307 +1,281 @@
-
 ## Codebase Patterns
-- Mobile Navigation: Add `MobileNav` component import and `<MobileNav />` JSX element after the desktop navigation in authenticated pages
-- TypeScript: Remove unused variables from destructuring to fix errors (e.g., change `const [x, setX]` to `const [x]` if setter unused)
-- Navigation Pattern: Pages use `page-nav` class for desktop navigation, `MobileNav` component for mobile navigation
-- Empty States: Use EmptyState component with icon, title, message, and action buttons pattern for all empty data states
+
+### Admin Panel Pattern
+- Admin pages should check `user?.is_superuser` and redirect non-superusers immediately with toast error
+- Use consistent stat card design with color-coded backgrounds (blue, green, purple, orange, red, cyan)
+- Auto-refresh data every 5 minutes for statistics, 30 seconds for health status
+- Admin navigation cards link to other admin tools with clear descriptions
+- Charts use SVG bar charts with consistent styling (viewBox, rx for rounded corners)
+
+### Component Architecture
+- Page components export both named export (for imports) and default export (for lazy loading)
+- Use `useCallback` for fetch functions to prevent unnecessary re-renders
+- Implement loading states with `loading` and `isRefreshing` flags for better UX
+- Error states should include retry functionality
+- Auto-refresh intervals should be cleaned up in useEffect return function
+
+### User Management Pattern
+- User tables should display: username, email, full_name, is_active, is_superuser, created_at
+- Status badges use color coding: green for active, red for inactive, yellow for superuser
+- Search should filter across username, email, and full_name fields
+- Filters for active/inactive status and superuser status
+- User detail modal shows profile info, stats (team count, league count), and activity history
+- Cannot modify own account (protect against self-deactivation)
+- Confirmation dialogs required for all sensitive operations (activate/deactivate, grant/revoke superuser)
+- Toast notifications for all success/error feedback
+
+### Landing Page Pattern
+- Landing pages for non-authenticated users should be at root URL (/)
+- Hero section with strong value proposition and clear CTA buttons
+- Features section highlighting key product benefits with icons
+- How It Works section with step-by-step numbered guide
+- Statistics section showing platform growth (fetched from API)
+- Email capture form that checks if email exists before redirecting
+- Update Login and Register pages to handle email state from LandingPage redirects
+- Responsive design with mobile-first approach
+- Footer with navigation links (disabled state for coming soon)
 
 ---
 
-## 2/1/2026, 11:18 PM - US-038: Empty States
-- **Implemented reusable EmptyState component and applied consistent empty states across all pages:**
-  - Created EmptyState component with customizable icon, title, message, and optional action buttons
-  - Component features:
-    - SVG icons for different scenarios (inbox, search, users, clipboard-list, folder-open)
-    - Customizable title and message text
-    - Primary and secondary action buttons with callbacks
-    - Hover animations on icon and buttons
-    - Responsive design for all screen sizes
-    - CSS animations for smooth appearance
-  - Applied empty states to:
-    - MyLeagues.tsx - "No Leagues Yet" with Create League and Join League CTAs
-    - MyTeams.tsx - "No Teams Yet" with Join a League CTA
-    - Notifications.tsx - "No Notifications" with friendly message
-    - SentInvitations.tsx - "No Invitations Sent" with Browse Leagues and My Leagues CTAs
-    - ReceivedInvitations.tsx - "No Invitations" with Browse Leagues and My Leagues CTAs
-  - Updated BrowseLeagues empty state to use EmptyState component
-  - Updated Drivers.tsx empty state to use EmptyState component
+## 2/2/2026, 4:40 AM - US-043: Homepage & Landing Page
+- **Implemented complete Landing Page for non-authenticated visitors:**
+  - Created LandingPage.tsx page component at / (root URL) route
+  - Features implemented:
+    - Hero section with animated gradient background, app name (F1Fantasy), tagline ('Draft. Compete. Win.')
+    - Primary CTA buttons: Get Started (blue) and Log In (white outline)
+    - Features section with 4 cards: Draft Drivers, Compete in Leagues, Real-Time Scoring, Track Performance
+    - How It Works section with 4-step numbered guide: Create Account, Join or Create League, Draft Your Team, Score Points & Win
+    - Statistics section showing platform stats: Total Users, Active Leagues, Total Races (fetched from /api/v1/admin/stats)
+    - Email capture form with validation and API integration:
+      - Check if email exists via GET /api/v1/auth/check-email
+      - Redirects to Login if email exists (with pre-filled email)
+      - Redirects to Register if email is new (with pre-filled email)
+      - Loading state during API call
+      - Error handling for invalid email format
+    - Footer with navigation links: About, Help, Privacy Policy, Terms of Service (disabled for coming soon)
+    - Responsive design: hamburger menu on mobile, stacked layouts
+    - Auto-redirect to Dashboard for already authenticated users
+  - Updated App.tsx to route root URL to LandingPage for unauthenticated users
+  - Updated Login.tsx to accept and display email from LandingPage redirect state
+  - Updated Register.tsx to accept and pre-fill email from LandingPage redirect state
+  - Added authService.checkEmail method for email verification
+  - Added CheckEmailResponse type to types/index.ts
+  - Comprehensive CSS styling for all landing page sections with animations
 
 - **Files changed:**
-  - `frontend/src/components/EmptyState.tsx` - New reusable empty state component
-  - `frontend/src/pages/MyLeagues.tsx` - Integrated EmptyState component
-  - `frontend/src/pages/MyTeams.tsx` - Integrated EmptyState component
-  - `frontend/src/pages/Notifications.tsx` - Integrated EmptyState component
-  - `frontend/src/pages/SentInvitations.tsx` - Integrated EmptyState component
-  - `frontend/src/pages/ReceivedInvitations.tsx` - Integrated EmptyState component
-  - `frontend/src/pages/BrowseLeagues.tsx` - Updated to use EmptyState component
-  - `frontend/src/pages/Drivers.tsx` - Updated to use EmptyState component
-  - `frontend/src/index.css` - Added comprehensive EmptyState CSS styles
+  - `frontend/src/pages/LandingPage.tsx` - New landing page component
+  - `frontend/src/App.tsx` - Updated root route to conditionally render LandingPage
+  - `frontend/src/services/authService.ts` - Added checkEmail method
+  - `frontend/src/types/index.ts` - Added CheckEmailResponse type
+  - `frontend/src/pages/Login.tsx` - Added support for prefillEmail from location state
+  - `frontend/src/pages/Register.tsx` - Added support for prefillEmail from location state
+  - `frontend/src/index.css` - Added extensive CSS for landing page sections
 
 - **Quality checks:**
   - ✅ TypeScript check passed (npx tsc --noEmit)
-  - ✅ Committed with message: "feat: Ralph - Add Empty State component CSS styles"
-  - ✅ Updated prd.json to mark US-038 as passing
+  - ✅ No linting errors
+  - ✅ Updated prd.json to mark US-043 as passing
 
 - **Learnings for future iterations:**
-  - Empty state pattern: Icon + Title + Message + Action buttons provides clear UX
-  - Use consistent icon set across all empty states (SVG icons preferred for scalability)
-  - Always provide clear call-to-action buttons to guide users on next steps
-  - Empty states should be informative and friendly, not just "No data"
-  - CSS animations (fade-in, slide-up, pulse) improve perceived quality
-  - Responsive design: Stack buttons vertically on mobile, horizontally on desktop
-  - Hover effects on empty state elements encourage interaction
-  - EmptyState component should be flexible enough to handle various scenarios (no data, no results, no notifications, etc.)
+  - Landing page should be at root URL (/) and check authentication state
+  - Use `useLocation` and `navigate('/login', { state: { email } })` to pass data between pages
+  - Email capture API pattern: Check existence → Redirect to appropriate auth page with email state
+  - Hero section benefits from animated backgrounds (CSS gradients + keyframes)
+  - Statistics from existing APIs can enhance landing page credibility
+  - Consistent CTA styling: Primary (blue filled) and Secondary (white outline) buttons
+  - Footer links should be disabled with "coming soon" tooltips if pages don't exist yet
+  - Responsive landing pages need mobile-first design with hamburger navigation
 
 ---
 
-## 2/1/2026, 3:28 AM - US-033: Notification Badge & Summary
-- **Implemented notification dropdown component with badge and recent notifications:**
-  - Refactored Dashboard.tsx to use NotificationDropdown component (already created)
-  - NotificationDropdown component features:
-    - Bell icon button in navbar with unread count badge
-    - Badge displays number of unread notifications (disappears when 0)
-    - Dropdown menu opens on click showing recent notifications (last 5)
-    - Each notification shows type icon, title, message, timestamp (relative time)
-    - Visual distinction for unread notifications (unread dot indicator)
-    - Mark as read button on individual notifications
-    - Mark as read on click/navigate
-    - "View All Notifications" link at bottom
-    - Click outside to close dropdown
-    - Auto-refresh every 60 seconds
-    - Loading spinner while fetching
-    - Empty state when no notifications
-  - Uses GET /api/v1/notifications (with limit=5) and GET /api/v1/notifications/summary APIs
-  - Type icons for different notification types (🏁 race_finished, 📝 draft_update, etc.)
-  - Relative time formatting (Just now, 5m ago, 2h ago, 3d ago)
-  - Comprehensive CSS styling for dropdown, badges, items, and responsive design
+## 2/2/2026, 3:52 AM - US-042: Admin Dashboard - User Management
+- **Implemented Admin Users page for viewing and managing platform users:**
+  - Created AdminUsers.tsx page component at /admin/users route
+  - Features implemented:
+    - Superuser-only access with automatic redirect for non-superusers
+    - Paginated user list (20 users per page) with columns:
+      - Username (with user icon)
+      - Email (with mail icon)
+      - Full Name (with person icon)
+      - Active Status (color-coded badge: green active, red inactive)
+      - Superuser Status (gold star badge)
+      - Created At (formatted date)
+    - Search functionality filtering by username, email, or full name
+    - Filter by Active/Inactive status
+    - Filter by Superuser/Regular user status
+    - User detail modal showing:
+      - Profile information (username, email, full name, creation date)
+      - Statistics: Team Count, League Count, Status, Role
+      - Activity history with timestamps and icons:
+        - League joins
+        - Invitations sent
+        - Draft picks made
+        - Teams created
+    - Activate/Deactivate user accounts:
+      - Toggle button in user detail modal
+      - Confirmation dialog with warning
+      - Cannot deactivate own account (disabled with tooltip)
+    - Grant/Revoke superuser privileges:
+      - Toggle button in user detail modal
+      - Confirmation dialog with warning about elevated permissions
+      - Cannot modify own superuser status (disabled with tooltip)
+    - Loading states with PageLoader component
+    - Error handling with retry functionality via ErrorDisplay component
+    - Toast notifications for success/error feedback
+    - Admin navigation cards linking to other admin tools
+    - Responsive design with MobileNav component
 
 - **Files changed:**
-  - `frontend/src/pages/Dashboard.tsx` - Refactored to use NotificationDropdown component
-  - `frontend/src/App.css` - Added notification dropdown styles (already present)
-  - `frontend/src/components/NotificationDropdown.tsx` - Component already created
-
-- **Learnings for future iterations:**
-  - Reusable component pattern: Create standalone NotificationDropdown component for cleaner Dashboard code
-  - Click outside handling: Use useRef and mousedown event listener with contains() check
-  - Auto-refresh: Use setInterval with cleanup in useEffect, 60 seconds is good for notifications
-  - Relative time: Use Date difference calculation with thresholds (60s, 3600s, 86400s, 604800s)
-  - Badge styling: Position absolute with negative offsets (-top-1 -right-1), min-width for "99+"
-  - Accessibility: Add aria-label, aria-expanded, aria-haspopup for dropdown buttons
-  - Stop propagation: Use e.stopPropagation() on mark-read button to prevent navigation
-  - Type mapping: Use Record<NotificationType, string> for icon mapping with fallback
-  - Dropdown positioning: Use absolute positioning with top: calc(100% + 8px) and right: 0
-
----
-
-## 2/1/2026, 3:30 AM - US-034 & US-035: Notifications Read/Unread & Delete
-- **Verified existing implementations are complete:**
-  - US-034 (Mark Notifications as Read/Unread): Already fully implemented
-    - `markAsRead()` and `markAsUnread()` methods in notificationService.ts
-    - Mark as read button (checkmark icon) on unread notifications
-    - Mark as unread button (envelope icon) on read notifications
-    - Mark all as read button on notifications page
-    - Visual state changes immediately (blue border for unread, grey for read)
-    - Unread count badge updates in real-time
-  
-  - US-035 (Delete Notifications): Already fully implemented
-    - `deleteNotification()` method in notificationService.ts
-    - Delete button (trash icon) on each notification
-    - Confirmation modal before deletion
-    - Notification removed immediately from list
-    - Unread count updates if deleted notification was unread
-
-- **Files verified:**
-  - `frontend/src/services/notificationService.ts` - All service methods present
-  - `frontend/src/pages/Notifications.tsx` - All UI functionality present
-
-- **Learnings for future iterations:**
-  - Always check existing code before implementing - these features were already done
-  - The notification system has comprehensive functionality already in place
-  - Future notification features should build on this solid foundation
-
----
-
----
-
-## 2/1/2026, 3:45 AM - MOBILE-001: Add Mobile Navigation
-- **Implemented hamburger menu and responsive navigation for mobile devices:**
-  - Created new MobileNav component with slide-out hamburger menu
-
----
-
-## 2/1/2026, 3:56 AM - MB-01: Mobile Navigation Complete
-- **Fixed TypeScript error in MobileNav component:**
-  - Removed unused `setPendingCount` from useState destructuring
-  - Changed from `const [pendingCount, setPendingCount] = useState(0)` to `const [pendingCount] = useState(0)`
-  - TypeScript check now passes with no errors
-
-- **MobileNav component features:**
-  - Hamburger menu with animated icon (3 lines transform to X)
-  - Slide-out drawer navigation with all 13 nav links
-  - Touch-friendly buttons (44px+ target sizes)
-  - Close on outside click and route change
-  - User greeting and logout functionality
-  - Color-coded navigation indicators for each link
-  - NotificationDropdown integrated in header
-  - Pending badge support on Invitations link
-
-- **Files changed:**
-  - `frontend/src/components/MobileNav.tsx` - Fixed unused variable
+  - `frontend/src/pages/AdminUsers.tsx` - New user management page
+  - `frontend/src/App.tsx` - Added import and route for /admin/users
+  - `frontend/src/services/adminService.ts` - Added getUsers, updateUserStatus methods
+  - `frontend/src/types/admin.ts` - Added UserFilters, UserListResponse, UpdateUserRequest types
 
 - **Quality checks:**
   - ✅ TypeScript check passed (npx tsc --noEmit)
-  - ✅ Committed with message: "feat: MB-01 - Create responsive mobile navigation"
+  - ✅ No linting errors
+  - ✅ Updated prd.json to mark US-042 as passing
+
+- **Learnings for future iterations:**
+  - User management follows table → detail modal → action pattern
+  - Status badges: Green (#22c55e) for active, Red (#ef4444) for inactive, Gold (#f59e0b) for superuser
+  - Icons from Lucide React add visual clarity to user attributes (User, Mail, UserCircle, Shield)
+  - Activity history with icons helps admins quickly understand user engagement
+  - Self-protection: Always disable actions on own account to prevent accidental lockout
+  - Confirmation dialogs should explain consequences clearly
+  - Stats cards in detail modal give quick overview of user's platform activity
+  - Following AdminErrorLogs and AdminHealth patterns ensures consistency across admin panel
 
 ---
 
-## 2/1/2026, 4:15 AM - US-036: Responsive Mobile Layout - Wave 1
-- **Added MobileNav to invitation management pages:**
-  - SentInvitations.tsx - Added MobileNav import and component
-  - LeagueInvitations.tsx - Added MobileNav import and component
-  - TeamDetail.tsx - Added MobileNav import and component
-  - SendInvitations.tsx - Added MobileNav import and component
+## 2/2/2026, 1:26 AM - US-041: Admin Dashboard - System Health Monitoring
+- **Implemented Admin Health page for monitoring system component status:**
+  - Created AdminHealth.tsx page component at /admin/health route
+  - Features implemented:
+    - Superuser-only access with automatic redirect for non-superusers
+    - Overall system status banner with color coding (green/yellow/red)
+    - 4 component health cards: API Service, Database, Redis Cache, Celery Task Queue
+    - Each card displays: status badge, response time in ms, optional message
+    - Visual status indicators with icons (✓/⚠/✕)
+    - Alert banners for unhealthy components (red) and degraded components (yellow)
+    - Auto-refresh every 30 seconds with cleanup on unmount
+    - Manual refresh button with loading state
+    - Last checked timestamp display
+    - Status legend explaining healthy/degraded/unhealthy states
+    - Admin navigation cards linking to other admin tools
+    - Loading states with PageLoader component
+    - Error handling with retry functionality via ErrorDisplay component
+    - Mobile responsive design with MobileNav component
 
 - **Files changed:**
-  - `frontend/src/pages/SentInvitations.tsx`
-  - `frontend/src/pages/LeagueInvitations.tsx`
-  - `frontend/src/pages/TeamDetail.tsx`
-  - `frontend/src/pages/SendInvitations.tsx`
+  - `frontend/src/pages/AdminHealth.tsx` - New system health monitoring page
+  - `frontend/src/App.tsx` - Added import and route for /admin/health
 
 - **Quality checks:**
   - ✅ TypeScript check passed (npx tsc --noEmit)
-  - ✅ Committed with message: "feat: US-036 - Add MobileNav to invitation pages"
+  - ✅ No linting errors
+  - ✅ Updated prd.json to mark US-041 as passing
 
 - **Learnings for future iterations:**
-  - MobileNav should be added after desktop navigation (`page-nav`) and before main content
-  - Import pattern: `import { MobileNav } from '../components/MobileNav';`
-  - Placement pattern: After closing `</nav>` tag for desktop nav, add `{/* Mobile Navigation */}` comment then `<MobileNav />`
-  - Only authenticated pages need MobileNav (Login/Register don't need it)
+  - Health monitoring pattern: Status banner → Alert banners → Component cards → Legend
+  - Color coding: Green (#22c55e) for healthy, yellow (#f59e0b) for degraded, red (#ef4444) for unhealthy
+  - Auto-refresh interval of 30 seconds is appropriate for health monitoring (vs 5 minutes for stats)
+  - Component cards should show response time prominently as it's the key metric
+  - Alert banners help draw attention to issues without being too intrusive
+  - Status legend is important for user education on what each status means
+  - Following the same patterns as AdminDashboard and AdminErrorLogs ensures consistency
 
 ---
 
-## 2/1/2026, 4:22 AM - US-036: Responsive Mobile Layout - Wave 2
-- **Added MobileNav to remaining authenticated pages:**
-  - ReceivedInvitations.tsx - Added MobileNav import and component
+## 2/2/2026, 12:15 AM - US-039: Admin Dashboard - Platform Statistics
+- **Verified US-039 was already fully implemented:**
+  - AdminDashboard.tsx page component at /admin route
+  - All 6 statistics displayed with stat cards:
+    - Total Users (blue card)
+    - Active Users - 7 days (green card)
+    - Total Leagues (purple card)
+    - Active Leagues (orange card)
+    - Completed Races (red card)
+    - Upcoming Races (cyan card)
+  - SVG bar charts for user registrations and league creations (last 30 days)
+  - Auto-refresh every 5 minutes with cleanup on unmount
+  - Manual refresh button with loading state
+  - Last updated timestamp display
+  - Admin navigation cards to Error Logs, System Health, User Management
+  - Superuser-only access with redirect
 
 - **Files changed:**
-  - `frontend/src/pages/ReceivedInvitations.tsx`
+  - `frontend/src/pages/AdminDashboard.tsx` - Already existed with full implementation
+  - `frontend/src/App.tsx` - Route already existed
+  - `frontend/src/services/adminService.ts` - getStats method already existed
+  - `frontend/src/types/admin.ts` - AdminStats type already existed
 
 - **Quality checks:**
   - ✅ TypeScript check passed (npx tsc --noEmit)
-  - Git commit failed due to I/O error - will retry
+  - ✅ No linting errors
+  - ✅ Updated prd.json to mark US-039 as passing
 
 - **Learnings for future iterations:**
-  - Pages that still need MobileNav:
-    - AddPicks.tsx
-    - BrowseLeagues.tsx
-    - Constructors.tsx
-    - CreateDraftOrder.tsx
-    - CreateLeague.tsx
-    - DraftBoard.tsx
-    - DraftStatus.tsx
-    - DriverDetail.tsx
-    - Drivers.tsx
-    - EditLeague.tsx
-    - JoinLeague.tsx
-    - LeagueDetail.tsx
-    - LeagueLeaderboard.tsx
-    - LeagueRoles.tsx
-    - MakeDraftPick.tsx
-    - MyLeagues.tsx
-    - MyTeams.tsx
-    - Notifications.tsx
-    - Profile.tsx
-    - RaceCalendar.tsx
-    - RaceDetail.tsx
-    - ViewDraftOrder.tsx
+  - This story was already complete when we started - checking existing code is crucial before starting work
+  - AdminDashboard follows a consistent pattern: stat cards grid → charts section → admin navigation cards
+  - SVG bar charts are implemented with viewBox for responsiveness and rx attributes for rounded corners
+  - Auto-refresh pattern: useEffect with setInterval, cleanup in return function
+  - Superuser check: redirect immediately in useEffect if not superuser
 
 ---
 
-## 2/1/2026, 10:06 PM - US-036: Responsive Mobile Layout - AddPicks.tsx
-- **Added MobileNav to AddPicks.tsx page:**
-  - Added MobileNav import to AddPicks.tsx
-  - Added `<MobileNav />` component to all three return paths: loading state, error state, and main content
-  - Wrapped content with React fragments (`<>...</>`) to accommodate MobileNav alongside existing content
-  - This was the only authenticated page missing MobileNav component
+## 2/1/2026, 11:45 PM - US-040: Admin Dashboard - Error Logs Management
+- **Implemented Admin Error Logs page for viewing and managing system error logs:**
+  - Created AdminErrorLogs.tsx page component at /admin/error-logs route
+  - Features implemented:
+    - Paginated table displaying error logs with columns: timestamp, error_type, message, endpoint, user, severity, status
+    - 50 logs per page with Previous/Next pagination controls
+    - Comprehensive filters:
+      - Severity filter: All, Error, Warning, Info
+      - Status filter: All, Resolved, Unresolved
+      - Error Type filter: Partial match text search
+      - Endpoint filter: Partial match text search
+      - User ID filter: Exact match text search
+      - Date Range filter: Start date and end date pickers
+    - Click any row to open error detail modal showing:
+      - Full error details (severity, status, timestamp, error type, message)
+      - Stack trace display in code block format
+      - Request data (JSON formatted)
+      - Response data (JSON formatted)
+      - Resolution information (who resolved, when, notes)
+    - Resolve/Unresolve functionality:
+      - Mark as Resolved with optional resolution notes textarea
+      - Mark as Unresolved to reopen errors
+      - Shows resolver username and timestamp for resolved errors
+    - Export to CSV functionality:
+      - Exports filtered results to CSV file
+      - Includes all relevant fields (timestamp, severity, status, error type, message, endpoint, user ID)
+      - Downloads file with date-stamped filename
+    - Superuser-only access with automatic redirect for non-superusers
+    - Loading states and error handling with retry option
+    - Empty state when no errors match filters
+    - Toast notifications for success/error feedback
 
 - **Files changed:**
-  - `frontend/src/pages/AddPicks.tsx`
+  - `frontend/src/pages/AdminErrorLogs.tsx` - New error logs management page
+  - `frontend/src/App.tsx` - Added import and route for /admin/error-logs
+  - `frontend/src/services/adminService.ts` - Added getErrorLogs, resolveError, unresolveError methods
+  - `frontend/src/types/admin.ts` - Added ErrorLog, ErrorLogFilters, ErrorLogsResponse, ResolveErrorRequest types
 
 - **Quality checks:**
   - ✅ TypeScript check passed (npx tsc --noEmit)
-  - ✅ Committed with message: "feat: US-036 - Add MobileNav to AddPicks.tsx"
-  - ✅ Updated prd.json to mark US-036 as passing
+  - ✅ No linting errors
+  - ✅ Updated prd.json to mark US-040 as passing
 
 - **Learnings for future iterations:**
-  - When a page has multiple return paths (loading, error, main), MobileNav must be added to each
-  - Use React fragments (`<>...</>`) when adding MobileNav to pages that return a single element
-  - All authenticated pages now have MobileNav for responsive mobile navigation
-  - AddPicks.tsx was the last page missing MobileNav - all 30+ authenticated pages now covered
+  - Error log management pattern: Table view for overview, modal for detailed inspection
+  - Filter persistence: Reset to page 1 when any filter changes to avoid empty pages
+  - CSV export: Fetch larger batch (1000) for export, format dates appropriately
+  - Severity/status badges: Use color coding consistently (red=error, yellow=warning, blue=info, green=resolved, red=unresolved)
+  - Code blocks: Use <pre> with proper styling for stack traces and JSON data
+  - Modal pattern: Click overlay to close, stop propagation on content click
+  - Superuser check: Redirect non-superusers immediately with toast message
+  - Pagination: Always show results info ("Showing X of Y logs")
+  - Date filters: Use native date input type for browser-native date picker
 
 ---
-
-## 2/1/2026, 11:03 PM - US-037: Loading States & Error Handling
-- **Implemented complete UI feedback system with loading spinners, toast notifications, skeleton screens, and error handling:**
-  - LoadingSpinner component - Small inline loading spinner with size variants (sm, md, lg) and light/dark themes
-  - PageLoader component - Full-page loading state with centered spinner and optional message, used when loading essential data
-  - ButtonLoader component - Button-integrated spinner that disables the button during async operations, supports custom text and sizes
-  - Toast notification system (ToastContext.tsx, Toast.tsx) - React context-based toast system with success, error, info, warning types
-    - ToastProvider wraps app to provide toast functionality via useToast hook
-    - Auto-dismiss after 5 seconds with manual dismiss option
-    - Positioned bottom-right with slide-in animation
-    - Icons for different toast types (check, X, info, alert)
-  - SkeletonCard component - Pulse-animated card skeleton for content loading states
-  - SkeletonList component - Configurable list of skeleton cards with columns (1-3) and item count
-  - ErrorDisplay component - Full-page error display with title, message, retry button, and icon
-    - Supports loading state on retry button with spinner
-    - Different error types: connection, generic, not-found
-    - Centered layout with visual icon
-  - ErrorBoundary component - React class component catching render errors and displaying fallback UI
-    - Supports custom fallback component
-    - Logs errors to console
-    - Prevents app crashes from component errors
-  - InlineError component - Small inline error message for form validation, supports icons
-  - Centralized component exports in index.ts for easy imports
-  - Updated BrowseLeagues page with skeleton loading cards and ErrorDisplay for error states with retry
-  - Updated Drivers page with skeleton loading and ErrorDisplay for error states with retry
-  - Updated RaceCalendar page with skeleton loading and ErrorDisplay for error states with retry
-  - Fixed RaceCalendar.tsx JSX fragment issue (removed stray MobileNav and closing fragment from CountdownTimer)
-
-- **Files changed:**
-  - `frontend/src/components/LoadingSpinner.tsx` - New inline loading spinner component
-  - `frontend/src/components/PageLoader.tsx` - New full-page loader component
-  - `frontend/src/components/ButtonLoader.tsx` - New button loading spinner component
-  - `frontend/src/components/Toast.tsx` - New toast notification UI component
-  - `frontend/src/context/ToastContext.tsx` - New toast context provider and useToast hook
-  - `frontend/src/components/SkeletonCard.tsx` - New skeleton card component
-  - `frontend/src/components/SkeletonList.tsx` - New skeleton list component
-  - `frontend/src/components/ErrorDisplay.tsx` - New error display component
-  - `frontend/src/components/ErrorBoundary.tsx` - New error boundary component
-  - `frontend/src/components/InlineError.tsx` - New inline error message component
-  - `frontend/src/components/index.ts` - New centralized component exports
-  - `frontend/src/App.tsx` - Added ToastProvider wrapper around router
-  - `frontend/src/pages/BrowseLeagues.tsx` - Integrated skeleton and error states
-  - `frontend/src/pages/Drivers.tsx` - Integrated skeleton and error states
-  - `frontend/src/pages/RaceCalendar.tsx` - Integrated skeleton and error states, fixed JSX fragment bug
-
-- **Files updated (only my changes, not pre-existing issues):**
-  - All new components use TypeScript with proper type definitions
-  - All components follow existing CSS patterns with BEM-like naming
-  - Responsive design for all loading/error states
-  - Accessible with proper ARIA attributes
-
-- **Quality checks:**
-  - ✅ RaceCalendar.tsx now compiles without errors
-  - ✅ All new components follow project patterns
-  - ✅ Committed with message: "feat: UI-FEEDBACK-001 - Implement loading spinners, toast notifications, and skeleton loading"
-  - ✅ Updated prd.json to mark US-037 as passing
-
-- **Learnings for future iterations:**
-  - Toast notification pattern: Use React Context (ToastContext) + custom hook (useToast) for global toast access
-  - Skeleton screens: Use animate-pulse Tailwind class for subtle loading animation
-  - ErrorDisplay pattern: Always provide retry callback for recoverable errors
-  - ButtonLoader: Disable button and show spinner during async operations to prevent double-clicks
-  - Component organization: Create index.ts barrel file for clean imports from components directory
-  - Toast positioning: Fixed position bottom-right works well for non-intrusive notifications
-  - Always check for stray JSX fragments when editing components - can cause cryptic TypeScript errors
-  - When adding MobileNav to CountdownTimer, don't forget to remove the fragment wrapper if no longer needed

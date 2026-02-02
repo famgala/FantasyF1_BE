@@ -4,8 +4,13 @@ import { ToastProvider } from './context/ToastContext';
 import { ProtectedRoute } from './components/ProtectedRoute';
 import { Login } from './pages/Login';
 import { Register } from './pages/Register';
+import { LandingPage } from './pages/LandingPage';
 import { Dashboard } from './pages/Dashboard';
 import { Profile } from './pages/Profile';
+import { AdminDashboard } from './pages/AdminDashboard';
+import AdminErrorLogs from './pages/AdminErrorLogs';
+import AdminHealth from './pages/AdminHealth';
+import AdminUsers from './pages/AdminUsers';
 import BrowseLeagues from './pages/BrowseLeagues';
 import CreateLeague from './pages/CreateLeague';
 import JoinLeague from './pages/JoinLeague';
@@ -40,6 +45,7 @@ function App() {
         <ToastProvider>
           <Routes>
           {/* Public routes */}
+          <Route path="/" element={<LandingPage />} />
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
           
@@ -268,9 +274,41 @@ function App() {
               </ProtectedRoute>
             }
           />
+          <Route
+            path="/admin"
+            element={
+              <ProtectedRoute>
+                <AdminDashboard />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/admin/error-logs"
+            element={
+              <ProtectedRoute>
+                <AdminErrorLogs />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/admin/health"
+            element={
+              <ProtectedRoute>
+                <AdminHealth />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/admin/users"
+            element={
+              <ProtectedRoute>
+                <AdminUsers />
+              </ProtectedRoute>
+            }
+          />
 
-          {/* Default redirect */}
-          <Route path="/" element={<Navigate to="/login" replace />} />
+          {/* Default redirect - catch all unmatched routes */}
+          <Route path="/404" element={<Navigate to="/" replace />} />
           
           {/* Catch all - redirect to login */}
           <Route path="*" element={<Navigate to="/login" replace />} />

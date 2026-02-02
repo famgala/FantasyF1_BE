@@ -9,6 +9,9 @@ export const Login: React.FC = () => {
   const location = useLocation();
   const { login, isAuthenticated } = useAuth();
 
+  // Get email from landing page redirect
+  const prefillEmail = (location.state as any)?.email || '';
+
   const [formData, setFormData] = useState({
     username: '',
     password: '',
@@ -96,6 +99,13 @@ export const Login: React.FC = () => {
               create a new account
             </Link>
           </p>
+          {prefillEmail && (
+            <div className="mt-4 p-3 bg-green-50 border border-green-200 rounded-md">
+              <p className="text-sm text-green-700 text-center">
+                Welcome back! Account found for <strong>{prefillEmail}</strong>
+              </p>
+            </div>
+          )}
         </div>
 
         <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
