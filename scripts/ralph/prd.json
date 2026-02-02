@@ -88,28 +88,28 @@
       "notes": "Implemented CreateLeagueForm component with comprehensive validation, leagueService.createLeague method, CreateLeague page, LeagueDetail placeholder page, added routes in App.tsx, added Create League button to Dashboard, and added CSS styling. Typecheck passes."
     },
     {
-      "id": "US-005",
-      "title": "League Details & Information",
-      "description": "As a user, I want to view comprehensive league details so that I understand league settings and membership.",
+      "id": "US-044",
+      "title": "Password Reset Flow",
+      "description": "As a user who forgot my password, I want to reset it so that I can regain access to my account.",
       "acceptanceCriteria": [
-        "League detail page showing name, description, code, creator, max teams, draft method, privacy status",
-        "Display list of league members with usernames",
-        "Display list of teams in league with team names and owners",
-        "Show current team count vs max teams",
-        "Display league creation date",
-        "Join League button if user not a member and league not full",
-        "Leave League button if user is a member (but not creator)",
-        "Edit League button if user is creator or co-manager",
-        "Delete League button if user is creator",
-        "Invite Members button if user is creator or co-manager",
-        "Link to leaderboard page",
-        "API calls: GET /api/v1/leagues/{league_id}, GET /api/v1/leagues/{league_id}/members, GET /api/v1/leagues/{league_id}/teams",
+        "Forgot Password link on login page",
+        "Forgot password page with email input",
+        "Email validation before submission",
+        "Success message after requesting reset (don't reveal if email exists)",
+        "Email sent with reset token/link (backend feature)",
+        "Reset password page accessible via token link",
+        "New password input with validation (same rules as registration)",
+        "Confirm password field with matching validation",
+        "Success message after password reset",
+        "Auto-redirect to login page after successful reset",
+        "Token expiration handling (display error if token expired)",
+        "API calls: POST /api/v1/auth/forgot-password, POST /api/v1/auth/reset-password",
         "Typecheck passes",
         "Verify in browser using dev-browser skill"
       ],
-      "priority": 5,
+      "priority": 44,
       "passes": true,
-      "notes": "Implemented complete league detail page with comprehensive information display. Extended leagueService with getLeagueMembers and getLeagueTeams methods. LeagueDetail page fetches all data in parallel and displays league info, members with roles, teams with owners, and conditional action buttons based on user's role. Added role-based UI logic for Join/Leave/Edit/Delete/Invite buttons. Added leaderboard link. Comprehensive CSS styling for members list, teams list, role badges, and action buttons. Typecheck passes."
+      "notes": "Fully implemented. ForgotPassword.tsx and ResetPassword.tsx pages with full validation, token handling, and auto-redirect. AuthService methods for forgotPassword and resetPassword. Types defined."
     },
     {
       "id": "US-006",
@@ -911,8 +911,8 @@
         "Verify in browser using dev-browser skill"
       ],
       "priority": 44,
-      "passes": false,
-      "notes": "Backend endpoints may need to be implemented"
+      "passes": true,
+      "notes": "Implemented: ForgotPassword.tsx page with email form and security-aware success message, ResetPassword.tsx page with token handling, password validation, and auto-redirect, authService.ts methods forgotPassword() and resetPassword(), ForgotPassword and ResetPassword types added, routes added in App.tsx with links from Login page. Typecheck passes."
     },
     {
       "id": "US-045",

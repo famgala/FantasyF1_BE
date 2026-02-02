@@ -35,6 +35,71 @@
 - Responsive design with mobile-first approach
 - Footer with navigation links (disabled state for coming soon)
 
+### Password Reset Pattern
+- Forgot password page should use security-aware messaging (don't reveal if email exists)
+- Reset password page extracts token from URL query params
+- Password validation should match registration requirements (8+ chars, uppercase, lowercase, digit)
+- Confirm password field with matching validation
+- Auto-redirect to login page after successful reset with countdown timer
+- Handle expired/invalid tokens gracefully with user-friendly error messages
+- Add routes as public routes (accessible without authentication)
+- Link from Login page to Forgot Password page
+- Use error boundary pattern: catch block without parameter name to avoid lint errors
+
+---
+
+## 2/2/2026, 4:42 AM - US-044: Password Reset Flow
+- **Implemented complete Password Reset Flow:**
+  - Created ForgotPassword.tsx page component at /forgot-password route
+    - Email input form with validation
+    - Security-aware success message (doesn't reveal if email exists - prevents email enumeration attacks)
+    - Error handling with user-friendly messages
+    - Back to login link
+    - Redirects authenticated users to dashboard
+  - Created ResetPassword.tsx page component at /reset-password route
+    - Extracts reset token from URL query params (?token=xxx)
+    - New password input with validation (same rules as registration: 8+ chars, 1 uppercase, 1 lowercase, 1 digit)
+    - Confirm password field with matching validation
+    - Shows error if token is missing or invalid
+    - Success message with countdown timer (3 seconds) before auto-redirect to login
+    - Go to login now button for immediate redirect
+  - Updated authService.ts with new methods:
+    - forgotPassword(email): POST /api/v1/auth/forgot-password
+    - resetPassword(token, new_password): POST /api/v1/auth/reset-password
+  - Added TypeScript types to types/index.ts:
+    - ForgotPasswordRequest interface
+    - ResetPasswordRequest interface
+  - Updated App.tsx:
+    - Added public routes for /forgot-password and /reset-password
+    - Routes accessible without authentication
+  - Updated Login.tsx:
+    - Added "Forgot your password?" link below password field
+    - Styled with existing link pattern
+  - Mobile responsive design with MobileNav component on both pages
+
+- **Files changed:**
+  - `frontend/src/pages/ForgotPassword.tsx` - New forgot password page
+  - `frontend/src/pages/ResetPassword.tsx` - New reset password page
+  - `frontend/src/App.tsx` - Added routes for forgot-password and reset-password
+  - `frontend/src/services/authService.ts` - Added forgotPassword and resetPassword methods
+  - `frontend/src/types/index.ts` - Added ForgotPasswordRequest and ResetPasswordRequest types
+  - `frontend/src/pages/Login.tsx` - Added Forgot Password link
+
+- **Quality checks:**
+  - ✅ TypeScript check passed (npx tsc --noEmit)
+  - ✅ No linting errors
+  - ✅ Updated prd.json to mark US-044 as passing
+
+- **Learnings for future iterations:**
+  - Security consideration: Always show same success message for forgot password regardless of whether email exists
+  - Token extraction: Use `useSearchParams()` hook from react-router-dom to get query params
+  - Auto-redirect pattern: Use useEffect with countdown state, decrement every second, navigate when reaches 0
+  - Password validation reuse: Import validation functions from authService to ensure consistency
+  - Error handling for auth flows: Use unknown type for catch blocks, check instanceof Error
+  - Public routes: Add to Routes before ProtectedRoute wrapper to allow unauthenticated access
+  - Form validation: Validate confirm password matches new password before API call
+  - Token expiration: Backend handles token validation, frontend shows appropriate error message
+
 ---
 
 ## 2/2/2026, 4:40 AM - US-043: Homepage & Landing Page

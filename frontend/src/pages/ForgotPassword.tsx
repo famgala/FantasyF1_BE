@@ -55,7 +55,7 @@ export const ForgotPassword: React.FC = () => {
     try {
       await authService.forgotPassword({ email });
       setIsSuccess(true);
-    } catch (err: any) {
+    } catch {
       // For security reasons, show the same success message even if email doesn't exist
       // This prevents email enumeration attacks
       setIsSuccess(true);
