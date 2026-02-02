@@ -176,7 +176,7 @@ class DraftService:
         race_id: int,
         fantasy_team_id: int,
         driver_id: int,
-        user_id: int | None = None,
+        is_auto: bool = False,
     ) -> DraftPick:
         """Make a draft pick for a team.
 
@@ -186,7 +186,7 @@ class DraftService:
             race_id: ID of the race
             fantasy_team_id: ID of the fantasy team making the pick
             driver_id: ID of the driver being picked
-            user_id: ID of the user making the pick
+            is_auto: Whether this is an auto-pick (user absent or timer expired)
 
         Returns:
             Created DraftPick instance
@@ -257,7 +257,7 @@ class DraftService:
             pick_number=pick_count + 1,
             pick_round=pick_round,
             draft_position=draft_position + 1,  # 1-indexed for display
-            is_auto_pick=(user_id is None),
+            is_auto_pick=is_auto,
         )
 
         session.add(draft_pick)
@@ -285,6 +285,8 @@ class DraftService:
         Returns:
             Created DraftPick instance, or None if no picks remaining
         """
+        from app.services.notification_service import NotificationService
+
         # Get draft order
         draft_order = await DraftService.get_draft_order(session, league_id, race_id)
         order_list = json.loads(draft_order.order_data)
@@ -324,16 +326,18 @@ class DraftService:
             int(did) for did in result.scalars().all() if did is not None  # type: ignore[arg-type, call-overload]
         ]
 
-        # Get all available drivers (simple strategy: pick highest ID available)
+        # Get all available drivers (improved strategy: pick highest-ranked by total_points)
         if picked_ids:
             available_drivers_query = (
                 select(Driver.id)
                 .where(Driver.id.not_in(picked_ids))
-                .order_by(Driver.id.desc())
+                .order_by(Driver.total_points.desc())
                 .limit(1)
             )
         else:
-            available_drivers_query = select(Driver.id).order_by(Driver.id.desc()).limit(1)
+            available_drivers_query = (
+                select(Driver.id).order_by(Driver.total_points.desc()).limit(1)
+            )
 
         result = await session.execute(available_drivers_query)
         available_driver_id = result.scalar_one_or_none()
@@ -341,15 +345,44 @@ class DraftService:
         if not available_driver_id:
             return None  # No drivers available
 
+        # Get team and league info for notification
+        team_query = select(FantasyTeam).where(FantasyTeam.id == fantasy_team_id)
+        team_result = await session.execute(team_query)
+        team = team_result.scalar_one_or_none()
+
+        league_query = select(League).where(League.id == league_id)
+        league_result = await session.execute(league_query)
+        league = league_result.scalar_one_or_none()
+
+        # Get driver name for notification
+        driver_query = select(Driver).where(Driver.id == available_driver_id)
+        driver_result = await session.execute(driver_query)
+        driver = driver_result.scalar_one_or_none()
+
         # Make the auto pick
-        return await DraftService.make_draft_pick(
+        pick = await DraftService.make_draft_pick(
             session,
             league_id,
             race_id,
             fantasy_team_id,
             available_driver_id,
-            user_id=None,  # Auto-pick has no user
+            is_auto=True,  # Explicitly mark as auto-pick
         )
+
+        # Send notification to the team owner
+        if team and league and driver:
+            from contextlib import suppress
+
+            with suppress(Exception):
+                await NotificationService.notify_auto_pick(
+                    session,
+                    user_id=team.user_id,
+                    league_name=league.name,
+                    league_id=league_id,
+                    driver_name=driver.name,
+                )
+
+        return pick
 
     @staticmethod
     async def get_draft_picks(
