@@ -639,3 +639,503 @@
     gap: 2rem;
   }
 }
+
+/* ============================================
+   RACE RESULTS PAGE STYLES
+   ============================================ */
+
+.race-results-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 2rem 1.5rem;
+  min-height: 100vh;
+  background: #f8fafc;
+}
+
+/* Page Header */
+.race-results-container .page-header {
+  margin-bottom: 2rem;
+}
+
+.race-results-container .page-header h1 {
+  font-size: 2rem;
+  font-weight: 700;
+  color: #1f2937;
+  margin: 1rem 0 0.5rem;
+}
+
+.race-results-container .header-subtitle {
+  font-size: 1rem;
+  color: #6b7280;
+  margin: 0;
+}
+
+/* Race Info Banner */
+.race-info-banner {
+  display: flex;
+  gap: 2rem;
+  align-items: center;
+  flex-wrap: wrap;
+  background: white;
+  padding: 1.25rem 1.5rem;
+  border-radius: 12px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  margin-bottom: 1.5rem;
+}
+
+.info-item {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.info-label {
+  font-size: 0.875rem;
+  color: #6b7280;
+  font-weight: 500;
+}
+
+.info-value {
+  font-size: 0.9375rem;
+  color: #1f2937;
+  font-weight: 600;
+}
+
+.winner-item {
+  margin-left: auto;
+  background: linear-gradient(135deg, #fef3c7, #fde68a);
+  padding: 0.5rem 1rem;
+  border-radius: 8px;
+}
+
+.winner-item .info-label,
+.winner-item .info-value {
+  color: #92400e;
+}
+
+.trophy-icon {
+  color: #f59e0b;
+}
+
+/* Legend */
+.results-legend {
+  display: flex;
+  gap: 1.5rem;
+  flex-wrap: wrap;
+  margin-bottom: 1.5rem;
+  padding: 0.75rem 1rem;
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.legend-item {
+  display: flex;
+  align-items: center;
+  gap: 0.375rem;
+  font-size: 0.8125rem;
+  color: #6b7280;
+}
+
+.legend-icon.gained {
+  color: #22c55e;
+}
+
+.legend-icon.lost {
+  color: #ef4444;
+}
+
+.legend-icon.fastest {
+  color: #8b5cf6;
+}
+
+.legend-icon.dnf {
+  color: #f59e0b;
+}
+
+/* Results Table */
+.results-table-container {
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+  margin-bottom: 1.5rem;
+}
+
+.results-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.results-table th {
+  background: #f9fafb;
+  padding: 0.875rem 1rem;
+  text-align: left;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: #6b7280;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.results-table th.position-header,
+.results-table th.points-header {
+  text-align: center;
+}
+
+.results-table th.grid-header {
+  text-align: center;
+}
+
+.results-table th.laps-header {
+  text-align: center;
+}
+
+.results-table td {
+  padding: 0.875rem 1rem;
+  border-bottom: 1px solid #f3f4f6;
+  vertical-align: middle;
+}
+
+.results-row:hover {
+  background: #f9fafb;
+}
+
+.podium-row {
+  background: linear-gradient(90deg, rgba(251, 191, 36, 0.05), rgba(251, 191, 36, 0.1));
+}
+
+.podium-row:hover {
+  background: linear-gradient(90deg, rgba(251, 191, 36, 0.1), rgba(251, 191, 36, 0.15));
+}
+
+/* Position Cell */
+.position-cell {
+  text-align: center;
+}
+
+.position-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  font-weight: 700;
+  font-size: 0.875rem;
+  background: #f3f4f6;
+  color: #374151;
+}
+
+.position-badge.position-gold {
+  background: linear-gradient(135deg, #fbbf24, #f59e0b);
+  color: white;
+}
+
+.position-badge.position-silver {
+  background: linear-gradient(135deg, #e5e7eb, #9ca3af);
+  color: white;
+}
+
+.position-badge.position-bronze {
+  background: linear-gradient(135deg, #fdba74, #f97316);
+  color: white;
+}
+
+/* Driver Cell */
+.driver-cell {
+  min-width: 200px;
+}
+
+.driver-info {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.driver-name {
+  font-weight: 600;
+  color: #1f2937;
+  font-size: 0.9375rem;
+}
+
+.driver-code {
+  font-size: 0.75rem;
+  color: #6b7280;
+  background: #f3f4f6;
+  padding: 0.125rem 0.5rem;
+  border-radius: 4px;
+}
+
+.fastest-lap-indicator {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  background: linear-gradient(135deg, #8b5cf6, #7c3aed);
+  color: white;
+  border-radius: 50%;
+  margin-left: 0.25rem;
+}
+
+/* Constructor Cell */
+.constructor-cell {
+  font-size: 0.875rem;
+  color: #4b5563;
+  font-weight: 500;
+}
+
+/* Grid Cell */
+.grid-cell {
+  text-align: center;
+}
+
+.grid-position {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+}
+
+.grid-value {
+  font-size: 0.875rem;
+  color: #6b7280;
+  font-weight: 500;
+}
+
+.position-change {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.125rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  padding: 0.125rem 0.375rem;
+  border-radius: 4px;
+}
+
+.position-change.gained {
+  color: #16a34a;
+  background: #dcfce7;
+}
+
+.position-change.lost {
+  color: #dc2626;
+  background: #fee2e2;
+}
+
+.position-change.same {
+  color: #6b7280;
+  background: #f3f4f6;
+}
+
+/* Laps Cell */
+.laps-cell {
+  text-align: center;
+  font-size: 0.875rem;
+  color: #4b5563;
+  font-weight: 500;
+}
+
+.dnf-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: #b45309;
+  background: #fef3c7;
+  padding: 0.25rem 0.5rem;
+  border-radius: 4px;
+}
+
+/* Points Cell */
+.points-cell {
+  text-align: center;
+}
+
+.points-value {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: #6b7280;
+}
+
+.points-value.has-points {
+  color: #16a34a;
+}
+
+/* Mobile Results */
+.mobile-results-list {
+  display: none;
+  flex-direction: column;
+  gap: 0.75rem;
+  margin-bottom: 1.5rem;
+}
+
+.mobile-result-card {
+  background: white;
+  border-radius: 12px;
+  padding: 1rem;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.mobile-result-card.podium-card {
+  background: linear-gradient(135deg, rgba(251, 191, 36, 0.1), rgba(251, 191, 36, 0.05));
+  border: 1px solid rgba(251, 191, 36, 0.3);
+}
+
+.mobile-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.75rem;
+}
+
+.mobile-points {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: #6b7280;
+}
+
+.mobile-card-body {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.mobile-driver-row {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.mobile-driver-name {
+  font-weight: 600;
+  font-size: 0.9375rem;
+  color: #1f2937;
+}
+
+.mobile-constructor {
+  font-size: 0.8125rem;
+  color: #6b7280;
+}
+
+.mobile-stats-row {
+  display: flex;
+  gap: 1.5rem;
+  margin-top: 0.25rem;
+}
+
+.mobile-stat {
+  display: flex;
+  align-items: center;
+  gap: 0.375rem;
+}
+
+.mobile-stat-label {
+  font-size: 0.75rem;
+  color: #9ca3af;
+}
+
+.mobile-stat-value {
+  font-size: 0.8125rem;
+  color: #4b5563;
+  font-weight: 500;
+}
+
+/* Summary Stats */
+.results-summary {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 1rem;
+  margin-top: 1.5rem;
+}
+
+.summary-card {
+  background: white;
+  padding: 1.25rem;
+  border-radius: 12px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  text-align: center;
+}
+
+.summary-label {
+  display: block;
+  font-size: 0.75rem;
+  color: #6b7280;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-bottom: 0.5rem;
+}
+
+.summary-value {
+  display: block;
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #1f2937;
+}
+
+.summary-value.dnf-count {
+  color: #dc2626;
+}
+
+/* Responsive Styles for Race Results */
+@media (max-width: 768px) {
+  .race-results-container {
+    padding: 1rem;
+  }
+
+  .race-results-container .page-header h1 {
+    font-size: 1.5rem;
+  }
+
+  .race-info-banner {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.75rem;
+  }
+
+  .winner-item {
+    margin-left: 0;
+    width: 100%;
+    justify-content: center;
+  }
+
+  .results-legend {
+    gap: 1rem;
+  }
+
+  .results-table-container {
+    display: none;
+  }
+
+  .mobile-results-list {
+    display: flex;
+  }
+
+  .results-summary {
+    grid-template-columns: repeat(3, 1fr);
+    gap: 0.75rem;
+  }
+
+  .summary-card {
+    padding: 1rem;
+  }
+
+  .summary-value {
+    font-size: 1.25rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .results-summary {
+    grid-template-columns: 1fr;
+  }
+
+  .mobile-stats-row {
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+}

@@ -1,5 +1,5 @@
 import { apiClient as api } from './api';
-import type { Race, RaceListResponse, GetRacesRequest } from '../types';
+import type { Race, RaceListResponse, GetRacesRequest, RaceResultsResponse } from '../types';
 
 /**
  * Get all races with optional filtering
@@ -34,4 +34,11 @@ export async function getPastRaces(limit: number = 20): Promise<Race[]> {
  */
 export async function getRaceById(raceId: number): Promise<Race> {
   return api.get<Race>(`/races/${raceId}`);
+}
+
+/**
+ * Get race results by race ID
+ */
+export async function getRaceResults(raceId: number): Promise<RaceResultsResponse> {
+  return api.get<RaceResultsResponse>(`/races/${raceId}/results`);
 }

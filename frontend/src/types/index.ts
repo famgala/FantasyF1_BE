@@ -506,6 +506,38 @@ export interface ConstructorWithDrivers extends Constructor {
   drivers: Driver[];
 }
 
+// Race Result Types
+export interface RaceResult {
+  id: string;
+  race_id: number;
+  driver_id: string;
+  driver_name: string;
+  driver_number: number;
+  driver_code: string;
+  constructor_id: string;
+  constructor_name: string;
+  position: number;
+  grid_position: number;
+  laps: number;
+  status: 'finished' | 'dnf' | 'dns' | 'dq';
+  dnf_reason?: string;
+  fastest_lap: boolean;
+  points: number;
+  time?: string;
+  gap?: string;
+}
+
+export interface RaceResultsResponse {
+  race_id: number;
+  race_name: string;
+  circuit_name: string;
+  round_number: number;
+  race_date: string;
+  winning_constructor_id?: string;
+  winning_constructor_name?: string;
+  results: RaceResult[];
+}
+
 // API Response Types
 export interface PaginatedResponse<T> {
   items: T[];

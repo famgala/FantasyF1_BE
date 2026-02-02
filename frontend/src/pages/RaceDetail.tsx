@@ -1,10 +1,9 @@
 import { useState, useEffect, useCallback } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useParams, useNavigate, Link } from 'react-router-dom';
 import { getRaceById } from '../services/raceService';
 import { getMyTeams } from '../services/teamService';
 import { getTeamPicks } from '../services/teamService';
 import type { Race, TeamPick } from '../types';
-import { MobileNav } from '../components/MobileNav';
 
 // Helper function to format date
 function formatDate(dateString: string): string {
@@ -60,9 +59,7 @@ function CountdownTimer({ targetDate }: { targetDate: string }) {
   if (!timeLeft) return null;
 
   return (
-    <>
-      <MobileNav />
-      <div className="countdown-timer">
+    <div className="countdown-timer">
       <div className="countdown-item">
         <span className="countdown-value">{timeLeft.days}</span>
         <span className="countdown-label">Days</span>
@@ -200,8 +197,8 @@ export default function RaceDetail() {
       // Fetch picks for each team and filter for this race
       const allPicks: TeamPick[] = [];
       for (const team of teams) {
-      const teamPicks = await getTeamPicks(team.id);
-      const racePicks = teamPicks.filter(pick => String(pick.race_id) === id);
+        const teamPicks = await getTeamPicks(team.id);
+        const racePicks = teamPicks.filter(pick => String(pick.race_id) === id);
         allPicks.push(...racePicks);
       }
       
@@ -246,7 +243,7 @@ export default function RaceDetail() {
           {error || 'Race not found'}
         </div>
         <button className="btn btn-secondary" onClick={handleBack}>
-          ← Back to Race Calendar
+          Back to Race Calendar
         </button>
       </div>
     );
@@ -256,11 +253,11 @@ export default function RaceDetail() {
     <div className="race-detail-container">
       <div className="page-header">
         <button className="btn btn-secondary btn-back" onClick={handleBack}>
-          ← Back to Race Calendar
+          Back to Race Calendar
         </button>
         <div className="header-content">
           <h1>{race.name}</h1>
-          <p className="header-subtitle">{race.circuit_name} • {race.country}</p>
+          <p className="header-subtitle">{race.circuit_name} {race.country}</p>
         </div>
       </div>
 
@@ -274,7 +271,7 @@ export default function RaceDetail() {
 
           <div className="race-date-section">
             <div className="race-date-main">
-              <span className="date-icon">📅</span>
+              <span className="date-icon"></span>
               <div className="date-info">
                 <div className="date-label">Race Date</div>
                 <div className="date-value">{formatDate(race.race_date)}</div>
@@ -294,7 +291,7 @@ export default function RaceDetail() {
           {/* Winning Constructor for completed races */}
           {race.status === 'completed' && race.winning_constructor && (
             <div className="winning-constructor-section">
-              <div className="winner-icon">🏆</div>
+              <div className="winner-icon"></div>
               <div className="winner-info">
                 <div className="winner-label">Winning Constructor</div>
                 <div className="winner-value">{race.winning_constructor}</div>
@@ -307,31 +304,30 @@ export default function RaceDetail() {
         <div className="session-times-section">
           <h2 className="section-title">Session Schedule</h2>
           <div className="session-times-grid">
-            <SessionTimeCard label="Practice 1" date={race.fp1_date} icon="🏎️" />
-            <SessionTimeCard label="Practice 2" date={race.fp2_date} icon="🏎️" />
-            <SessionTimeCard label="Practice 3" date={race.fp3_date} icon="🏎️" />
-            <SessionTimeCard label="Qualifying" date={race.qualifying_date} icon="⏱️" />
-            <SessionTimeCard label="Race" date={race.race_date} icon="🏁" />
+            <SessionTimeCard label="Practice 1" date={race.fp1_date} icon="" />
+            <SessionTimeCard label="Practice 2" date={race.fp2_date} icon="" />
+            <SessionTimeCard label="Practice 3" date={race.fp3_date} icon="" />
+            <SessionTimeCard label="Qualifying" date={race.qualifying_date} icon="" />
+            <SessionTimeCard label="Race" date={race.race_date} icon="" />
           </div>
         </div>
 
         {/* User's Picks */}
         {!loadingPicks && <UserPicksSection picks={userPicks} />}
 
-        {/* Race Results Link (placeholder for US-045) */}
+        {/* Race Results Link */}
         {race.status === 'completed' && (
           <div className="race-results-link-section">
             <h2 className="section-title">Race Results</h2>
             <div className="results-link-card">
               <p>View detailed race results and finishing positions.</p>
-              <button className="btn btn-primary" disabled>
-                View Results (Coming Soon)
-              </button>
+              <Link to={`/races/${id}/results`} className="btn btn-primary">
+                View Results
+              </Link>
             </div>
           </div>
         )}
       </div>
     </div>
-    </>
   );
 }
