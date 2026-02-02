@@ -591,5 +591,46 @@ export interface FormFieldError {
   message: string;
 }
 
+// Activity Log Types
+export type ActivityType =
+  | 'member_joined'
+  | 'team_created'
+  | 'draft_pick_made'
+  | 'race_completed'
+  | 'points_updated'
+  | 'league_created'
+  | 'invitation_sent'
+  | 'invitation_accepted';
+
+export interface ActivityLog {
+  id: string;
+  league_id: string;
+  user_id: string | null;
+  activity_type: ActivityType;
+  title: string;
+  message: string;
+  reference_id: string | null;
+  reference_type: string | null;
+  created_at: string;
+}
+
+export interface ActivityLogWithUser extends ActivityLog {
+  user: User | null;
+}
+
+export interface ActivityLogListResponse {
+  activities: ActivityLog[];
+  total: number;
+  skip: number;
+  limit: number;
+}
+
+export interface GetActivitiesRequest {
+  league_id: string;
+  skip?: number;
+  limit?: number;
+  activity_type?: ActivityType;
+}
+
 // Axios Types (re-export for convenience)
 export type { AxiosInstance } from 'axios';

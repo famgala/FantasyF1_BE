@@ -4,7 +4,7 @@ import type { League, LeagueMember, FantasyTeam } from '../types';
 import { getLeagueById, getLeagueMembers, getLeagueTeams, leaveLeague, deleteLeague } from '../services/leagueService';
 import { useAuth } from '../context/AuthContext';
 import { MobileNav } from '../components/MobileNav';
-import { PageLoader, ErrorDisplay } from '../components';
+import { PageLoader, ErrorDisplay, ActivityFeed } from '../components';
 
 export default function LeagueDetail() {
   const { id } = useParams<{ id: string }>();
@@ -410,6 +410,13 @@ export default function LeagueDetail() {
             </Link>
           </div>
         </div>
+
+        {/* Activity Feed Section - shown to all members */}
+        {isMember && id && (
+          <div className="info-section activity-feed-section">
+            <ActivityFeed leagueId={id} limit={10} showFilter={true} />
+          </div>
+        )}
       </div>
 
       {/* Delete League Confirmation Modal */}
@@ -460,6 +467,5 @@ export default function LeagueDetail() {
         </div>
       )}
     </div>
-    </>
   );
 }

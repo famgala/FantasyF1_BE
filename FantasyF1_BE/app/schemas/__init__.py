@@ -1,5 +1,12 @@
 """Schemas package for Pydantic models."""
 
+from app.schemas.activity_log import (
+    ActivityLogCreate,
+    ActivityLogDetailResponse,
+    ActivityLogFilter,
+    ActivityLogListResponse,
+    ActivityLogResponse,
+)
 from app.schemas.auth import (
     LoginRequest,
     RefreshTokenRequest,
@@ -77,6 +84,11 @@ from app.schemas.user import (
 )
 
 __all__ = [
+    "ActivityLogCreate",
+    "ActivityLogDetailResponse",
+    "ActivityLogFilter",
+    "ActivityLogListResponse",
+    "ActivityLogResponse",
     "ConstructorBase",
     "ConstructorCreate",
     "ConstructorListResponse",

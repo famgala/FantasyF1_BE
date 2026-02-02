@@ -1,5 +1,6 @@
 """Models package for database entities."""
 
+from app.models.activity_log import ActivityLog, ActivityType
 from app.models.constructor import Constructor
 from app.models.draft import DraftOrder, DraftPick
 from app.models.driver import Driver
@@ -19,6 +20,8 @@ from app.models.race_result import RaceResult
 from app.models.user import User
 
 __all__ = [
+    "ActivityLog",
+    "ActivityType",
     "Constructor",
     "DraftOrder",
     "DraftPick",

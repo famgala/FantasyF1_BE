@@ -9,6 +9,7 @@ from fastapi.responses import JSONResponse
 from fastapi.routing import APIRouter
 
 from app.api.v1.endpoints import (
+    activity_logs,
     admin,
     auth,
     constructors,
@@ -104,6 +105,7 @@ api_v1_router.include_router(leagues.router, prefix="/leagues", tags=["Leagues"]
 api_v1_router.include_router(league_roles.router, prefix="/leagues", tags=["League Roles"])
 api_v1_router.include_router(teams.router, prefix="/leagues", tags=["Teams"])
 api_v1_router.include_router(drafts.router, prefix="/leagues", tags=["Drafts"])
+api_v1_router.include_router(activity_logs.router, prefix="", tags=["Activity Logs"])
 api_v1_router.include_router(invitations.router, prefix="/invitations", tags=["Invitations"])
 api_v1_router.include_router(notifications.router, prefix="/notifications", tags=["Notifications"])
 api_v1_router.include_router(constructors.router, prefix="/constructors", tags=["Constructors"])

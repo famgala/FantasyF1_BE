@@ -1386,3 +1386,33 @@
     min-width: 500px;
   }
 }
+
+/* ============================================
+   ACTIVITY FEED STYLES
+   ============================================ */
+
+.activity-feed-header-right {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.activity-feed-last-updated {
+  font-size: 0.75rem;
+  color: #9ca3af;
+  font-weight: 500;
+  white-space: nowrap;
+}
+
+@media (max-width: 768px) {
+  .activity-feed-header-right {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.5rem;
+  }
+
+  .activity-feed-last-updated {
+    font-size: 0.7rem;
+  }
+}

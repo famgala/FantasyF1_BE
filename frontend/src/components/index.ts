@@ -14,3 +14,6 @@ export { InlineError, FormFieldError } from './InlineError';
 
 // Toast Components
 export { ToastContainer, ToastItem, type Toast, type ToastType } from './Toast';
+
+// Activity Feed
+export { default as ActivityFeed } from './ActivityFeed';

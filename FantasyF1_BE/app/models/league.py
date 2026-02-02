@@ -10,6 +10,7 @@ from sqlalchemy.orm import Mapped, mapped_column, relationship
 from app.db.base import Base
 
 if TYPE_CHECKING:
+    from app.models.activity_log import ActivityLog
     from app.models.league_role import LeagueRole
 
 
@@ -71,6 +72,11 @@ class League(Base):
     # Relationships
     roles: Mapped[list["LeagueRole"]] = relationship(
         back_populates="league", cascade="all, delete-orphan"
+    )
+    activities: Mapped[list["ActivityLog"]] = relationship(
+        back_populates="league",
+        cascade="all, delete-orphan",
+        order_by="desc(ActivityLog.created_at)",
     )
 
     def __repr__(self) -> str:

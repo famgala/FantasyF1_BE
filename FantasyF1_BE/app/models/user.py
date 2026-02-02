@@ -9,6 +9,7 @@ from sqlalchemy.orm import Mapped, mapped_column, relationship
 from app.db.base import Base
 
 if TYPE_CHECKING:
+    from app.models.activity_log import ActivityLog
     from app.models.error_log import ErrorLog
     from app.models.league_role import LeagueRole
     from app.models.notification import Notification
@@ -57,6 +58,11 @@ class User(Base):
     )
     resolved_error_logs: Mapped[list["ErrorLog"]] = relationship(
         back_populates="resolver", foreign_keys="ErrorLog.resolved_by"
+    )
+    activities: Mapped[list["ActivityLog"]] = relationship(
+        back_populates="user",
+        cascade="all, delete-orphan",
+        order_by="desc(ActivityLog.created_at)",
     )
 
     def __repr__(self) -> str:

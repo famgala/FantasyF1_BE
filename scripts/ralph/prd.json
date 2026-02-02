@@ -993,8 +993,8 @@
         "Verify in browser using dev-browser skill"
       ],
       "priority": 48,
-      "passes": false,
-      "notes": "Backend endpoint needs to be implemented"
+      "passes": true,
+      "notes": "Fully implemented. ActivityFeed.tsx component with auto-refresh (60s default), last updated timestamp display, activity type filter, pagination/load more. Backend endpoint GET /api/v1/leagues/{league_id}/activities (note: plural path). Typecheck passes."
     },
     {
       "id": "US-049",

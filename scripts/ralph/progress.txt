@@ -66,6 +66,14 @@
 - Tab navigation between Overview and Performance views
 - Backend joins RaceResult with Race to get race details for each performance record
 
+### Activity Feed Auto-Refresh Pattern
+- Activity feeds should auto-refresh periodically (default 60 seconds) to show real-time updates
+- Use `setInterval` in useEffect with cleanup function to prevent memory leaks
+- Display "Last updated X ago" timestamp to show when data was last fetched
+- Make auto-refresh configurable via props (refreshInterval, autoRefresh)
+- Auto-refresh should be disabled when component unmounts or when autoRefresh prop is false
+- Use `useCallback` for fetch functions to include in dependency arrays
+
 ---
 
 ## 2/2/2026, 7:26 AM - US-046: Driver Performance History (Implementation Completed)
@@ -525,5 +533,40 @@
   - Superuser check: Redirect non-superusers immediately with toast message
   - Pagination: Always show results info ("Showing X of Y logs")
   - Date filters: Use native date input type for browser-native date picker
+
+---
+
+## 2/2/2026, 9:34 AM - US-048: League Activity Feed
+- **Implemented auto-refresh functionality for Activity Feed component:**
+  - Added `refreshInterval` prop (default 60 seconds) to ActivityFeed.tsx
+  - Added `autoRefresh` prop (default true) to enable/disable auto-refresh
+  - Implemented `setInterval` in useEffect to periodically fetch activities
+  - Added cleanup function to prevent memory leaks when component unmounts
+  - Added `lastUpdated` state to track when data was last fetched
+  - Display "Last updated X ago" timestamp in header when auto-refresh is enabled
+  - Auto-refresh is disabled when component unmounts or when autoRefresh prop is false
+  - Used `useCallback` for fetchActivities function to include in dependency arrays
+  - Added CSS styling for new elements:
+    - `.activity-feed-header-right` container for filter and last updated display
+    - `.activity-feed-last-updated` timestamp styling with responsive design
+    - Mobile responsive layout with flex-direction column on small screens
+
+- **Files changed:**
+  - `frontend/src/components/ActivityFeed.tsx` - Added auto-refresh functionality
+  - `frontend/src/index.css` - Added CSS styling for new elements
+
+- **Quality checks:**
+  - ✅ TypeScript check passed (npx tsc --noEmit)
+  - ✅ No linting errors
+  - ✅ Updated prd.json to mark US-048 as passing
+
+- **Learnings for future iterations:**
+  - Activity feeds should auto-refresh periodically (default 60 seconds) to show real-time updates
+  - Use `setInterval` in useEffect with cleanup function to prevent memory leaks
+  - Display "Last updated X ago" timestamp to show when data was last fetched
+  - Make auto-refresh configurable via props (refreshInterval, autoRefresh)
+  - Auto-refresh should be disabled when component unmounts or when autoRefresh prop is false
+  - Use `useCallback` for fetch functions to include in dependency arrays
+  - Note: Backend endpoint is `/activities` (plural) not `/activity` as mentioned in acceptance criteria
 
 ---
