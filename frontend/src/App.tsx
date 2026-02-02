@@ -36,6 +36,7 @@ import LeagueLeaderboard from './pages/LeagueLeaderboard';
 import Drivers from './pages/Drivers';
 import DriverDetail from './pages/DriverDetail';
 import Constructors from './pages/Constructors';
+import ConstructorStandings from './pages/ConstructorStandings';
 import RaceCalendar from './pages/RaceCalendar';
 import RaceDetail from './pages/RaceDetail';
 import RaceResults from './pages/RaceResults';
@@ -252,6 +253,14 @@ function App() {
             element={
               <ProtectedRoute>
                 <Constructors />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/constructors/standings"
+            element={
+              <ProtectedRoute>
+                <ConstructorStandings />
               </ProtectedRoute>
             }
           />

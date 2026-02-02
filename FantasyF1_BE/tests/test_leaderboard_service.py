@@ -130,7 +130,7 @@ async def test_team_picks(db, test_teams: list[FantasyTeam], test_race: Race) ->
 class TestLeaderboardService:
     """Test suite for LeaderboardService."""
 
-    @pytest.mark.asyncio()
+    @pytest.mark.asyncio
     async def test_get_leaderboard(
         self, db, test_league: League, test_teams  # noqa: ARG002
     ) -> None:
@@ -152,7 +152,7 @@ class TestLeaderboardService:
         assert "team_name" in entry
         assert "total_points" in entry
 
-    @pytest.mark.asyncio()
+    @pytest.mark.asyncio
     async def test_league_for_race(
         self,
         db,
@@ -171,7 +171,7 @@ class TestLeaderboardService:
         assert leaderboard is not None
         assert len(leaderboard) == 5
 
-    @pytest.mark.asyncio()
+    @pytest.mark.asyncio
     async def test_leaderboard_with_ties(self, db, test_league: League) -> None:
         """Test leaderboard with tied scores."""
         # Create users for teams
@@ -224,7 +224,7 @@ class TestLeaderboardService:
         # Team A should come before Team Z due to alphabetical tie-breaker
         assert leaderboard.index(team2_entry) < leaderboard.index(team1_entry)
 
-    @pytest.mark.asyncio()
+    @pytest.mark.asyncio
     async def test_rank_assignment_with_wins_and_podiums(
         self,
         db,
@@ -250,7 +250,7 @@ class TestLeaderboardService:
             assert e1["team_id"] == e2["team_id"]
             assert e1["total_points"] == e2["total_points"]
 
-    @pytest.mark.asyncio()
+    @pytest.mark.asyncio
     async def test_invalidate_cache(
         self,
         db,
@@ -273,7 +273,7 @@ class TestLeaderboardService:
 
         assert leaderboard2 == leaderboard1
 
-    @pytest.mark.asyncio()
+    @pytest.mark.asyncio
     async def test_empty_leaderboard(self, db, test_league: League) -> None:
         """Test leaderboard when league has no teams."""
         leaderboard = await LeaderboardService.get_leaderboard(
@@ -283,7 +283,7 @@ class TestLeaderboardService:
         assert leaderboard is not None
         assert len(leaderboard) == 0
 
-    @pytest.mark.asyncio()
+    @pytest.mark.asyncio
     async def test_leaderboard_with_different_orderings(self, db, test_league: League) -> None:
         """Test leaderboard with different scoring orderings."""
         # Create user
@@ -322,7 +322,7 @@ class TestLeaderboardService:
         assert leaderboard[1]["total_points"] == 50.0
         assert leaderboard[2]["total_points"] == 10.0
 
-    @pytest.mark.asyncio()
+    @pytest.mark.asyncio
     async def test_leaderboard_entry_properties(
         self,
         db,
@@ -432,7 +432,7 @@ class TestLeaderboardService:
         key_with_race = LeaderboardService._get_cache_key(1, 5)
         assert key_with_race == "leaderboard:league:1:race:5"
 
-    @pytest.mark.asyncio()
+    @pytest.mark.asyncio
     async def test_get_user_rank(
         self,
         db,
