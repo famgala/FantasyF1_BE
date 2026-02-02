@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { getLeagues, searchLeagues } from '../services/leagueService';
 import { MobileNav } from '../components/MobileNav';
+import { PageLoader, ErrorDisplay, SkeletonCard } from '../components';
 import type { LeagueWithTeamCount } from '../types';
 
 export default function BrowseLeagues() {
@@ -132,16 +133,20 @@ export default function BrowseLeagues() {
       </div>
 
       {loading && (
-        <div className="loading-container">
-          <div className="spinner"></div>
-          <p>Loading leagues...</p>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          {Array.from({ length: 6 }).map((_, index) => (
+            <SkeletonCard key={index} />
+          ))}
         </div>
       )}
 
       {error && (
-        <div className="alert alert-error">
-          {error}
-        </div>
+        <ErrorDisplay
+          title="Failed to Load Leagues"
+          message={error}
+          onRetry={fetchLeagues}
+          isRetrying={loading}
+        />
       )}
 
       {!loading && !error && leagues.length === 0 && (

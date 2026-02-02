@@ -168,3 +168,24 @@
     - ViewDraftOrder.tsx
 
 ---
+
+## 2/1/2026, 10:06 PM - US-036: Responsive Mobile Layout - AddPicks.tsx
+- **Added MobileNav to AddPicks.tsx page:**
+  - Added MobileNav import to AddPicks.tsx
+  - Added `<MobileNav />` component to all three return paths: loading state, error state, and main content
+  - Wrapped content with React fragments (`<>...</>`) to accommodate MobileNav alongside existing content
+  - This was the only authenticated page missing MobileNav component
+
+- **Files changed:**
+  - `frontend/src/pages/AddPicks.tsx`
+
+- **Quality checks:**
+  - ✅ TypeScript check passed (npx tsc --noEmit)
+  - ✅ Committed with message: "feat: US-036 - Add MobileNav to AddPicks.tsx"
+  - ✅ Updated prd.json to mark US-036 as passing
+
+- **Learnings for future iterations:**
+  - When a page has multiple return paths (loading, error, main), MobileNav must be added to each
+  - Use React fragments (`<>...</>`) when adding MobileNav to pages that return a single element
+  - All authenticated pages now have MobileNav for responsive mobile navigation
+  - AddPicks.tsx was the last page missing MobileNav - all 30+ authenticated pages now covered

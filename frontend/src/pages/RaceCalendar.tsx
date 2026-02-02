@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { getUpcomingRaces, getPastRaces } from '../services/raceService';
 import type { Race } from '../types';
 import { MobileNav } from '../components/MobileNav';
+import { ErrorDisplay, SkeletonCard } from '../components';
 
 // Helper function to format date
 function formatDate(dateString: string): string {
@@ -58,9 +59,7 @@ function CountdownTimer({ targetDate }: { targetDate: string }) {
   if (!timeLeft) return null;
 
   return (
-    <>
-      <MobileNav />
-      <div className="countdown-timer">
+    <div className="countdown-timer">
       <div className="countdown-item">
         <span className="countdown-value">{timeLeft.days}</span>
         <span className="countdown-label">Days</span>
@@ -194,16 +193,29 @@ export default function RaceCalendar() {
       </div>
 
       {loading && (
-        <div className="loading-container">
-          <div className="spinner"></div>
-          <p>Loading race calendar...</p>
-        </div>
+        <>
+          <div className="mb-8">
+            <h2 className="section-title">🏁 Next Race</h2>
+            <SkeletonCard />
+          </div>
+          <div className="mb-8">
+            <h2 className="section-title">📅 Upcoming Races</h2>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              {Array.from({ length: 3 }).map((_, index) => (
+                <SkeletonCard key={index} />
+              ))}
+            </div>
+          </div>
+        </>
       )}
 
       {error && (
-        <div className="alert alert-error">
-          {error}
-        </div>
+        <ErrorDisplay
+          title="Failed to Load Race Calendar"
+          message={error}
+          onRetry={fetchRaces}
+          isRetrying={loading}
+        />
       )}
 
       {!loading && !error && (

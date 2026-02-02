@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { getDrivers, searchDrivers } from '../services/driverService';
 import type { Driver, GetDriversRequest } from '../types';
 import { MobileNav } from '../components/MobileNav';
+import { ErrorDisplay, SkeletonCard } from '../components';
 
 export default function Drivers() {
   const navigate = useNavigate();
@@ -178,16 +179,20 @@ export default function Drivers() {
       </div>
 
       {loading && (
-        <div className="loading-container">
-          <div className="spinner"></div>
-          <p>Loading drivers...</p>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          {Array.from({ length: 6 }).map((_, index) => (
+            <SkeletonCard key={index} />
+          ))}
         </div>
       )}
 
       {error && (
-        <div className="alert alert-error">
-          {error}
-        </div>
+        <ErrorDisplay
+          title="Failed to Load Drivers"
+          message={error}
+          onRetry={fetchDrivers}
+          isRetrying={loading}
+        />
       )}
 
       {!loading && !error && drivers.length === 0 && (
