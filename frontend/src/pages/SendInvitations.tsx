@@ -3,6 +3,7 @@ import { useParams, Link } from 'react-router-dom';
 import { getLeagueById } from '../services/leagueService';
 import { invitationService } from '../services/invitationService';
 import { useAuth } from '../context/AuthContext';
+import { MobileNav } from '../components/MobileNav';
 import type { League, SentInvitation } from '../types';
 
 type InvitationTab = 'email' | 'username' | 'userId' | 'code';
@@ -289,6 +290,9 @@ export const SendInvitations: React.FC = () => {
           </div>
         </div>
       </nav>
+
+      {/* Mobile Navigation */}
+      <MobileNav />
 
       <main className="invitations-container">
         {/* Header */}

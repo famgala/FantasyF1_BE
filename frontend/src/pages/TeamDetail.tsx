@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import * as teamService from '../services/teamService';
+import { MobileNav } from '../components/MobileNav';
 import type { TeamDetail, TeamPick, UpdateTeamNameRequest } from '../types';
 
 export const TeamDetailPage: React.FC = () => {
@@ -251,6 +252,9 @@ export const TeamDetailPage: React.FC = () => {
           </div>
         </div>
       </nav>
+
+      {/* Mobile Navigation */}
+      <MobileNav />
 
       <main className="team-detail-container">
         {/* Success/Error Messages */}

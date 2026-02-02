@@ -3,6 +3,7 @@ import { useAuth } from '../context/AuthContext';
 import { userService } from '../services/userService';
 import { EditProfileForm } from '../components/EditProfileForm';
 import type { User } from '../types';
+import { MobileNav } from '../components/MobileNav';
 
 export const Profile: React.FC = () => {
   const { user, setUser } = useAuth();
@@ -41,9 +42,12 @@ export const Profile: React.FC = () => {
 
   if (loading) {
     return (
+    <>
+      <MobileNav />
       <div className="profile-page">
         <div className="loading">Loading profile...</div>
       </div>
+    </>
     );
   }
 
@@ -143,8 +147,9 @@ export const Profile: React.FC = () => {
               </button>
             </div>
           </div>
-        </div>
       </div>
     </div>
+    </>
   );
+
 };

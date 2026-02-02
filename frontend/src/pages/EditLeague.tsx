@@ -3,6 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import type { League, LeagueMember, UpdateLeagueRequest } from '../types';
 import { getLeagueById, getLeagueMembers, updateLeague } from '../services/leagueService';
 import { useAuth } from '../context/AuthContext';
+import { MobileNav } from '../components/MobileNav';
 
 interface FormErrors {
   name?: string;
@@ -287,6 +288,8 @@ export default function EditLeague() {
 
   if (loading) {
     return (
+    <>
+      <MobileNav />
       <div className="edit-league">
         <div className="loading-spinner">Loading league details...</div>
       </div>
@@ -486,5 +489,6 @@ export default function EditLeague() {
         </div>
       </form>
     </div>
+    </>
   );
 }

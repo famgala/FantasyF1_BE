@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { getDrivers, searchDrivers } from '../services/driverService';
 import type { Driver, GetDriversRequest } from '../types';
+import { MobileNav } from '../components/MobileNav';
 
 export default function Drivers() {
   const navigate = useNavigate();
@@ -111,7 +112,9 @@ export default function Drivers() {
   };
 
   return (
-    <div className="drivers-container">
+    <>
+      <MobileNav />
+      <div className="drivers-container">
       <div className="page-header">
         <h1>F1 Drivers</h1>
         <p>View all Formula 1 drivers and their statistics</p>
@@ -291,5 +294,6 @@ export default function Drivers() {
         </>
       )}
     </div>
+    </>
   );
 }

@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import type { MyLeague } from '../types';
 import { getMyLeagues } from '../services/leagueService';
+import { MobileNav } from '../components/MobileNav';
 
 type SortOption = 'alphabetical' | 'recent' | 'rank';
 
@@ -51,6 +52,8 @@ export default function MyLeagues() {
 
   if (loading) {
     return (
+    <>
+      <MobileNav />
       <div className="my-leagues">
         <div className="loading-spinner">Loading your leagues...</div>
       </div>

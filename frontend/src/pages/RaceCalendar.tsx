@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { getUpcomingRaces, getPastRaces } from '../services/raceService';
 import type { Race } from '../types';
+import { MobileNav } from '../components/MobileNav';
 
 // Helper function to format date
 function formatDate(dateString: string): string {
@@ -57,7 +58,9 @@ function CountdownTimer({ targetDate }: { targetDate: string }) {
   if (!timeLeft) return null;
 
   return (
-    <div className="countdown-timer">
+    <>
+      <MobileNav />
+      <div className="countdown-timer">
       <div className="countdown-item">
         <span className="countdown-value">{timeLeft.days}</span>
         <span className="countdown-label">Days</span>

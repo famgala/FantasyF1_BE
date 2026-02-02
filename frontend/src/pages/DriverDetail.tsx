@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import { getDriver } from '../services/driverService';
 import type { Driver } from '../types';
+import { MobileNav } from '../components/MobileNav';
 
 // Extended driver type to include status from backend
 interface DriverWithStatus extends Driver {
@@ -67,12 +68,15 @@ export default function DriverDetail() {
 
   if (loading) {
     return (
+    <>
+      <MobileNav />
       <div className="driver-detail-container">
         <div className="loading-container">
           <div className="spinner"></div>
           <p>Loading driver details...</p>
         </div>
       </div>
+    </>
     );
   }
 

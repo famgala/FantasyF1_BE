@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { getConstructors, type GetConstructorsRequest } from '../services/constructorService';
 import type { Constructor } from '../types';
+import { MobileNav } from '../components/MobileNav';
 
 export default function Constructors() {
   const navigate = useNavigate();
@@ -71,7 +72,9 @@ export default function Constructors() {
   };
 
   return (
-    <div className="constructors-page">
+    <>
+      <MobileNav />
+      <div className="constructors-page">
       <div className="container">
         <div className="page-header">
           <h1>F1 Constructors</h1>
@@ -236,5 +239,6 @@ export default function Constructors() {
         )}
       </div>
     </div>
+    </>
   );
 }

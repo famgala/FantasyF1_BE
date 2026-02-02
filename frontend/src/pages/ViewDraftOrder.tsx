@@ -4,6 +4,7 @@ import { getDraftOrder } from '../services/draftService';
 import { getLeagueById } from '../services/leagueService';
 import { useAuth } from '../context/AuthContext';
 import type { DraftOrder } from '../types';
+import { MobileNav } from '../components/MobileNav';
 
 export default function ViewDraftOrder() {
   const { id: leagueId } = useParams<{ id: string }>();
@@ -77,6 +78,8 @@ export default function ViewDraftOrder() {
 
   if (loading) {
     return (
+    <>
+      <MobileNav />
       <div className="page-container">
         <div className="loading-spinner">Loading...</div>
       </div>
@@ -218,5 +221,6 @@ export default function ViewDraftOrder() {
         </div>
       </div>
     </div>
+    </>
   );
 }

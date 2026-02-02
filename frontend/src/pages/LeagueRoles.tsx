@@ -3,6 +3,7 @@ import { useState, useEffect } from 'react';
 import type { LeagueMember } from '../types';
 import { getLeagueRoles, promoteToCoManager, demoteToMember } from '../services/leagueRoleService';
 import { useAuth } from '../context/AuthContext';
+import { MobileNav } from '../components/MobileNav';
 
 export default function LeagueRoles() {
   const { id } = useParams<{ id: string }>();
@@ -139,6 +140,8 @@ export default function LeagueRoles() {
 
   if (loading) {
     return (
+    <>
+      <MobileNav />
       <div className="league-roles">
         <div className="loading-spinner">Loading league roles...</div>
       </div>
@@ -305,5 +308,6 @@ export default function LeagueRoles() {
         </div>
       )}
     </div>
+    </>
   );
 }

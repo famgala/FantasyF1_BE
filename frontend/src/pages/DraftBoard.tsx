@@ -3,6 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { getDraftPicks } from '../services/draftService';
 import type { DraftPick } from '../types';
 import { useAuth } from '../context/AuthContext';
+import { MobileNav } from '../components/MobileNav';
 
 export default function DraftBoard() {
   const { id: leagueId } = useParams<{ id: string }>();
@@ -81,9 +82,12 @@ export default function DraftBoard() {
 
   if (loading) {
     return (
+    <>
+      <MobileNav />
       <div className="page-container">
         <div className="loading">Loading draft board...</div>
       </div>
+    </>
     );
   }
 
@@ -123,135 +127,138 @@ export default function DraftBoard() {
   }
 
   return (
-    <div className="page-container">
-      <div className="draft-board-container">
-        {/* Header */}
-        <div className="draft-board-header">
-          <h1>Draft Board</h1>
-          <div className="header-actions">
-            <button onClick={exportToCSV} className="btn btn-secondary">
-              Export CSV
-            </button>
-            <button onClick={() => navigate(-1)} className="btn btn-secondary">
-              Back to League
-            </button>
+    <>
+      <MobileNav />
+      <div className="page-container">
+        <div className="draft-board-container">
+          {/* Header */}
+          <div className="draft-board-header">
+            <h1>Draft Board</h1>
+            <div className="header-actions">
+              <button onClick={exportToCSV} className="btn btn-secondary">
+                Export CSV
+              </button>
+              <button onClick={() => navigate(-1)} className="btn btn-secondary">
+                Back to League
+              </button>
+            </div>
           </div>
-        </div>
 
-        {/* Filters */}
-        <div className="draft-board-filters">
-          <div className="filter-group">
-            <label htmlFor="team-filter">Filter by Team:</label>
-            <select
-              id="team-filter"
-              value={filterTeam}
-              onChange={(e) => setFilterTeam(e.target.value)}
-              className="filter-select"
-            >
-              <option value="all">All Teams</option>
-              {teams.map((team) => (
-                <option key={team} value={team}>
-                  {team}
-                </option>
-              ))}
-            </select>
+          {/* Filters */}
+          <div className="draft-board-filters">
+            <div className="filter-group">
+              <label htmlFor="team-filter">Filter by Team:</label>
+              <select
+                id="team-filter"
+                value={filterTeam}
+                onChange={(e) => setFilterTeam(e.target.value)}
+                className="filter-select"
+              >
+                <option value="all">All Teams</option>
+                {teams.map((team) => (
+                  <option key={team} value={team}>
+                    {team}
+                  </option>
+                ))}
+              </select>
+            </div>
+            <div className="filter-group">
+              <label htmlFor="round-filter">Filter by Round:</label>
+              <select
+                id="round-filter"
+                value={filterRound}
+                onChange={(e) => setFilterRound(e.target.value)}
+                className="filter-select"
+              >
+                <option value="all">All Rounds</option>
+                {rounds.map((round) => (
+                  <option key={round} value={round}>
+                    Round {round}
+                  </option>
+                ))}
+              </select>
+            </div>
           </div>
-          <div className="filter-group">
-            <label htmlFor="round-filter">Filter by Round:</label>
-            <select
-              id="round-filter"
-              value={filterRound}
-              onChange={(e) => setFilterRound(e.target.value)}
-              className="filter-select"
-            >
-              <option value="all">All Rounds</option>
-              {rounds.map((round) => (
-                <option key={round} value={round}>
-                  Round {round}
-                </option>
-              ))}
-            </select>
-          </div>
-        </div>
 
-        {/* Legend */}
-        <div className="draft-board-legend">
-          <div className="legend-item">
-            <div className="legend-color your-pick-color"></div>
-            <span>Your Picks</span>
+          {/* Legend */}
+          <div className="draft-board-legend">
+            <div className="legend-item">
+              <div className="legend-color your-pick-color"></div>
+              <span>Your Picks</span>
+            </div>
+            <div className="legend-item">
+              <div className="legend-color auto-pick-color"></div>
+              <span>Auto Picks</span>
+            </div>
           </div>
-          <div className="legend-item">
-            <div className="legend-color auto-pick-color"></div>
-            <span>Auto Picks</span>
-          </div>
-        </div>
 
-        {/* Draft Board Table */}
-        <div className="draft-board-table-container">
-          <table className="draft-board-table">
-            <thead>
-              <tr>
-                <th>Round</th>
-                <th>Pick #</th>
-                <th>Team</th>
-                <th>Driver</th>
-                <th>Auto Pick</th>
-                <th>Time</th>
-              </tr>
-            </thead>
-            <tbody>
-              {filteredPicks.map((pick) => {
-                const isYourPick = pick.team_name === user?.username; // Assuming team_name is username
-                return (
-                  <tr
-                    key={pick.id}
-                    className={`draft-board-row ${isYourPick ? 'your-pick-row' : ''} ${
-                      pick.is_auto_pick ? 'auto-pick-row' : ''
-                    }`}
-                  >
-                    <td className="round-cell">{pick.round}</td>
-                    <td className="pick-number-cell">#{pick.pick_number}</td>
-                    <td className="team-cell">{pick.team_name}</td>
-                    <td className="driver-cell">{pick.driver_name}</td>
-                    <td className="auto-pick-cell">
-                      {pick.is_auto_pick ? (
-                        <span className="auto-pick-badge">Auto</span>
-                      ) : (
-                        <span className="manual-pick-badge">Manual</span>
-                      )}
-                    </td>
-                    <td className="timestamp-cell">
-                      {new Date(pick.created_at).toLocaleString()}
-                    </td>
-                  </tr>
-                );
-              })}
-            </tbody>
-          </table>
-        </div>
+          {/* Draft Board Table */}
+          <div className="draft-board-table-container">
+            <table className="draft-board-table">
+              <thead>
+                <tr>
+                  <th>Round</th>
+                  <th>Pick #</th>
+                  <th>Team</th>
+                  <th>Driver</th>
+                  <th>Auto Pick</th>
+                  <th>Time</th>
+                </tr>
+              </thead>
+              <tbody>
+                {filteredPicks.map((pick) => {
+                  const isYourPick = pick.team_name === user?.username; // Assuming team_name is username
+                  return (
+                    <tr
+                      key={pick.id}
+                      className={`draft-board-row ${isYourPick ? 'your-pick-row' : ''} ${
+                        pick.is_auto_pick ? 'auto-pick-row' : ''
+                      }`}
+                    >
+                      <td className="round-cell">{pick.round}</td>
+                      <td className="pick-number-cell">#{pick.pick_number}</td>
+                      <td className="team-cell">{pick.team_name}</td>
+                      <td className="driver-cell">{pick.driver_name}</td>
+                      <td className="auto-pick-cell">
+                        {pick.is_auto_pick ? (
+                          <span className="auto-pick-badge">Auto</span>
+                        ) : (
+                          <span className="manual-pick-badge">Manual</span>
+                        )}
+                      </td>
+                      <td className="timestamp-cell">
+                        {new Date(pick.created_at).toLocaleString()}
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
 
-        {/* Stats */}
-        <div className="draft-board-stats">
-          <div className="stat-item">
-            <label>Total Picks</label>
-            <span>{draftPicks.length}</span>
-          </div>
-          <div className="stat-item">
-            <label>Total Rounds</label>
-            <span>{rounds.length}</span>
-          </div>
-          <div className="stat-item">
-            <label>Your Picks</label>
-            <span>
-              {draftPicks.filter((pick) => pick.team_name === user?.username).length}
-            </span>
-          </div>
-          <div className="stat-item">
-            <label>Auto Picks</label>
-            <span>{draftPicks.filter((pick) => pick.is_auto_pick).length}</span>
+          {/* Stats */}
+          <div className="draft-board-stats">
+            <div className="stat-item">
+              <label>Total Picks</label>
+              <span>{draftPicks.length}</span>
+            </div>
+            <div className="stat-item">
+              <label>Total Rounds</label>
+              <span>{rounds.length}</span>
+            </div>
+            <div className="stat-item">
+              <label>Your Picks</label>
+              <span>
+                {draftPicks.filter((pick) => pick.team_name === user?.username).length}
+              </span>
+            </div>
+            <div className="stat-item">
+              <label>Auto Picks</label>
+              <span>{draftPicks.filter((pick) => pick.is_auto_pick).length}</span>
+            </div>
           </div>
         </div>
       </div>
-    </div>
+    </>
   );
 }

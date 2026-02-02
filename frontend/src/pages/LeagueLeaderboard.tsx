@@ -4,6 +4,7 @@ import type { LeaderboardResponse, Race } from '../types';
 import { getLeaderboard } from '../services/leaderboardService';
 import { getRaces } from '../services/raceService';
 import { useAuth } from '../context/AuthContext';
+import { MobileNav } from '../components/MobileNav';
 
 export default function LeagueLeaderboard() {
   const { id } = useParams<{ id: string }>();
@@ -76,6 +77,8 @@ export default function LeagueLeaderboard() {
 
   if (loading) {
     return (
+    <>
+      <MobileNav />
       <div className="league-leaderboard">
         <div className="loading-spinner">Loading leaderboard...</div>
       </div>

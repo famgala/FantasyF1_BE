@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { invitationService } from '../services/invitationService';
+import { MobileNav } from '../components/MobileNav';
 import type { ReceivedInvitation } from '../types';
 
 type ModalType = 'accept' | 'reject' | null;
@@ -194,6 +195,9 @@ export const ReceivedInvitations: React.FC = () => {
           </div>
         </div>
       </nav>
+
+      {/* Mobile Navigation */}
+      <MobileNav />
 
       <main className="invitations-container">
         {/* Header */}

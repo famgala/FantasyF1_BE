@@ -3,6 +3,7 @@ import { useParams, Link, useNavigate } from 'react-router-dom';
 import { invitationService } from '../services/invitationService';
 import { getLeagueById } from '../services/leagueService';
 import { useAuth } from '../context/AuthContext';
+import { MobileNav } from '../components/MobileNav';
 import type { SentInvitation, League } from '../types';
 
 type InvitationStatus = 'all' | 'pending' | 'accepted' | 'rejected' | 'expired';
@@ -221,6 +222,9 @@ export const LeagueInvitations: React.FC = () => {
           </div>
         </div>
       </nav>
+
+      {/* Mobile Navigation */}
+      <MobileNav />
 
       <main className="invitations-container">
         {/* Header */}

@@ -3,6 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { getDraftStatus, getDraftPicks } from '../services/draftService';
 import type { DraftStatus, DraftPick } from '../types';
 import { useAuth } from '../context/AuthContext';
+import { MobileNav } from '../components/MobileNav';
 
 export default function DraftStatus() {
   const { id: leagueId } = useParams<{ id: string }>();
@@ -53,9 +54,12 @@ export default function DraftStatus() {
 
   if (loading) {
     return (
+    <>
+      <MobileNav />
       <div className="page-container">
         <div className="loading">Loading draft status...</div>
       </div>
+    </>
     );
   }
 

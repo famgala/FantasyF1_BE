@@ -3,6 +3,7 @@ import { useState, useEffect } from 'react';
 import type { League, LeagueMember, FantasyTeam } from '../types';
 import { getLeagueById, getLeagueMembers, getLeagueTeams, leaveLeague, deleteLeague } from '../services/leagueService';
 import { useAuth } from '../context/AuthContext';
+import { MobileNav } from '../components/MobileNav';
 
 export default function LeagueDetail() {
   const { id } = useParams<{ id: string }>();
@@ -146,6 +147,8 @@ export default function LeagueDetail() {
 
   if (loading) {
     return (
+    <>
+      <MobileNav />
       <div className="league-detail">
         <div className="loading-spinner">Loading league details...</div>
       </div>
@@ -422,5 +425,6 @@ export default function LeagueDetail() {
         </div>
       )}
     </div>
+    </>
   );
 }

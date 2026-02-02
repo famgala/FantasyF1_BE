@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { getLeagueByCode, joinLeague } from '../services/leagueService';
 import type { League } from '../types';
+import { MobileNav } from '../components/MobileNav';
 
 export default function JoinLeague() {
   const navigate = useNavigate();
@@ -89,7 +90,9 @@ export default function JoinLeague() {
   };
 
   return (
-    <div className="join-league-page">
+    <>
+      <MobileNav />
+      <div className="join-league-page">
       <div className="join-league-container">
         <h1>Join a League</h1>
         <p className="subtitle">Enter a league code to join an existing league</p>
@@ -192,5 +195,6 @@ export default function JoinLeague() {
         </button>
       </div>
     </div>
+    </>
   );
 }

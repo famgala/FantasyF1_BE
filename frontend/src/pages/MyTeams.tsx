@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import type { MyTeam } from '../types';
 import { getMyTeams } from '../services/teamService';
+import { MobileNav } from '../components/MobileNav';
 
 type SortOption = 'alphabetical' | 'points' | 'league';
 
@@ -46,6 +47,8 @@ export default function MyTeams() {
 
   if (loading) {
     return (
+    <>
+      <MobileNav />
       <div className="my-teams">
         <div className="loading-spinner">Loading your teams...</div>
       </div>

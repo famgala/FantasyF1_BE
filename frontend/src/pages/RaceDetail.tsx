@@ -4,6 +4,7 @@ import { getRaceById } from '../services/raceService';
 import { getMyTeams } from '../services/teamService';
 import { getTeamPicks } from '../services/teamService';
 import type { Race, TeamPick } from '../types';
+import { MobileNav } from '../components/MobileNav';
 
 // Helper function to format date
 function formatDate(dateString: string): string {
@@ -59,7 +60,9 @@ function CountdownTimer({ targetDate }: { targetDate: string }) {
   if (!timeLeft) return null;
 
   return (
-    <div className="countdown-timer">
+    <>
+      <MobileNav />
+      <div className="countdown-timer">
       <div className="countdown-item">
         <span className="countdown-value">{timeLeft.days}</span>
         <span className="countdown-label">Days</span>
@@ -329,5 +332,6 @@ export default function RaceDetail() {
         )}
       </div>
     </div>
+    </>
   );
 }

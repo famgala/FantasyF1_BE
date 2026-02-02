@@ -2,6 +2,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { notificationService } from '../services/notificationService';
 import type { Notification, NotificationType } from '../types';
+import { MobileNav } from '../components/MobileNav';
 
 const notificationTypeLabels: Record<NotificationType, string> = {
   race_finished: 'Race Finished',
@@ -182,7 +183,9 @@ export const Notifications: React.FC = () => {
   });
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <>
+      <MobileNav />
+      <div className="min-h-screen bg-gray-50">
       <nav className="bg-white shadow">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between h-16 items-center">
@@ -362,6 +365,7 @@ export const Notifications: React.FC = () => {
         </div>
       )}
     </div>
+    </>
   );
 };
 

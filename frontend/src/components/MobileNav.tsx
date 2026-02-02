@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import { invitationService } from '../services/invitationService';
 import { NotificationDropdown } from './NotificationDropdown';
 
 interface NavItem {
@@ -14,8 +15,34 @@ export const MobileNav: React.FC = () => {
   const { user, logout } = useAuth();
   const location = useLocation();
   const [isOpen, setIsOpen] = useState(false);
-  const [pendingCount] = useState(0);
+  const [pendingCount, setPendingCount] = useState(0);
   const menuRef = useRef<HTMLDivElement>(null);
+
+  // Fetch pending invitations count
+  useEffect(() => {
+    let isMounted = true;
+
+    const fetchPendingInvitations = async () => {
+      try {
+        const response = await invitationService.getReceivedInvitations();
+        const pending = response.items.filter((inv) => inv.status === 'pending');
+        if (isMounted) {
+          setPendingCount(pending.length);
+        }
+      } catch {
+        // Silently fail - badge will just show 0
+        if (isMounted) {
+          setPendingCount(0);
+        }
+      }
+    };
+
+    fetchPendingInvitations();
+
+    return () => {
+      isMounted = false;
+    };
+  }, []);
 
   // Close menu on route change
   useEffect(() => {

@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { getLeagues, searchLeagues } from '../services/leagueService';
+import { MobileNav } from '../components/MobileNav';
 import type { LeagueWithTeamCount } from '../types';
 
 export default function BrowseLeagues() {
@@ -96,6 +97,8 @@ export default function BrowseLeagues() {
   };
 
   return (
+    <>
+      <MobileNav />
     <div className="browse-leagues-container">
       <div className="page-header">
         <h1>Browse Leagues</h1>
@@ -237,5 +240,6 @@ export default function BrowseLeagues() {
         </>
       )}
     </div>
+    </>
   );
 }

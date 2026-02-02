@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { invitationService } from '../services/invitationService';
+import { MobileNav } from '../components/MobileNav';
 import type { SentInvitation } from '../types';
 
 type InvitationStatus = 'all' | 'pending' | 'accepted' | 'rejected' | 'expired';
@@ -167,6 +168,9 @@ export const SentInvitations: React.FC = () => {
           </div>
         </div>
       </nav>
+
+      {/* Mobile Navigation */}
+      <MobileNav />
 
       <main className="invitations-container">
         {/* Header */}
