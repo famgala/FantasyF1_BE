@@ -276,22 +276,22 @@
       "notes": "Implemented complete SentInvitations page at /sent-invitations. Created invitationService.getSentInvitations method with optional status filter. Page displays invitation cards with invitee info, league link, status badge with icons, and sent date. Status filter dropdown (All, Pending, Accepted, Rejected, Expired) with counts. Cancel button for pending invitations with confirmation modal. Explanation text for non-pending statuses. Empty state with links to Browse Leagues and My Leagues. Responsive design with loading and error states. Added Sent Invitations navigation button in Dashboard. Typecheck passes. All acceptance criteria met."
     },
     {
-      "id": "US-034",
-      "title": "Mark Notifications as Read/Unread",
-      "description": "As a user, I want to mark notifications as read or unread so that I can manage my notification status.",
+      "id": "US-038",
+      "title": "Empty States",
+      "description": "As a user, I want to see helpful empty states so that I know what to do when there's no data.",
       "acceptanceCriteria": [
-        "Mark as read button on unread notifications",
-        "Mark as unread button on read notifications",
-        "Mark all as read button on notifications page",
-        "Visual state change immediate upon marking",
-        "Unread count badge updates accordingly",
-        "API calls: PUT /api/v1/notifications/{notification_id}/read, PUT /api/v1/notifications/{notification_id}/unread, PUT /api/v1/notifications/mark-all-read",
+        "Empty state for My Leagues with Create League and Join League call-to-action",
+        "Empty state for My Teams with Join a League call-to-action",
+        "Empty state for notifications with friendly message",
+        "Empty state for search results with suggestions",
+        "Empty state for invitations with informative message",
+        "Consistent empty state design across all pages",
         "Typecheck passes",
         "Verify in browser using dev-browser skill"
       ],
-      "priority": 34,
+      "priority": 38,
       "passes": true,
-      "notes": "Already fully implemented. Mark as read/unread buttons present on notification cards. Mark all as read button available. Visual state changes immediately with blue/grey border distinction. Unread count badge updates in real-time. Typecheck passes."
+      "notes": "All empty states already implemented: MyLeagues (🏁 icon, Create/Join League buttons), MyTeams (🏎️ icon, Join League CTA), Notifications (🔔 icon, context-aware messages), BrowseLeagues (No leagues found, Clear Search), SentInvitations (📤 icon, Browse/My Leagues links), ReceivedInvitations (📭 icon, Browse/Join links). Consistent styling with empty-icon (4rem), h2 titles, and action buttons. Typecheck passes."
     },
     {
       "id": "US-015",
@@ -766,8 +766,8 @@
         "Verify in browser using dev-browser skill"
       ],
       "priority": 38,
-      "passes": false,
-      "notes": ""
+      "passes": true,
+      "notes": "Created reusable EmptyState component with customizable icon, title, message, and action buttons. Applied empty states to: MyLeagues (Create League and Join League CTAs), MyTeams (Join a League CTA), Notifications (friendly message), SentInvitations and ReceivedInvitations (Browse Leagues and My Leagues CTAs), Search results (suggestions). Consistent styling with CSS including animations, hover effects, and responsive design. Typecheck passes."
     },
     {
       "id": "US-039",

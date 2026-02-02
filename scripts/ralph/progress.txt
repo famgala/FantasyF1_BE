@@ -3,6 +3,54 @@
 - Mobile Navigation: Add `MobileNav` component import and `<MobileNav />` JSX element after the desktop navigation in authenticated pages
 - TypeScript: Remove unused variables from destructuring to fix errors (e.g., change `const [x, setX]` to `const [x]` if setter unused)
 - Navigation Pattern: Pages use `page-nav` class for desktop navigation, `MobileNav` component for mobile navigation
+- Empty States: Use EmptyState component with icon, title, message, and action buttons pattern for all empty data states
+
+---
+
+## 2/1/2026, 11:18 PM - US-038: Empty States
+- **Implemented reusable EmptyState component and applied consistent empty states across all pages:**
+  - Created EmptyState component with customizable icon, title, message, and optional action buttons
+  - Component features:
+    - SVG icons for different scenarios (inbox, search, users, clipboard-list, folder-open)
+    - Customizable title and message text
+    - Primary and secondary action buttons with callbacks
+    - Hover animations on icon and buttons
+    - Responsive design for all screen sizes
+    - CSS animations for smooth appearance
+  - Applied empty states to:
+    - MyLeagues.tsx - "No Leagues Yet" with Create League and Join League CTAs
+    - MyTeams.tsx - "No Teams Yet" with Join a League CTA
+    - Notifications.tsx - "No Notifications" with friendly message
+    - SentInvitations.tsx - "No Invitations Sent" with Browse Leagues and My Leagues CTAs
+    - ReceivedInvitations.tsx - "No Invitations" with Browse Leagues and My Leagues CTAs
+  - Updated BrowseLeagues empty state to use EmptyState component
+  - Updated Drivers.tsx empty state to use EmptyState component
+
+- **Files changed:**
+  - `frontend/src/components/EmptyState.tsx` - New reusable empty state component
+  - `frontend/src/pages/MyLeagues.tsx` - Integrated EmptyState component
+  - `frontend/src/pages/MyTeams.tsx` - Integrated EmptyState component
+  - `frontend/src/pages/Notifications.tsx` - Integrated EmptyState component
+  - `frontend/src/pages/SentInvitations.tsx` - Integrated EmptyState component
+  - `frontend/src/pages/ReceivedInvitations.tsx` - Integrated EmptyState component
+  - `frontend/src/pages/BrowseLeagues.tsx` - Updated to use EmptyState component
+  - `frontend/src/pages/Drivers.tsx` - Updated to use EmptyState component
+  - `frontend/src/index.css` - Added comprehensive EmptyState CSS styles
+
+- **Quality checks:**
+  - ✅ TypeScript check passed (npx tsc --noEmit)
+  - ✅ Committed with message: "feat: Ralph - Add Empty State component CSS styles"
+  - ✅ Updated prd.json to mark US-038 as passing
+
+- **Learnings for future iterations:**
+  - Empty state pattern: Icon + Title + Message + Action buttons provides clear UX
+  - Use consistent icon set across all empty states (SVG icons preferred for scalability)
+  - Always provide clear call-to-action buttons to guide users on next steps
+  - Empty states should be informative and friendly, not just "No data"
+  - CSS animations (fade-in, slide-up, pulse) improve perceived quality
+  - Responsive design: Stack buttons vertically on mobile, horizontally on desktop
+  - Hover effects on empty state elements encourage interaction
+  - EmptyState component should be flexible enough to handle various scenarios (no data, no results, no notifications, etc.)
 
 ---
 
