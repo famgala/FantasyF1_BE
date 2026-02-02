@@ -7832,3 +7832,122 @@
     text-align: center;
   }
 }
+
+/* ============================================
+   USER SEARCH DROPDOWN STYLES
+   ============================================ */
+
+/* Search Input Container */
+.search-input-container {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.search-input-container .form-control {
+  padding-right: 2.5rem;
+}
+
+/* Search Spinner */
+.search-spinner {
+  position: absolute;
+  right: 0.75rem;
+  top: 50%;
+  transform: translateY(-50%);
+}
+
+.spinner-small {
+  width: 16px;
+  height: 16px;
+  border: 2px solid #e5e7eb;
+  border-top-color: #3b82f6;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+/* Search Results Dropdown */
+.search-results-dropdown {
+  position: absolute;
+  top: calc(100% + 4px);
+  left: 0;
+  right: 0;
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  border: 1px solid #e5e7eb;
+  z-index: 1000;
+  max-height: 300px;
+  overflow-y: auto;
+  margin-top: 4px;
+}
+
+/* Search Result Item */
+.search-result-item {
+  padding: 0.75rem 1rem;
+  cursor: pointer;
+  transition: background-color 0.15s ease-in-out;
+  border-bottom: 1px solid #f3f4f6;
+}
+
+.search-result-item:last-child {
+  border-bottom: none;
+}
+
+.search-result-item:hover {
+  background-color: #f9fafb;
+}
+
+/* Search Result Info */
+.search-result-info {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.search-result-username {
+  font-weight: 600;
+  color: #111827;
+  font-size: 0.875rem;
+}
+
+.search-result-name {
+  color: #6b7280;
+  font-size: 0.75rem;
+}
+
+.search-result-email {
+  color: #9ca3af;
+  font-size: 0.7rem;
+}
+
+/* Search Result Empty State */
+.search-result-empty {
+  padding: 1rem;
+  text-align: center;
+  color: #6b7280;
+  font-size: 0.875rem;
+  font-style: italic;
+}
+
+/* Responsive for Search Dropdown */
+@media (max-width: 768px) {
+  .search-results-dropdown {
+    max-height: 250px;
+  }
+
+  .search-result-item {
+    padding: 0.625rem 0.875rem;
+  }
+
+  .search-result-username {
+    font-size: 0.8125rem;
+  }
+
+  .search-result-name {
+    font-size: 0.6875rem;
+  }
+
+  .search-result-email {
+    font-size: 0.6875rem;
+  }
+}

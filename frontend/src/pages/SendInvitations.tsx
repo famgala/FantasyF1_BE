@@ -1,12 +1,30 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { getLeagueById } from '../services/leagueService';
 import { invitationService } from '../services/invitationService';
+import { userService, type UserSearchResult } from '../services/userService';
 import { useAuth } from '../context/AuthContext';
 import { MobileNav } from '../components/MobileNav';
 import type { League, SentInvitation } from '../types';
 
 type InvitationTab = 'email' | 'username' | 'userId' | 'code';
+
+// Debounce hook for search
+function useDebounce<T>(value: T, delay: number): T {
+  const [debouncedValue, setDebouncedValue] = useState<T>(value);
+
+  useEffect(() => {
+    const handler = setTimeout(() => {
+      setDebouncedValue(value);
+    }, delay);
+
+    return () => {
+      clearTimeout(handler);
+    };
+  }, [value, delay]);
+
+  return debouncedValue;
+}
 
 export const SendInvitations: React.FC = () => {
   const { id } = useParams<{ id: string }>();
@@ -24,6 +42,16 @@ export const SendInvitations: React.FC = () => {
   const [message, setMessage] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   
+  // User search states
+  const [searchQuery, setSearchQuery] = useState('');
+  const [searchResults, setSearchResults] = useState<UserSearchResult[]>([]);
+  const [isSearching, setIsSearching] = useState(false);
+  const [showSearchResults, setShowSearchResults] = useState(false);
+  const searchDropdownRef = useRef<HTMLDivElement>(null);
+  
+  // Debounced search query
+  const debouncedSearchQuery = useDebounce(searchQuery, 300);
+  
   // Success/error messages
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
   const [formError, setFormError] = useState<string | null>(null);
@@ -36,6 +64,57 @@ export const SendInvitations: React.FC = () => {
     fetchLeagueAndInvitations();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [id]);
+
+  // Search users when debounced query changes
+  useEffect(() => {
+    const performSearch = async () => {
+      if (debouncedSearchQuery.length >= 2) {
+        setIsSearching(true);
+        try {
+          const results = await userService.searchUsers(debouncedSearchQuery, 10);
+          setSearchResults(results);
+          setShowSearchResults(true);
+        } catch (err) {
+          console.error('Search failed:', err);
+          setSearchResults([]);
+        } finally {
+          setIsSearching(false);
+        }
+      } else {
+        setSearchResults([]);
+        setShowSearchResults(false);
+      }
+    };
+
+    performSearch();
+  }, [debouncedSearchQuery]);
+
+  // Close search dropdown when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (searchDropdownRef.current && !searchDropdownRef.current.contains(event.target as Node)) {
+        setShowSearchResults(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, []);
+
+  const handleUsernameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    setUsername(value);
+    setSearchQuery(value);
+  };
+
+  const handleSelectUser = (user: UserSearchResult) => {
+    setUsername(user.username);
+    setSearchQuery('');
+    setSearchResults([]);
+    setShowSearchResults(false);
+  };
 
   const fetchLeagueAndInvitations = async () => {
     if (!id) return;
@@ -413,20 +492,57 @@ export const SendInvitations: React.FC = () => {
             <form onSubmit={handleSendUsernameInvitation} className="invitation-form">
               <h3>Send Invitation by Username</h3>
               <p className="form-description">
-                Enter the username of the person you want to invite.
+                Enter the username of the person you want to invite. Start typing to search for users.
               </p>
               
-              <div className="form-group">
+              <div className="form-group" ref={searchDropdownRef}>
                 <label htmlFor="username">Username *</label>
-                <input
-                  type="text"
-                  id="username"
-                  className="form-control"
-                  value={username}
-                  onChange={(e) => setUsername(e.target.value)}
-                  placeholder="Enter username"
-                  required
-                />
+                <div className="search-input-container">
+                  <input
+                    type="text"
+                    id="username"
+                    className="form-control"
+                    value={username}
+                    onChange={handleUsernameChange}
+                    placeholder="Start typing to search..."
+                    required
+                    autoComplete="off"
+                  />
+                  {isSearching && (
+                    <div className="search-spinner">
+                      <div className="spinner-small"></div>
+                    </div>
+                  )}
+                </div>
+                
+                {/* Search Results Dropdown */}
+                {showSearchResults && searchResults.length > 0 && (
+                  <div className="search-results-dropdown">
+                    {searchResults.map((user) => (
+                      <div
+                        key={user.id}
+                        className="search-result-item"
+                        onClick={() => handleSelectUser(user)}
+                      >
+                        <div className="search-result-info">
+                          <span className="search-result-username">@{user.username}</span>
+                          {user.full_name && (
+                            <span className="search-result-name">{user.full_name}</span>
+                          )}
+                          <span className="search-result-email">{user.email}</span>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+                
+                {showSearchResults && searchResults.length === 0 && searchQuery.length >= 2 && !isSearching && (
+                  <div className="search-results-dropdown">
+                    <div className="search-result-empty">
+                      No users found matching "{searchQuery}"
+                    </div>
+                  </div>
+                )}
               </div>
               
               <div className="form-group">
