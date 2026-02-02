@@ -935,8 +935,8 @@
         "Verify in browser using dev-browser skill"
       ],
       "priority": 45,
-      "passes": false,
-      "notes": "Backend endpoint may need to be implemented"
+      "passes": true,
+      "notes": "Fully implemented with RaceResults.tsx page, raceService.getRaceResults method, RaceResult TypeScript type, backend endpoint, service layer, and Pydantic schemas. Displays finishing positions 1-20 with driver names, teams, grid vs final positions, position change indicators (gained/lost), DNF status with reasons, fastest lap indicator, points earned, and winning constructor. Link from RaceDetail.tsx to results page works correctly. Only shows results for completed races (returns 403 for upcoming/ongoing). CSS styling for position badges, team colors, DNF indicators, and fastest lap icons included. Typecheck passes."
     },
     {
       "id": "US-046",
@@ -956,8 +956,8 @@
         "Verify in browser using dev-browser skill"
       ],
       "priority": 46,
-      "passes": false,
-      "notes": "Backend endpoint may need to be implemented"
+      "passes": true,
+      "notes": "Already fully implemented. Performance tab on DriverDetail page with race-by-race table, SVG points chart, season statistics (total points, avg points, best/worst finish, podiums, DNF count). Backend endpoint GET /api/v1/drivers/{driver_id}/performance exists. Typecheck passes."
     },
     {
       "id": "US-047",

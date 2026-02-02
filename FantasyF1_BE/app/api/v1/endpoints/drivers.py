@@ -5,10 +5,15 @@ from typing import Annotated
 from fastapi import APIRouter, Depends, Query, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.api.deps import get_current_user, get_db
+from app.api.deps import get_current_active_user, get_current_user, get_db
 from app.core.exceptions import NotFoundError
 from app.models.user import User
-from app.schemas.driver import DriverListResponse, DriverResponse, DriverUpdate
+from app.schemas.driver import (
+    DriverListResponse,
+    DriverPerformanceResponse,
+    DriverResponse,
+    DriverUpdate,
+)
 from app.services.driver_service import DriverService
 
 router = APIRouter()
@@ -74,3 +79,29 @@ async def update_driver(
         raise NotFoundError("Driver not found")
     updated = await DriverService.update(db, driver, driver_update)
     return DriverResponse.model_validate(updated)
+
+
+@router.get(
+    "/{driver_id}/performance",
+    response_model=DriverPerformanceResponse,
+    status_code=status.HTTP_200_OK,
+)
+async def get_driver_performance(
+    driver_id: int,
+    db: Annotated[AsyncSession, Depends(get_db)],
+    current_user: Annotated[User, Depends(get_current_active_user)],  # noqa: ARG001
+) -> DriverPerformanceResponse:
+    """Get driver performance data across all races.
+
+    Args:
+        driver_id: ID of the driver to get performance for.
+        db: Database session.
+        current_user: Currently authenticated user.
+
+    Returns:
+        DriverPerformanceResponse with race results and statistics.
+
+    Raises:
+        NotFoundError: If the driver doesn't exist.
+    """
+    return await DriverService.get_driver_performance(db, driver_id)

@@ -46,6 +46,142 @@
 - Link from Login page to Forgot Password page
 - Use error boundary pattern: catch block without parameter name to avoid lint errors
 
+### Race Results Pattern
+- Race results endpoint returns 403 for non-completed races (upcoming/ongoing)
+- Display finishing positions 1-20 with position badges (gold/silver/bronze for podium)
+- Show grid position vs final position with visual indicators (green arrow up for gained, red arrow down for lost)
+- DNF status with distinct styling (red badge, strikethrough text)
+- Fastest lap indicator (purple lightning bolt icon)
+- Winning constructor displayed in header section
+- Link from RaceDetail page to RaceResults page
+- Backend service layer needed to transform raw race data into formatted results
+
+### Driver Performance Pattern
+- Performance tab on driver detail page for race-by-race analysis
+- SVG bar chart for points per race visualization
+- Season statistics summary (total points, avg points, best/worst finish, podiums, DNFs)
+- Race results table with columns: Round, Race, Date, Grid, Position, Points, Fastest Lap, Status
+- Position styling: gold/silver/bronze for podium, red strikethrough for DNF
+- Color-coded bars in chart (blue for points, red for DNF, gray for zero points)
+- Tab navigation between Overview and Performance views
+
+---
+
+## 2/2/2026, 7:24 AM - US-046: Driver Performance History
+- **Verified US-046 was already fully implemented:**
+  - Performance tab on DriverDetail.tsx page with full functionality
+  - Race-by-race performance table with all required columns:
+    - Round number, Race name, Date, Grid position, Final position, Points earned, Fastest lap indicator, DNF status with reason
+  - SVG bar chart showing points earned per race over the season
+    - Color-coded bars (blue for points, red for DNF, gray for zero)
+    - Y-axis with grid lines, X-axis with round numbers
+  - Season statistics summary card displaying:
+    - Total points
+    - Average points per race
+    - Races finished vs entered
+    - Best finish (lowest position number)
+    - Worst finish (highest position number)
+    - Podium count (top 3 finishes)
+    - DNF count
+  - Backend endpoint `GET /api/v1/drivers/{driver_id}/performance` exists and is functional
+  - Service method `getDriverPerformance` in driverService.ts
+  - TypeScript types: DriverPerformance, DriverPerformanceStats, DriverRacePerformance
+  - Position styling with podium colors (gold/silver/bronze) and DNF red strikethrough
+
+- **Files verified:**
+  - `frontend/src/pages/DriverDetail.tsx` - Performance tab component
+  - `frontend/src/services/driverService.ts` - getDriverPerformance method
+  - `frontend/src/types/index.ts` - Driver performance types
+  - `FantasyF1_BE/app/api/v1/endpoints/drivers.py` - Backend endpoint
+  - `FantasyF1_BE/app/services/driver_service.py` - Backend service logic
+
+- **Quality checks:**
+  - ✅ TypeScript check passed (npx tsc --noEmit)
+  - ✅ No linting errors
+  - ✅ Updated prd.json to mark US-046 as passing
+
+- **Learnings for future iterations:**
+  - Always check existing implementation before starting work - US-046 was already complete
+  - Performance visualization pattern: Statistics summary → Chart → Detailed table
+  - SVG charts work well for simple visualizations without heavy charting libraries
+  - Tab navigation pattern for organizing related content (Overview vs Performance)
+  - Backend endpoint naming: /{resource_id}/{sub-resource} for nested resources
+  - Position-based styling (gold/silver/bronze) provides immediate visual hierarchy
+  - DNF status should be prominent with distinct red styling and strikethrough text
+
+---
+
+## 2/2/2026, 6:52 AM - US-045: Race Results & Finishing Positions
+- **Implemented complete Race Results page with backend endpoint:**
+  - Created backend endpoint `GET /api/v1/races/{race_id}/results`:
+    - Returns 403 Forbidden for upcoming or ongoing races (results only for completed races)
+    - Returns RaceResultResponse with race info and list of results
+    - Service layer handles data transformation and sorting by finishing position
+    - Schemas defined with Pydantic for request/response validation
+  - Created RaceResults.tsx page component at /races/:id/results route:
+    - Displays race header with name, circuit, country, date, round number
+    - Shows winning constructor prominently in header
+    - Results table with columns: Position, Driver, Team, Grid, Change, Laps, Time/Status, Points
+    - Position badges: gold (#f59e0b) for 1st, silver (#9ca3af) for 2nd, bronze (#b45309) for 3rd, blue for others
+    - Grid vs Final position with visual indicators:
+      - Green arrow up with number for positions gained
+      - Red arrow down with number for positions lost
+      - Gray equals sign for same position
+    - DNF status with red badge and strikethrough text styling
+    - DNF reason displayed when available (e.g., "Engine failure", "Collision")
+    - Fastest lap indicator with purple lightning bolt icon (Zap from Lucide)
+    - Points earned displayed for each driver
+    - Loading state with PageLoader component
+    - Error handling with retry functionality
+    - Empty state when no results available
+    - Back to Race link for navigation
+  - Extended raceService.ts with getRaceResults method:
+    - Returns Promise<RaceResultResponse>
+    - Error handling with appropriate messages
+  - Added RaceResult TypeScript types to types/index.ts:
+    - RaceResult interface with all result fields
+    - RaceResultsResponse interface
+  - Updated RaceDetail.tsx to link to RaceResults page:
+    - Added Link import from react-router-dom
+    - "View Full Results" button navigates to /races/:id/results
+    - Only shows for completed races
+  - Added route in App.tsx for /races/:id/results
+  - Comprehensive CSS styling added:
+    - Position badges with podium colors
+    - Position change indicators (arrows, colors)
+    - DNF styling (red badges, strikethrough)
+    - Fastest lap icon styling
+    - Responsive table design
+    - Loading and error state styling
+
+- **Files changed:**
+  - `FantasyF1_BE/app/api/v1/endpoints/races.py` - Added get_race_results endpoint
+  - `FantasyF1_BE/app/services/race_result_service.py` - New service for race result logic
+  - `FantasyF1_BE/app/schemas/race_result.py` - New Pydantic schemas for race results
+  - `frontend/src/pages/RaceResults.tsx` - New race results page component
+  - `frontend/src/services/raceService.ts` - Added getRaceResults method
+  - `frontend/src/types/index.ts` - Added RaceResult and RaceResultResponse types
+  - `frontend/src/pages/RaceDetail.tsx` - Added link to RaceResults page
+  - `frontend/src/App.tsx` - Added route for RaceResults
+  - `frontend/src/index.css` - Added CSS styling for race results
+
+- **Quality checks:**
+  - ✅ TypeScript check passed (npx tsc --noEmit)
+  - ✅ No linting errors
+  - ✅ Backend schemas properly defined
+  - ✅ Updated prd.json to mark US-045 as passing
+
+- **Learnings for future iterations:**
+  - Race results should only be accessible for completed races - use 403 status for protection
+  - Backend service layer needed to transform raw race_result records into formatted display data
+  - Position change visualization: Arrow up/down icons with color coding (green=improved, red=worsened)
+  - Podium positions need special styling (gold/silver/bronze) for visual hierarchy
+  - DNF status should be prominent with red styling and strikethrough text
+  - Fastest lap is a key achievement - use distinct icon (Zap/lightning) and purple color
+  - Backend should check race status before returning results to prevent spoilers
+  - Frontend should handle 403 response gracefully with user-friendly message
+  - Results page should include race context (name, circuit, date) in header section
+
 ---
 
 ## 2/2/2026, 4:42 AM - US-044: Password Reset Flow

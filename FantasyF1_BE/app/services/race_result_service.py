@@ -3,10 +3,10 @@
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.models.race_result import RaceResult
-from app.models.race import Race
-from app.schemas.race_result import RaceResultResponse, RaceResultListResponse
 from app.core.exceptions import NotFoundError
+from app.models.race import Race
+from app.models.race_result import RaceResult
+from app.schemas.race_result import RaceResultListResponse, RaceResultResponse
 
 
 class RaceResultService:
@@ -29,9 +29,7 @@ class RaceResultService:
             NotFoundError: If the race doesn't exist.
         """
         # First verify the race exists
-        race_result = await self.db.execute(
-            select(Race).where(Race.id == race_id)
-        )
+        race_result = await self.db.execute(select(Race).where(Race.id == race_id))
         race = race_result.scalar_one_or_none()
 
         if race is None:
@@ -42,8 +40,7 @@ class RaceResultService:
             select(RaceResult)
             .where(RaceResult.race_id == race_id)
             .order_by(
-                RaceResult.dnf.asc(),  # Non-DNF first
-                RaceResult.position.asc()  # Then by position
+                RaceResult.dnf.asc(), RaceResult.position.asc()  # Non-DNF first  # Then by position
             )
         )
         race_results = result.scalars().all()
@@ -98,9 +95,7 @@ class RaceResultService:
         Raises:
             NotFoundError: If the result doesn't exist.
         """
-        result = await self.db.execute(
-            select(RaceResult).where(RaceResult.id == result_id)
-        )
+        result = await self.db.execute(select(RaceResult).where(RaceResult.id == result_id))
         race_result = result.scalar_one_or_none()
 
         if race_result is None:

@@ -254,6 +254,39 @@ export interface Driver {
   is_active: boolean;
 }
 
+// Driver Performance Types
+export interface DriverRacePerformance {
+  race_id: number;
+  race_name: string;
+  round_number: number;
+  race_date: string;
+  position: number;
+  grid_position: number | null;
+  points_earned: number;
+  fastest_lap: boolean;
+  dnf: boolean;
+  dnf_reason: string | null;
+}
+
+export interface DriverPerformanceStats {
+  total_points: number;
+  avg_points_per_race: number;
+  races_finished: number;
+  races_count: number;
+  best_finish: number | null;
+  worst_finish: number | null;
+  podium_count: number;
+  dnf_count: number;
+}
+
+export interface DriverPerformance {
+  driver_id: number;
+  driver_name: string;
+  driver_code: string | null;
+  stats: DriverPerformanceStats;
+  race_results: DriverRacePerformance[];
+}
+
 export interface GetDriversRequest {
   page?: number;
   page_size?: number;

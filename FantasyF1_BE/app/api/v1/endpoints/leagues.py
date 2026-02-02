@@ -278,8 +278,7 @@ async def join_league(
         max_length=100,
         description="Team name",
     ),
-    invite_code: str
-    | None = Query(
+    invite_code: str | None = Query(
         None,
         description="Invite code for private leagues",
     ),

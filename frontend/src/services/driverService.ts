@@ -1,5 +1,5 @@
 import { apiClient } from './api';
-import type { Driver, PaginatedResponse } from '../types';
+import type { Driver, PaginatedResponse, DriverPerformance } from '../types';
 
 export interface GetDriversRequest {
   page?: number;
@@ -30,4 +30,11 @@ export async function searchDrivers(query: string): Promise<Driver[]> {
  */
 export async function getDriver(driverId: string): Promise<Driver> {
   return apiClient.get<Driver>(`/drivers/${driverId}`);
+}
+
+/**
+ * Get performance data for a driver across all races
+ */
+export async function getDriverPerformance(driverId: string): Promise<DriverPerformance> {
+  return apiClient.get<DriverPerformance>(`/drivers/${driverId}/performance`);
 }
