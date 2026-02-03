@@ -392,20 +392,22 @@ class FantasyTeamService:
         result = await session.execute(team_query)
         team = result.scalar_one_or_none()
 
-        if team:
+        if team is not None:
             # Refund the price based on pick type
             if pick.pick_type == "driver" and pick.driver_id:
                 driver_query = select(Driver).where(Driver.id == pick.driver_id)
                 result = await session.execute(driver_query)
                 driver = result.scalar_one_or_none()
-                if driver and driver.price is not None:
-                    team.budget_remaining += driver.price
+                if driver is not None and driver.price is not None:
+                    assert team.budget_remaining is not None
+                    team.budget_remaining = team.budget_remaining + driver.price
             elif pick.pick_type == "constructor" and pick.constructor_id:
                 constructor_query = select(Constructor).where(Constructor.id == pick.constructor_id)
                 result = await session.execute(constructor_query)
                 constructor = result.scalar_one_or_none()
-                if constructor and constructor.price is not None:
-                    team.budget_remaining += constructor.price
+                if constructor is not None and constructor.price is not None:
+                    assert team.budget_remaining is not None
+                    team.budget_remaining = team.budget_remaining + constructor.price
 
         # Deactivate rather than delete for audit trail
         pick.is_active = False

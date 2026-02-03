@@ -5,7 +5,7 @@ including draft order generation, pick management, and auto-picking.
 """
 
 import json
-from datetime import UTC, datetime
+from datetime import datetime, timezone
 from typing import Any
 
 from sqlalchemy import and_, func, select
@@ -630,7 +630,7 @@ class DraftService:
             # Update the last pick to set pick_started_at for the next team
             # This is a workaround - we're storing the start time on the last pick
             # In a real implementation, you might want a separate table for tracking turn times
-            last_pick.pick_started_at = datetime.now(UTC)
+            last_pick.pick_started_at = datetime.now(timezone.utc)
             await session.commit()
 
     @staticmethod
@@ -684,12 +684,12 @@ class DraftService:
 
         if last_pick and last_pick.pick_started_at:
             pick_started_at = last_pick.pick_started_at
-            elapsed = (datetime.now(UTC) - pick_started_at).total_seconds()
+            elapsed = (datetime.now(timezone.utc) - pick_started_at).total_seconds()
             time_remaining = max(0, int(league.pick_timer_seconds - elapsed))
         elif last_pick:
             # If no pick_started_at is set, use picked_at as fallback
             pick_started_at = last_pick.picked_at
-            elapsed = (datetime.now(UTC) - pick_started_at).total_seconds()
+            elapsed = (datetime.now(timezone.utc) - pick_started_at).total_seconds()
             time_remaining = max(0, int(league.pick_timer_seconds - elapsed))
 
         return {

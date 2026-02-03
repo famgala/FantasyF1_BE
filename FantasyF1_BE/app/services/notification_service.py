@@ -1,6 +1,6 @@
 """Service for notification management."""
 
-from datetime import UTC, datetime
+from datetime import datetime, timezone
 from typing import TYPE_CHECKING
 
 from sqlalchemy import select
@@ -149,7 +149,7 @@ class NotificationService:
         notification = await NotificationService.get_notification(db, notification_id, user_id)
         if notification:
             notification.is_read = True
-            notification.read_at = datetime.now(UTC)
+            notification.read_at = datetime.now(timezone.utc)
             await db.commit()
             await db.refresh(notification)
 
@@ -206,7 +206,7 @@ class NotificationService:
             )
             .values(
                 is_read=True,
-                read_at=datetime.now(UTC),
+                read_at=datetime.now(timezone.utc),
             )
         )
         result = await db.execute(stmt)

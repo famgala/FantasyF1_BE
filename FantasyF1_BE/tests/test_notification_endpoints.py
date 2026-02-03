@@ -52,7 +52,7 @@ async def test_league(db_session, test_user: User) -> League:
 @pytest_asyncio.fixture()
 async def test_race(db_session) -> Race:
     """Create a test race."""
-    from datetime import datetime, timedelta
+    from datetime import timedelta
 
     race = Race(
         external_id=1,
