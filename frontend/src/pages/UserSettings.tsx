@@ -1,354 +1,375 @@
 import { useState, useEffect } from 'react';
-import { useAuth } from '../context/AuthContext';
+import { useNavigate } from 'react-router-dom';
 import { userService } from '../services/userService';
-import { MobileNav } from '../components/MobileNav';
-import { LoadingSpinner } from '../components/LoadingSpinner';
-import { ErrorDisplay } from '../components/ErrorDisplay';
+import type { UserPreferences } from '../services/userService';
+import { useToast } from '../context/ToastContext';
+import LoadingSpinner from '../components/LoadingSpinner';
+import MobileNav from '../components/MobileNav';
 
-interface UserPreferences {
-  // Email notification preferences
-  notify_race_completed: boolean;
-  notify_draft_turn: boolean;
-  notify_league_invitations: boolean;
-  notify_team_updates: boolean;
-
-  // Display preferences
-  theme_preference: string;
-  language_preference: string;
-  timezone_preference: string;
-
-  // Privacy settings
-  profile_visibility: string;
-  show_email_to_league_members: boolean;
-
-  // Auto-pick preferences
-  auto_pick_enabled: boolean;
-  auto_pick_strategy: string;
-}
-
-export const UserSettings: React.FC = () => {
+const UserSettings = () => {
+  const navigate = useNavigate();
+  const { showToast } = useToast();
   const [preferences, setPreferences] = useState<UserPreferences | null>(null);
   const [loading, setLoading] = useState(true);
-  const [saving, setSaving] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-  const [successMessage, setSuccessMessage] = useState<string | null>(null);
+  const [saving, setSaving] = useState<Record<string, boolean>>({});
 
   useEffect(() => {
     loadPreferences();
   }, []);
 
   const loadPreferences = async () => {
-    setLoading(true);
-    setError(null);
-
     try {
-      const prefs = await userService.getUserPreferences();
-      setPreferences(prefs);
-    } catch (err: any) {
-      setError(err.message || 'Failed to load preferences');
+      setLoading(true);
+      const data = await userService.getUserPreferences();
+      setPreferences(data);
+    } catch (error) {
+      showToast('Failed to load preferences', 'error');
     } finally {
       setLoading(false);
     }
   };
 
-  const handleSave = async () => {
+  const updatePreference = async (key: keyof UserPreferences, value: any) => {
     if (!preferences) return;
-
-    setSaving(true);
-    setError(null);
-    setSuccessMessage(null);
 
     try {
-      await userService.updateUserPreferences(preferences);
-      setSuccessMessage('Preferences saved successfully!');
-      setTimeout(() => setSuccessMessage(null), 3000);
-    } catch (err: any) {
-      setError(err.message || 'Failed to save preferences');
+      setSaving(prev => ({ ...prev, [key]: true }));
+      const updated = await userService.updateUserPreferences({ [key]: value });
+      setPreferences(updated);
+      showToast('Preference updated successfully', 'success');
+    } catch (error) {
+      showToast('Failed to update preference', 'error');
     } finally {
-      setSaving(false);
+      setSaving(prev => ({ ...prev, [key]: false }));
     }
-  };
-
-  const handleToggle = (field: keyof UserPreferences) => {
-    if (!preferences) return;
-    setPreferences({ ...preferences, [field]: !preferences[field] });
-  };
-
-  const handleChange = (field: keyof UserPreferences, value: string) => {
-    if (!preferences) return;
-    setPreferences({ ...preferences, [field]: value });
   };
 
   if (loading) {
     return (
-      <>
+      <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
         <MobileNav />
-        <div className="settings-page">
+        <div className="max-w-4xl mx-auto px-4 py-8 pt-20 md:pt-8">
           <LoadingSpinner />
         </div>
-      </>
-    );
-  }
-
-  if (error) {
-    return (
-      <div className="settings-page">
-        <ErrorDisplay message={error} onRetry={loadPreferences} />
       </div>
     );
   }
 
   if (!preferences) {
     return (
-      <div className="settings-page">
-        <ErrorDisplay message="No preferences data available" onRetry={loadPreferences} />
+      <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
+        <MobileNav />
+        <div className="max-w-4xl mx-auto px-4 py-8 pt-20 md:pt-8">
+          <div className="text-center py-12">
+            <p className="text-gray-600 dark:text-gray-400">Failed to load preferences</p>
+            <button
+              onClick={loadPreferences}
+              className="mt-4 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+            >
+              Retry
+            </button>
+          </div>
+        </div>
       </div>
     );
   }
 
   return (
-    <div className="settings-page">
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
       <MobileNav />
-      <div className="settings-container">
-        <div className="settings-header">
-          <h1>User Settings</h1>
-          <p className="settings-subtitle">Manage your account preferences and settings</p>
+      <div className="max-w-4xl mx-auto px-4 py-8 pt-20 md:pt-8">
+        <div className="mb-8">
+          <h1 className="text-3xl font-bold text-gray-900 dark:text-white">Settings</h1>
+          <p className="mt-2 text-gray-600 dark:text-gray-400">
+            Manage your account preferences and settings
+          </p>
         </div>
 
-        {successMessage && (
-          <div className="alert alert-success" role="alert">
-            {successMessage}
-          </div>
-        )}
-
-        {error && (
-          <div className="alert alert-error" role="alert">
-            {error}
-          </div>
-        )}
-
-        <div className="settings-content">
-          {/* Email Notification Preferences */}
-          <div className="settings-section">
-            <h2>Email Notifications</h2>
-            <p className="settings-description">
-              Choose which email notifications you want to receive
-            </p>
-            <div className="settings-form">
-              <div className="form-group">
-                <label className="checkbox-label">
-                  <input
-                    type="checkbox"
-                    checked={preferences.notify_race_completed}
-                    onChange={() => handleToggle('notify_race_completed')}
-                    disabled={saving}
-                  />
-                  <span className="checkbox-text">
-                    Notify me when a race is completed
-                  </span>
+        {/* Email Notification Preferences */}
+        <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 mb-6">
+          <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-4">
+            Email Notifications
+          </h2>
+          <p className="text-sm text-gray-600 dark:text-gray-400 mb-4">
+            Choose which email notifications you want to receive
+          </p>
+          <div className="space-y-4">
+            <div className="flex items-center justify-between">
+              <div>
+                <label className="text-gray-900 dark:text-white font-medium">
+                  Race Completed
                 </label>
-              </div>
-              <div className="form-group">
-                <label className="checkbox-label">
-                  <input
-                    type="checkbox"
-                    checked={preferences.notify_draft_turn}
-                    onChange={() => handleToggle('notify_draft_turn')}
-                    disabled={saving}
-                  />
-                  <span className="checkbox-text">
-                    Notify me when it's my turn in a draft
-                  </span>
-                </label>
-              </div>
-              <div className="form-group">
-                <label className="checkbox-label">
-                  <input
-                    type="checkbox"
-                    checked={preferences.notify_league_invitations}
-                    onChange={() => handleToggle('notify_league_invitations')}
-                    disabled={saving}
-                  />
-                  <span className="checkbox-text">
-                    Notify me when I receive a league invitation
-                  </span>
-                </label>
-              </div>
-              <div className="form-group">
-                <label className="checkbox-label">
-                  <input
-                    type="checkbox"
-                    checked={preferences.notify_team_updates}
-                    onChange={() => handleToggle('notify_team_updates')}
-                    disabled={saving}
-                  />
-                  <span className="checkbox-text">
-                    Notify me about team updates and changes
-                  </span>
-                </label>
-              </div>
-            </div>
-          </div>
-
-          {/* Display Preferences */}
-          <div className="settings-section">
-            <h2>Display Preferences</h2>
-            <p className="settings-description">
-              Customize how the application looks and behaves
-            </p>
-            <div className="settings-form">
-              <div className="form-group">
-                <label htmlFor="theme_preference">Theme</label>
-                <select
-                  id="theme_preference"
-                  value={preferences.theme_preference}
-                  onChange={(e) => handleChange('theme_preference', e.target.value)}
-                  disabled={saving}
-                  className="form-control"
-                >
-                  <option value="light">Light</option>
-                  <option value="dark">Dark</option>
-                  <option value="system">System Default</option>
-                </select>
-              </div>
-              <div className="form-group">
-                <label htmlFor="language_preference">Language</label>
-                <select
-                  id="language_preference"
-                  value={preferences.language_preference}
-                  onChange={(e) => handleChange('language_preference', e.target.value)}
-                  disabled={saving}
-                  className="form-control"
-                >
-                  <option value="en">English</option>
-                  <option value="es">Español</option>
-                  <option value="fr">Français</option>
-                  <option value="de">Deutsch</option>
-                </select>
-              </div>
-              <div className="form-group">
-                <label htmlFor="timezone_preference">Timezone</label>
-                <select
-                  id="timezone_preference"
-                  value={preferences.timezone_preference}
-                  onChange={(e) => handleChange('timezone_preference', e.target.value)}
-                  disabled={saving}
-                  className="form-control"
-                >
-                  <option value="UTC">UTC (Coordinated Universal Time)</option>
-                  <option value="America/New_York">Eastern Time (ET)</option>
-                  <option value="America/Chicago">Central Time (CT)</option>
-                  <option value="America/Denver">Mountain Time (MT)</option>
-                  <option value="America/Los_Angeles">Pacific Time (PT)</option>
-                  <option value="Europe/London">London (GMT)</option>
-                  <option value="Europe/Paris">Paris (CET)</option>
-                  <option value="Asia/Tokyo">Tokyo (JST)</option>
-                  <option value="Australia/Sydney">Sydney (AEST)</option>
-                </select>
-              </div>
-            </div>
-          </div>
-
-          {/* Privacy Settings */}
-          <div className="settings-section">
-            <h2>Privacy Settings</h2>
-            <p className="settings-description">
-              Control who can see your profile information
-            </p>
-            <div className="settings-form">
-              <div className="form-group">
-                <label htmlFor="profile_visibility">Profile Visibility</label>
-                <select
-                  id="profile_visibility"
-                  value={preferences.profile_visibility}
-                  onChange={(e) => handleChange('profile_visibility', e.target.value)}
-                  disabled={saving}
-                  className="form-control"
-                >
-                  <option value="public">Public - Visible to everyone</option>
-                  <option value="league_only">League Only - Visible to league members only</option>
-                  <option value="private">Private - Not visible to anyone</option>
-                </select>
-              </div>
-              <div className="form-group">
-                <label className="checkbox-label">
-                  <input
-                    type="checkbox"
-                    checked={preferences.show_email_to_league_members}
-                    onChange={() => handleToggle('show_email_to_league_members')}
-                    disabled={saving}
-                  />
-                  <span className="checkbox-text">
-                    Show my email address to league members
-                  </span>
-                </label>
-              </div>
-            </div>
-          </div>
-
-          {/* Auto-Pick Preferences */}
-          <div className="settings-section">
-            <h2>Auto-Pick Preferences</h2>
-            <p className="settings-description">
-              Configure automatic drafting behavior for your teams
-            </p>
-            <div className="settings-form">
-              <div className="form-group">
-                <label className="checkbox-label">
-                  <input
-                    type="checkbox"
-                    checked={preferences.auto_pick_enabled}
-                    onChange={() => handleToggle('auto_pick_enabled')}
-                    disabled={saving}
-                  />
-                  <span className="checkbox-text">
-                    Enable auto-pick for drafts
-                  </span>
-                </label>
-                <p className="form-help">
-                  When enabled, the system will automatically make picks for you
-                  when it's your turn in a draft.
+                <p className="text-sm text-gray-600 dark:text-gray-400">
+                  Get notified when a race finishes
                 </p>
               </div>
-              <div className="form-group">
-                <label htmlFor="auto_pick_strategy">Auto-Pick Strategy</label>
-                <select
-                  id="auto_pick_strategy"
-                  value={preferences.auto_pick_strategy}
-                  onChange={(e) => handleChange('auto_pick_strategy', e.target.value)}
-                  disabled={saving || !preferences.auto_pick_enabled}
-                  className="form-control"
-                >
-                  <option value="highest_ranked">Highest Ranked - Pick the best available driver</option>
-                  <option value="random">Random - Pick a random available driver</option>
-                  <option value="balanced">Balanced - Pick based on team balance</option>
-                </select>
-                <p className="form-help">
-                  This strategy will be used when auto-pick is enabled.
+              <button
+                onClick={() => updatePreference('notify_race_completed', !preferences.notify_race_completed)}
+                disabled={saving.notify_race_completed}
+                className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
+                  preferences.notify_race_completed ? 'bg-blue-600' : 'bg-gray-300 dark:bg-gray-600'
+                } ${saving.notify_race_completed ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}`}
+              >
+                <span
+                  className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
+                    preferences.notify_race_completed ? 'translate-x-6' : 'translate-x-1'
+                  }`}
+                />
+              </button>
+            </div>
+            <div className="flex items-center justify-between">
+              <div>
+                <label className="text-gray-900 dark:text-white font-medium">
+                  Draft Turn
+                </label>
+                <p className="text-sm text-gray-600 dark:text-gray-400">
+                  Get notified when it's your turn in a draft
                 </p>
               </div>
+              <button
+                onClick={() => updatePreference('notify_draft_turn', !preferences.notify_draft_turn)}
+                disabled={saving.notify_draft_turn}
+                className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
+                  preferences.notify_draft_turn ? 'bg-blue-600' : 'bg-gray-300 dark:bg-gray-600'
+                } ${saving.notify_draft_turn ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}`}
+              >
+                <span
+                  className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
+                    preferences.notify_draft_turn ? 'translate-x-6' : 'translate-x-1'
+                  }`}
+                />
+              </button>
+            </div>
+            <div className="flex items-center justify-between">
+              <div>
+                <label className="text-gray-900 dark:text-white font-medium">
+                  League Invitations
+                </label>
+                <p className="text-sm text-gray-600 dark:text-gray-400">
+                  Get notified when someone invites you to a league
+                </p>
+              </div>
+              <button
+                onClick={() => updatePreference('notify_league_invitations', !preferences.notify_league_invitations)}
+                disabled={saving.notify_league_invitations}
+                className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
+                  preferences.notify_league_invitations ? 'bg-blue-600' : 'bg-gray-300 dark:bg-gray-600'
+                } ${saving.notify_league_invitations ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}`}
+              >
+                <span
+                  className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
+                    preferences.notify_league_invitations ? 'translate-x-6' : 'translate-x-1'
+                  }`}
+                />
+              </button>
+            </div>
+            <div className="flex items-center justify-between">
+              <div>
+                <label className="text-gray-900 dark:text-white font-medium">
+                  Team Updates
+                </label>
+                <p className="text-sm text-gray-600 dark:text-gray-400">
+                  Get notified about changes to your teams
+                </p>
+              </div>
+              <button
+                onClick={() => updatePreference('notify_team_updates', !preferences.notify_team_updates)}
+                disabled={saving.notify_team_updates}
+                className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
+                  preferences.notify_team_updates ? 'bg-blue-600' : 'bg-gray-300 dark:bg-gray-600'
+                } ${saving.notify_team_updates ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}`}
+              >
+                <span
+                  className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
+                    preferences.notify_team_updates ? 'translate-x-6' : 'translate-x-1'
+                  }`}
+                />
+              </button>
             </div>
           </div>
+        </div>
 
-          {/* Save Button */}
-          <div className="settings-actions">
-            <button
-              className="btn btn-primary"
-              onClick={handleSave}
-              disabled={saving}
-            >
-              {saving ? 'Saving...' : 'Save Settings'}
-            </button>
-            <button
-              className="btn btn-secondary"
-              onClick={loadPreferences}
-              disabled={saving}
-            >
-              Reset to Defaults
-            </button>
+        {/* Display Preferences */}
+        <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 mb-6">
+          <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-4">
+            Display Preferences
+          </h2>
+          <p className="text-sm text-gray-600 dark:text-gray-400 mb-4">
+            Customize how the application looks and behaves
+          </p>
+          <div className="space-y-4">
+            <div>
+              <label className="block text-gray-900 dark:text-white font-medium mb-2">
+                Theme
+              </label>
+              <select
+                value={preferences.theme_preference}
+                onChange={(e) => updatePreference('theme_preference', e.target.value)}
+                disabled={saving.theme_preference}
+                className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent disabled:opacity-50"
+              >
+                <option value="light">Light</option>
+                <option value="dark">Dark</option>
+                <option value="system">System</option>
+              </select>
+              <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
+                Choose your preferred color theme
+              </p>
+            </div>
+            <div>
+              <label className="block text-gray-900 dark:text-white font-medium mb-2">
+                Language
+              </label>
+              <select
+                value={preferences.language_preference}
+                onChange={(e) => updatePreference('language_preference', e.target.value)}
+                disabled={saving.language_preference}
+                className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent disabled:opacity-50"
+              >
+                <option value="en">English</option>
+                <option value="es">Español</option>
+                <option value="fr">Français</option>
+                <option value="de">Deutsch</option>
+              </select>
+              <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
+                Select your preferred language
+              </p>
+            </div>
+            <div>
+              <label className="block text-gray-900 dark:text-white font-medium mb-2">
+                Timezone
+              </label>
+              <select
+                value={preferences.timezone_preference}
+                onChange={(e) => updatePreference('timezone_preference', e.target.value)}
+                disabled={saving.timezone_preference}
+                className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent disabled:opacity-50"
+              >
+                <option value="UTC">UTC</option>
+                <option value="America/New_York">Eastern Time (ET)</option>
+                <option value="America/Chicago">Central Time (CT)</option>
+                <option value="America/Denver">Mountain Time (MT)</option>
+                <option value="America/Los_Angeles">Pacific Time (PT)</option>
+                <option value="Europe/London">London (GMT)</option>
+                <option value="Europe/Paris">Paris (CET)</option>
+                <option value="Asia/Tokyo">Tokyo (JST)</option>
+                <option value="Australia/Sydney">Sydney (AEST)</option>
+              </select>
+              <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
+                Select your timezone for race times
+              </p>
+            </div>
+          </div>
+        </div>
+
+        {/* Privacy Settings */}
+        <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 mb-6">
+          <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-4">
+            Privacy Settings
+          </h2>
+          <p className="text-sm text-gray-600 dark:text-gray-400 mb-4">
+            Control your privacy and what information is visible to others
+          </p>
+          <div className="space-y-4">
+            <div>
+              <label className="block text-gray-900 dark:text-white font-medium mb-2">
+                Profile Visibility
+              </label>
+              <select
+                value={preferences.profile_visibility}
+                onChange={(e) => updatePreference('profile_visibility', e.target.value)}
+                disabled={saving.profile_visibility}
+                className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent disabled:opacity-50"
+              >
+                <option value="public">Public</option>
+                <option value="league_only">League Members Only</option>
+                <option value="private">Private</option>
+              </select>
+              <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
+                Control who can see your profile
+              </p>
+            </div>
+            <div className="flex items-center justify-between">
+              <div>
+                <label className="text-gray-900 dark:text-white font-medium">
+                  Show Email to League Members
+                </label>
+                <p className="text-sm text-gray-600 dark:text-gray-400">
+                  Allow league members to see your email address
+                </p>
+              </div>
+              <button
+                onClick={() => updatePreference('show_email_to_league_members', !preferences.show_email_to_league_members)}
+                disabled={saving.show_email_to_league_members}
+                className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
+                  preferences.show_email_to_league_members ? 'bg-blue-600' : 'bg-gray-300 dark:bg-gray-600'
+                } ${saving.show_email_to_league_members ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}`}
+              >
+                <span
+                  className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
+                    preferences.show_email_to_league_members ? 'translate-x-6' : 'translate-x-1'
+                  }`}
+                />
+              </button>
+            </div>
+          </div>
+        </div>
+
+        {/* Auto-Pick Preferences */}
+        <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 mb-6">
+          <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-4">
+            Auto-Pick Settings
+          </h2>
+          <p className="text-sm text-gray-600 dark:text-gray-400 mb-4">
+            Configure automatic draft pick behavior
+          </p>
+          <div className="space-y-4">
+            <div className="flex items-center justify-between">
+              <div>
+                <label className="text-gray-900 dark:text-white font-medium">
+                  Enable Auto-Pick
+                </label>
+                <p className="text-sm text-gray-600 dark:text-gray-400">
+                  Automatically pick a driver if you miss your turn
+                </p>
+              </div>
+              <button
+                onClick={() => updatePreference('auto_pick_enabled', !preferences.auto_pick_enabled)}
+                disabled={saving.auto_pick_enabled}
+                className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
+                  preferences.auto_pick_enabled ? 'bg-blue-600' : 'bg-gray-300 dark:bg-gray-600'
+                } ${saving.auto_pick_enabled ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}`}
+              >
+                <span
+                  className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
+                    preferences.auto_pick_enabled ? 'translate-x-6' : 'translate-x-1'
+                  }`}
+                />
+              </button>
+            </div>
+            <div>
+              <label className="block text-gray-900 dark:text-white font-medium mb-2">
+                Auto-Pick Strategy
+              </label>
+              <select
+                value={preferences.auto_pick_strategy}
+                onChange={(e) => updatePreference('auto_pick_strategy', e.target.value)}
+                disabled={saving.auto_pick_strategy || !preferences.auto_pick_enabled}
+                className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent disabled:opacity-50"
+              >
+                <option value="highest_ranked">Highest Ranked</option>
+                <option value="random">Random</option>
+                <option value="balanced">Balanced</option>
+              </select>
+              <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
+                Choose how drivers are selected for auto-pick
+              </p>
+            </div>
           </div>
         </div>
       </div>
     </div>
   );
 };
+
+export default UserSettings;

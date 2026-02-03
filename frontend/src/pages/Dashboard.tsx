@@ -125,6 +125,12 @@ export const Dashboard: React.FC = () => {
               >
                 Profile
               </Link>
+              <Link
+                to="/settings"
+                className="bg-gray-600 hover:bg-gray-700 text-white px-4 py-2 rounded-md text-sm font-medium mr-2"
+              >
+                Settings
+              </Link>
               <button
                 onClick={handleLogout}
                 className="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-md text-sm font-medium"
