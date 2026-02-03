@@ -43,6 +43,28 @@ export interface ChangePasswordRequest {
   new_password: string;
 }
 
+// User Preferences Types
+export interface UserPreferences {
+  // Email notification preferences
+  notify_race_completed: boolean;
+  notify_draft_turn: boolean;
+  notify_league_invitations: boolean;
+  notify_team_updates: boolean;
+
+  // Display preferences
+  theme_preference: string;
+  language_preference: string;
+  timezone_preference: string;
+
+  // Privacy settings
+  profile_visibility: string;
+  show_email_to_league_members: boolean;
+
+  // Auto-pick preferences
+  auto_pick_enabled: boolean;
+  auto_pick_strategy: string;
+}
+
 // Check Email Response
 export interface CheckEmailResponse {
   email: string;

@@ -18,6 +18,27 @@ export interface UserSearchResult {
   full_name: string | null;
 }
 
+export interface UserPreferences {
+  // Email notification preferences
+  notify_race_completed: boolean;
+  notify_draft_turn: boolean;
+  notify_league_invitations: boolean;
+  notify_team_updates: boolean;
+
+  // Display preferences
+  theme_preference: string;
+  language_preference: string;
+  timezone_preference: string;
+
+  // Privacy settings
+  profile_visibility: string;
+  show_email_to_league_members: boolean;
+
+  // Auto-pick preferences
+  auto_pick_enabled: boolean;
+  auto_pick_strategy: string;
+}
+
 export const userService = {
   /**
    * Get current user profile
@@ -45,5 +66,19 @@ export const userService = {
    */
   async searchUsers(query: string, limit: number = 10): Promise<UserSearchResult[]> {
     return apiClient.get<UserSearchResult[]>(`/users/search/?q=${encodeURIComponent(query)}&limit=${limit}`);
+  },
+
+  /**
+   * Get user preferences
+   */
+  async getUserPreferences(): Promise<UserPreferences> {
+    return apiClient.get<UserPreferences>('/users/me/preferences');
+  },
+
+  /**
+   * Update user preferences
+   */
+  async updateUserPreferences(data: Partial<UserPreferences>): Promise<UserPreferences> {
+    return apiClient.put<UserPreferences>('/users/me/preferences', data);
   },
 };

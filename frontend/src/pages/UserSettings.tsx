@@ -27,7 +27,6 @@ interface UserPreferences {
 }
 
 export const UserSettings: React.FC = () => {
-  const { user } = useAuth();
   const [preferences, setPreferences] = useState<UserPreferences | null>(null);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);

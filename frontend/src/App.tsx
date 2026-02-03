@@ -43,6 +43,7 @@ import RaceDetail from './pages/RaceDetail';
 import RaceResults from './pages/RaceResults';
 import Notifications from './pages/Notifications';
 import Help from './pages/Help';
+import { UserSettings } from './pages/UserSettings';
 
 function App() {
   return (
@@ -72,6 +73,14 @@ function App() {
             element={
               <ProtectedRoute>
                 <Profile />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/settings"
+            element={
+              <ProtectedRoute>
+                <UserSettings />
               </ProtectedRoute>
             }
           />
