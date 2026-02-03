@@ -7,26 +7,14 @@ on:
       - 'dev_sprint_phase**'
       - develop
       - 'backend-dev'
-    paths:
-      - 'FantasyF1_BE/**'
-      - 'docker-compose*.yml'
-      - '.github/workflows/**'
-      - 'FantasyF1_BE/requirements.txt'
-      - 'scripts/**'
-      - 'FantasyF1_BE/Dockerfile*'
+      - 'frontend-dev'
   pull_request:
     branches: [ main ]
-    paths:
-      - 'FantasyF1_BE/**'
-      - 'docker-compose*.yml'
-      - '.github/workflows/**'
-      - 'FantasyF1_BE/requirements.txt'
-      - 'scripts/**'
-      - 'FantasyF1_BE/Dockerfile*'
 
 env:
   REGISTRY: docker.io
-  IMAGE_NAME: famgala/fantasyf1-be
+  BACKEND_IMAGE_NAME: famgala/fantasyf1-be
+  FRONTEND_IMAGE_NAME: famgala/fantasyf1-fe
 
 jobs:
   detect-changes:
@@ -37,6 +25,8 @@ jobs:
       compose_changed: ${{ steps.changes.outputs.compose }}
       tests_changed: ${{ steps.changes.outputs.tests }}
       workflow_changed: ${{ steps.changes.outputs.workflow }}
+      frontend_changed: ${{ steps.changes.outputs.frontend }}
+      frontend_config_changed: ${{ steps.changes.outputs.frontend_config }}
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -59,8 +49,19 @@ jobs:
               - 'FantasyF1_BE/tests/**'
             workflow:
               - '.github/workflows/**'
+            frontend:
+              - 'frontend/src/**'
+              - 'frontend/public/**'
+            frontend_config:
+              - 'frontend/package.json'
+              - 'frontend/package-lock.json'
+              - 'frontend/tsconfig*.json'
+              - 'frontend/vite.config.ts'
+              - 'frontend/eslint.config.js'
+              - 'frontend/index.html'
 
-  test:
+  # Backend Tests
+  test-backend:
     runs-on: ubuntu-latest
     needs: detect-changes
     if: |
@@ -234,13 +235,79 @@ jobs:
         fail_ci_if_error: false
     
     - name: Cleanup test containers
+      if: always()
       run: |
         echo "🧹 Cleaning up test containers..."
         docker compose -f docker-compose.test.yml down -v || true
         echo "✅ Cleanup complete"
 
-  build:
-    needs: [detect-changes, test]
+  # Frontend Tests and Build
+  test-frontend:
+    runs-on: ubuntu-latest
+    needs: detect-changes
+    if: |
+      (needs.detect-changes.outputs.frontend_changed == 'true' || 
+       needs.detect-changes.outputs.frontend_config_changed == 'true' ||
+       needs.detect-changes.outputs.workflow_changed == 'true')
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+    
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '20'
+        cache: 'npm'
+        cache-dependency-path: 'frontend/package-lock.json'
+    
+    - name: Install frontend dependencies
+      run: |
+        echo "📦 Installing frontend dependencies..."
+        cd frontend
+        npm ci
+        echo "✅ Dependencies installed"
+    
+    - name: Run ESLint
+      run: |
+        echo "🔍 Running ESLint..."
+        cd frontend
+        npm run lint || {
+          echo "❌ ESLint failed"
+          exit 1
+        }
+        echo "✅ ESLint passed"
+    
+    - name: TypeScript type check
+      run: |
+        echo "🔍 Running TypeScript type check..."
+        cd frontend
+        npx tsc --noEmit || {
+          echo "❌ TypeScript check failed"
+          exit 1
+        }
+        echo "✅ TypeScript check passed"
+    
+    - name: Build frontend
+      run: |
+        echo "🔨 Building frontend..."
+        cd frontend
+        npm run build || {
+          echo "❌ Frontend build failed"
+          exit 1
+        }
+        echo "✅ Frontend build completed"
+    
+    - name: Upload frontend build artifacts
+      uses: actions/upload-artifact@v4
+      with:
+        name: frontend-dist
+        path: frontend/dist/
+        retention-days: 7
+
+  # Backend Build
+  build-backend:
+    needs: [detect-changes, test-backend]
     runs-on: ubuntu-latest
     if: |
       github.event_name == 'push' && 
@@ -299,7 +366,7 @@ jobs:
       id: meta
       uses: docker/metadata-action@v5
       with:
-        images: docker.io/${{ env.IMAGE_NAME }}
+        images: docker.io/${{ env.BACKEND_IMAGE_NAME }}
         tags: |
           type=ref,event=branch
           type=ref,event=pr
@@ -326,14 +393,122 @@ jobs:
     
     - name: Print image summary
       run: |
-        echo "� Image built and pushed successfully!"
+        echo "✅ Backend image built and pushed successfully!"
         echo "Image: ${{ steps.meta.outputs.tags }}"
         echo "Version: ${{ steps.version.outputs.version }}"
         echo "Digest: ${{ steps.build.outputs.digest }}"
         echo "Full Image Ref: docker.io/famgala/fantasyf1-be@${{ steps.build.outputs.digest }}"
 
-  security-scan:
-    needs: [detect-changes, build]
+  # Frontend Build
+  build-frontend:
+    needs: [detect-changes, test-frontend]
+    runs-on: ubuntu-latest
+    if: |
+      github.event_name == 'push' && 
+      (needs.detect-changes.outputs.frontend_changed == 'true' || 
+       needs.detect-changes.outputs.frontend_config_changed == 'true')
+    
+    permissions:
+      contents: read
+      packages: write
+    
+    outputs:
+      version: ${{ steps.version.outputs.version }}
+    
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+    
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '20'
+        cache: 'npm'
+        cache-dependency-path: 'frontend/package-lock.json'
+    
+    - name: Generate version
+      id: version
+      run: |
+        # Determine build type based on branch
+        if [[ "${{ github.ref_name }}" == "main" ]]; then
+          BUILD_TYPE="prod"
+        elif [[ "${{ github.ref_name }}" == "develop" ]]; then
+          BUILD_TYPE="staging"
+        else
+          BUILD_TYPE="dev"
+        fi
+        
+        echo "📋 Build type: $BUILD_TYPE"
+        
+        # Generate version using CalVer format
+        VERSION=$(date +%Y.%m.%d)
+        if [ "$BUILD_TYPE" != "prod" ]; then
+          VERSION="${VERSION}-${BUILD_TYPE}"
+        fi
+        
+        SHA_SHORT="${GITHUB_SHA::7}"
+        VERSION="${VERSION}-${SHA_SHORT}"
+        
+        echo "🔖 Generated version: $VERSION"
+        echo "version=$VERSION" >> $GITHUB_OUTPUT
+    
+    - name: Install dependencies
+      run: |
+        echo "📦 Installing frontend dependencies..."
+        cd frontend
+        npm ci
+        echo "✅ Dependencies installed"
+    
+    - name: Build frontend
+      run: |
+        echo "🔨 Building frontend..."
+        cd frontend
+        npm run build || {
+          echo "❌ Frontend build failed"
+          exit 1
+        }
+        echo "✅ Frontend build completed"
+    
+    - name: Upload frontend build artifacts
+      uses: actions/upload-artifact@v4
+      with:
+        name: frontend-dist-${{ steps.version.outputs.version }}
+        path: frontend/dist/
+        retention-days: 30
+    
+    - name: Build and push Docker image
+      id: build
+      uses: docker/build-push-action@v5
+      with:
+        context: frontend
+        file: frontend/Dockerfile
+        push: true
+        tags: |
+          docker.io/famgala/fantasyf1-fe:${{ steps.version.outputs.version }}
+          docker.io/famgala/fantasyf1-fe:${{ github.ref_name }}
+          docker.io/famgala/fantasyf1-fe:latest-${{ github.ref_name }}
+        labels: |
+          org.opencontainers.image.title=FantasyF1 Frontend
+          org.opencontainers.image.version=${{ steps.version.outputs.version }}
+          org.opencontainers.image.created=${{ github.event.head_commit.timestamp }}
+          org.opencontainers.image.revision=${{ github.sha }}
+        cache-from: type=gha
+        cache-to: type=gha,mode=max
+        build-args: |
+          VCS_REF=${{ github.sha }}
+          BUILD_DATE=${{ github.event.head_commit.timestamp }}
+          VERSION=${{ steps.version.outputs.version }}
+    
+    - name: Print image summary
+      run: |
+        echo "✅ Frontend image built and pushed successfully!"
+        echo "Version: ${{ steps.version.outputs.version }}"
+        echo "Digest: ${{ steps.build.outputs.digest }}"
+        echo "Full Image Ref: docker.io/famgala/fantasyf1-fe:${{ steps.version.outputs.version }}"
+
+  # Security Scan for Backend
+  security-scan-backend:
+    needs: [detect-changes, build-backend]
     runs-on: ubuntu-latest
     if: |
       github.event_name == 'push' && 
@@ -350,32 +525,32 @@ jobs:
     - name: Pull Docker image for scanning
       run: |
         echo "🔍 Pulling Docker image for security scanning..."
-        docker pull docker.io/famgala/fantasyf1-be@${{ needs.build.outputs.digest }}
+        docker pull docker.io/famgala/fantasyf1-be@${{ needs.build-backend.outputs.digest }}
         echo "✅ Image pulled successfully"
     
     - name: Run Trivy vulnerability scanner
       uses: aquasecurity/trivy-action@master
       with:
-        image-ref: docker.io/famgala/fantasyf1-be@${{ needs.build.outputs.digest }}
+        image-ref: docker.io/famgala/fantasyf1-be@${{ needs.build-backend.outputs.digest }}
         format: 'sarif'
-        output: 'trivy-results.sarif'
+        output: 'trivy-backend-results.sarif'
         severity: 'CRITICAL,HIGH'
     
     - name: Upload Trivy scan results as artifacts
       uses: actions/upload-artifact@v4
       with:
-        name: trivy-security-scan
-        path: trivy-results.sarif
+        name: trivy-backend-security-scan
+        path: trivy-backend-results.sarif
         retention-days: 30
     
     - name: Display Trivy summary
       run: |
-        echo "🔒 Security Scan Summary"
-        echo "======================="
-        if [ -f trivy-results.sarif ]; then
+        echo "🔒 Backend Security Scan Summary"
+        echo "================================"
+        if [ -f trivy-backend-results.sarif ]; then
           echo "✅ SARIF file generated successfully"
-          echo "📦 Available as artifact: trivy-security-scan"
-          echo "� Retention: 30 days"
+          echo "📦 Available as artifact: trivy-backend-security-scan"
+          echo "📅 Retention: 30 days"
         else
           echo "❌ No SARIF file found"
           exit 1
