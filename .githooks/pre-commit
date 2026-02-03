@@ -3,31 +3,8 @@
 # ============================================
 # Pre-commit Hook
 # Runs CI checks based on what files changed
-# Supports both Unix/Linux and Windows
+# Works on Unix/Linux/Mac and Windows (Git Bash)
 # ============================================
-
-# Detect OS
-IS_WINDOWS=false
-if [[ "$OSTYPE" == "msys" ]] || [[ "$OSTYPE" == "win32" ]]; then
-    IS_WINDOWS=true
-fi
-
-# On Windows, prefer using the batch script
-if [ "$IS_WINDOWS" = true ]; then
-    # Check if we're running in Git Bash or similar
-    if command -v cmd.exe &> /dev/null; then
-        # Get the directory of this script
-        HOOK_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
-        BATCH_FILE="$HOOK_DIR/pre-commit.bat"
-        
-        if [ -f "$BATCH_FILE" ]; then
-            # Convert path to Windows format
-            BATCH_WIN_PATH=$(echo "$BATCH_FILE" | sed 's|/|\\|g' | sed 's|^\\||')
-            cmd.exe //c "$BATCH_WIN_PATH"
-            exit $?
-        fi
-    fi
-fi
 
 echo "============================================"
 echo "Running Pre-commit Checks"

@@ -1,50 +1,47 @@
 @echo off
-REM ============================================
-REM Git Hooks Installation Script for Windows
-REM Installs git hooks from .githooks directory
-REM ============================================
+setlocal enabledelayedexpansion
 
 echo ============================================
 echo Installing Git Hooks
 echo ============================================
 
-REM Get the directory where this script is located
-set SCRIPT_DIR=%~dp0
-set PROJECT_ROOT=%SCRIPT_DIR%..
-
-REM Check if .githooks directory exists
-set GITHOOKS_DIR=%PROJECT_ROOT%\.githooks
-if not exist "%GITHOOKS_DIR%" (
-    echo [ERROR] .githooks directory not found at %GITHOOKS_DIR%
+REM Check if githooks directory exists
+if not exist ".githooks" (
+    echo [ERROR] .githooks directory not found
     exit /b 1
 )
 
-echo [OK] Found githooks directory at: %GITHOOKS_DIR%
-echo.
+echo [OK] Found githooks directory
 
-REM Copy hooks to .git/hooks
+REM Create .git/hooks directory if needed
+if not exist ".git\hooks" mkdir .git\hooks
+
+echo.
 echo [INFO] Installing pre-commit hooks...
-copy "%GITHOOKS_DIR%\pre-commit" "%PROJECT_ROOT%\.git\hooks\pre-commit" > nul
-copy "%GITHOOKS_DIR%\pre-commit.bat" "%PROJECT_ROOT%\.git\hooks\pre-commit.bat" > nul
 
-if %ERRORLEVEL% EQU 0 (
-    echo [OK] Pre-commit hooks installed successfully
+REM Copy the bash hook
+if exist ".githooks\pre-commit" (
+    echo [INFO] Copying pre-commit...
+    copy /Y ".githooks\pre-commit" ".git\hooks\pre-commit" >nul
+    echo [INFO] Converting line endings for Windows compatibility...
+    powershell -Command "(Get-Content .git\hooks\pre-commit -Raw).Replace(\"`r`n\", \"`n\") | Set-Content -NoNewline .git\hooks\pre-commit"
+    echo [OK] Pre-commit hook installed
 ) else (
-    echo [ERROR] Failed to install pre-commit hooks
-    exit /b 1
+    echo [WARNING] pre-commit not found
 )
 
-echo.
-echo [INFO] Available hooks:
-dir /B "%GITHOOKS_DIR%"
+REM Copy the batch hook
+if exist ".githooks\pre-commit.bat" (
+    echo [INFO] Copying pre-commit.bat...
+    copy /Y ".githooks\pre-commit.bat" ".git\hooks\pre-commit.bat" >nul
+    echo [OK] Pre-commit.bat hook installed
+) else (
+    echo [WARNING] pre-commit.bat not found
+)
 
 echo.
 echo ============================================
 echo [OK] Git hooks installation complete!
-echo.
-echo The pre-commit hook will now run automatically
-echo before each commit to check code quality.
-echo.
-echo To skip the hook (not recommended):
-echo   git commit --no-verify
 echo ============================================
+
+endlocal
