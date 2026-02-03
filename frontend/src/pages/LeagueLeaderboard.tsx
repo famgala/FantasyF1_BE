@@ -77,11 +77,12 @@ export default function LeagueLeaderboard() {
 
   if (loading) {
     return (
-    <>
-      <MobileNav />
-      <div className="league-leaderboard">
-        <div className="loading-spinner">Loading leaderboard...</div>
-      </div>
+      <>
+        <MobileNav />
+        <div className="league-leaderboard">
+          <div className="loading-spinner">Loading leaderboard...</div>
+        </div>
+      </>
     );
   }
 

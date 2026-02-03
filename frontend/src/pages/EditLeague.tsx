@@ -288,11 +288,12 @@ export default function EditLeague() {
 
   if (loading) {
     return (
-    <>
-      <MobileNav />
-      <div className="edit-league">
-        <div className="loading-spinner">Loading league details...</div>
-      </div>
+      <>
+        <MobileNav />
+        <div className="edit-league">
+          <div className="loading-spinner">Loading league details...</div>
+        </div>
+      </>
     );
   }
 
@@ -489,6 +490,5 @@ export default function EditLeague() {
         </div>
       </form>
     </div>
-    </>
   );
 }

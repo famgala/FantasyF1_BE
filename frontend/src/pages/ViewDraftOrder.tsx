@@ -78,11 +78,12 @@ export default function ViewDraftOrder() {
 
   if (loading) {
     return (
-    <>
-      <MobileNav />
-      <div className="page-container">
-        <div className="loading-spinner">Loading...</div>
-      </div>
+      <>
+        <MobileNav />
+        <div className="page-container">
+          <div className="loading-spinner">Loading...</div>
+        </div>
+      </>
     );
   }
 
@@ -221,6 +222,5 @@ export default function ViewDraftOrder() {
         </div>
       </div>
     </div>
-    </>
   );
 }

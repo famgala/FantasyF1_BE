@@ -140,11 +140,12 @@ export default function LeagueRoles() {
 
   if (loading) {
     return (
-    <>
-      <MobileNav />
-      <div className="league-roles">
-        <div className="loading-spinner">Loading league roles...</div>
-      </div>
+      <>
+        <MobileNav />
+        <div className="league-roles">
+          <div className="loading-spinner">Loading league roles...</div>
+        </div>
+      </>
     );
   }
 
@@ -308,6 +309,5 @@ export default function LeagueRoles() {
         </div>
       )}
     </div>
-    </>
   );
 }

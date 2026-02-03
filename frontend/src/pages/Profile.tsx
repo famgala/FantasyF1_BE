@@ -42,12 +42,12 @@ export const Profile: React.FC = () => {
 
   if (loading) {
     return (
-    <>
-      <MobileNav />
-      <div className="profile-page">
-        <div className="loading">Loading profile...</div>
-      </div>
-    </>
+      <>
+        <MobileNav />
+        <div className="profile-page">
+          <div className="loading">Loading profile...</div>
+        </div>
+      </>
     );
   }
 
@@ -147,9 +147,8 @@ export const Profile: React.FC = () => {
               </button>
             </div>
           </div>
+        </div>
       </div>
     </div>
-    </>
   );
-
 };
