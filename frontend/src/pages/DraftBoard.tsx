@@ -1,9 +1,10 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { getDraftPicks } from '../services/draftService';
 import type { DraftPick } from '../types';
 import { useAuth } from '../context/AuthContext';
 import { MobileNav } from '../components/MobileNav';
+import { ConnectionStatus, type ConnectionStatusType } from '../components/ConnectionStatus';
 
 export default function DraftBoard() {
   const { id: leagueId } = useParams<{ id: string }>();
@@ -14,29 +15,71 @@ export default function DraftBoard() {
   const [error, setError] = useState<string | null>(null);
   const [filterTeam, setFilterTeam] = useState<string>('all');
   const [filterRound, setFilterRound] = useState<string>('all');
+  const [connectionStatus, setConnectionStatus] = useState<ConnectionStatusType>('connecting');
+  const [lastUpdated, setLastUpdated] = useState<Date | undefined>();
+  const [isRefreshing, setIsRefreshing] = useState(false);
+  
+  // Polling configuration
+  const POLLING_INTERVAL = 3000; // 3 seconds
+  const pollingIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
   // Determine race ID - for now, we'll use a default or get from URL params
   // In a real app, this would come from the league's current/upcoming race
   const raceId = 1; // TODO: Get this from league data or URL params
 
+  // Fetch draft picks data
+  const fetchDraftPicks = async (isInitialLoad: boolean = false) => {
+    if (!leagueId) return;
+
+    try {
+      if (isInitialLoad) {
+        setLoading(true);
+      }
+      
+      const picksData = await getDraftPicks(leagueId, raceId);
+      setDraftPicks(picksData.draft_picks);
+      setError(null);
+      setConnectionStatus('connected');
+      setLastUpdated(new Date());
+    } catch (err) {
+      console.error('Error fetching draft picks:', err);
+      if (!isInitialLoad) {
+        setConnectionStatus('error');
+      } else {
+        setError('Failed to load draft board');
+      }
+    } finally {
+      if (isInitialLoad) {
+        setLoading(false);
+      }
+      setIsRefreshing(false);
+    }
+  };
+
+  // Manual refresh handler
+  const handleManualRefresh = () => {
+    setIsRefreshing(true);
+    fetchDraftPicks(false);
+  };
+
+  // Initial data fetch and polling setup
   useEffect(() => {
     if (!leagueId) return;
 
-    const fetchData = async () => {
-      try {
-        setLoading(true);
-        const picksData = await getDraftPicks(leagueId, raceId);
-        setDraftPicks(picksData.draft_picks);
-        setError(null);
-      } catch (err) {
-        setError('Failed to load draft board');
-        console.error('Error fetching draft picks:', err);
-      } finally {
-        setLoading(false);
+    // Initial fetch
+    fetchDraftPicks(true);
+
+    // Set up polling
+    pollingIntervalRef.current = setInterval(() => {
+      fetchDraftPicks(false);
+    }, POLLING_INTERVAL);
+
+    // Cleanup on unmount
+    return () => {
+      if (pollingIntervalRef.current) {
+        clearInterval(pollingIntervalRef.current);
       }
     };
-
-    fetchData();
   }, [leagueId, raceId]);
 
   // Get unique teams for filter
@@ -135,6 +178,12 @@ export default function DraftBoard() {
           <div className="draft-board-header">
             <h1>Draft Board</h1>
             <div className="header-actions">
+              <ConnectionStatus
+                status={connectionStatus}
+                lastUpdated={lastUpdated}
+                onManualRefresh={handleManualRefresh}
+                isRefreshing={isRefreshing}
+              />
               <button onClick={exportToCSV} className="btn btn-secondary">
                 Export CSV
               </button>

@@ -1,9 +1,11 @@
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect, useMemo, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { getDraftStatus, getAvailableDrivers, makeDraftPick } from '../services/draftService';
 import type { DraftStatus, AvailableDriver, MakeDraftPickRequest } from '../types';
 import { useAuth } from '../context/AuthContext';
+import { useToast } from '../context/ToastContext';
 import { MobileNav } from '../components/MobileNav';
+import { ConnectionStatus, type ConnectionStatusType } from '../components/ConnectionStatus';
 import CountdownTimer from '../components/CountdownTimer';
 
 export default function MakeDraftPick() {
@@ -21,45 +23,106 @@ export default function MakeDraftPick() {
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
   const [timeExpired, setTimeExpired] = useState(false);
+  const [connectionStatus, setConnectionStatus] = useState<ConnectionStatusType>('connecting');
+  const [lastUpdated, setLastUpdated] = useState<Date | undefined>();
+  const [isRefreshing, setIsRefreshing] = useState(false);
+  
+  // Polling configuration
+  const POLLING_INTERVAL = 3000; // 3 seconds
+  const pollingIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const previousCurrentTeamRef = useRef<string | null>(null);
+  const yourTurnNotifiedRef = useRef<boolean>(false);
+  
+  const { success: showSuccessToast, info: showInfoToast } = useToast();
 
   // Determine race ID - for now, we'll use a default or get from URL params
   // In a real app, this would come from the league's current/upcoming race
   const raceId = 1; // TODO: Get this from league data or URL params
 
+  // Fetch draft data
+  const fetchDraftData = async (isInitialLoad: boolean = false) => {
+    if (!leagueId) return;
+
+    try {
+      if (isInitialLoad) {
+        setLoading(true);
+      }
+      
+      const [statusData, driversData] = await Promise.all([
+        getDraftStatus(leagueId, raceId),
+        getAvailableDrivers(leagueId, raceId),
+      ]);
+
+      setDraftStatus(statusData);
+      setAvailableDrivers(driversData);
+      setError(null);
+      setConnectionStatus('connected');
+      setLastUpdated(new Date());
+
+      // Check if it's the user's turn and show notification
+      const isMyTurn = statusData.current_team?.user_id === user?.id;
+      const currentTeamId = statusData.current_team?.user_id || null;
+      
+      // Show "Your Turn" notification when it becomes the user's turn
+      if (isMyTurn && !statusData.is_draft_complete && !yourTurnNotifiedRef.current) {
+        if (previousCurrentTeamRef.current !== currentTeamId) {
+          showInfoToast(
+            'Your Turn!',
+            'It\'s your turn to make a draft pick. Select a driver from the list below.',
+            8000 // 8 seconds duration
+          );
+          yourTurnNotifiedRef.current = true;
+        }
+      } else if (!isMyTurn) {
+        // Reset notification flag when it's not the user's turn
+        yourTurnNotifiedRef.current = false;
+      }
+      
+      previousCurrentTeamRef.current = currentTeamId;
+
+      // Check if draft is complete
+      if (statusData.is_draft_complete && isInitialLoad) {
+        showSuccessToast('Draft Complete!', 'All teams have completed their picks.');
+      }
+    } catch (err: any) {
+      console.error('Error fetching draft data:', err);
+      if (!isInitialLoad) {
+        setConnectionStatus('error');
+      } else {
+        setError(err.response?.data?.detail || 'Failed to load draft data');
+      }
+    } finally {
+      if (isInitialLoad) {
+        setLoading(false);
+      }
+      setIsRefreshing(false);
+    }
+  };
+
+  // Manual refresh handler
+  const handleManualRefresh = () => {
+    setIsRefreshing(true);
+    fetchDraftData(false);
+  };
+
+  // Initial data fetch and polling setup
   useEffect(() => {
     if (!leagueId) return;
 
-    const fetchData = async () => {
-      try {
-        setLoading(true);
-        setError(null);
+    // Initial fetch
+    fetchDraftData(true);
 
-        const [statusData, driversData] = await Promise.all([
-          getDraftStatus(leagueId, raceId),
-          getAvailableDrivers(leagueId, raceId),
-        ]);
+    // Set up polling
+    pollingIntervalRef.current = setInterval(() => {
+      fetchDraftData(false);
+    }, POLLING_INTERVAL);
 
-        setDraftStatus(statusData);
-        setAvailableDrivers(driversData);
-
-        // Check if it's the user's turn
-        if (statusData.current_team?.user_id !== user?.id) {
-          setError('It is not your turn to make a draft pick.');
-        }
-
-        // Check if draft is complete
-        if (statusData.is_draft_complete) {
-          setError('The draft is already complete.');
-        }
-      } catch (err: any) {
-        setError(err.response?.data?.detail || 'Failed to load draft data');
-        console.error('Error fetching draft data:', err);
-      } finally {
-        setLoading(false);
+    // Cleanup on unmount
+    return () => {
+      if (pollingIntervalRef.current) {
+        clearInterval(pollingIntervalRef.current);
       }
     };
-
-    fetchData();
   }, [leagueId, raceId, user]);
 
   // Get unique teams for filter dropdown
@@ -154,16 +217,31 @@ export default function MakeDraftPick() {
 
   const isMyTurn = draftStatus?.current_team?.user_id === user?.id;
   const isDraftComplete = draftStatus?.is_draft_complete;
+  
+  // Reset notification flag when user makes a pick
+  useEffect(() => {
+    if (success) {
+      yourTurnNotifiedRef.current = false;
+    }
+  }, [success]);
 
   return (
     <div className="page-container">
       <div className="make-draft-pick-container">
         {/* Header */}
         <div className="page-header">
-          <h1>Make Draft Pick</h1>
-          <p className="page-subtitle">
-            Round {draftStatus?.current_round} / 5 • Pick #{draftStatus?.current_position}
-          </p>
+          <div className="page-header-content">
+            <h1>Make Draft Pick</h1>
+            <p className="page-subtitle">
+              Round {draftStatus?.current_round} / 5 • Pick #{draftStatus?.current_position}
+            </p>
+          </div>
+          <ConnectionStatus
+            status={connectionStatus}
+            lastUpdated={lastUpdated}
+            onManualRefresh={handleManualRefresh}
+            isRefreshing={isRefreshing}
+          />
         </div>
 
         {/* Success Message */}

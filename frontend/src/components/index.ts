@@ -24,3 +24,6 @@ export { ThemeToggle } from './ThemeToggle';
 // Accessibility Components
 export { default as SkipToMain } from './SkipToMain';
 export { Announcer } from './Announcer';
+
+// Connection Status
+export { ConnectionStatus, type ConnectionStatusType } from './ConnectionStatus';
