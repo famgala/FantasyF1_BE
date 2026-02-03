@@ -1,5 +1,4 @@
 import { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
 import { userService } from '../services/userService';
 import type { UserPreferences } from '../services/userService';
 import { useToast } from '../context/ToastContext';
@@ -7,8 +6,7 @@ import LoadingSpinner from '../components/LoadingSpinner';
 import MobileNav from '../components/MobileNav';
 
 const UserSettings = () => {
-  const navigate = useNavigate();
-  const { showToast } = useToast();
+  const { success, error } = useToast();
   const [preferences, setPreferences] = useState<UserPreferences | null>(null);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState<Record<string, boolean>>({});
@@ -22,8 +20,8 @@ const UserSettings = () => {
       setLoading(true);
       const data = await userService.getUserPreferences();
       setPreferences(data);
-    } catch (error) {
-      showToast('Failed to load preferences', 'error');
+    } catch (err) {
+      error('Error', 'Failed to load preferences');
     } finally {
       setLoading(false);
     }
@@ -36,9 +34,9 @@ const UserSettings = () => {
       setSaving(prev => ({ ...prev, [key]: true }));
       const updated = await userService.updateUserPreferences({ [key]: value });
       setPreferences(updated);
-      showToast('Preference updated successfully', 'success');
-    } catch (error) {
-      showToast('Failed to update preference', 'error');
+      success('Success', 'Preference updated successfully');
+    } catch (err) {
+      error('Error', 'Failed to update preference');
     } finally {
       setSaving(prev => ({ ...prev, [key]: false }));
     }

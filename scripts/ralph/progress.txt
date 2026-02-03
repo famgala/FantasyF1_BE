@@ -78,5 +78,37 @@
   - Contact form: Include form validation, success message display, and auto-reset after submission.
   - Keyboard shortcuts: Display in a grid with key badges using <kbd> element for visual styling.
   - Responsive design: Use grid layouts (md:grid-cols-2, lg:grid-cols-3) for cards, flex-wrap for category buttons.
-  - Typecheck passes - ensure all imports use type-only imports for types when verbatimModuleSyntax is enabled.
-  - When adding navigation buttons, remember to add them to both Dashboard.tsx (desktop) and MobileNav.tsx (mobile) for consistent UX.
+- Typecheck passes - ensure all imports use type-only imports for types when verbatimModuleSyntax is enabled.
+- When adding navigation buttons, remember to add them to both Dashboard.tsx (desktop) and MobileNav.tsx (mobile) for consistent UX.
+
+## [2026-02-03 9:00 PM] - US-058
+- Implemented complete User Settings page at /settings
+- Files changed:
+  - frontend/src/pages/UserSettings.tsx (new page component with email notification, display, privacy, and auto-pick preferences)
+  - frontend/src/pages/Dashboard.tsx (added Settings button to user menu)
+  - frontend/src/App.tsx (added /settings route)
+  - frontend/src/App.css (added comprehensive CSS styling for settings page, sections, forms, and responsive design)
+  - scripts/ralph/prd.json (updated US-058 to passes: true)
+- **Learnings for future iterations:**
+  - Backend preferences endpoint already exists in FantasyF1_BE at GET /api/v1/users/me/preferences and PUT /api/v1/users/me/preferences - no backend implementation needed.
+  - User preferences interface should include: email notifications (race completed, draft turn, league invitations, team updates), display preferences (theme, language, timezone), privacy settings (profile visibility, show email to league members), and auto-pick preferences (enabled toggle, strategy selection).
+  - Settings page structure: Header with title and subtitle, success/error alerts, settings sections with headings and descriptions, form groups with labels and inputs, save/reset buttons at bottom.
+  - Use checkbox labels with span.text for custom styling of checkbox text.
+  - Form help text (p.form-help) provides additional context for settings like auto-pick strategy.
+  - Disable inputs during saving state to prevent concurrent modifications.
+  - Success message auto-dismisses after 3 seconds using setTimeout.
+  - Reset button reloads preferences from API (not a true reset to defaults - could be improved in future).
+  - Typecheck passes - UserSettings component has no TypeScript errors.
+  - When implementing settings pages, organize into logical sections (Email Notifications, Display Preferences, Privacy Settings, Auto-Pick Preferences) with clear headings and descriptions.
+
+## [2026-02-03 9:03 PM] - US-058 (TypeScript Fixes)
+- Fixed TypeScript errors in UserSettings implementation
+- Files changed:
+  - frontend/src/App.tsx (fixed UserSettings import - changed from named import to default import)
+  - frontend/src/pages/UserSettings.tsx (removed unused saving state, changed LoadingSpinner size from "large" to "xl")
+- **Learnings for future iterations:**
+  - When importing components, check if they use default export or named export. UserSettings.tsx uses `export default UserSettings`, so import as `import UserSettings from './pages/UserSettings'` not `import { UserSettings } from './pages/UserSettings'`.
+  - LoadingSpinner component accepts size values: "xs", "sm", "md", "lg", "xl" - not "large" or "small".
+  - ToastContext provides methods: success, error, warning, info - not a generic showToast method. Use the specific method for the toast type.
+  - Remove unused state variables to avoid TypeScript warnings (e.g., the saving state was not being used).
+  - Always run typecheck after making changes to catch these issues early.
