@@ -221,11 +221,40 @@ pytest tests/ --cov=app --cov-report=html
 
 1. Fork the repository
 2. Create a feature branch (`git checkout -b feature/amazing-feature`)
-3. Make your changes
-4. Run tests and quality checks
-5. Commit your changes (`git commit -m 'Add amazing feature'`)
-6. Push to the branch (`git push origin feature/amazing-feature`)
-7. Open a Pull Request
+3. Install git hooks (see below)
+4. Make your changes
+5. Run tests and quality checks
+6. Commit your changes (pre-commit hooks will run automatically)
+7. Push to the branch (`git push origin feature/amazing-feature`)
+8. Open a Pull Request
+
+### Installing Git Hooks
+
+The project uses pre-commit hooks to ensure code quality before committing.
+
+**Windows:**
+```bash
+scripts\install-githooks.bat
+```
+
+**Linux/Mac:**
+```bash
+chmod +x scripts/install-githooks.sh
+./scripts/install-githooks.sh
+```
+
+The pre-commit hook will automatically:
+- Run Black formatter check
+- Run Ruff linter
+- Run MyPy type checker
+- Run pytest (when test files change)
+- Run ESLint and TypeScript checks (for frontend)
+- Test frontend build (when source files change)
+
+To skip the hook (not recommended):
+```bash
+git commit --no-verify
+```
 
 ### Pre-commit Requirements
 
@@ -241,6 +270,17 @@ ruff check app/ tests/
 mypy app/
 # Test
 pytest tests/
+```
+
+For frontend changes:
+```bash
+cd frontend
+# Lint
+npm run lint
+# Type check
+npx tsc --noEmit
+# Build
+npm run build
 ```
 
 ## 📦 Features
