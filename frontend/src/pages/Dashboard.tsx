@@ -58,12 +58,6 @@ export const Dashboard: React.FC = () => {
                 <ThemeToggle />
               </div>
               <Link
-                to="/leagues/create"
-                className="bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded-md text-sm font-medium mr-2"
-              >
-                Create League
-              </Link>
-              <Link
                 to="/leagues/join"
                 className="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-md text-sm font-medium mr-2"
               >

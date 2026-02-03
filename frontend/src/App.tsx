@@ -42,6 +42,7 @@ import RaceCalendar from './pages/RaceCalendar';
 import RaceDetail from './pages/RaceDetail';
 import RaceResults from './pages/RaceResults';
 import Notifications from './pages/Notifications';
+import Help from './pages/Help';
 
 function App() {
   return (
@@ -295,6 +296,14 @@ function App() {
             element={
               <ProtectedRoute>
                 <Notifications />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/help"
+            element={
+              <ProtectedRoute>
+                <Help />
               </ProtectedRoute>
             }
           />

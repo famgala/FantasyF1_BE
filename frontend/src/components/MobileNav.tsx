@@ -87,6 +87,7 @@ export const MobileNav: React.FC = () => {
     { to: '/constructors', label: 'Constructors', color: 'bg-rose-600' },
     { to: '/races', label: 'Race Calendar', color: 'bg-red-600' },
     { to: '/notifications', label: 'Notifications', color: 'bg-violet-600' },
+    { to: '/help', label: 'Help', color: 'bg-indigo-500' },
     { to: '/profile', label: 'Profile', color: 'bg-blue-600' },
   ];
 
