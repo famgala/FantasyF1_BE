@@ -17,3 +17,6 @@ export { ToastContainer, ToastItem, type Toast, type ToastType } from './Toast';
 
 // Activity Feed
 export { default as ActivityFeed } from './ActivityFeed';
+
+// Theme Components
+export { ThemeToggle } from './ThemeToggle';

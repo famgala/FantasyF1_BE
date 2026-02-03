@@ -4,6 +4,7 @@ import { useAuth } from '../context/AuthContext';
 import { invitationService } from '../services/invitationService';
 import { NotificationDropdown } from '../components/NotificationDropdown';
 import { MobileNav } from '../components/MobileNav';
+import { ThemeToggle } from '../components/ThemeToggle';
 
 export const Dashboard: React.FC = () => {
   const { user, logout } = useAuth();
@@ -53,6 +54,9 @@ export const Dashboard: React.FC = () => {
               <span className="text-gray-700 mr-4">
                 Welcome, {user?.full_name || user?.username}
               </span>
+              <div className="mr-2">
+                <ThemeToggle />
+              </div>
               <Link
                 to="/leagues/create"
                 className="bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded-md text-sm font-medium mr-2"

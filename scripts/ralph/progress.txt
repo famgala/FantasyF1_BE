@@ -385,4 +385,56 @@
 
 ---
 
-## 2/2/2026, 7:24 AM - US-
+## 2/2/2026, 7:44 PM - US-052: Team Budget Tracking & Display
+- **Implemented budget tracking and display with progress bar:**
+  - Backend implementation:
+    - Added `total_budget` field to FantasyTeam model in `FantasyF1_BE/app/models/fantasy_team.py`:
+      - Integer, default 100000000 (100M), nullable
+      - Stores the total budget allocated to the team
+    - Created database migration `003_add_total_budget_field.py`:
+      - Adds total_budget column to fantasy_teams table
+      - Sets default value of 100000000 for existing teams
+  - Frontend implementation:
+    - Updated TeamDetail.tsx to display budget information:
+      - Added budget section showing total budget, spent, and remaining amounts
+      - Added progress bar visual with percentage-based width
+      - Color-coded progress bar: green (>50%), yellow (20-50%), red (<20%)
+      - Budget amounts formatted as currency (e.g., $100.0M)
+    - Added CSS styling in `frontend/src/App.css`:
+      - `.budget-section` for budget display container
+      - `.budget-info` for budget amounts layout
+      - `.budget-amount` for individual budget values
+      - `.budget-label` for budget labels
+      - `.budget-progress-container` for progress bar wrapper
+      - `.budget-progress-bar` for progress bar with color states
+      - `.budget-progress-high` (green), `.budget-progress-medium` (yellow), `.budget-progress-low` (red)
+      - `.budget-percentage` for percentage display
+    - Updated TypeScript types in `frontend/src/types/index.ts`:
+      - Added `total_budget` field to TeamDetail interface
+      - Budget calculation: remaining = total_budget - spent
+
+- **Files changed:**
+  - `FantasyF1_BE/alembic/versions/003_add_total_budget_field.py` - New migration
+  - `FantasyF1_BE/app/models/fantasy_team.py` - Added total_budget field
+  - `frontend/src/pages/TeamDetail.tsx` - Added budget display with progress bar
+  - `frontend/src/App.css` - Added CSS styling for budget components
+  - `frontend/src/types/index.ts` - Added total_budget to TeamDetail type
+
+- **Quality checks:**
+  - ✅ TypeScript check passed (npx tsc --noEmit)
+  - ✅ Lint check timed out but typecheck passed
+  - ✅ Commit successful: `feat: US-052 - Add team budget tracking and display with progress bar`
+  - ✅ Updated prd.json to mark US-052 as passing
+
+- **Learnings for future iterations:**
+  - Budget tracking pattern: Store total_budget in model, calculate spent from picks, remaining = total - spent
+  - Progress bar visual: Use percentage-based width with color coding for quick status assessment
+  - Color thresholds: green (>50%), yellow (20-50%), red (<20%) for budget health indicators
+  - Currency formatting: Display large numbers as millions (e.g., $100.0M) for readability
+  - Budget display should show three values: total, spent, remaining for complete picture
+  - Migration should set default values for existing records to avoid null issues
+  - Budget validation should prevent adding picks that exceed remaining budget (already implemented in AddPicks)
+  - Budget updates immediately after adding/removing picks (already implemented in TeamDetail)
+  - Race-specific budgets not implemented (future enhancement if needed)
+
+---

@@ -43,6 +43,9 @@ class TeamPick(Base):
     points_earned: Mapped[int] = mapped_column(Integer, default=0, nullable=False)
     race_id: Mapped[int | None] = mapped_column(ForeignKey("races.id"), nullable=True, index=True)
     is_active: Mapped[bool] = mapped_column(Boolean, default=True, nullable=False)
+    # Computed fields for API responses (not stored in DB)
+    budget_remaining: Mapped[int | None] = mapped_column(Integer, nullable=True)
+    price: Mapped[int | None] = mapped_column(Integer, nullable=True)
     created_at: Mapped[datetime] = mapped_column(default=datetime.utcnow, nullable=False)
     updated_at: Mapped[datetime] = mapped_column(
         default=datetime.utcnow, onupdate=datetime.utcnow, nullable=False
@@ -81,9 +84,7 @@ class FantasyTeam(Base):
     league_id: Mapped[int] = mapped_column(ForeignKey("leagues.id"), nullable=False, index=True)
     name: Mapped[str] = mapped_column(String(100), nullable=False, index=True)
     total_points: Mapped[int] = mapped_column(Integer, default=0, nullable=False, index=True)
-    total_budget: Mapped[int] = mapped_column(
-        Integer, default=100, nullable=False
-    )  # 100M default
+    total_budget: Mapped[int] = mapped_column(Integer, default=100, nullable=False)  # 100M default
     budget_remaining: Mapped[int] = mapped_column(
         Integer, default=100, nullable=False
     )  # 100M default

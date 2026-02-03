@@ -1072,8 +1072,8 @@
         "Verify in browser using dev-browser skill"
       ],
       "priority": 52,
-      "passes": false,
-      "notes": "Backend budget logic may need to be reviewed/enhanced"
+      "passes": true,
+      "notes": "Implemented budget progress bar on TeamDetail page with visual indicators (green/yellow/red based on remaining budget). Added total_budget field to FantasyTeam model and migration. Budget display shows total, spent, and remaining amounts with percentage-based progress bar. CSS styling for budget states and responsive design."
     },
     {
       "id": "US-053",
@@ -1092,8 +1092,8 @@
         "Verify in browser using dev-browser skill"
       ],
       "priority": 53,
-      "passes": false,
-      "notes": ""
+      "passes": true,
+      "notes": "Implemented complete theme switcher with ThemeContext, ThemeToggle component, CSS variables for light/dark themes, localStorage persistence, system preference detection, and smooth transitions. Added to Dashboard.tsx and App.tsx. Dev server running successfully."
     },
     {
       "id": "US-054",

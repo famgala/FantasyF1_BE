@@ -41,6 +41,7 @@ class Constructor(Base):
     world_wins: Mapped[int] = mapped_column(Integer, server_default="0", nullable=False)
     world_championships: Mapped[int] = mapped_column(Integer, server_default="0", nullable=False)
     current_points: Mapped[int] = mapped_column(Integer, server_default="0", nullable=False)
+    price: Mapped[int] = mapped_column(Integer, default=0, nullable=False)  # Price in millions
 
     created_at: Mapped[datetime] = mapped_column(default=datetime.utcnow, nullable=False)
     updated_at: Mapped[datetime] = mapped_column(

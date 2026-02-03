@@ -398,13 +398,13 @@ class FantasyTeamService:
                 driver_query = select(Driver).where(Driver.id == pick.driver_id)
                 result = await session.execute(driver_query)
                 driver = result.scalar_one_or_none()
-                if driver:
+                if driver and driver.price is not None:
                     team.budget_remaining += driver.price
             elif pick.pick_type == "constructor" and pick.constructor_id:
                 constructor_query = select(Constructor).where(Constructor.id == pick.constructor_id)
                 result = await session.execute(constructor_query)
                 constructor = result.scalar_one_or_none()
-                if constructor:
+                if constructor and constructor.price is not None:
                     team.budget_remaining += constructor.price
 
         # Deactivate rather than delete for audit trail

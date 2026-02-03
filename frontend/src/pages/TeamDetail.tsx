@@ -314,8 +314,8 @@ export const TeamDetailPage: React.FC = () => {
             <div className="stat-value stat-points">{team.total_points}</div>
           </div>
           <div className="stat-card">
-            <div className="stat-label">Budget</div>
-            <div className="stat-value stat-budget">${team.budget.toLocaleString()}</div>
+            <div className="stat-label">Total Budget</div>
+            <div className="stat-value stat-budget">${team.total_budget.toLocaleString()}</div>
           </div>
           <div className="stat-card">
             <div className="stat-label">Remaining</div>
@@ -334,7 +334,7 @@ export const TeamDetailPage: React.FC = () => {
             <div className="budget-progress-stats">
               <span className="budget-stat">
                 <span className="budget-stat-label">Spent:</span>
-                <span className="budget-stat-value">${(team.budget - team.budget_remaining).toLocaleString()}</span>
+                <span className="budget-stat-value">${(team.total_budget - team.budget_remaining).toLocaleString()}</span>
               </span>
               <span className="budget-stat">
                 <span className="budget-stat-label">Remaining:</span>
@@ -342,7 +342,7 @@ export const TeamDetailPage: React.FC = () => {
               </span>
               <span className="budget-stat">
                 <span className="budget-stat-label">Total:</span>
-                <span className="budget-stat-value">${team.budget.toLocaleString()}</span>
+                <span className="budget-stat-value">${team.total_budget.toLocaleString()}</span>
               </span>
             </div>
           </div>
@@ -351,16 +351,16 @@ export const TeamDetailPage: React.FC = () => {
               <div
                 className="budget-progress-fill"
                 style={{
-                  width: `${((team.budget - team.budget_remaining) / team.budget) * 100}%`,
+                  width: `${((team.total_budget - team.budget_remaining) / team.total_budget) * 100}%`,
                 }}
               ></div>
             </div>
             <div className="budget-progress-labels">
               <span className="budget-progress-label">
-                {((team.budget - team.budget_remaining) / team.budget * 100).toFixed(1)}% Spent
+                {((team.total_budget - team.budget_remaining) / team.total_budget * 100).toFixed(1)}% Spent
               </span>
               <span className="budget-progress-label">
-                ${(team.budget - team.budget_remaining).toLocaleString()} / ${team.budget.toLocaleString()}
+                ${(team.total_budget - team.budget_remaining).toLocaleString()} / ${team.total_budget.toLocaleString()}
               </span>
             </div>
           </div>
