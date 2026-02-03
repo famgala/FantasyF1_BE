@@ -151,6 +151,14 @@ export interface LeagueMember {
   joined_at: string;
 }
 
+export type UserRole = 'creator' | 'co_manager' | 'member';
+
+export interface MyRoleResponse {
+  role: UserRole | null;
+  league_id: number;
+  user_id: number;
+}
+
 // Leaderboard Types
 export interface LeaderboardEntry {
   rank: number;

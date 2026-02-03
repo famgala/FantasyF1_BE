@@ -16,10 +16,12 @@ from app.schemas.league import (
     LeagueResponse,
     LeagueUpdate,
 )
+from app.schemas.league_role import MyRoleResponse
 from app.schemas.team import TeamResponse as LeagueTeamResponse
 from app.services.fantasy_team_service import FantasyTeamService
 from app.services.invitation_service import InvitationService
 from app.services.leaderboard_service import LeaderboardService
+from app.services.league_role_service import LeagueRoleService
 from app.services.league_service import LeagueService
 
 router = APIRouter()
@@ -463,6 +465,29 @@ async def get_leaderboard(
         race_name=race_name,
         entries=entries,
         total_entries=total_entries,
+    )
+
+
+@router.get("/{league_id}/my-role", response_model=MyRoleResponse, status_code=status.HTTP_200_OK)
+async def get_my_role(
+    league_id: int,
+    db: Annotated[AsyncSession, Depends(get_db)],
+    current_user: Annotated[User, Depends(get_current_user)],
+) -> MyRoleResponse:
+    """Get the current user's role in a league.
+
+    Returns the user's role (creator, co_manager, or member) or null if not a member.
+    """
+    # Verify league exists
+    await LeagueService.get(db, league_id)
+
+    # Get user's role
+    user_role = await LeagueRoleService.get_user_role(db, league_id, current_user.id)
+
+    return MyRoleResponse(
+        role=user_role.role if user_role else None,
+        league_id=league_id,
+        user_id=current_user.id,
     )
 
 

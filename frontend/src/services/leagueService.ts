@@ -1,5 +1,5 @@
 import { apiClient as api } from './api';
-import type { League, PaginatedResponse, CreateLeagueRequest, JoinLeagueRequest, LeagueMember, FantasyTeam, UpdateLeagueRequest, MyLeague } from '../types';
+import type { League, PaginatedResponse, CreateLeagueRequest, JoinLeagueRequest, LeagueMember, FantasyTeam, UpdateLeagueRequest, MyLeague, MyRoleResponse } from '../types';
 
 export interface GetLeaguesRequest {
   page?: number;
@@ -115,4 +115,11 @@ export async function getMyLeagues(sort: string = 'alphabetical'): Promise<MyLea
       sort,
     },
   });
+}
+
+/**
+ * Get the current user's role in a league
+ */
+export async function getMyRole(leagueId: string): Promise<MyRoleResponse> {
+  return api.get<MyRoleResponse>(`/leagues/${leagueId}/my-role`);
 }

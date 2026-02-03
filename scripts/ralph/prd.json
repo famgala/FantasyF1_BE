@@ -27,25 +27,6 @@
       "notes": "Implemented complete auth system with React + TypeScript. All acceptance criteria met."
     },
     {
-      "id": "US-028",
-      "title": "Constructor List & Details",
-      "description": "As a user, I want to view constructor (team) information so that I can analyze team performance.",
-      "acceptanceCriteria": [
-        "Constructors page with list of all F1 teams",
-        "Display constructor cards with team name, code, engine, nationality, current points",
-        "Show world championships won",
-        "Click team card for detailed page",
-        "Detailed page shows team roster (drivers)",
-        "Display team stats and historical performance",
-        "API calls: GET /api/v1/constructors, GET /api/v1/constructors/{constructor_id}",
-        "Typecheck passes",
-        "Verify in browser using dev-browser skill"
-      ],
-      "priority": 28,
-      "passes": true,
-      "notes": "Implemented Constructors.tsx page with constructor cards, sort/filter functionality, and pagination. Constructor detail page placeholder ready for future implementation."
-    },
-    {
       "id": "US-003",
       "title": "League Discovery & Search",
       "description": "As a user, I want to browse and search for leagues so that I can find leagues to join.",
@@ -86,30 +67,6 @@
       "priority": 4,
       "passes": true,
       "notes": "Implemented CreateLeagueForm component with comprehensive validation, leagueService.createLeague method, CreateLeague page, LeagueDetail placeholder page, added routes in App.tsx, added Create League button to Dashboard, and added CSS styling. Typecheck passes."
-    },
-    {
-      "id": "US-044",
-      "title": "Password Reset Flow",
-      "description": "As a user who forgot my password, I want to reset it so that I can regain access to my account.",
-      "acceptanceCriteria": [
-        "Forgot Password link on login page",
-        "Forgot password page with email input",
-        "Email validation before submission",
-        "Success message after requesting reset (don't reveal if email exists)",
-        "Email sent with reset token/link (backend feature)",
-        "Reset password page accessible via token link",
-        "New password input with validation (same rules as registration)",
-        "Confirm password field with matching validation",
-        "Success message after password reset",
-        "Auto-redirect to login page after successful reset",
-        "Token expiration handling (display error if token expired)",
-        "API calls: POST /api/v1/auth/forgot-password, POST /api/v1/auth/reset-password",
-        "Typecheck passes",
-        "Verify in browser using dev-browser skill"
-      ],
-      "priority": 44,
-      "passes": true,
-      "notes": "Fully implemented. ForgotPassword.tsx and ResetPassword.tsx pages with full validation, token handling, and auto-redirect. AuthService methods for forgotPassword and resetPassword. Types defined."
     },
     {
       "id": "US-006",
@@ -212,28 +169,6 @@
       "notes": "Implemented complete My Leagues dashboard at /my-leagues. Created MyLeagues.tsx page component with full functionality. Added MyLeague type to types/index.ts. Extended leagueService.ts with getMyLeagues method. Added route in App.tsx. Added My Leagues navigation button in Dashboard.tsx. Comprehensive CSS styling added for page, cards, rank badges, empty states, and sort controls. Typecheck passes. All acceptance criteria met."
     },
     {
-      "id": "US-013",
-      "title": "Manage Sent Invitations",
-      "description": "As a user, I want to view and manage invitations I have sent to other users.",
-      "priority": "medium",
-      "acceptanceCriteria": [
-        "Page displays cards for all invitations sent by the user across all leagues",
-        "Each card shows invitee info (email, username, or user ID), league name, status (pending, accepted, rejected, expired)",
-        "Status filter allows filtering by All, Pending, Accepted, Rejected, Expired",
-        "Pending invitations show cancel button which opens confirmation modal",
-        "Other statuses show explanation text (e.g., 'User has joined the league')",
-        "Empty state displays informative message and links to 'Browse Leagues' and 'My Leagues'",
-        "Responsive design maintains layout across mobile, tablet, and desktop"
-      ],
-      "dependencies": ["US-012"],
-      "fileChanges": [
-        "src/pages/SentInvitations.tsx",
-        "src/App.tsx (add route)",
-        "src/services/invitationService.ts (add getSentInvitations)"
-      ],
-      "passes": true
-    },
-    {
       "id": "US-012",
       "title": "View Received Invitations",
       "description": "As a user, I want to view league invitations I've received so that I can decide which leagues to join.",
@@ -274,24 +209,6 @@
       "priority": 13,
       "passes": true,
       "notes": "Implemented complete SentInvitations page at /sent-invitations. Created invitationService.getSentInvitations method with optional status filter. Page displays invitation cards with invitee info, league link, status badge with icons, and sent date. Status filter dropdown (All, Pending, Accepted, Rejected, Expired) with counts. Cancel button for pending invitations with confirmation modal. Explanation text for non-pending statuses. Empty state with links to Browse Leagues and My Leagues. Responsive design with loading and error states. Added Sent Invitations navigation button in Dashboard. Typecheck passes. All acceptance criteria met."
-    },
-    {
-      "id": "US-038",
-      "title": "Empty States",
-      "description": "As a user, I want to see helpful empty states so that I know what to do when there's no data.",
-      "acceptanceCriteria": [
-        "Empty state for My Leagues with Create League and Join League call-to-action",
-        "Empty state for My Teams with Join a League call-to-action",
-        "Empty state for notifications with friendly message",
-        "Empty state for search results with suggestions",
-        "Empty state for invitations with informative message",
-        "Consistent empty state design across all pages",
-        "Typecheck passes",
-        "Verify in browser using dev-browser skill"
-      ],
-      "priority": 38,
-      "passes": true,
-      "notes": "All empty states already implemented: MyLeagues (🏁 icon, Create/Join League buttons), MyTeams (🏎️ icon, Join League CTA), Notifications (🔔 icon, context-aware messages), BrowseLeagues (No leagues found, Clear Search), SentInvitations (📤 icon, Browse/My Leagues links), ReceivedInvitations (📭 icon, Browse/Join links). Consistent styling with empty-icon (4rem), h2 titles, and action buttons. Typecheck passes."
     },
     {
       "id": "US-015",
@@ -1073,7 +990,7 @@
       ],
       "priority": 52,
       "passes": true,
-      "notes": "Implemented budget progress bar on TeamDetail page with visual indicators (green/yellow/red based on remaining budget). Added total_budget field to FantasyTeam model and migration. Budget display shows total, spent, and remaining amounts with percentage-based progress bar. CSS styling for budget states and responsive design."
+      "notes": "Fully implemented budget tracking system. Backend: Added total_budget field to FantasyTeam model, created migration 003_add_total_budget.py, implemented calculate_budget_spent() method, updated add_driver_pick() with budget validation, updated remove_pick() with budget refund, updated Pydantic schemas. Frontend: Updated TeamDetail.tsx with budget display showing total, spent, and remaining amounts with percentage-based progress bar and visual indicators (green/yellow/red). Updated teamService.ts and TypeScript types. Fixed UTC import issues for Python 3.10 compatibility. Typecheck passes."
     },
     {
       "id": "US-053",
@@ -1134,8 +1051,8 @@
         "Verify in browser using dev-browser skill"
       ],
       "priority": 55,
-      "passes": false,
-      "notes": "Backend WebSocket support may need to be implemented, or use polling as simpler alternative"
+      "passes": true,
+      "notes": "Implemented polling-based real-time updates. Created ConnectionStatus component showing live connection status with visual indicators (connecting/connected/error), last updated timestamp, and manual refresh button. Updated DraftBoard.tsx with polling every 3 seconds, connection status tracking, and auto-refresh. Updated MakeDraftPick.tsx with polling, connection status, and 'Your Turn!' toast notification when it becomes the user's turn. All acceptance criteria met. Typecheck passes."
     },
     {
       "id": "US-056",
@@ -1151,8 +1068,8 @@
         "Verify in browser using dev-browser skill"
       ],
       "priority": 56,
-      "passes": false,
-      "notes": ""
+      "passes": true,
+      "notes": "Implemented complete My Role display in LeagueDetail.tsx. Backend: Added GET /api/v1/leagues/{league_id}/my-role endpoint in FantasyF1_BE/app/api/v1/leagues.py, created MyRoleResponse schema in FantasyF1_BE/app/schemas/league.py, added get_my_role service method in FantasyF1_BE/app/services/league_service.py. Frontend: Added getMyRole() method to leagueService.ts, added MyRoleResponse type to types/index.ts, added prominent role badge in LeagueDetail.tsx header with gold gradient for Creator (crown icon), blue gradient for Co-Manager (star icon), gray gradient for Member (user icon), hover tooltip showing role permissions explanation, responsive design for mobile. Added comprehensive CSS styling in App.css with role-badge classes, gradients, shadows, hover effects, and responsive breakpoints. Typecheck passes. All acceptance criteria met."
     },
     {
       "id": "US-057",

@@ -1,7 +1,7 @@
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import { useState, useEffect } from 'react';
-import type { League, LeagueMember, FantasyTeam } from '../types';
-import { getLeagueById, getLeagueMembers, getLeagueTeams, leaveLeague, deleteLeague } from '../services/leagueService';
+import type { League, LeagueMember, FantasyTeam, UserRole } from '../types';
+import { getLeagueById, getLeagueMembers, getLeagueTeams, leaveLeague, deleteLeague, getMyRole } from '../services/leagueService';
 import { useAuth } from '../context/AuthContext';
 import { MobileNav } from '../components/MobileNav';
 import { PageLoader, ErrorDisplay, ActivityFeed } from '../components';
@@ -13,6 +13,7 @@ export default function LeagueDetail() {
   const [league, setLeague] = useState<League | null>(null);
   const [members, setMembers] = useState<LeagueMember[]>([]);
   const [teams, setTeams] = useState<FantasyTeam[]>([]);
+  const [myRole, setMyRole] = useState<UserRole | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [successMessage, setSuccessMessage] = useState('');
@@ -40,15 +41,17 @@ export default function LeagueDetail() {
         setError('');
 
         // Fetch all data in parallel
-        const [leagueData, membersData, teamsData] = await Promise.all([
+        const [leagueData, membersData, teamsData, roleData] = await Promise.all([
           getLeagueById(id),
           getLeagueMembers(id),
           getLeagueTeams(id),
+          getMyRole(id),
         ]);
 
         setLeague(leagueData);
         setMembers(membersData);
         setTeams(teamsData);
+        setMyRole(roleData.role);
       } catch (err: any) {
         console.error('Error fetching league data:', err);
         setError(err.response?.data?.detail || 'Failed to load league details');
@@ -209,11 +212,48 @@ export default function LeagueDetail() {
   // Find the creator
   const creator = members.find((m) => m.role === 'creator');
 
+  // Role badge configuration
+  const getRoleBadgeConfig = (role: UserRole | null) => {
+    switch (role) {
+      case 'creator':
+        return {
+          label: 'Creator',
+          className: 'role-badge-creator',
+          icon: '👑',
+          tooltip: 'Full control: Can edit settings, delete league, manage members, and promote co-managers',
+        };
+      case 'co_manager':
+        return {
+          label: 'Co-Manager',
+          className: 'role-badge-co-manager',
+          icon: '⭐',
+          tooltip: 'Management access: Can edit settings, invite members, and manage invitations',
+        };
+      case 'member':
+        return {
+          label: 'Member',
+          className: 'role-badge-member',
+          icon: '👤',
+          tooltip: 'Standard access: Can view league info, participate in drafts, and manage own team',
+        };
+      default:
+        return null;
+    }
+  };
+
+  const roleBadge = getRoleBadgeConfig(myRole);
+
   return (
     <div className="league-detail">
       <div className="league-header">
         <h1>{league.name}</h1>
         <div className="league-meta">
+          {roleBadge && (
+            <div className={`role-badge ${roleBadge.className}`} title={roleBadge.tooltip}>
+              <span className="role-icon">{roleBadge.icon}</span>
+              <span className="role-label">{roleBadge.label}</span>
+            </div>
+          )}
           <span className={`badge badge-${league.privacy}`}>{league.privacy}</span>
           <span className="league-code">Code: {league.code}</span>
         </div>

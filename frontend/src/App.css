@@ -8117,3 +8117,89 @@
     align-items: flex-start;
   }
 }
+
+/* ============================================
+   ROLE BADGE STYLES
+   ============================================ */
+
+/* Role Badge - Prominent display in League Detail */
+.role-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 1rem;
+  border-radius: 8px;
+  font-size: 0.875rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.025em;
+  white-space: nowrap;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  transition: all 0.15s ease-in-out;
+  cursor: help;
+}
+
+.role-badge:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+}
+
+.role-badge .role-icon {
+  font-size: 1.125rem;
+  line-height: 1;
+}
+
+.role-badge .role-label {
+  line-height: 1;
+}
+
+/* Creator Role Badge - Gold/Yellow */
+.role-badge-creator {
+  background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+  color: #92400e;
+  border: 2px solid #f59e0b;
+  box-shadow: 0 2px 8px rgba(245, 158, 11, 0.3);
+}
+
+.role-badge-creator:hover {
+  background: linear-gradient(135deg, #fde68a 0%, #fcd34d 100%);
+  box-shadow: 0 4px 12px rgba(245, 158, 11, 0.4);
+}
+
+/* Co-Manager Role Badge - Blue */
+.role-badge-co-manager {
+  background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%);
+  color: #1e40af;
+  border: 2px solid #3b82f6;
+  box-shadow: 0 2px 8px rgba(59, 130, 246, 0.3);
+}
+
+.role-badge-co-manager:hover {
+  background: linear-gradient(135deg, #bfdbfe 0%, #93c5fd 100%);
+  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.4);
+}
+
+/* Member Role Badge - Gray */
+.role-badge-member {
+  background: linear-gradient(135deg, #f3f4f6 0%, #e5e7eb 100%);
+  color: #4b5563;
+  border: 2px solid #9ca3af;
+  box-shadow: 0 2px 8px rgba(156, 163, 175, 0.3);
+}
+
+.role-badge-member:hover {
+  background: linear-gradient(135deg, #e5e7eb 0%, #d1d5db 100%);
+  box-shadow: 0 4px 12px rgba(156, 163, 175, 0.4);
+}
+
+/* Responsive for Role Badge */
+@media (max-width: 768px) {
+  .role-badge {
+    padding: 0.375rem 0.75rem;
+    font-size: 0.75rem;
+  }
+
+  .role-badge .role-icon {
+    font-size: 1rem;
+  }
+}

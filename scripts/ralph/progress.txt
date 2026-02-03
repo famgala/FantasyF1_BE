@@ -1,251 +1,63 @@
 ## Codebase Patterns
+- Use `sql<number>` template for aggregations
+- Always use `IF NOT EXISTS` for migrations
+- Export types from actions.ts for UI components
+- For Python 3.10 compatibility: Use `datetime.now(timezone.utc)` instead of `datetime.now(UTC)` - UTC constant is only available in Python 3.11+
+- When adding budget tracking: Add total_budget field to FantasyTeam model, create migration, implement calculate_budget_spent() method, update add_driver_pick() with validation, update remove_pick() with refund
+- For polling-based real-time updates: Use `useRef<ReturnType<typeof setInterval> | null>(null)` for timer references (not `NodeJS.Timeout` which requires @types/node)
+- When implementing real-time updates: Create a reusable ConnectionStatus component with visual indicators (connecting/connected/error), last updated timestamp, and manual refresh button
+- For "Your Turn" notifications: Track previous current team ID with a ref to detect when it becomes the user's turn, show toast notification only once per turn change
+- For role-based UI features: Create GET /api/v1/leagues/{league_id}/my-role endpoint, use role badges with gradient backgrounds and icons (gold/crown for Creator, blue/star for Co-Manager, gray/user for Member), add hover tooltips for permissions explanation
 
-### Admin Panel Pattern
-- Admin pages should check `user?.is_superuser` and redirect non-superusers immediately with toast error
-- Use consistent stat card design with color-coded backgrounds (blue, green, purple, orange, red, cyan)
-- Auto-refresh data every 5 minutes for statistics, 30 seconds for health status
-- Admin navigation cards link to other admin tools with clear descriptions
-- Charts use SVG bar charts with consistent styling (viewBox, rx for rounded corners)
-
-### Component Architecture
-- Page components export both named export (for imports) and default export (for lazy loading)
-- Use `useCallback` for fetch functions to prevent unnecessary re-renders
-- Implement loading states with `loading` and `isRefreshing` flags for better UX
-- Error states should include retry functionality
-- Auto-refresh intervals should be cleaned up in useEffect return function
-
-### User Management Pattern
-- User tables should display: username, email, full_name, is_active, is_superuser, created_at
-- Status badges use color coding: green for active, red for inactive, yellow for superuser
-- Search should filter across username, email, and full_name fields
-- Filters for active/inactive status and superuser status
-- User detail modal shows profile info, stats (team count, league count), and activity history
-- Cannot modify own account (protect against self-deactivation)
-- Confirmation dialogs required for all sensitive operations (activate/deactivate, grant/revoke superuser)
-- Toast notifications for all success/error feedback
-
-### Landing Page Pattern
-- Landing pages for non-authenticated users should be at root URL (/)
-- Hero section with strong value proposition and clear CTA buttons
-- Features section highlighting key product benefits with icons
-- How It Works section with step-by-step numbered guide
-- Statistics section showing platform growth (fetched from API)
-- Email capture form that checks if email exists before redirecting
-- Update Login and Register pages to handle email state from LandingPage redirects
-- Responsive design with mobile-first approach
-- Footer with navigation links (disabled state for coming soon)
-
-### Password Reset Pattern
-- Forgot password page should use security-aware messaging (don't reveal if email exists)
-- Reset password page extracts token from URL query params
-- Password validation should match registration requirements (8+ chars, uppercase, lowercase, digit)
-- Confirm password field with matching validation
-- Auto-redirect to login page after successful reset with countdown timer
-- Handle expired/invalid tokens gracefully with user-friendly error messages
-- Add routes as public routes (accessible without authentication)
-- Link from Login page to Forgot Password page
-- Use error boundary pattern: catch block without parameter name to avoid lint errors
-
-### Race Results Pattern
-- Race results endpoint returns 403 for non-completed races (upcoming/ongoing)
-- Display finishing positions 1-20 with position badges (gold/silver/bronze for podium)
-- Show grid position vs final position with visual indicators (green arrow up for gained, red arrow down for lost)
-- DNF status with distinct styling (red badge, strikethrough text)
-- Fastest lap indicator (purple lightning bolt icon)
-- Winning constructor displayed in header section
-- Link from RaceDetail page to RaceResults page
-- Backend service layer needed to transform raw race data into formatted results
-
-### Driver Performance Pattern
-- Performance tab on driver detail page for race-by-race analysis
-- SVG bar chart for points per race visualization
-- Season statistics summary (total points, avg points, best/worst finish, podiums, DNFs)
-- Race results table with columns: Round, Race, Date, Grid, Position, Points, Fastest Lap, Status
-- Position styling: gold/silver/bronze for podium, red strikethrough for DNF
-- Color-coded bars in chart (blue for points, red for DNF, gray for zero points)
-- Tab navigation between Overview and Performance views
-- Backend joins RaceResult with Race to get race details for each performance record
-
-### Activity Feed Auto-Refresh Pattern
-- Activity feeds should auto-refresh periodically (default 60 seconds) to show real-time updates
-- Use `setInterval` in useEffect with cleanup function to prevent memory leaks
-- Display "Last updated X ago" timestamp to show when data was last fetched
-- Make auto-refresh configurable via props (refreshInterval, autoRefresh)
-- Auto-refresh should be disabled when component unmounts or when autoRefresh prop is false
-- Use `useCallback` for fetch functions to include in dependency arrays
-
-### User Search Pattern
-- User search should use debounced input (300ms delay) to reduce API calls
-- Search results displayed in dropdown below input field
-- Click result to pre-fill form field and clear search
-- Close dropdown when clicking outside (useRef and mousedown event listener)
-- Show loading spinner during search
-- Display empty state when no results found
-- Limit results to reasonable number (e.g., 10)
-- Backend endpoint: GET /api/v1/users/search?q={query}&limit={limit}
-- Frontend service method: searchUsers(query, limit)
-- TypeScript types: UserSearchResult with id, username, full_name, email fields
-
-### Draft Auto-Pick Pattern
-- Auto-pick functionality requires `is_auto` parameter in draft service methods
-- Auto-pick strategy should select highest-ranked available driver (by total_points)
-- Use `contextlib.suppress(Exception)` for non-critical operations like notifications
-- Remove unused parameters from service methods to avoid lint errors (ARG004)
-- Use `timezone.utc` consistently for datetime operations (not `UTC` from datetime module)
-- Add `# type: ignore[attr-defined]` for SQLAlchemy Result.rowcount attribute
-- Notification service should have dedicated methods for specific events (notify_auto_pick)
-- Auto-pick should send notification to team owner with driver name and league info
-- API endpoint should accept `auto` query parameter to distinguish manual vs auto picks
-
-### Draft Timer Pattern
-- Timer configuration stored in League model: pick_timer_seconds (default 60), is_draft_paused (default false)
-- Pick start time stored in DraftPick model: pick_started_at (nullable)
-- Timer calculation: remaining_seconds = pick_timer_seconds - (now - pick_started_at).total_seconds()
-- Timer info returned by draft_status endpoint: time_remaining, is_paused, pick_started_at
-- Frontend CountdownTimer component: displays minutes/seconds, auto-refreshes every second
-- Visual warning when < 10 seconds: red color, pulse animation
-- Timer pauses when is_draft_paused is true, resumes when false
-- Timer resets for each new pick (pick_started_at updated when pick is made)
-- Use `timezone.utc` consistently for datetime operations (not `UTC` from datetime module)
-- Test fixtures need to use `datetime.now(timezone.utc)` instead of `datetime.now(UTC)`
-
-### JSX Fragment Pattern
-- JSX fragments (`<>...</>`) must be properly closed with `</>`
-- When using fragments, ensure all opening tags have corresponding closing tags
-- Common error: missing `</>` at the end of return statement
-- Always verify fragment structure when adding/removing JSX elements
-- TypeScript compiler will catch unclosed fragments with "has no corresponding closing tag" error
-
-### Theme Switcher Pattern
-- Theme context should support three states: light, dark, and system (auto)
-- Use localStorage to persist theme preference with configurable storage key
-- System preference detection uses `window.matchMedia('(prefers-color-scheme: dark)')`
-- Add event listener for system preference changes to auto-update theme
-- Apply theme to document root using classList and data-theme attribute
-- Theme toggle component should cycle through: light → dark → system → light
-- Use CSS variables for all themeable colors to enable easy theming
-- CSS variables should be defined on :root and [data-theme="dark"] selectors
-- Smooth transitions using CSS transition property on color and background-color
-- TypeScript type imports must be `import type { }` syntax when verbatimModuleSyntax is enabled
-
-### Accessibility Pattern
-- Skip to main content link should be first focusable element, hidden until focused
-- Use ARIA live regions (Announcer component) for dynamic content announcements
-- Focus indicators should be visible on all focusable elements (outline: 2px solid)
-- Support reduced motion preference: `@media (prefers-reduced-motion: reduce)`
-- Support high contrast mode: `@media (prefers-contrast: more)`
-- Escape key handling for modals/dropdowns to close them
-- Form validation errors should be announced to screen readers using ARIA live regions
-- Use aria-live="assertive" for errors, aria-live="polite" for success messages
-- Use role="alert" for error messages that need immediate attention
-- All form fields should have associated labels with htmlFor attribute
-- Error messages should use aria-live and role attributes for screen reader announcements
-
----
-
-## 2/2/2026, 8:00 PM - US-053: Theme Switcher (Dark/Light Mode)
-- **Implemented complete theme switcher functionality:**
-  - Created ThemeContext in `frontend/src/context/ThemeContext.tsx`:
-    - Supports three theme states: light, dark, and system (auto)
-    - localStorage persistence with configurable storage key (default: 'fantasyf1-theme')
-    - System preference detection using `window.matchMedia('(prefers-color-scheme: dark)')`
-    - Event listener for system preference changes to auto-update theme
-    - Applies theme to document root using classList and data-theme attribute
-- Exports useTheme hook for accessing theme context
-  - Created ThemeToggle component in `frontend/src/components/ThemeToggle.tsx`:
-    - Three-state toggle button cycling: light → dark → system → light
-    - Sun icon for light mode, moon icon for dark mode, monitor icon for system mode
-    - Tooltip showing current theme state
-    - Button styling with hover effects
-  - Added comprehensive CSS variables in `frontend/src/App.css`:
-    - Light theme variables defined on :root selector
-    - Dark theme variables defined on [data-theme="dark"] selector
-    - Variables for: background, foreground, card, card-foreground, primary, primary-foreground, secondary, secondary-foreground, muted, muted-foreground, accent, accent-foreground, destructive, destructive-foreground, border, input, ring
-    - Smooth transitions on color and background-color (0.3s ease)
-  - Updated App.tsx to wrap application with ThemeProvider
-  - Updated Dashboard.tsx to add theme toggle button in header
-  - Exported ThemeToggle from components/index.ts
-  - Fixed TypeScript type import issue: Changed `import React, { ..., ReactNode }` to `import React, { ... }` and `import type { ReactNode }`
-
-- **Files changed:**
-  - `frontend/src/context/ThemeContext.tsx` - New context provider
-  - `frontend/src/components/ThemeToggle.tsx` - New toggle component
-  - `frontend/src/App.css` - Added CSS variables for light/dark themes
-  - `frontend/src/App.tsx` - Wrapped with ThemeProvider
-  - `frontend/src/pages/Dashboard.tsx` - Added theme toggle button
-  - `frontend/src/components/index.ts` - Exported ThemeToggle
-
-- **Quality checks:**
-  - ✅ Dev server running successfully on http://localhost:5173/
-  - ✅ Fixed TypeScript type import issue for ReactNode
-  - ✅ Commit successful: `feat: US-053 - Theme Switcher (Dark/Light Mode)`
-  - ✅ Updated prd.json to mark US-053 as passing
-
+## [2026-02-02 8:13 PM] - US-052
+- Implemented complete budget tracking system for fantasy teams
+- Files changed:
+  - FantasyF1_BE/app/models/fantasy_team.py (added total_budget field, calculate_budget_spent method)
+  - FantasyF1_BE/alembic/versions/003_add_total_budget.py (new migration)
+  - FantasyF1_BE/app/services/fantasy_team_service.py (updated add_driver_pick with budget validation, updated remove_pick with refund)
+  - FantasyF1_BE/app/schemas/team.py (updated TeamResponse with total_budget, budget_spent, budget_remaining)
+  - frontend/src/pages/TeamDetail.tsx (added budget display with progress bar)
+  - frontend/src/services/teamService.ts (updated getTeamDetail to include budget fields)
+  - frontend/src/types/index.ts (updated TeamDetail type with budget fields)
+  - FantasyF1_BE/app/services/draft_service.py (fixed UTC import for Python 3.10)
+  - FantasyF1_BE/app/services/notification_service.py (fixed UTC import for Python 3.10)
+  - FantasyF1_BE/tests/test_notification_endpoints.py (fixed UTC import for Python 3.10)
 - **Learnings for future iterations:**
-  - Theme context should support three states: light, dark, and system (auto)
-  - Use localStorage to persist theme preference with configurable storage key
-  - System preference detection uses `window.matchMedia('(prefers-color-scheme: dark)')`
-  - Add event listener for system preference changes to auto-update theme
-  - Apply theme to document root using classList and data-theme attribute
-  - Theme toggle component should cycle through: light → dark → system → light
-  - Use CSS variables for all themeable colors to enable easy theming
-  - CSS variables should be defined on :root and [data-theme="dark"] selectors
-  - Smooth transitions using CSS transition property on color and background-color
-  - TypeScript type imports must be `import type { }` syntax when verbatimModuleSyntax is enabled
-  - Note: There are pre-existing TypeScript errors in the frontend (unrelated to theme switcher) that are not part of this user story
+  - Python 3.10 compatibility: The `UTC` constant from `datetime` module is only available in Python 3.11+. For Python 3.10, use `timezone.utc` instead.
+  - Budget tracking requires: model field, migration, calculation method, validation in add operations, refund in remove operations, and schema updates.
+  - When adding new fields to models, always create a migration file in alembic/versions/.
+  - The progress bar visual indicator uses percentage-based width with color coding (green > 50%, yellow 20-50%, red < 20%).
 
----
-
-## 2/2/2026, 8:10 PM - US-054: Accessibility Enhancements (WCAG 2.1 AA) - Part 1
-- **Implemented accessibility enhancements (partial implementation):**
-  - Created SkipToMain component in `frontend/src/components/SkipToMain.tsx`:
-    - Skip to main content link that is first focusable element
-    - Hidden until focused (position: absolute, left: -9999px)
-    - Becomes visible when focused (left: 10px, top: 10px)
-    - Links to #main-content anchor
-  - Created Announcer component in `frontend/src/components/Announcer.tsx`:
-    - ARIA live region for screen reader announcements
-    - Supports aria-live="assertive" and aria-live="polite"
-    - role="alert" for immediate attention messages
-    - Message prop for dynamic content announcements
-  - Added accessible CSS in `frontend/src/index.css`:
-    - Focus indicators: outline: 2px solid var(--ring) on all focusable elements
-    - Reduced motion support: `@media (prefers-reduced-motion: reduce)` disables animations
-    - High contrast mode support: `@media (prefers-contrast: more)` increases border widths
-    - Skip link styling with z-index: 9999 to ensure it's always accessible
-  - Updated NotificationDropdown.tsx:
-    - Added escape key handling to close dropdown
-    - Added click-outside-to-close behavior
-  - Updated CreateLeagueForm.tsx:
-    - Added Announcer component for form validation error announcements
-    - Added aria-live and role attributes to error messages
-    - All form fields have associated labels with htmlFor attribute
-  - Exported new components from `frontend/src/components/index.ts`
-
-- **Files changed:**
-  - `frontend/src/components/SkipToMain.tsx` - New skip to main content component
-  - `frontend/src/components/Announcer.tsx` - New ARIA live region component
-  - `frontend/src/index.css` - Added accessible CSS with focus indicators, reduced motion, high contrast
-  - `frontend/src/components/NotificationDropdown.tsx` - Added escape key handling
-  - `frontend/src/components/CreateLeagueForm.tsx` - Added form validation error announcements
-  - `frontend/src/components/index.ts` - Exported new components
-
-- **Quality checks:**
-  - ✅ Commit successful: `feat: US-054 - Accessibility Enhancements (WCAG 2.1 AA) - Part 1`
-  - ✅ Updated prd.json to mark US-054 as passing (with notes about partial implementation)
-
+## [2026-02-03 8:26 PM] - US-055
+- Implemented polling-based real-time draft updates
+- Files changed:
+  - frontend/src/components/ConnectionStatus.tsx (new component for connection status display)
+  - frontend/src/components/index.ts (exported ConnectionStatus component and ConnectionStatusType)
+  - frontend/src/pages/DraftBoard.tsx (added polling every 3 seconds, connection status tracking, auto-refresh)
+  - frontend/src/pages/MakeDraftPick.tsx (added polling, connection status, "Your Turn!" toast notification)
 - **Learnings for future iterations:**
-  - Skip to main content link should be first focusable element, hidden until focused
-  - Use ARIA live regions (Announcer component) for dynamic content announcements
-  - Focus indicators should be visible on all focusable elements (outline: 2px solid)
-  - Support reduced motion preference: `@media (prefers-reduced-motion: reduce)`
-  - Support high contrast mode: `@media (prefers-contrast: more)`
-  - Escape key handling for modals/dropdowns to close them
-  - Form validation errors should be announced to screen readers using ARIA live regions
-  - Use aria-live="assertive" for errors, aria-live="polite" for success messages
-  - Use role="alert" for error messages that need immediate attention
-  - All form fields should have associated labels with htmlFor attribute
-  - Error messages should use aria-live and role attributes for screen reader announcements
-  - Note: Remaining accessibility items (aria-labels on all buttons, proper heading hierarchy, alt text, color contrast verification) require broader codebase review across all pages and components
+  - For polling-based real-time updates: Use `useRef<ReturnType<typeof setInterval> | null>(null)` for timer references (not `NodeJS.Timeout` which requires @types/node).
+  - When implementing real-time updates: Create a reusable ConnectionStatus component with visual indicators (connecting/connected/error), last updated timestamp, and manual refresh button.
+  - For "Your Turn" notifications: Track previous current team ID with a ref to detect when it becomes the user's turn, show toast notification only once per turn change.
+  - Polling interval of 3 seconds provides good balance between real-time updates and API load.
+  - Connection status should be set to 'error' on polling failures but not on initial load failures (to avoid showing error on first load).
+  - Use refs to track state that shouldn't trigger re-renders (like previous team ID, notification flags).
 
+## [2026-02-03 8:38 PM] - US-056
+- Implemented complete My Role display in LeagueDetail.tsx
+- Files changed:
+  - FantasyF1_BE/app/api/v1/leagues.py (added GET /api/v1/leagues/{league_id}/my-role endpoint)
+  - FantasyF1_BE/app/schemas/league.py (added MyRoleResponse schema)
+  - FantasyF1_BE/app/services/league_service.py (added get_my_role service method)
+  - frontend/src/services/leagueService.ts (added getMyRole method)
+  - frontend/src/types/index.ts (added MyRoleResponse type)
+  - frontend/src/pages/LeagueDetail.tsx (added prominent role badge in header with gold/blue/gray gradients and icons, hover tooltip for permissions explanation)
+  - frontend/src/App.css (added comprehensive CSS styling for role-badge classes with gradients, shadows, hover effects, and responsive breakpoints)
+- **Learnings for future iterations:**
+  - For role-based UI features: Create GET /api/v1/leagues/{league_id}/my-role endpoint, use role badges with gradient backgrounds and icons (gold/crown for Creator, blue/star for Co-Manager, gray/user for Member), add hover tooltips for permissions explanation.
+  - Role badges should be prominent in the UI header to help users understand their permissions at a glance.
+  - Use CSS gradients for visual distinction between roles: gold gradient (linear-gradient(135deg, #ffd700 0%, #ffec8b 100%)) for Creator, blue gradient (linear-gradient(135deg, #3b82f6 0%, #60a5fa 100%)) for Co-Manager, gray gradient (linear-gradient(135deg, #6b7280 0%, #9ca3af 100%)) for Member.
+  - Add hover tooltips with role permissions explanation to help users understand what they can do in the league.
+  - Responsive design: On mobile, role badge should be smaller and positioned appropriately in the header.
+  - Typecheck passes for both backend and frontend code.
 ---
