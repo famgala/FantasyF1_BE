@@ -1,0 +1,511 @@
+import { useParams, Link, useNavigate } from 'react-router-dom';
+import { useState, useEffect } from 'react';
+import type { League, LeagueMember, FantasyTeam, UserRole } from '../types';
+import { getLeagueById, getLeagueMembers, getLeagueTeams, leaveLeague, deleteLeague, getMyRole } from '../services/leagueService';
+import { useAuth } from '../context/AuthContext';
+import { MobileNav } from '../components/MobileNav';
+import { PageLoader, ErrorDisplay, ActivityFeed } from '../components';
+
+export default function LeagueDetail() {
+  const { id } = useParams<{ id: string }>();
+  const navigate = useNavigate();
+  const { user } = useAuth();
+  const [league, setLeague] = useState<League | null>(null);
+  const [members, setMembers] = useState<LeagueMember[]>([]);
+  const [teams, setTeams] = useState<FantasyTeam[]>([]);
+  const [myRole, setMyRole] = useState<UserRole | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
+  const [successMessage, setSuccessMessage] = useState('');
+  const [isLeaving, setIsLeaving] = useState(false);
+  
+  // Delete league modal state
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [deleteConfirmName, setDeleteConfirmName] = useState('');
+  const [isDeleting, setIsDeleting] = useState(false);
+
+  // Determine user's role and membership status
+  const currentMember = members.find((m) => m.user_id === user?.id);
+  const userRole = currentMember?.role;
+  const isCreator = userRole === 'creator';
+  const isCoManager = userRole === 'co_manager';
+  const isMember = !!currentMember;
+  const isLeagueFull = teams.length >= (league?.max_teams || 0);
+
+  useEffect(() => {
+    const fetchLeagueData = async () => {
+      if (!id) return;
+
+      try {
+        setLoading(true);
+        setError('');
+
+        // Fetch all data in parallel
+        const [leagueData, membersData, teamsData, roleData] = await Promise.all([
+          getLeagueById(id),
+          getLeagueMembers(id),
+          getLeagueTeams(id),
+          getMyRole(id),
+        ]);
+
+        setLeague(leagueData);
+        setMembers(membersData);
+        setTeams(teamsData);
+        setMyRole(roleData.role);
+      } catch (err: any) {
+        console.error('Error fetching league data:', err);
+        setError(err.response?.data?.detail || 'Failed to load league details');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchLeagueData();
+  }, [id]);
+
+  const handleJoinLeague = () => {
+    alert('Join League functionality coming soon! (US-006)');
+  };
+
+  const handleLeaveLeague = async () => {
+    if (!id) return;
+
+    // Show confirmation dialog
+    const confirmed = window.confirm(
+      'Are you sure you want to leave this league? Your team will be deactivated and you will no longer be able to participate in this league.'
+    );
+
+    if (!confirmed) return;
+
+    try {
+      setIsLeaving(true);
+      await leaveLeague(id);
+      setSuccessMessage('You have successfully left the league!');
+      
+      // Redirect to dashboard after 2 seconds
+      setTimeout(() => {
+        navigate('/dashboard');
+      }, 2000);
+    } catch (err: any) {
+      console.error('Error leaving league:', err);
+      setError(err.response?.data?.detail || 'Failed to leave league. Please try again.');
+    } finally {
+      setIsLeaving(false);
+    }
+  };
+
+  const handleEditLeague = () => {
+    navigate(`/leagues/${id}/edit`);
+  };
+
+  const openDeleteModal = () => {
+    setShowDeleteModal(true);
+    setDeleteConfirmName('');
+  };
+
+  const closeDeleteModal = () => {
+    setShowDeleteModal(false);
+    setDeleteConfirmName('');
+  };
+
+  const handleDeleteLeague = async () => {
+    if (!id) return;
+    if (!league) return;
+    
+    // Validate that user typed the correct league name
+    if (deleteConfirmName !== league.name) {
+      setError('Please type the league name exactly to confirm deletion.');
+      return;
+    }
+
+    try {
+      setIsDeleting(true);
+      setError('');
+      await deleteLeague(id);
+      setShowDeleteModal(false);
+      setSuccessMessage('League deleted successfully!');
+      
+      // Redirect to dashboard after 2 seconds
+      setTimeout(() => {
+        navigate('/dashboard');
+      }, 2000);
+    } catch (err: any) {
+      console.error('Error deleting league:', err);
+      setError(err.response?.data?.detail || 'Failed to delete league. Please try again.');
+    } finally {
+      setIsDeleting(false);
+    }
+  };
+
+  const handleInviteMembers = () => {
+    navigate(`/leagues/${id}/invite`);
+  };
+
+  const handleManageInvitations = () => {
+    navigate(`/leagues/${id}/invitations`);
+  };
+
+  const handleManageRoles = () => {
+    navigate(`/leagues/${id}/roles`);
+  };
+
+  if (loading) {
+    return (
+      <>
+        <MobileNav />
+        <PageLoader message="Loading league details..." />
+      </>
+    );
+  }
+
+  if (error) {
+    return (
+      <>
+        <MobileNav />
+        <div className="league-detail">
+          <ErrorDisplay
+            title="Failed to Load League"
+            message={error}
+            onRetry={() => {
+              if (!id) return;
+              setLoading(true);
+              setError('');
+              Promise.all([
+                getLeagueById(id),
+                getLeagueMembers(id),
+                getLeagueTeams(id),
+              ])
+                .then(([leagueData, membersData, teamsData]) => {
+                  setLeague(leagueData);
+                  setMembers(membersData);
+                  setTeams(teamsData);
+                })
+                .catch((err: any) => {
+                  console.error('Error fetching league data:', err);
+                  setError(err.response?.data?.detail || 'Failed to load league details');
+                })
+                .finally(() => setLoading(false));
+            }}
+            isRetrying={loading}
+          />
+        </div>
+      </>
+    );
+  }
+
+  if (!league) {
+    return (
+      <>
+        <MobileNav />
+        <div className="league-detail">
+          <ErrorDisplay
+            title="League Not Found"
+            message="The league you're looking for doesn't exist or you don't have permission to view it."
+            onRetry={() => navigate('/leagues')}
+            isRetrying={false}
+          />
+        </div>
+      </>
+    );
+  }
+
+  // Find the creator
+  const creator = members.find((m) => m.role === 'creator');
+
+  // Role badge configuration
+  const getRoleBadgeConfig = (role: UserRole | null) => {
+    switch (role) {
+      case 'creator':
+        return {
+          label: 'Creator',
+          className: 'role-badge-creator',
+          icon: '👑',
+          tooltip: 'Full control: Can edit settings, delete league, manage members, and promote co-managers',
+        };
+      case 'co_manager':
+        return {
+          label: 'Co-Manager',
+          className: 'role-badge-co-manager',
+          icon: '⭐',
+          tooltip: 'Management access: Can edit settings, invite members, and manage invitations',
+        };
+      case 'member':
+        return {
+          label: 'Member',
+          className: 'role-badge-member',
+          icon: '👤',
+          tooltip: 'Standard access: Can view league info, participate in drafts, and manage own team',
+        };
+      default:
+        return null;
+    }
+  };
+
+  const roleBadge = getRoleBadgeConfig(myRole);
+
+  return (
+    <div className="league-detail">
+      <div className="league-header">
+        <h1>{league.name}</h1>
+        <div className="league-meta">
+          {roleBadge && (
+            <div className={`role-badge ${roleBadge.className}`} title={roleBadge.tooltip}>
+              <span className="role-icon">{roleBadge.icon}</span>
+              <span className="role-label">{roleBadge.label}</span>
+            </div>
+          )}
+          <span className={`badge badge-${league.privacy}`}>{league.privacy}</span>
+          <span className="league-code">Code: {league.code}</span>
+        </div>
+      </div>
+
+      <div className="league-info">
+        {/* Success Message */}
+        {successMessage && (
+          <div className="alert alert-success">{successMessage}</div>
+        )}
+        {/* Description Section */}
+        <div className="info-section">
+          <h3>Description</h3>
+          <p>{league.description || 'No description provided'}</p>
+        </div>
+
+        {/* League Information Section */}
+        <div className="info-section">
+          <h3>League Information</h3>
+          <div className="league-stats">
+            <div className="stat-item">
+              <span className="stat-label">Creator:</span>
+              <span className="stat-value">{creator?.username || 'Unknown'}</span>
+            </div>
+            <div className="stat-item">
+              <span className="stat-label">Teams:</span>
+              <span className="stat-value">
+                {teams.length} / {league.max_teams}
+                {isLeagueFull && <span className="badge badge-full">Full</span>}
+              </span>
+            </div>
+            <div className="stat-item">
+              <span className="stat-label">Draft Method:</span>
+              <span className="stat-value">{league.draft_method}</span>
+            </div>
+            <div className="stat-item">
+              <span className="stat-label">Privacy:</span>
+              <span className="stat-value">{league.privacy}</span>
+            </div>
+            <div className="stat-item">
+              <span className="stat-label">Created:</span>
+              <span className="stat-value">
+                {new Date(league.created_at).toLocaleDateString('en-US', {
+                  year: 'numeric',
+                  month: 'long',
+                  day: 'numeric',
+                })}
+              </span>
+            </div>
+          </div>
+        </div>
+
+        {/* Members Section */}
+        <div className="info-section">
+          <h3>Members ({members.length})</h3>
+          {members.length > 0 ? (
+            <div className="members-list">
+              {members.map((member) => (
+                <div key={member.user_id} className="member-item">
+                  <div className="member-info">
+                    <span className="member-username">{member.username}</span>
+                    <span className="member-fullname">{member.full_name}</span>
+                  </div>
+                  <span className={`role-badge role-${member.role}`}>
+                    {member.role === 'creator'
+                      ? 'Creator'
+                      : member.role === 'co_manager'
+                      ? 'Co-Manager'
+                      : 'Member'}
+                  </span>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <p className="empty-state">No members yet</p>
+          )}
+        </div>
+
+        {/* Teams Section */}
+        <div className="info-section">
+          <h3>Teams ({teams.length})</h3>
+          {teams.length > 0 ? (
+            <div className="teams-list">
+              {teams.map((team) => {
+                const owner = members.find((m) => m.user_id === team.user_id);
+                return (
+                  <div key={team.id} className="team-item">
+                    <div className="team-info">
+                      <span className="team-name">{team.name}</span>
+                      <span className="team-owner">
+                        Owner: {owner?.username || 'Unknown'}
+                      </span>
+                    </div>
+                    <div className="team-stats">
+                      <span className="team-points">{team.total_points} pts</span>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          ) : (
+            <p className="empty-state">No teams yet</p>
+          )}
+        </div>
+
+        {/* Actions Section */}
+        <div className="info-section">
+          <h3>Actions</h3>
+          <div className="action-buttons">
+            {/* Join League Button - shown if not a member and league not full */}
+            {!isMember && !isLeagueFull && (
+              <button className="btn btn-success" onClick={handleJoinLeague}>
+                Join League
+              </button>
+            )}
+
+            {/* Leave League Button - shown if member but not creator */}
+            {isMember && !isCreator && (
+              <button 
+                className="btn btn-secondary" 
+                onClick={handleLeaveLeague}
+                disabled={isLeaving}
+              >
+                {isLeaving ? 'Leaving...' : 'Leave League'}
+              </button>
+            )}
+
+            {/* Edit League Button - shown if creator or co-manager */}
+            {(isCreator || isCoManager) && (
+              <button className="btn btn-primary" onClick={handleEditLeague}>
+                Edit League
+              </button>
+            )}
+
+            {/* Delete League Button - shown if creator */}
+            {isCreator && (
+              <button className="btn btn-danger" onClick={openDeleteModal}>
+                Delete League
+              </button>
+            )}
+
+            {/* Invite Members Button - shown if creator or co-manager */}
+            {(isCreator || isCoManager) && (
+              <button className="btn btn-primary" onClick={handleInviteMembers}>
+                Invite Members
+              </button>
+            )}
+
+            {/* Manage Invitations Button - shown if creator or co-manager */}
+            {(isCreator || isCoManager) && (
+              <button className="btn btn-secondary" onClick={handleManageInvitations}>
+                Manage Invitations
+              </button>
+            )}
+
+            {/* Manage Roles Button - shown if creator */}
+            {isCreator && (
+              <button className="btn btn-primary" onClick={handleManageRoles}>
+                Manage Roles
+              </button>
+            )}
+
+            {/* Create Draft Order Button - shown if creator */}
+            {isCreator && (
+              <button className="btn btn-primary" onClick={() => navigate(`/leagues/${id}/create-draft-order`)}>
+                Create Draft Order
+              </button>
+            )}
+
+            {/* View Draft Order Button - shown to all members */}
+            {isMember && (
+              <button className="btn btn-secondary" onClick={() => navigate(`/leagues/${id}/draft-order`)}>
+                View Draft Order
+              </button>
+            )}
+
+            {/* Draft Status Button - shown to all members */}
+            {isMember && (
+              <button className="btn btn-primary" onClick={() => navigate(`/leagues/${id}/draft-status`)}>
+                Draft Status
+              </button>
+            )}
+
+            {/* Draft Board Button - shown to all members */}
+            {isMember && (
+              <button className="btn btn-secondary" onClick={() => navigate(`/leagues/${id}/draft-board`)}>
+                Draft Board
+              </button>
+            )}
+
+            {/* Leaderboard Link */}
+            <Link to={`/leagues/${id}/leaderboard`} className="btn btn-outline">
+              View Leaderboard
+            </Link>
+          </div>
+        </div>
+
+        {/* Activity Feed Section - shown to all members */}
+        {isMember && id && (
+          <div className="info-section activity-feed-section">
+            <ActivityFeed leagueId={id} limit={10} showFilter={true} />
+          </div>
+        )}
+      </div>
+
+      {/* Delete League Confirmation Modal */}
+      {showDeleteModal && league && (
+        <div className="modal-overlay">
+          <div className="modal-container">
+            <div className="modal-header">
+              <h3>Delete League</h3>
+            </div>
+            <div className="modal-content">
+              <div className="delete-warning">
+                <p className="warning-text">
+                  <strong>Warning:</strong> This action is permanent and cannot be undone.
+                </p>
+                <p className="warning-details">
+                  All league data, including teams, members, settings, and history will be permanently deleted.
+                </p>
+              </div>
+              <p className="confirm-instruction">
+                To confirm deletion, please type the league name: <strong>{league.name}</strong>
+              </p>
+              <input
+                type="text"
+                className="form-control"
+                placeholder="Type league name to confirm"
+                value={deleteConfirmName}
+                onChange={(e) => setDeleteConfirmName(e.target.value)}
+                autoFocus
+              />
+            </div>
+            <div className="modal-actions">
+              <button
+                className="btn btn-secondary"
+                onClick={closeDeleteModal}
+                disabled={isDeleting}
+              >
+                Cancel
+              </button>
+              <button
+                className="btn btn-danger"
+                onClick={handleDeleteLeague}
+                disabled={isDeleting || deleteConfirmName !== league.name}
+              >
+                {isDeleting ? 'Deleting...' : 'Delete League'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}

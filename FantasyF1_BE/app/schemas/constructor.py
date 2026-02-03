@@ -22,6 +22,7 @@ class ConstructorCreate(ConstructorBase):
     world_wins: int = Field(default=0, ge=0, description="Historical win count")
     world_championships: int = Field(default=0, ge=0, description="World championships won")
     current_points: int = Field(default=0, ge=0, description="Current season points")
+    price: int = Field(default=0, ge=0, description="Fantasy price in millions")
 
 
 class ConstructorUpdate(BaseModel):
@@ -43,6 +44,7 @@ class ConstructorResponse(ConstructorBase):
     world_wins: int
     world_championships: int
     current_points: int
+    price: int
     created_at: datetime
     updated_at: datetime
 

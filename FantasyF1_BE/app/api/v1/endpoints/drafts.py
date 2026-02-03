@@ -237,6 +237,7 @@ async def make_draft_pick(
     league_id: int,
     race_id: int = Query(..., description="Race ID for the draft"),
     driver_id: int = Query(..., description="ID of the driver to draft"),
+    auto: bool = Query(default=False, description="Whether this is an auto-pick"),
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(get_current_user),
 ) -> dict[str, Any]:
@@ -246,6 +247,7 @@ async def make_draft_pick(
     - **league_id**: ID of the league
     - **race_id**: ID of the race
     - **driver_id**: ID of the driver to draft
+    - **auto**: Whether this is an auto-pick (default: false)
     """
     # Get user's team in this league
     team_result = await db.execute(
@@ -270,7 +272,7 @@ async def make_draft_pick(
             race_id=race_id,
             fantasy_team_id=team_id,
             driver_id=driver_id,
-            user_id=current_user.id,
+            is_auto=auto,
         )
 
         # Get driver info
@@ -386,6 +388,11 @@ async def get_draft_status(
             else:
                 current_team = None
 
+        # Get timer information
+        timer_info = None
+        if not is_draft_complete:
+            timer_info = await DraftService.get_timer_info(db, league_id=league_id, race_id=race_id)
+
         return {
             "league_id": league_id,
             "race_id": race_id,
@@ -397,6 +404,7 @@ async def get_draft_status(
             "current_position": current_position,
             "current_team": current_team,
             "next_pick": next_pick,
+            "timer": timer_info,
         }
     except NotFoundError:
         # Draft may not have been started yet
@@ -418,6 +426,7 @@ async def get_draft_status(
             "current_position": 1,
             "current_team": None,
             "next_pick": None,
+            "timer": None,
         }
 
 

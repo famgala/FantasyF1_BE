@@ -5,10 +5,12 @@ from typing import Annotated
 from fastapi import APIRouter, Depends, Query, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.api.deps import get_current_superuser, get_db
+from app.api.deps import get_current_active_user, get_current_superuser, get_db
 from app.core.exceptions import NotFoundError
 from app.models.user import User
 from app.schemas.race import RaceListResponse, RaceResponse, RaceUpdate
+from app.schemas.race_result import RaceResultListResponse
+from app.services.race_result_service import RaceResultService
 from app.services.race_service import RaceService
 
 router = APIRouter()
@@ -19,8 +21,9 @@ async def list_races(
     db: Annotated[AsyncSession, Depends(get_db)],
     skip: int = Query(default=0, ge=0),
     limit: int = Query(default=100, ge=1, le=100),
-    status: str
-    | None = Query(default=None, description="Filter by status (upcoming, completed, cancelled)"),
+    status: str | None = Query(
+        default=None, description="Filter by status (upcoming, completed, cancelled)"
+    ),
     country: str | None = Query(default=None, description="Filter by country"),
 ) -> RaceListResponse:
     """List all races with optional filtering."""
@@ -89,3 +92,30 @@ async def update_race(
         raise NotFoundError("Race not found")
     updated = await RaceService.update(db, race, race_update)
     return RaceResponse.model_validate(updated)
+
+
+@router.get(
+    "/{race_id}/results",
+    response_model=RaceResultListResponse,
+    status_code=status.HTTP_200_OK,
+)
+async def get_race_results(
+    race_id: int,
+    db: Annotated[AsyncSession, Depends(get_db)],
+    current_user: Annotated[User, Depends(get_current_active_user)],  # noqa: ARG001
+) -> RaceResultListResponse:
+    """Get race results for a completed race.
+
+    Args:
+        race_id: ID of the race to get results for.
+        db: Database session.
+        current_user: Currently authenticated user.
+
+    Returns:
+        RaceResultListResponse containing all race results.
+
+    Raises:
+        NotFoundError: If the race doesn't exist.
+    """
+    service = RaceResultService(db)
+    return await service.get_race_results(race_id)

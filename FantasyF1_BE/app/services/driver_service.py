@@ -6,9 +6,18 @@ Provides read-only access to driver data for the F1 Fantasy game.
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from app.core.exceptions import NotFoundError
 from app.core.logging import get_logger
 from app.models.driver import Driver
-from app.schemas.driver import DriverCreate, DriverUpdate
+from app.models.race import Race
+from app.models.race_result import RaceResult
+from app.schemas.driver import (
+    DriverCreate,
+    DriverPerformanceResponse,
+    DriverPerformanceStats,
+    DriverRaceResult,
+    DriverUpdate,
+)
 
 logger = get_logger(__name__)
 
@@ -237,3 +246,86 @@ class DriverService:
         else:
             # Create new driver
             return await DriverService.create(db, driver_data)
+
+    @staticmethod
+    async def get_driver_performance(db: AsyncSession, driver_id: int) -> DriverPerformanceResponse:
+        """Get performance data for a driver across all races.
+
+        Args:
+            db: Database session
+            driver_id: Driver ID
+
+        Returns:
+            DriverPerformanceResponse with race results and statistics
+
+        Raises:
+            NotFoundError: If the driver doesn't exist
+        """
+        # First get the driver
+        driver = await DriverService.get_by_id(db, driver_id)
+        if driver is None:
+            raise NotFoundError("Driver", {"driver_id": driver_id})
+
+        # Get all race results for this driver (joined with race data)
+        result = await db.execute(
+            select(RaceResult, Race)
+            .join(Race, RaceResult.race_id == Race.id)
+            .where(RaceResult.driver_external_id == driver.external_id)
+            .order_by(Race.round_number.asc())
+        )
+
+        race_data = result.all()
+
+        # Build race results list
+        race_results = []
+        for race_result, race in race_data:
+            race_results.append(
+                DriverRaceResult(
+                    race_id=race.id,
+                    race_name=race.name,
+                    round_number=race.round_number,
+                    race_date=race.race_date,
+                    position=race_result.position,
+                    grid_position=race_result.grid_position,
+                    points_earned=race_result.points_earned,
+                    fastest_lap=race_result.fastest_lap,
+                    dnf=race_result.dnf,
+                    dnf_reason=race_result.dnf_reason,
+                )
+            )
+
+        # Calculate statistics
+        total_points = sum(rr.points_earned for rr in race_results)
+        races_count = len(race_results)
+        races_finished = sum(1 for rr in race_results if not rr.dnf)
+        dnf_count = sum(1 for rr in race_results if rr.dnf)
+
+        # Best and worst finish (only for finished races with position > 0)
+        finished_positions = [rr.position for rr in race_results if not rr.dnf and rr.position > 0]
+        best_finish = min(finished_positions) if finished_positions else None
+        worst_finish = max(finished_positions) if finished_positions else None
+
+        # Podium count (positions 1-3)
+        podium_count = sum(1 for rr in race_results if not rr.dnf and rr.position <= 3)
+
+        # Average points per race (only counting finished races)
+        avg_points_per_race = total_points / races_finished if races_finished > 0 else 0.0
+
+        stats = DriverPerformanceStats(
+            total_points=total_points,
+            avg_points_per_race=round(avg_points_per_race, 1),
+            races_finished=races_finished,
+            races_count=races_count,
+            best_finish=best_finish,
+            worst_finish=worst_finish,
+            podium_count=podium_count,
+            dnf_count=dnf_count,
+        )
+
+        return DriverPerformanceResponse(
+            driver_id=driver.id,
+            driver_name=driver.name,
+            driver_code=driver.code,
+            stats=stats,
+            race_results=race_results,
+        )

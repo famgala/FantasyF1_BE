@@ -1,6 +1,6 @@
 """Service for notification management."""
 
-from datetime import UTC, datetime
+from datetime import datetime, timezone
 from typing import TYPE_CHECKING
 
 from sqlalchemy import select
@@ -149,7 +149,7 @@ class NotificationService:
         notification = await NotificationService.get_notification(db, notification_id, user_id)
         if notification:
             notification.is_read = True
-            notification.read_at = datetime.now(UTC)
+            notification.read_at = datetime.now(timezone.utc)
             await db.commit()
             await db.refresh(notification)
 
@@ -206,13 +206,13 @@ class NotificationService:
             )
             .values(
                 is_read=True,
-                read_at=datetime.now(UTC),
+                read_at=datetime.now(timezone.utc),
             )
         )
         result = await db.execute(stmt)
         await db.commit()
 
-        return result.rowcount
+        return result.rowcount  # type: ignore[attr-defined]
 
     @staticmethod
     async def delete_notification(
@@ -390,5 +390,34 @@ class NotificationService:
             notification_type="draft_update",
             title=f"Draft Update: {league_name}",
             message=update_message,
+            link=f"/leagues/{league_id}/drafts",
+        )
+
+    @staticmethod
+    async def notify_auto_pick(
+        db: AsyncSession,
+        user_id: int,
+        league_name: str,
+        league_id: int,
+        driver_name: str,
+    ) -> "Notification":
+        """Notify user that an auto-pick was made for them.
+
+        Args:
+            db: Database session
+            user_id: User ID
+            league_name: Name of the league
+            league_id: ID of the league
+            driver_name: Name of the driver that was auto-picked
+
+        Returns:
+            Created notification
+        """
+        return await NotificationService.create_notification(
+            db,
+            user_id=user_id,
+            notification_type="draft_update",
+            title=f"Auto-Pick Made: {league_name}",
+            message=f"Your team auto-picked {driver_name} in the draft. You missed your turn.",
             link=f"/leagues/{league_id}/drafts",
         )

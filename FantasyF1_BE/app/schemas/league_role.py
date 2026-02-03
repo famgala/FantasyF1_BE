@@ -58,3 +58,11 @@ class PromoteCoManagerRequest(BaseModel):
 
     user_id: int
     message: str | None = Field(None, max_length=500)
+
+
+class MyRoleResponse(BaseModel):
+    """Schema for my role response."""
+
+    role: UserRole | None = Field(None, description="User's role in the league, or null if not a member")
+    league_id: int = Field(..., description="League ID")
+    user_id: int = Field(..., description="User ID")

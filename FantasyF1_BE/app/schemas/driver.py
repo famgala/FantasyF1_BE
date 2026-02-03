@@ -60,3 +60,41 @@ class DriverListResponse(BaseModel):
     total: int
     skip: int
     limit: int
+
+
+class DriverRaceResult(BaseModel):
+    """Schema for a single race result in driver performance."""
+
+    race_id: int
+    race_name: str
+    round_number: int
+    race_date: datetime
+    position: int
+    grid_position: int | None = None
+    points_earned: int
+    fastest_lap: bool
+    dnf: bool
+    dnf_reason: str | None = None
+
+
+class DriverPerformanceStats(BaseModel):
+    """Schema for driver performance statistics."""
+
+    total_points: int
+    avg_points_per_race: float
+    races_finished: int
+    races_count: int
+    best_finish: int | None = None
+    worst_finish: int | None = None
+    podium_count: int
+    dnf_count: int
+
+
+class DriverPerformanceResponse(BaseModel):
+    """Schema for driver performance response."""
+
+    driver_id: int
+    driver_name: str
+    driver_code: str | None = None
+    stats: DriverPerformanceStats
+    race_results: list[DriverRaceResult]

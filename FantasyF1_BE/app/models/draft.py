@@ -42,6 +42,9 @@ class DraftPick(Base):
     pick_round: Mapped[int] = mapped_column(Integer, default=1, nullable=False)  # Draft round
     draft_position: Mapped[int] = mapped_column(Integer, nullable=False)  # Position in draft order
     is_auto_pick: Mapped[bool] = mapped_column(Boolean, default=False, nullable=False)
+    pick_started_at: Mapped[datetime | None] = mapped_column(
+        default=None, nullable=True, index=True
+    )
     picked_at: Mapped[datetime] = mapped_column(default=datetime.utcnow, nullable=False, index=True)
     created_at: Mapped[datetime] = mapped_column(default=datetime.utcnow, nullable=False)
     updated_at: Mapped[datetime] = mapped_column(
