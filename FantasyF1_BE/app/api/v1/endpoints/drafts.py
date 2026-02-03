@@ -388,6 +388,11 @@ async def get_draft_status(
             else:
                 current_team = None
 
+        # Get timer information
+        timer_info = None
+        if not is_draft_complete:
+            timer_info = await DraftService.get_timer_info(db, league_id=league_id, race_id=race_id)
+
         return {
             "league_id": league_id,
             "race_id": race_id,
@@ -399,6 +404,7 @@ async def get_draft_status(
             "current_position": current_position,
             "current_team": current_team,
             "next_pick": next_pick,
+            "timer": timer_info,
         }
     except NotFoundError:
         # Draft may not have been started yet
@@ -420,6 +426,7 @@ async def get_draft_status(
             "current_position": 1,
             "current_team": None,
             "next_pick": None,
+            "timer": None,
         }
 
 

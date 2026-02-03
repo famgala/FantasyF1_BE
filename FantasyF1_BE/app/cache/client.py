@@ -1,6 +1,6 @@
 """Redis client factory and management"""
 
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Any, cast
 
 from redis import asyncio as aioredis
 from redis.backoff import ExponentialBackoff
@@ -50,8 +50,8 @@ async def ping_redis() -> bool:
     """Check if Redis is connected and responsive"""
     try:
         if redis_client:
-            await redis_client.ping()
-            return True
+            result = await cast("Any", redis_client.ping())
+            return cast(bool, result)
         return False
     except RedisError:
         return False

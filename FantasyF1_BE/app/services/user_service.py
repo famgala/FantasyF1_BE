@@ -207,6 +207,36 @@ class UserService:
         return True
 
     @staticmethod
+    async def search_users(
+        db: AsyncSession,
+        query: str,
+        skip: int = 0,
+        limit: int = 10,
+    ) -> list[User]:
+        """Search users by username or email.
+
+        Args:
+            db: Database session
+            query: Search query string
+            skip: Number of records to skip
+            limit: Maximum number of records to return
+
+        Returns:
+            List of User objects matching the query
+        """
+        # Search by username or email (case-insensitive partial match)
+        search_pattern = f"%{query.lower()}%"
+        result = await db.execute(
+            select(User)
+            .where((User.username.ilike(search_pattern)) | (User.email.ilike(search_pattern)))
+            .where(User.is_active)
+            .order_by(User.username.asc())
+            .offset(skip)
+            .limit(limit)
+        )
+        return list(result.scalars().all())
+
+    @staticmethod
     def _validate_password(password: str) -> None:
         """Validate password strength.
 

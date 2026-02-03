@@ -4,6 +4,7 @@ import { getDraftStatus, getDraftPicks } from '../services/draftService';
 import type { DraftStatus, DraftPick } from '../types';
 import { useAuth } from '../context/AuthContext';
 import { MobileNav } from '../components/MobileNav';
+import CountdownTimer from '../components/CountdownTimer';
 
 export default function DraftStatus() {
   const { id: leagueId } = useParams<{ id: string }>();
@@ -115,6 +116,20 @@ export default function DraftStatus() {
                 >
                   Make Your Pick
                 </button>
+              </div>
+            )}
+
+            {/* Draft Timer */}
+            {draftStatus.timer && (
+              <div className="draft-timer-card">
+                <CountdownTimer
+                  timer={draftStatus.timer}
+                  isMyTurn={isMyTurn}
+                  onTimeExpired={() => {
+                    // Refresh status when time expires
+                    getDraftStatus(leagueId!, raceId).then(setDraftStatus);
+                  }}
+                />
               </div>
             )}
 

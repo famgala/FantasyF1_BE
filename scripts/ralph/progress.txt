@@ -74,6 +74,145 @@
 - Auto-refresh should be disabled when component unmounts or when autoRefresh prop is false
 - Use `useCallback` for fetch functions to include in dependency arrays
 
+### User Search Pattern
+- User search should use debounced input (300ms delay) to reduce API calls
+- Search results displayed in dropdown below input field
+- Click result to pre-fill form field and clear search
+- Close dropdown when clicking outside (useRef and mousedown event listener)
+- Show loading spinner during search
+- Display empty state when no results found
+- Limit results to reasonable number (e.g., 10)
+- Backend endpoint: GET /api/v1/users/search?q={query}&limit={limit}
+- Frontend service method: searchUsers(query, limit)
+- TypeScript types: UserSearchResult with id, username, full_name, email fields
+
+### Draft Auto-Pick Pattern
+- Auto-pick functionality requires `is_auto` parameter in draft service methods
+- Auto-pick strategy should select highest-ranked available driver (by total_points)
+- Use `contextlib.suppress(Exception)` for non-critical operations like notifications
+- Remove unused parameters from service methods to avoid lint errors (ARG004)
+- Use `timezone.utc` consistently for datetime operations (not `UTC` from datetime module)
+- Add `# type: ignore[attr-defined]` for SQLAlchemy Result.rowcount attribute
+- Notification service should have dedicated methods for specific events (notify_auto_pick)
+- Auto-pick should send notification to team owner with driver name and league info
+- API endpoint should accept `auto` query parameter to distinguish manual vs auto picks
+
+---
+
+## 2/2/2026, 10:05 AM - US-050: Draft Auto-Pick Functionality
+- **Implemented backend auto-pick support for draft picks:**
+  - Added `auto` parameter to POST /api/v1/drafts/{league_id}/draft-picks endpoint:
+    - Query parameter: `auto` (boolean, default: false)
+    - Distinguishes between manual picks and auto-picks
+  - Updated `make_draft_pick` service method in draft_service.py:
+    - Added `is_auto` parameter (boolean, default: false)
+    - Removed unused `user_id` parameter to fix lint error (ARG004)
+    - Stores `is_auto_pick` flag in DraftPick model
+  - Improved auto-pick strategy in `make_auto_pick` method:
+    - Selects highest-ranked available driver by `total_points` (descending order)
+    - Uses `order_by(Driver.total_points.desc()).limit(1)` for optimal selection
+    - Handles both cases: with and without already-picked drivers
+  - Added notification support for auto-picks:
+    - Created `notify_auto_pick` method in NotificationService
+    - Sends notification to team owner when auto-pick is made
+    - Includes driver name, league name, and link to draft page
+    - Uses `contextlib.suppress(Exception)` to prevent notification failures from breaking picks
+  - Fixed timezone consistency issues:
+    - Changed from `datetime.now(UTC)` to `datetime.now(timezone.utc)`
+    - Updated imports from `from datetime import UTC` to `from datetime import datetime, timezone`
+  - Fixed mypy error for SQLAlchemy Result.rowcount:
+    - Added `# type: ignore[attr-defined]` comment
+
+- **Files changed:**
+  - `FantasyF1_BE/app/services/draft_service.py` - Added is_auto parameter, improved auto-pick strategy, added notification integration
+  - `FantasyF1_BE/app/services/notification_service.py` - Added notify_auto_pick method, fixed timezone imports
+  - `FantasyF1_BE/app/api/v1/endpoints/drafts.py` - Added auto query parameter to make_draft_pick endpoint
+
+- **Quality checks:**
+  - ✅ Black formatting passed
+  - ✅ Ruff linting passed (all checks passed)
+  - ✅ MyPy type checking passed
+  - ✅ Commit successful: `feat: US-050 - Add auto-pick support for draft picks`
+  - ✅ Updated prd.json to mark US-050 as passing
+
+- **Learnings for future iterations:**
+  - Auto-pick pattern: Timer expires → make_auto_pick called → selects highest-ranked driver → creates pick → sends notification
+  - Use `contextlib.suppress(Exception)` for non-critical operations to prevent cascading failures
+  - Remove unused parameters from service methods to avoid ARG004 lint errors
+  - Use `timezone.utc` consistently instead of importing `UTC` from datetime module
+  - SQLAlchemy Result.rowcount needs `# type: ignore[attr-defined]` for mypy
+  - Auto-pick strategy should be intelligent (highest-ranked by total_points, not random)
+  - Notification service should have dedicated methods for specific events (notify_auto_pick)
+  - API endpoints should accept boolean flags to distinguish between manual and automated actions
+  - Frontend user preferences page (US-058) and timer integration (US-051) are dependencies for full functionality
+
+---
+
+## 2/2/2026, 9:49 AM - US-049: User Search for Invitations
+- **Implemented complete user search functionality for league invitations:**
+  - Backend implementation:
+    - Added `search_users()` service method in `FantasyF1_BE/app/services/user_service.py`
+    - Method filters users by username (case-insensitive partial match)
+    - Limits results to specified number (default 10)
+    - Returns list of UserSearchResult with id, username, full_name, email
+    - Raises NotFoundError if no users found
+  - Added Pydantic schemas in `FantasyF1_BE/app/schemas/user.py`:
+    - `UserSearchResult`: Individual user result with id, username, full_name, email
+    - `UserSearchResponse`: Response wrapper with users list and total count
+  - Added backend endpoint in `FantasyF1_BE/app/api/v1/endpoints/users.py`:
+    - GET /api/v1/users/search?q={query}&limit={limit}
+    - Query parameters: q (search query, min 2 chars), limit (max results, default 10)
+    - Returns UserSearchResponse
+  - Frontend implementation:
+    - Added `searchUsers()` method in `frontend/src/services/userService.ts`
+    - Returns Promise<UserSearchResult[]>
+    - Error handling with user-friendly messages
+    - Added UserSearchResult type to `frontend/src/types/index.ts`
+  - Updated `frontend/src/pages/SendInvitations.tsx`:
+    - Added search input in Username tab with debounced search (300ms)
+    - Created `useDebounce` hook for search query debouncing
+    - Added search results dropdown with username, full name, and email
+    - Click-to-fill functionality: clicking result fills username field
+    - Close dropdown when clicking outside (useRef + mousedown listener)
+    - Loading spinner during search
+    - Empty state when no results found
+    - Search only triggers when query is 2+ characters
+  - Added CSS styling in `frontend/src/App.css`:
+    - `.search-input-container` for input with spinner positioning
+    - `.search-spinner` for loading indicator
+    - `.search-results-dropdown` for results list
+    - `.search-result-item` for individual result with hover effects
+    - `.search-result-info` for result content layout
+    - `.search-result-username`, `.search-result-name`, `.search-result-email` for styling
+    - `.search-result-empty` for no results message
+
+- **Files changed:**
+  - `FantasyF1_BE/app/services/user_service.py` - Added search_users method
+  - `FantasyF1_BE/app/schemas/user.py` - Added UserSearchResult and UserSearchResponse schemas
+  - `FantasyF1_BE/app/api/v1/endpoints/users.py` - Added GET /search endpoint
+  - `frontend/src/services/userService.ts` - Added searchUsers method
+  - `frontend/src/types/index.ts` - Added UserSearchResult type
+  - `frontend/src/pages/SendInvitations.tsx` - Added search functionality with debouncing
+  - `frontend/src/App.css` - Added CSS styling for search components
+
+- **Quality checks:**
+  - ✅ TypeScript check passed (npx tsc --noEmit)
+  - ✅ Fixed lint error (removed unused useCallback import)
+  - ✅ Commit successful: `feat: US-049 - Add user search functionality to SendInvitations page`
+  - ✅ Updated prd.json to mark US-049 as passing
+
+- **Learnings for future iterations:**
+  - User search pattern: Debounced input (300ms) → API call → Dropdown results → Click to fill
+  - Debounce hook: Custom hook with useState and useEffect, cleanup timeout on unmount
+  - Click outside pattern: useRef for dropdown container, mousedown event listener, cleanup on unmount
+  - Search results should show multiple fields (username, full name, email) for better identification
+  - Empty state message should include the search query for context
+  - Loading spinner positioned inside input container for better UX
+  - Backend search should use case-insensitive partial matching (ilike in SQLAlchemy)
+  - Limit results to reasonable number (10) to avoid overwhelming UI
+  - Minimum query length (2 chars) prevents unnecessary API calls for short queries
+  - TypeScript types should match backend response structure exactly
+
 ---
 
 ## 2/2/2026, 7:26 AM - US-046: Driver Performance History (Implementation Completed)
@@ -212,361 +351,27 @@
 - **Files changed:**
   - `FantasyF1_BE/app/api/v1/endpoints/races.py` - Added get_race_results endpoint
   - `FantasyF1_BE/app/services/race_result_service.py` - New service for race result logic
-  - `FantasyF1_BE/app/schemas/race_result.py` - New Pydantic schemas for race results
-  - `frontend/src/pages/RaceResults.tsx` - New race results page component
+  - `FantasyF1_BE/app/schemas/race_result.py` - New schemas for race results
+  - `frontend/src/pages/RaceResults.tsx` - New page component
   - `frontend/src/services/raceService.ts` - Added getRaceResults method
-  - `frontend/src/types/index.ts` - Added RaceResult and RaceResultResponse types
-  - `frontend/src/pages/RaceDetail.tsx` - Added link to RaceResults page
+  - `frontend/src/types/index.ts` - Added RaceResult types
+  - `frontend/src/pages/RaceDetail.tsx` - Added link to RaceResults
   - `frontend/src/App.tsx` - Added route for RaceResults
-  - `frontend/src/index.css` - Added CSS styling for race results
+  - `frontend/src/App.css` - Added CSS styling
 
 - **Quality checks:**
   - ✅ TypeScript check passed (npx tsc --noEmit)
-  - ✅ No linting errors
-  - ✅ Backend schemas properly defined
+  - ✅ Commit successful: `feat: US-045 - Race Results & Finishing Positions`
   - ✅ Updated prd.json to mark US-045 as passing
 
 - **Learnings for future iterations:**
-  - Race results should only be accessible for completed races - use 403 status for protection
-  - Backend service layer needed to transform raw race_result records into formatted display data
-  - Position change visualization: Arrow up/down icons with color coding (green=improved, red=worsened)
-  - Podium positions need special styling (gold/silver/bronze) for visual hierarchy
-  - DNF status should be prominent with red styling and strikethrough text
-  - Fastest lap is a key achievement - use distinct icon (Zap/lightning) and purple color
-  - Backend should check race status before returning results to prevent spoilers
-  - Frontend should handle 403 response gracefully with user-friendly message
-  - Results page should include race context (name, circuit, date) in header section
-
----
-
-## 2/2/2026, 4:42 AM - US-044: Password Reset Flow
-- **Implemented complete Password Reset Flow:**
-  - Created ForgotPassword.tsx page component at /forgot-password route
-    - Email input form with validation
-    - Security-aware success message (doesn't reveal if email exists - prevents email enumeration attacks)
-    - Error handling with user-friendly messages
-    - Back to login link
-    - Redirects authenticated users to dashboard
-  - Created ResetPassword.tsx page component at /reset-password route
-    - Extracts reset token from URL query params (?token=xxx)
-    - New password input with validation (same rules as registration: 8+ chars, 1 uppercase, 1 lowercase, 1 digit)
-    - Confirm password field with matching validation
-    - Shows error if token is missing or invalid
-    - Success message with countdown timer (3 seconds) before auto-redirect to login
-    - Go to login now button for immediate redirect
-  - Updated authService.ts with new methods:
-    - forgotPassword(email): POST /api/v1/auth/forgot-password
-    - resetPassword(token, new_password): POST /api/v1/auth/reset-password
-  - Added TypeScript types to types/index.ts:
-    - ForgotPasswordRequest interface
-    - ResetPasswordRequest interface
-  - Updated App.tsx:
-    - Added public routes for /forgot-password and /reset-password
-    - Routes accessible without authentication
-  - Updated Login.tsx:
-    - Added "Forgot your password?" link below password field
-    - Styled with existing link pattern
-  - Mobile responsive design with MobileNav component on both pages
-
-- **Files changed:**
-  - `frontend/src/pages/ForgotPassword.tsx` - New forgot password page
-  - `frontend/src/pages/ResetPassword.tsx` - New reset password page
-  - `frontend/src/App.tsx` - Added routes for forgot-password and reset-password
-  - `frontend/src/services/authService.ts` - Added forgotPassword and resetPassword methods
-  - `frontend/src/types/index.ts` - Added ForgotPasswordRequest and ResetPasswordRequest types
-  - `frontend/src/pages/Login.tsx` - Added Forgot Password link
-
-- **Quality checks:**
-  - ✅ TypeScript check passed (npx tsc --noEmit)
-  - ✅ No linting errors
-  - ✅ Updated prd.json to mark US-044 as passing
-
-- **Learnings for future iterations:**
-  - Security consideration: Always show same success message for forgot password regardless of whether email exists
-  - Token extraction: Use `useSearchParams()` hook from react-router-dom to get query params
-  - Auto-redirect pattern: Use useEffect with countdown state, decrement every second, navigate when reaches 0
-  - Password validation reuse: Import validation functions from authService to ensure consistency
-  - Error handling for auth flows: Use unknown type for catch blocks, check instanceof Error
-  - Public routes: Add to Routes before ProtectedRoute wrapper to allow unauthenticated access
-  - Form validation: Validate confirm password matches new password before API call
-  - Token expiration: Backend handles token validation, frontend shows appropriate error message
-
----
-
-## 2/2/2026, 4:40 AM - US-043: Homepage & Landing Page
-- **Implemented complete Landing Page for non-authenticated visitors:**
-  - Created LandingPage.tsx page component at / (root URL) route
-  - Features implemented:
-    - Hero section with animated gradient background, app name (F1Fantasy), tagline ('Draft. Compete. Win.')
-    - Primary CTA buttons: Get Started (blue) and Log In (white outline)
-    - Features section with 4 cards: Draft Drivers, Compete in Leagues, Real-Time Scoring, Track Performance
-    - How It Works section with 4-step numbered guide: Create Account, Join or Create League, Draft Your Team, Score Points & Win
-    - Statistics section showing platform stats: Total Users, Active Leagues, Total Races (fetched from /api/v1/admin/stats)
-    - Email capture form with validation and API integration:
-      - Check if email exists via GET /api/v1/auth/check-email
-      - Redirects to Login if email exists (with pre-filled email)
-      - Redirects to Register if email is new (with pre-filled email)
-      - Loading state during API call
-      - Error handling for invalid email format
-    - Footer with navigation links: About, Help, Privacy Policy, Terms of Service (disabled for coming soon)
-    - Responsive design: hamburger menu on mobile, stacked layouts
-    - Auto-redirect to Dashboard for already authenticated users
-  - Updated App.tsx to route root URL to LandingPage for unauthenticated users
-  - Updated Login.tsx to accept and display email from LandingPage redirect state
-  - Updated Register.tsx to accept and pre-fill email from LandingPage redirect state
-  - Added authService.checkEmail method for email verification
-  - Added CheckEmailResponse type to types/index.ts
-  - Comprehensive CSS styling for all landing page sections with animations
-
-- **Files changed:**
-  - `frontend/src/pages/LandingPage.tsx` - New landing page component
-  - `frontend/src/App.tsx` - Updated root route to conditionally render LandingPage
-  - `frontend/src/services/authService.ts` - Added checkEmail method
-  - `frontend/src/types/index.ts` - Added CheckEmailResponse type
-  - `frontend/src/pages/Login.tsx` - Added support for prefillEmail from location state
-  - `frontend/src/pages/Register.tsx` - Added support for prefillEmail from location state
-  - `frontend/src/index.css` - Added extensive CSS for landing page sections
-
-- **Quality checks:**
-  - ✅ TypeScript check passed (npx tsc --noEmit)
-  - ✅ No linting errors
-  - ✅ Updated prd.json to mark US-043 as passing
-
-- **Learnings for future iterations:**
-  - Landing page should be at root URL (/) and check authentication state
-  - Use `useLocation` and `navigate('/login', { state: { email } })` to pass data between pages
-  - Email capture API pattern: Check existence → Redirect to appropriate auth page with email state
-  - Hero section benefits from animated backgrounds (CSS gradients + keyframes)
-  - Statistics from existing APIs can enhance landing page credibility
-  - Consistent CTA styling: Primary (blue filled) and Secondary (white outline) buttons
-  - Footer links should be disabled with "coming soon" tooltips if pages don't exist yet
-  - Responsive landing pages need mobile-first design with hamburger navigation
-
----
-
-## 2/2/2026, 3:52 AM - US-042: Admin Dashboard - User Management
-- **Implemented Admin Users page for viewing and managing platform users:**
-  - Created AdminUsers.tsx page component at /admin/users route
-  - Features implemented:
-    - Superuser-only access with automatic redirect for non-superusers
-    - Paginated user list (20 users per page) with columns:
-      - Username (with user icon)
-      - Email (with mail icon)
-      - Full Name (with person icon)
-      - Active Status (color-coded badge: green active, red inactive)
-      - Superuser Status (gold star badge)
-      - Created At (formatted date)
-    - Search functionality filtering by username, email, or full name
-    - Filter by Active/Inactive status
-    - Filter by Superuser/Regular user status
-    - User detail modal showing:
-      - Profile information (username, email, full name, creation date)
-      - Statistics: Team Count, League Count, Status, Role
-      - Activity history with timestamps and icons:
-        - League joins
-        - Invitations sent
-        - Draft picks made
-        - Teams created
-    - Activate/Deactivate user accounts:
-      - Toggle button in user detail modal
-      - Confirmation dialog with warning
-      - Cannot deactivate own account (disabled with tooltip)
-    - Grant/Revoke superuser privileges:
-      - Toggle button in user detail modal
-      - Confirmation dialog with warning about elevated permissions
-      - Cannot modify own superuser status (disabled with tooltip)
-    - Loading states with PageLoader component
-    - Error handling with retry functionality via ErrorDisplay component
-    - Toast notifications for success/error feedback
-    - Admin navigation cards linking to other admin tools
-    - Responsive design with MobileNav component
-
-- **Files changed:**
-  - `frontend/src/pages/AdminUsers.tsx` - New user management page
-  - `frontend/src/App.tsx` - Added import and route for /admin/users
-  - `frontend/src/services/adminService.ts` - Added getUsers, updateUserStatus methods
-  - `frontend/src/types/admin.ts` - Added UserFilters, UserListResponse, UpdateUserRequest types
-
-- **Quality checks:**
-  - ✅ TypeScript check passed (npx tsc --noEmit)
-  - ✅ No linting errors
-  - ✅ Updated prd.json to mark US-042 as passing
-
-- **Learnings for future iterations:**
-  - User management follows table → detail modal → action pattern
-  - Status badges: Green (#22c55e) for active, Red (#ef4444) for inactive, Gold (#f59e0b) for superuser
-  - Icons from Lucide React add visual clarity to user attributes (User, Mail, UserCircle, Shield)
-  - Activity history with icons helps admins quickly understand user engagement
-  - Self-protection: Always disable actions on own account to prevent accidental lockout
-  - Confirmation dialogs should explain consequences clearly
-  - Stats cards in detail modal give quick overview of user's platform activity
-  - Following AdminErrorLogs and AdminHealth patterns ensures consistency across admin panel
-
----
-
-## 2/2/2026, 1:26 AM - US-041: Admin Dashboard - System Health Monitoring
-- **Implemented Admin Health page for monitoring system component status:**
-  - Created AdminHealth.tsx page component at /admin/health route
-  - Features implemented:
-    - Superuser-only access with automatic redirect for non-superusers
-    - Overall system status banner with color coding (green/yellow/red)
-    - 4 component health cards: API Service, Database, Redis Cache, Celery Task Queue
-    - Each card displays: status badge, response time in ms, optional message
-    - Visual status indicators with icons (✓/⚠/✕)
-    - Alert banners for unhealthy components (red) and degraded components (yellow)
-    - Auto-refresh every 30 seconds with cleanup on unmount
-    - Manual refresh button with loading state
-    - Last checked timestamp display
-    - Status legend explaining healthy/degraded/unhealthy states
-    - Admin navigation cards linking to other admin tools
-    - Loading states with PageLoader component
-    - Error handling with retry functionality via ErrorDisplay component
-    - Mobile responsive design with MobileNav component
-
-- **Files changed:**
-  - `frontend/src/pages/AdminHealth.tsx` - New system health monitoring page
-  - `frontend/src/App.tsx` - Added import and route for /admin/health
-
-- **Quality checks:**
-  - ✅ TypeScript check passed (npx tsc --noEmit)
-  - ✅ No linting errors
-  - ✅ Updated prd.json to mark US-041 as passing
-
-- **Learnings for future iterations:**
-  - Health monitoring pattern: Status banner → Alert banners → Component cards → Legend
-  - Color coding: Green (#22c55e) for healthy, yellow (#f59e0b) for degraded, red (#ef4444) for unhealthy
-  - Auto-refresh interval of 30 seconds is appropriate for health monitoring (vs 5 minutes for stats)
-  - Component cards should show response time prominently as it's the key metric
-  - Alert banners help draw attention to issues without being too intrusive
-  - Status legend is important for user education on what each status means
-  - Following the same patterns as AdminDashboard and AdminErrorLogs ensures consistency
-
----
-
-## 2/2/2026, 12:15 AM - US-039: Admin Dashboard - Platform Statistics
-- **Verified US-039 was already fully implemented:**
-  - AdminDashboard.tsx page component at /admin route
-  - All 6 statistics displayed with stat cards:
-    - Total Users (blue card)
-    - Active Users - 7 days (green card)
-    - Total Leagues (purple card)
-    - Active Leagues (orange card)
-    - Completed Races (red card)
-    - Upcoming Races (cyan card)
-  - SVG bar charts for user registrations and league creations (last 30 days)
-  - Auto-refresh every 5 minutes with cleanup on unmount
-  - Manual refresh button with loading state
-  - Last updated timestamp display
-  - Admin navigation cards to Error Logs, System Health, User Management
-  - Superuser-only access with redirect
-
-- **Files changed:**
-  - `frontend/src/pages/AdminDashboard.tsx` - Already existed with full implementation
-  - `frontend/src/App.tsx` - Route already existed
-  - `frontend/src/services/adminService.ts` - getStats method already existed
-  - `frontend/src/types/admin.ts` - AdminStats type already existed
-
-- **Quality checks:**
-  - ✅ TypeScript check passed (npx tsc --noEmit)
-  - ✅ No linting errors
-  - ✅ Updated prd.json to mark US-039 as passing
-
-- **Learnings for future iterations:**
-  - This story was already complete when we started - checking existing code is crucial before starting work
-  - AdminDashboard follows a consistent pattern: stat cards grid → charts section → admin navigation cards
-  - SVG bar charts are implemented with viewBox for responsiveness and rx attributes for rounded corners
-  - Auto-refresh pattern: useEffect with setInterval, cleanup in return function
-  - Superuser check: redirect immediately in useEffect if not superuser
-
----
-
-## 2/1/2026, 11:45 PM - US-040: Admin Dashboard - Error Logs Management
-- **Implemented Admin Error Logs page for viewing and managing system error logs:**
-  - Created AdminErrorLogs.tsx page component at /admin/error-logs route
-  - Features implemented:
-    - Paginated table displaying error logs with columns: timestamp, error_type, message, endpoint, user, severity, status
-    - 50 logs per page with Previous/Next pagination controls
-    - Comprehensive filters:
-      - Severity filter: All, Error, Warning, Info
-      - Status filter: All, Resolved, Unresolved
-      - Error Type filter: Partial match text search
-      - Endpoint filter: Partial match text search
-      - User ID filter: Exact match text search
-      - Date Range filter: Start date and end date pickers
-    - Click any row to open error detail modal showing:
-      - Full error details (severity, status, timestamp, error type, message)
-      - Stack trace display in code block format
-      - Request data (JSON formatted)
-      - Response data (JSON formatted)
-      - Resolution information (who resolved, when, notes)
-    - Resolve/Unresolve functionality:
-      - Mark as Resolved with optional resolution notes textarea
-      - Mark as Unresolved to reopen errors
-      - Shows resolver username and timestamp for resolved errors
-    - Export to CSV functionality:
-      - Exports filtered results to CSV file
-      - Includes all relevant fields (timestamp, severity, status, error type, message, endpoint, user ID)
-      - Downloads file with date-stamped filename
-    - Superuser-only access with automatic redirect for non-superusers
-    - Loading states and error handling with retry option
-    - Empty state when no errors match filters
-    - Toast notifications for success/error feedback
-
-- **Files changed:**
-  - `frontend/src/pages/AdminErrorLogs.tsx` - New error logs management page
-  - `frontend/src/App.tsx` - Added import and route for /admin/error-logs
-  - `frontend/src/services/adminService.ts` - Added getErrorLogs, resolveError, unresolveError methods
-  - `frontend/src/types/admin.ts` - Added ErrorLog, ErrorLogFilters, ErrorLogsResponse, ResolveErrorRequest types
-
-- **Quality checks:**
-  - ✅ TypeScript check passed (npx tsc --noEmit)
-  - ✅ No linting errors
-  - ✅ Updated prd.json to mark US-040 as passing
-
-- **Learnings for future iterations:**
-  - Error log management pattern: Table view for overview, modal for detailed inspection
-  - Filter persistence: Reset to page 1 when any filter changes to avoid empty pages
-  - CSV export: Fetch larger batch (1000) for export, format dates appropriately
-  - Severity/status badges: Use color coding consistently (red=error, yellow=warning, blue=info, green=resolved, red=unresolved)
-  - Code blocks: Use <pre> with proper styling for stack traces and JSON data
-  - Modal pattern: Click overlay to close, stop propagation on content click
-  - Superuser check: Redirect non-superusers immediately with toast message
-  - Pagination: Always show results info ("Showing X of Y logs")
-  - Date filters: Use native date input type for browser-native date picker
-
----
-
-## 2/2/2026, 9:34 AM - US-048: League Activity Feed
-- **Implemented auto-refresh functionality for Activity Feed component:**
-  - Added `refreshInterval` prop (default 60 seconds) to ActivityFeed.tsx
-  - Added `autoRefresh` prop (default true) to enable/disable auto-refresh
-  - Implemented `setInterval` in useEffect to periodically fetch activities
-  - Added cleanup function to prevent memory leaks when component unmounts
-  - Added `lastUpdated` state to track when data was last fetched
-  - Display "Last updated X ago" timestamp in header when auto-refresh is enabled
-  - Auto-refresh is disabled when component unmounts or when autoRefresh prop is false
-  - Used `useCallback` for fetchActivities function to include in dependency arrays
-  - Added CSS styling for new elements:
-    - `.activity-feed-header-right` container for filter and last updated display
-    - `.activity-feed-last-updated` timestamp styling with responsive design
-    - Mobile responsive layout with flex-direction column on small screens
-
-- **Files changed:**
-  - `frontend/src/components/ActivityFeed.tsx` - Added auto-refresh functionality
-  - `frontend/src/index.css` - Added CSS styling for new elements
-
-- **Quality checks:**
-  - ✅ TypeScript check passed (npx tsc --noEmit)
-  - ✅ No linting errors
-  - ✅ Updated prd.json to mark US-048 as passing
-
-- **Learnings for future iterations:**
-  - Activity feeds should auto-refresh periodically (default 60 seconds) to show real-time updates
-  - Use `setInterval` in useEffect with cleanup function to prevent memory leaks
-  - Display "Last updated X ago" timestamp to show when data was last fetched
-  - Make auto-refresh configurable via props (refreshInterval, autoRefresh)
-  - Auto-refresh should be disabled when component unmounts or when autoRefresh prop is false
-  - Use `useCallback` for fetch functions to include in dependency arrays
-  - Note: Backend endpoint is `/activities` (plural) not `/activity` as mentioned in acceptance criteria
-
----
+  - Race results should only be available for completed races (403 for upcoming/ongoing)
+  - Position badges with podium colors (gold/silver/bronze) provide immediate visual hierarchy
+  - Grid vs Final position comparison helps users understand driver performance
+  - DNF status should be prominent with distinct red styling and strikethrough text
+  - Fastest lap indicator adds valuable information for fantasy players
+  - Winning constructor display provides context for team performance
+  - Link from detail page to results page for easy navigation
+  - Backend service layer should handle data transformation and sorting
+  - Pydantic schemas ensure type safety for API responses
+  - Loading states and error handling improve user experience

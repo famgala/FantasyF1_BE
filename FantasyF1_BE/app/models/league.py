@@ -62,6 +62,8 @@ class League(Base):
         String(20), server_default="manual", nullable=False
     )
     draft_date: Mapped[datetime | None] = mapped_column(default=None, nullable=True, index=True)
+    pick_timer_seconds: Mapped[int] = mapped_column(Integer, server_default="60", nullable=False)
+    is_draft_paused: Mapped[bool] = mapped_column(Boolean, server_default="false", nullable=False)
     scoring_settings: Mapped[str | None] = mapped_column(Text, nullable=True)
 
     created_at: Mapped[datetime] = mapped_column(default=datetime.utcnow, nullable=False)

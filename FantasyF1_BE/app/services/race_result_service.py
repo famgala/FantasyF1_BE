@@ -33,7 +33,7 @@ class RaceResultService:
         race = race_result.scalar_one_or_none()
 
         if race is None:
-            raise NotFoundError("Race", race_id)
+            raise NotFoundError("Race", {"race_id": race_id})
 
         # Get all results ordered by position (DNF at the end)
         result = await self.db.execute(
@@ -99,7 +99,7 @@ class RaceResultService:
         race_result = result.scalar_one_or_none()
 
         if race_result is None:
-            raise NotFoundError("Race Result", result_id)
+            raise NotFoundError("Race Result", {"result_id": result_id})
 
         # Calculate position change
         position_change = None

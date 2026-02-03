@@ -1,6 +1,6 @@
 """Tests for Notification endpoints."""
 
-from datetime import timezone
+from datetime import datetime, timezone
 
 import pytest
 import pytest_asyncio

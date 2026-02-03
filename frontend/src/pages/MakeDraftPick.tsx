@@ -4,6 +4,7 @@ import { getDraftStatus, getAvailableDrivers, makeDraftPick } from '../services/
 import type { DraftStatus, AvailableDriver, MakeDraftPickRequest } from '../types';
 import { useAuth } from '../context/AuthContext';
 import { MobileNav } from '../components/MobileNav';
+import CountdownTimer from '../components/CountdownTimer';
 
 export default function MakeDraftPick() {
   const { id: leagueId } = useParams<{ id: string }>();
@@ -19,6 +20,7 @@ export default function MakeDraftPick() {
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
+  const [timeExpired, setTimeExpired] = useState(false);
 
   // Determine race ID - for now, we'll use a default or get from URL params
   // In a real app, this would come from the league's current/upcoming race
@@ -213,6 +215,21 @@ export default function MakeDraftPick() {
           </div>
         )}
 
+        {/* Draft Timer */}
+        {draftStatus?.timer && !isDraftComplete && (
+          <div className="draft-timer-card">
+            <CountdownTimer
+              timer={draftStatus.timer}
+              isMyTurn={isMyTurn}
+              onTimeExpired={() => {
+                setTimeExpired(true);
+                // Refresh status when time expires
+                getDraftStatus(leagueId!, raceId).then(setDraftStatus);
+              }}
+            />
+          </div>
+        )}
+
         {/* Filters */}
         {!isDraftComplete && (
           <div className="filters-container">
@@ -332,9 +349,9 @@ export default function MakeDraftPick() {
               type="submit"
               onClick={handleSubmit}
               className="btn btn-primary"
-              disabled={!selectedDriverId || submitting}
+              disabled={!selectedDriverId || submitting || timeExpired}
             >
-              {submitting ? 'Making Pick...' : 'Confirm Draft Pick'}
+              {timeExpired ? 'Time Expired' : submitting ? 'Making Pick...' : 'Confirm Draft Pick'}
             </button>
           </div>
         )}

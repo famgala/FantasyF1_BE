@@ -1,11 +1,11 @@
 """User endpoints for managing user profiles."""
 
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, Query, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.dependencies import get_current_active_user, get_current_superuser
 from app.db.session import get_db
-from app.schemas.user import UserResponse, UserUpdate
+from app.schemas.user import UserResponse, UserSearchResponse, UserUpdate
 from app.services.user_service import UserService
 
 router = APIRouter()
@@ -76,3 +76,33 @@ async def get_user_by_id(
         return UserResponse.model_validate(user)
     except Exception as e:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e)) from None
+
+
+@router.get("/search/", response_model=list[UserSearchResponse])
+async def search_users(
+    q: str = Query(..., min_length=2, description="Search query for username or email"),
+    skip: int = Query(0, ge=0, description="Number of results to skip"),
+    limit: int = Query(10, ge=1, le=50, description="Maximum number of results to return"),
+    db: AsyncSession = Depends(get_db),
+    _current_user: UserResponse = Depends(get_current_active_user),
+) -> list[UserSearchResponse]:
+    """Search users by username or email.
+
+    Args:
+        q: Search query string (minimum 2 characters)
+        skip: Number of results to skip
+        limit: Maximum number of results to return (max 50)
+        db: Database session
+        _current_user: Authenticated user for authorization check
+
+    Returns:
+        List of matching users
+
+    Raises:
+        HTTPException: If search fails
+    """
+    try:
+        users = await UserService.search_users(db, q, skip=skip, limit=limit)
+        return [UserSearchResponse.model_validate(user) for user in users]
+    except Exception as e:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e)) from None

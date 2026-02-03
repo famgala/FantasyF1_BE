@@ -399,7 +399,6 @@ class ActivityLogService:
         league_id: int,
         user_id: int,
         username: str,
-        team_id: int,
         team_name: str,
         invitation_id: int,
     ) -> "ActivityLog":
@@ -410,7 +409,6 @@ class ActivityLogService:
             league_id: League ID
             user_id: User ID
             username: Username of accepting user
-            team_id: Team ID (also logged as secondary reference)
             team_name: Team name
             invitation_id: Invitation ID
 
@@ -422,10 +420,7 @@ class ActivityLogService:
             league_id=league_id,
             activity_type="invitation_accepted",
             title="Invitation accepted",
-            message=(
-                f"{username} accepted the invitation and joined with "
-                f"team '{team_name}'"
-            ),
+            message=(f"{username} accepted the invitation and joined with " f"team '{team_name}'"),
             user_id=user_id,
             reference_id=invitation_id,
             reference_type="invitation",

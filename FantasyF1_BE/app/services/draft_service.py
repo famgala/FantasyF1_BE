@@ -5,6 +5,7 @@ including draft order generation, pick management, and auto-picking.
 """
 
 import json
+from datetime import datetime, timezone
 from typing import Any
 
 from sqlalchemy import and_, func, select
@@ -263,6 +264,9 @@ class DraftService:
         session.add(draft_pick)
         await session.commit()
         await session.refresh(draft_pick)
+
+        # Set pick_started_at for the next team's pick
+        await DraftService._set_next_pick_start_time(session, league_id, race_id)
 
         return draft_pick
 
@@ -563,4 +567,139 @@ class DraftService:
             "race_id": race_id,
             "total_picks": len(picks),
             "picks": picks_summary,
+        }
+
+    @staticmethod
+    async def _set_next_pick_start_time(
+        session: AsyncSession,
+        league_id: int,
+        race_id: int,
+    ) -> None:
+        """Set pick_started_at for the next team's pick.
+
+        This is called after a pick is made to start the timer for the next team.
+
+        Args:
+            session: Database session
+            league_id: ID of the league
+            race_id: ID of the race
+        """
+        # Get draft order
+        draft_order = await DraftService.get_draft_order(session, league_id, race_id)
+        order_list = json.loads(draft_order.order_data)
+
+        # Get current pick count
+        count_query = select(func.count(DraftPick.id)).where(
+            and_(
+                DraftPick.league_id == league_id,
+                DraftPick.race_id == race_id,
+            )
+        )
+        result = await session.execute(count_query)
+        scalar_result = result.scalar()
+        pick_count = scalar_result if isinstance(scalar_result, int) else 0
+
+        # Check if there are more picks to make
+        total_teams = len(order_list)
+        total_picks_possible = total_teams * 5  # 5 rounds
+
+        if pick_count >= total_picks_possible:
+            return  # Draft is complete, no next pick
+
+        # Find the most recent pick for this team (which will be the next pick)
+        # We need to find the draft pick record that will be created next
+        # Since we can't predict the exact ID, we'll update the most recent pick
+        # to have pick_started_at set for the next team's turn
+        # Actually, we need to create a placeholder or update the next pick
+        # Let's get the last pick and update it to set the start time for the next
+        last_pick_query = (
+            select(DraftPick)
+            .where(
+                and_(
+                    DraftPick.league_id == league_id,
+                    DraftPick.race_id == race_id,
+                )
+            )
+            .order_by(DraftPick.pick_number.desc())
+            .limit(1)
+        )
+        result = await session.execute(last_pick_query)
+        last_pick = result.scalar_one_or_none()
+
+        if last_pick:
+            # Update the last pick to set pick_started_at for the next team
+            # This is a workaround - we're storing the start time on the last pick
+            # In a real implementation, you might want a separate table for tracking turn times
+            last_pick.pick_started_at = datetime.now(timezone.utc)
+            await session.commit()
+
+    @staticmethod
+    async def get_timer_info(
+        session: AsyncSession,
+        league_id: int,
+        race_id: int,
+    ) -> dict[str, Any] | None:
+        """Get timer information for the current draft pick.
+
+        Args:
+            session: Database session
+            league_id: ID of the league
+            race_id: ID of the race
+
+        Returns:
+            Dictionary with timer information or None if draft is complete
+        """
+        # Get league for timer settings
+        league_query = select(League).where(League.id == league_id)
+        result = await session.execute(league_query)
+        league = result.scalar_one_or_none()
+
+        if not league:
+            return None
+
+        # Get next pick info
+        next_pick = await DraftService.get_next_pick_info(session, league_id, race_id)
+
+        if next_pick is None:
+            return None  # Draft is complete
+
+        # Get the last pick to determine when the current turn started
+        last_pick_query = (
+            select(DraftPick)
+            .where(
+                and_(
+                    DraftPick.league_id == league_id,
+                    DraftPick.race_id == race_id,
+                )
+            )
+            .order_by(DraftPick.pick_number.desc())
+            .limit(1)
+        )
+        result = await session.execute(last_pick_query)
+        last_pick = result.scalar_one_or_none()
+
+        # Calculate time remaining
+        time_remaining = league.pick_timer_seconds
+        pick_started_at = None
+
+        if last_pick and last_pick.pick_started_at:
+            pick_started_at = last_pick.pick_started_at
+            elapsed = (datetime.now(timezone.utc) - pick_started_at).total_seconds()
+            time_remaining = max(0, int(league.pick_timer_seconds - elapsed))
+        elif last_pick:
+            # If no pick_started_at is set, use picked_at as fallback
+            pick_started_at = last_pick.picked_at
+            elapsed = (datetime.now(timezone.utc) - pick_started_at).total_seconds()
+            time_remaining = max(0, int(league.pick_timer_seconds - elapsed))
+
+        return {
+            "league_id": league_id,
+            "race_id": race_id,
+            "pick_timer_seconds": league.pick_timer_seconds,
+            "is_draft_paused": league.is_draft_paused,
+            "time_remaining": time_remaining,
+            "pick_started_at": pick_started_at.isoformat() if pick_started_at else None,
+            "current_team_id": next_pick["fantasy_team_id"],
+            "pick_round": next_pick["pick_round"],
+            "pick_number": next_pick["pick_number"],
         }

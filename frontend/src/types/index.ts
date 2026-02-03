@@ -469,6 +469,19 @@ export interface DraftStatus {
     pick_round: number;
     draft_position: number;
   };
+  timer?: DraftTimer;
+}
+
+export interface DraftTimer {
+  league_id: string;
+  race_id: number;
+  pick_timer_seconds: number;
+  is_draft_paused: boolean;
+  time_remaining: number;
+  pick_started_at: string | null;
+  current_team_id: string;
+  pick_round: number;
+  pick_number: number;
 }
 
 export interface DraftOrderTeam {

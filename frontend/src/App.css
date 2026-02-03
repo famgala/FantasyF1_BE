@@ -7951,3 +7951,54 @@
     font-size: 0.6875rem;
   }
 }
+
+/* ============================================
+   DRAFT TIMER CARD STYLES
+   ============================================ */
+
+.draft-timer-card {
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  padding: 2rem;
+  margin-bottom: 2rem;
+  border: 2px solid #e5e7eb;
+  text-align: center;
+}
+
+.draft-timer-card.timer-warning {
+  border-color: #f59e0b;
+  background: linear-gradient(135deg, #fffbeb 0%, #fef3c7 100%);
+}
+
+.draft-timer-card.timer-critical {
+  border-color: #dc2626;
+  background: linear-gradient(135deg, #fef2f2 0%, #fee2e2 100%);
+}
+
+.draft-timer-card.timer-expired {
+  border-color: #dc2626;
+  background: linear-gradient(135deg, #fee2e2 0%, #fecaca 100%);
+  animation: pulse-red 1s ease-in-out infinite;
+}
+
+@keyframes pulse-red {
+  0%, 100% {
+    box-shadow: 0 2px 8px rgba(220, 38, 38, 0.2);
+  }
+  50% {
+    box-shadow: 0 4px 16px rgba(220, 38, 38, 0.4);
+  }
+}
+
+.draft-timer-card.timer-paused {
+  border-color: #9ca3af;
+  background: linear-gradient(135deg, #f3f4f6 0%, #e5e7eb 100%);
+}
+
+/* Responsive for Draft Timer Card */
+@media (max-width: 768px) {
+  .draft-timer-card {
+    padding: 1.5rem;
+  }
+}

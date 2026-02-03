@@ -92,3 +92,14 @@ class UserInDB(UserInDBBase):
     """Schema for user data in database (includes hashed password)."""
 
     hashed_password: str
+
+
+class UserSearchResponse(BaseModel):
+    """Schema for user search results."""
+
+    id: int
+    username: str
+    email: str
+    full_name: str | None = None
+
+    model_config = ConfigDict(from_attributes=True)
