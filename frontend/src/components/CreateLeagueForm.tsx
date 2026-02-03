@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { createLeague } from '../services/leagueService';
 import type { CreateLeagueRequest } from '../types';
+import { Announcer } from './Announcer';
 
 interface FormErrors {
   name?: string;
@@ -29,6 +30,7 @@ export default function CreateLeagueForm() {
   const [successMessage, setSuccessMessage] = useState('');
   const [errorMessage, setErrorMessage] = useState('');
   const [createdLeagueCode, setCreatedLeagueCode] = useState('');
+  const [announcement, setAnnouncement] = useState('');
 
   // Validate form fields
   const validateField = (name: string, value: any): string | undefined => {
@@ -145,17 +147,22 @@ export default function CreateLeagueForm() {
 
     // Validate form
     if (!validateForm()) {
+      // Announce validation errors to screen readers
+      const errorCount = Object.keys(errors).length;
+      setAnnouncement(`Form has ${errorCount} error${errorCount > 1 ? 's' : ''}. Please review and correct.`);
       return;
     }
 
     setIsSubmitting(true);
     setErrorMessage('');
     setSuccessMessage('');
+    setAnnouncement('Creating league, please wait...');
 
     try {
       const createdLeague = await createLeague(formData);
       setCreatedLeagueCode(createdLeague.code);
       setSuccessMessage(`League "${createdLeague.name}" created successfully! Your league code is: ${createdLeague.code}`);
+      setAnnouncement(`League "${createdLeague.name}" created successfully! Redirecting to league page...`);
 
       // Redirect to league detail page after 2 seconds
       setTimeout(() => {
@@ -163,7 +170,9 @@ export default function CreateLeagueForm() {
       }, 2000);
     } catch (error: any) {
       console.error('Error creating league:', error);
-      setErrorMessage(error.response?.data?.detail || 'Failed to create league. Please try again.');
+      const errorMsg = error.response?.data?.detail || 'Failed to create league. Please try again.';
+      setErrorMessage(errorMsg);
+      setAnnouncement(`Error: ${errorMsg}`);
     } finally {
       setIsSubmitting(false);
     }
@@ -171,10 +180,11 @@ export default function CreateLeagueForm() {
 
   return (
     <div className="create-league-form">
+      <Announcer message={announcement} ariaLive="assertive" role="alert" />
       <h2>Create New League</h2>
 
       {successMessage && (
-        <div className="alert alert-success">
+        <div className="alert alert-success" role="alert" aria-live="polite">
           {successMessage}
           {createdLeagueCode && (
             <div className="league-code-display">
@@ -185,7 +195,7 @@ export default function CreateLeagueForm() {
       )}
 
       {errorMessage && (
-        <div className="alert alert-error">
+        <div className="alert alert-error" role="alert" aria-live="assertive">
           {errorMessage}
         </div>
       )}
@@ -205,7 +215,11 @@ export default function CreateLeagueForm() {
             placeholder="Enter league name"
             disabled={isSubmitting}
           />
-          {errors.name && <div className="invalid-feedback">{errors.name}</div>}
+          {errors.name && (
+            <div className="invalid-feedback" role="alert" aria-live="polite">
+              {errors.name}
+            </div>
+          )}
         </div>
 
         {/* Description */}
@@ -222,7 +236,11 @@ export default function CreateLeagueForm() {
             rows={3}
             disabled={isSubmitting}
           />
-          {errors.description && <div className="invalid-feedback">{errors.description}</div>}
+          {errors.description && (
+            <div className="invalid-feedback" role="alert" aria-live="polite">
+              {errors.description}
+            </div>
+          )}
         </div>
 
         {/* Max Teams */}
@@ -240,7 +258,11 @@ export default function CreateLeagueForm() {
             max={50}
             disabled={isSubmitting}
           />
-          {errors.max_teams && <div className="invalid-feedback">{errors.max_teams}</div>}
+          {errors.max_teams && (
+            <div className="invalid-feedback" role="alert" aria-live="polite">
+              {errors.max_teams}
+            </div>
+          )}
           <small className="form-text">Number of teams that can join the league (2-50)</small>
         </div>
 
@@ -259,7 +281,11 @@ export default function CreateLeagueForm() {
             <option value="public">Public - Anyone can find and join</option>
             <option value="private">Private - Only invited users can join</option>
           </select>
-          {errors.privacy && <div className="invalid-feedback">{errors.privacy}</div>}
+          {errors.privacy && (
+            <div className="invalid-feedback" role="alert" aria-live="polite">
+              {errors.privacy}
+            </div>
+          )}
         </div>
 
         {/* Draft Method */}
@@ -278,7 +304,11 @@ export default function CreateLeagueForm() {
             <option value="sequential">Sequential - Teams pick in fixed order</option>
             <option value="snake">Snake - Draft order reverses each round</option>
           </select>
-          {errors.draft_method && <div className="invalid-feedback">{errors.draft_method}</div>}
+          {errors.draft_method && (
+            <div className="invalid-feedback" role="alert" aria-live="polite">
+              {errors.draft_method}
+            </div>
+          )}
         </div>
 
         {/* Draft Close Condition */}
@@ -297,7 +327,11 @@ export default function CreateLeagueForm() {
             <option value="manual">Manual - League manager closes draft manually</option>
             <option value="time_limit">Time Limit - Draft closes after set time</option>
           </select>
-          {errors.draft_close_condition && <div className="invalid-feedback">{errors.draft_close_condition}</div>}
+          {errors.draft_close_condition && (
+            <div className="invalid-feedback" role="alert" aria-live="polite">
+              {errors.draft_close_condition}
+            </div>
+          )}
         </div>
 
         {/* Submit Button */}

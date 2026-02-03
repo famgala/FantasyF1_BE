@@ -20,3 +20,7 @@ export { default as ActivityFeed } from './ActivityFeed';
 
 // Theme Components
 export { ThemeToggle } from './ThemeToggle';
+
+// Accessibility Components
+export { default as SkipToMain } from './SkipToMain';
+export { Announcer } from './Announcer';
