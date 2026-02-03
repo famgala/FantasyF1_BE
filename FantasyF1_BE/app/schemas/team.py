@@ -78,6 +78,7 @@ class TeamResponse(BaseModel):
     league_id: int
     name: str
     total_points: int
+    total_budget: int
     budget_remaining: int
     is_active: bool
     created_at: datetime

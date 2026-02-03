@@ -132,11 +132,12 @@ export default function MakeDraftPick() {
 
   if (loading) {
     return (
-    <>
-      <MobileNav />
-      <div className="page-container">
-        <div className="loading">Loading draft data...</div>
-      </div>
+      <>
+        <MobileNav />
+        <div className="page-container">
+          <div className="loading">Loading draft data...</div>
+        </div>
+      </>
     );
   }
 
@@ -371,6 +372,5 @@ export default function MakeDraftPick() {
         )}
       </div>
     </div>
-    </>
   );
 }

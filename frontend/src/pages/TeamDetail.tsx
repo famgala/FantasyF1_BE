@@ -327,6 +327,45 @@ export const TeamDetailPage: React.FC = () => {
           </div>
         </div>
 
+        {/* Budget Progress Bar */}
+        <div className="budget-progress-section">
+          <div className="budget-progress-header">
+            <h3>Budget Overview</h3>
+            <div className="budget-progress-stats">
+              <span className="budget-stat">
+                <span className="budget-stat-label">Spent:</span>
+                <span className="budget-stat-value">${(team.budget - team.budget_remaining).toLocaleString()}</span>
+              </span>
+              <span className="budget-stat">
+                <span className="budget-stat-label">Remaining:</span>
+                <span className="budget-stat-value">${team.budget_remaining.toLocaleString()}</span>
+              </span>
+              <span className="budget-stat">
+                <span className="budget-stat-label">Total:</span>
+                <span className="budget-stat-value">${team.budget.toLocaleString()}</span>
+              </span>
+            </div>
+          </div>
+          <div className="budget-progress-bar-container">
+            <div className="budget-progress-bar">
+              <div
+                className="budget-progress-fill"
+                style={{
+                  width: `${((team.budget - team.budget_remaining) / team.budget) * 100}%`,
+                }}
+              ></div>
+            </div>
+            <div className="budget-progress-labels">
+              <span className="budget-progress-label">
+                {((team.budget - team.budget_remaining) / team.budget * 100).toFixed(1)}% Spent
+              </span>
+              <span className="budget-progress-label">
+                ${(team.budget - team.budget_remaining).toLocaleString()} / ${team.budget.toLocaleString()}
+              </span>
+            </div>
+          </div>
+        </div>
+
         {/* Team Roster */}
         <div className="team-roster-section">
           <div className="section-header">

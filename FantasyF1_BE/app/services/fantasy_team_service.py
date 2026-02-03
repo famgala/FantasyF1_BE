@@ -66,6 +66,7 @@ class FantasyTeamService:
             league_id=league_id,
             name=name,
             total_points=0,
+            total_budget=FantasyTeamService.DEFAULT_BUDGET,
             budget_remaining=FantasyTeamService.DEFAULT_BUDGET,
             is_active=True,
         )
@@ -174,14 +175,14 @@ class FantasyTeamService:
 
         Raises:
             NotFoundError: If team, driver, or race not found
-            ValidationError: If pick number is invalid or already used
+            ValidationError: If pick number is invalid, already used, or insufficient budget
         """
         # Validate pick number
         if not 1 <= pick_number <= 5:
             raise ValidationError("Pick number must be between 1 and 5")
 
         # Check if team exists
-        await FantasyTeamService.get_team(session, team_id)
+        team = await FantasyTeamService.get_team(session, team_id)
 
         # Check if driver exists
         driver_query = select(Driver).where(Driver.id == driver_id)
@@ -214,6 +215,13 @@ class FantasyTeamService:
         if existing_pick:
             raise ValidationError(f"Driver {driver_id} already picked for this team and race")
 
+        # Check if team has enough budget
+        if team.budget_remaining < driver.price:
+            raise ValidationError(
+                f"Insufficient budget. Driver costs {driver.price}M, "
+                f"but team only has {team.budget_remaining}M remaining."
+            )
+
         # Create the driver pick
         pick = TeamPick(
             fantasy_team_id=team_id,
@@ -225,6 +233,10 @@ class FantasyTeamService:
         )
 
         session.add(pick)
+
+        # Deduct driver price from team budget
+        team.budget_remaining -= driver.price
+
         await session.commit()
         await session.refresh(pick)
 
@@ -250,10 +262,10 @@ class FantasyTeamService:
 
         Raises:
             NotFoundError: If team, constructor, or race not found
-            ValidationError: If team already has a constructor for this race
+            ValidationError: If team already has a constructor for this race or insufficient budget
         """
         # Check if team exists
-        await FantasyTeamService.get_team(session, team_id)
+        team = await FantasyTeamService.get_team(session, team_id)
 
         # Check if constructor exists
         constructor_query = select(Constructor).where(Constructor.id == constructor_id)
@@ -285,6 +297,13 @@ class FantasyTeamService:
         if existing_pick:
             raise ValidationError("Team already has a constructor pick for this race")
 
+        # Check if team has enough budget
+        if team.budget_remaining < constructor.price:
+            raise ValidationError(
+                f"Insufficient budget. Constructor costs {constructor.price}M, "
+                f"but team only has {team.budget_remaining}M remaining."
+            )
+
         # Create the constructor pick
         pick = TeamPick(
             fantasy_team_id=team_id,
@@ -296,6 +315,10 @@ class FantasyTeamService:
         )
 
         session.add(pick)
+
+        # Deduct constructor price from team budget
+        team.budget_remaining -= constructor.price
+
         await session.commit()
         await session.refresh(pick)
 
@@ -363,6 +386,26 @@ class FantasyTeamService:
 
         if pick.fantasy_team_id != team_id:
             raise ValidationError("Pick does not belong to this team")
+
+        # Get the team to refund budget
+        team_query = select(FantasyTeam).where(FantasyTeam.id == team_id)
+        result = await session.execute(team_query)
+        team = result.scalar_one_or_none()
+
+        if team:
+            # Refund the price based on pick type
+            if pick.pick_type == "driver" and pick.driver_id:
+                driver_query = select(Driver).where(Driver.id == pick.driver_id)
+                result = await session.execute(driver_query)
+                driver = result.scalar_one_or_none()
+                if driver:
+                    team.budget_remaining += driver.price
+            elif pick.pick_type == "constructor" and pick.constructor_id:
+                constructor_query = select(Constructor).where(Constructor.id == pick.constructor_id)
+                result = await session.execute(constructor_query)
+                constructor = result.scalar_one_or_none()
+                if constructor:
+                    team.budget_remaining += constructor.price
 
         # Deactivate rather than delete for audit trail
         pick.is_active = False

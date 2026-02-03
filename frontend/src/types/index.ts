@@ -180,7 +180,7 @@ export interface FantasyTeam {
   league_id: string;
   user_id: string;
   total_points: number;
-  budget: number;
+  total_budget: number;
   budget_remaining: number;
   is_active: boolean;
   created_at: string;
@@ -193,6 +193,7 @@ export interface MyTeam {
   league_id: string;
   league_name: string;
   total_points: number;
+  total_budget: number;
   budget_remaining: number;
   is_active: boolean;
   created_at: string;
@@ -206,7 +207,7 @@ export interface TeamDetail {
   user_id: string;
   username: string;
   total_points: number;
-  budget: number;
+  total_budget: number;
   budget_remaining: number;
   is_active: boolean;
   can_delete: boolean;

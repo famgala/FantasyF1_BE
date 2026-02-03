@@ -81,6 +81,9 @@ class FantasyTeam(Base):
     league_id: Mapped[int] = mapped_column(ForeignKey("leagues.id"), nullable=False, index=True)
     name: Mapped[str] = mapped_column(String(100), nullable=False, index=True)
     total_points: Mapped[int] = mapped_column(Integer, default=0, nullable=False, index=True)
+    total_budget: Mapped[int] = mapped_column(
+        Integer, default=100, nullable=False
+    )  # 100M default
     budget_remaining: Mapped[int] = mapped_column(
         Integer, default=100, nullable=False
     )  # 100M default

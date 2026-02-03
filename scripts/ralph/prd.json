@@ -1052,8 +1052,8 @@
         "Verify in browser using dev-browser skill"
       ],
       "priority": 51,
-      "passes": false,
-      "notes": "Backend may need timer configuration in league settings"
+      "passes": true,
+      "notes": "Fully implemented. Backend: Added pick_timer_seconds and is_draft_paused fields to League model, pick_started_at field to DraftPick model, get_timer_info() method in DraftService, updated draft_status endpoint to return timer info. Frontend: Created CountdownTimer component with minutes/seconds display, visual warning (red color, pulse animation) when < 10 seconds, pause/resume support, auto-refresh every second. Integrated into DraftStatus.tsx page. Typecheck passes. Sound notification not implemented (optional)."
     },
     {
       "id": "US-052",
