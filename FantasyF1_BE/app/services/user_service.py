@@ -9,7 +9,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.core.exceptions import ConflictError, NotFoundError, ValidationError
 from app.core.security import get_password_hash, verify_password
 from app.models.user import User
-from app.schemas.user import UserCreate, UserUpdate
+from app.schemas.user import UserCreate, UserPreferencesUpdate, UserUpdate
 
 
 class UserService:
@@ -254,3 +254,62 @@ class UserService:
             raise ValidationError("Password must contain at least one lowercase letter")
         if not any(c.isdigit() for c in password):
             raise ValidationError("Password must contain at least one digit")
+
+    @staticmethod
+    async def update_user_preferences(
+        db: AsyncSession,
+        user_id: int,
+        preferences: UserPreferencesUpdate,
+    ) -> User:
+        """Update user preferences.
+
+        Args:
+            db: Database session
+            user_id: User ID
+            preferences: Preferences update data
+
+        Returns:
+            Updated user
+
+        Raises:
+            NotFoundError: If user not found
+        """
+        user = await UserService.get_user_by_id(db, user_id)
+
+        # Update email notification preferences
+        if preferences.notify_race_completed is not None:
+            user.notify_race_completed = preferences.notify_race_completed
+        if preferences.notify_draft_turn is not None:
+            user.notify_draft_turn = preferences.notify_draft_turn
+        if preferences.notify_league_invitations is not None:
+            user.notify_league_invitations = preferences.notify_league_invitations
+        if preferences.notify_team_updates is not None:
+            user.notify_team_updates = preferences.notify_team_updates
+
+        # Update display preferences
+        if preferences.theme_preference is not None:
+            user.theme_preference = preferences.theme_preference
+        if preferences.language_preference is not None:
+            user.language_preference = preferences.language_preference
+        if preferences.timezone_preference is not None:
+            user.timezone_preference = preferences.timezone_preference
+
+        # Update privacy settings
+        if preferences.profile_visibility is not None:
+            user.profile_visibility = preferences.profile_visibility
+        if preferences.show_email_to_league_members is not None:
+            user.show_email_to_league_members = preferences.show_email_to_league_members
+
+        # Update auto-pick preferences
+        if preferences.auto_pick_enabled is not None:
+            user.auto_pick_enabled = preferences.auto_pick_enabled
+        if preferences.auto_pick_strategy is not None:
+            user.auto_pick_strategy = preferences.auto_pick_strategy
+
+        user.updated_at = datetime.utcnow()
+
+        await db.flush()
+        await db.commit()
+        await db.refresh(user)
+
+        return user

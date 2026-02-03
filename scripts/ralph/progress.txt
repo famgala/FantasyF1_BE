@@ -60,4 +60,23 @@
   - Add hover tooltips with role permissions explanation to help users understand what they can do in the league.
   - Responsive design: On mobile, role badge should be smaller and positioned appropriately in the header.
   - Typecheck passes for both backend and frontend code.
----
+
+## [2026-02-03 8:47 PM] - US-057
+- Implemented complete Help & Documentation Center at /help
+- Files changed:
+  - frontend/src/pages/Help.tsx (new page component with searchable help articles, FAQ section, contact form, keyboard shortcuts)
+  - frontend/src/pages/Dashboard.tsx (added Help button to navigation)
+  - frontend/src/App.tsx (added /help route)
+  - frontend/src/components/MobileNav.tsx (added Help button to mobile navigation)
+  - scripts/ralph/prd.json (updated US-057 to passes: true)
+- **Learnings for future iterations:**
+  - Help Center content can be stored as static data arrays (helpArticles, faqs, keyboardShortcuts) within the component for simplicity.
+  - Use HTML content in help articles for rich formatting (headings, lists, bold text) with dangerouslySetInnerHTML.
+  - Category filtering: Create a categories array and filter both articles and FAQs by selected category.
+  - Search functionality: Filter by title, content, and tags for articles; by question and answer for FAQs.
+  - FAQ accordion: Use index-based state (expandedFAQ: number | null) to track which FAQ is expanded.
+  - Contact form: Include form validation, success message display, and auto-reset after submission.
+  - Keyboard shortcuts: Display in a grid with key badges using <kbd> element for visual styling.
+  - Responsive design: Use grid layouts (md:grid-cols-2, lg:grid-cols-3) for cards, flex-wrap for category buttons.
+  - Typecheck passes - ensure all imports use type-only imports for types when verbatimModuleSyntax is enabled.
+  - When adding navigation buttons, remember to add them to both Dashboard.tsx (desktop) and MobileNav.tsx (mobile) for consistent UX.

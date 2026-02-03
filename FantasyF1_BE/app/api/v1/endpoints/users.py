@@ -5,7 +5,13 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.dependencies import get_current_active_user, get_current_superuser
 from app.db.session import get_db
-from app.schemas.user import UserResponse, UserSearchResponse, UserUpdate
+from app.schemas.user import (
+    UserPreferencesResponse,
+    UserPreferencesUpdate,
+    UserResponse,
+    UserSearchResponse,
+    UserUpdate,
+)
 from app.services.user_service import UserService
 
 router = APIRouter()
@@ -104,5 +110,52 @@ async def search_users(
     try:
         users = await UserService.search_users(db, q, skip=skip, limit=limit)
         return [UserSearchResponse.model_validate(user) for user in users]
+    except Exception as e:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e)) from None
+
+
+@router.get("/me/preferences", response_model=UserPreferencesResponse)
+async def get_user_preferences(
+    db: AsyncSession = Depends(get_db),
+    current_user: UserResponse = Depends(get_current_active_user),
+) -> UserPreferencesResponse:
+    """Get current user's preferences.
+
+    Args:
+        db: Database session
+        current_user: Authenticated user
+
+    Returns:
+        User's preferences
+    """
+    try:
+        user = await UserService.get_user_by_id(db, current_user.id)
+        return UserPreferencesResponse.model_validate(user)
+    except Exception as e:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e)) from None
+
+
+@router.put("/me/preferences", response_model=UserPreferencesResponse)
+async def update_user_preferences(
+    preferences: UserPreferencesUpdate,
+    db: AsyncSession = Depends(get_db),
+    current_user: UserResponse = Depends(get_current_active_user),
+) -> UserPreferencesResponse:
+    """Update current user's preferences.
+
+    Args:
+        preferences: Preferences update data
+        db: Database session
+        current_user: Authenticated user
+
+    Returns:
+        Updated user preferences
+
+    Raises:
+        HTTPException: If update fails
+    """
+    try:
+        user = await UserService.update_user_preferences(db, current_user.id, preferences)
+        return UserPreferencesResponse.model_validate(user)
     except Exception as e:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e)) from None

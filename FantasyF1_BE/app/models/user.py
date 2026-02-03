@@ -46,6 +46,25 @@ class User(Base):
         nullable=False,
     )
 
+    # Email notification preferences
+    notify_race_completed: Mapped[bool] = mapped_column(Boolean, default=True, nullable=False)
+    notify_draft_turn: Mapped[bool] = mapped_column(Boolean, default=True, nullable=False)
+    notify_league_invitations: Mapped[bool] = mapped_column(Boolean, default=True, nullable=False)
+    notify_team_updates: Mapped[bool] = mapped_column(Boolean, default=True, nullable=False)
+
+    # Display preferences
+    theme_preference: Mapped[str] = mapped_column(String(20), default="system", nullable=False)
+    language_preference: Mapped[str] = mapped_column(String(10), default="en", nullable=False)
+    timezone_preference: Mapped[str] = mapped_column(String(50), default="UTC", nullable=False)
+
+    # Privacy settings
+    profile_visibility: Mapped[str] = mapped_column(String(20), default="public", nullable=False)
+    show_email_to_league_members: Mapped[bool] = mapped_column(Boolean, default=False, nullable=False)
+
+    # Auto-pick preferences
+    auto_pick_enabled: Mapped[bool] = mapped_column(Boolean, default=False, nullable=False)
+    auto_pick_strategy: Mapped[str] = mapped_column(String(20), default="highest_ranked", nullable=False)
+
     # Relationships
     league_roles: Mapped[list["LeagueRole"]] = relationship(
         back_populates="user", cascade="all, delete-orphan"
