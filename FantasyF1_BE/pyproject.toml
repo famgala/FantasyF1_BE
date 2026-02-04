@@ -182,5 +182,3 @@ extend-exclude = '''
   | alembic/versions
 )/
 '''
-# Force LF line endings for consistency across platforms
-line-ending = "lf"
