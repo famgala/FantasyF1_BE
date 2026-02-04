@@ -14,7 +14,7 @@ from app.models.user import User
 from app.services.notification_service import NotificationService
 
 
-@pytest.fixture
+@pytest.fixture()
 def client() -> TestClient:
     """Create test client."""
     return TestClient(app)
@@ -94,7 +94,7 @@ async def test_teams(db_session, test_league: League, test_user: User):
 class TestNotificationEndpoints:
     """Test suite for notification endpoints."""
 
-    @pytest.mark.asyncio
+    @pytest.mark.asyncio()
     async def test_get_notifications_empty(
         self,
         db_session,
@@ -107,7 +107,7 @@ class TestNotificationEndpoints:
         assert notifications == []
         assert total == 0
 
-    @pytest.mark.asyncio
+    @pytest.mark.asyncio()
     async def test_get_notification_by_id_not_found(
         self,
         db_session,
@@ -119,7 +119,7 @@ class TestNotificationEndpoints:
         )
         assert notification is None
 
-    @pytest.mark.asyncio
+    @pytest.mark.asyncio()
     async def test_mark_notification_as_read(
         self,
         db_session,
@@ -139,7 +139,7 @@ class TestNotificationEndpoints:
         assert updated is not None
         assert updated.is_read is True or updated.is_read == 1
 
-    @pytest.mark.asyncio
+    @pytest.mark.asyncio()
     async def test_mark_all_notifications_as_read(
         self,
         db_session,
@@ -165,7 +165,7 @@ class TestNotificationEndpoints:
         count = await NotificationService.mark_all_as_read(db_session, test_user.id)
         assert count == 2
 
-    @pytest.mark.asyncio
+    @pytest.mark.asyncio()
     async def test_delete_notification(
         self,
         db_session,
@@ -185,7 +185,7 @@ class TestNotificationEndpoints:
         )
         assert deleted is True
 
-    @pytest.mark.asyncio
+    @pytest.mark.asyncio()
     async def test_get_unread_count(
         self,
         db_session,
@@ -215,7 +215,7 @@ class TestNotificationEndpoints:
 class TestNotificationIntegration:
     """Integration tests for notification workflows."""
 
-    @pytest.mark.asyncio
+    @pytest.mark.asyncio()
     async def test_notification_lifetime(
         self,
         db_session,
@@ -250,7 +250,7 @@ class TestNotificationIntegration:
         )
         assert deleted is True
 
-    @pytest.mark.asyncio
+    @pytest.mark.asyncio()
     async def test_bulk_mark_as_read(
         self,
         db_session,
@@ -281,7 +281,7 @@ class TestNotificationIntegration:
         unread_after = await NotificationService.get_unread_count(db_session, test_user.id)
         assert unread_after == 0
 
-    @pytest.mark.asyncio
+    @pytest.mark.asyncio()
     async def test_notification_pagination(
         self,
         db_session,

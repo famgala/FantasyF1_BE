@@ -11,7 +11,7 @@ from app.schemas.user import UserCreate
 from app.services.user_service import UserService
 
 
-@pytest.mark.asyncio
+@pytest.mark.asyncio()
 async def test_register_success(client: AsyncClient, db_session: AsyncSession):
     """Test successful user registration."""
     response = await client.post(
@@ -33,7 +33,7 @@ async def test_register_success(client: AsyncClient, db_session: AsyncSession):
     assert "hashed_password" not in data  # Password should not be exposed
 
 
-@pytest.mark.asyncio
+@pytest.mark.asyncio()
 async def test_register_duplicate_username(client: AsyncClient, db_session: AsyncSession):
     """Test registration with duplicate username."""
     # Create first user
@@ -54,7 +54,7 @@ async def test_register_duplicate_username(client: AsyncClient, db_session: Asyn
     assert "Username already exists" in response.json()["detail"]
 
 
-@pytest.mark.asyncio
+@pytest.mark.asyncio()
 async def test_register_weak_password(client: AsyncClient, db_session: AsyncSession):
     """Test registration with weak password."""
     response = await client.post(
@@ -69,7 +69,7 @@ async def test_register_weak_password(client: AsyncClient, db_session: AsyncSess
     assert response.status_code == 422
 
 
-@pytest.mark.asyncio
+@pytest.mark.asyncio()
 async def test_login_success(client: AsyncClient, db_session: AsyncSession):
     """Test successful login."""
     # Create user
@@ -102,7 +102,7 @@ async def test_login_success(client: AsyncClient, db_session: AsyncSession):
     assert refresh_payload["type"] == "refresh"
 
 
-@pytest.mark.asyncio
+@pytest.mark.asyncio()
 async def test_login_wrong_password(client: AsyncClient, db_session: AsyncSession):
     """Test login with wrong password."""
     # Create user
@@ -122,7 +122,7 @@ async def test_login_wrong_password(client: AsyncClient, db_session: AsyncSessio
     assert "Incorrect username or password" in response.json()["detail"]
 
 
-@pytest.mark.asyncio
+@pytest.mark.asyncio()
 async def test_login_nonexistent_user(client: AsyncClient, db_session: AsyncSession):
     """Test login with non-existent user."""
     response = await client.post(
@@ -137,7 +137,7 @@ async def test_login_nonexistent_user(client: AsyncClient, db_session: AsyncSess
     assert "Incorrect username or password" in response.json()["detail"]
 
 
-@pytest.mark.asyncio
+@pytest.mark.asyncio()
 async def test_refresh_token_success(client: AsyncClient, db_session: AsyncSession):
     """Test successful token refresh."""
     # Create user and login
@@ -166,7 +166,7 @@ async def test_refresh_token_success(client: AsyncClient, db_session: AsyncSessi
     assert data["token_type"] == "bearer"
 
 
-@pytest.mark.asyncio
+@pytest.mark.asyncio()
 async def test_refresh_token_invalid(client: AsyncClient, db_session: AsyncSession):
     """Test refresh with invalid token."""
     response = await client.post(
@@ -178,7 +178,7 @@ async def test_refresh_token_invalid(client: AsyncClient, db_session: AsyncSessi
     assert "Invalid refresh token" in response.json()["detail"]
 
 
-@pytest.mark.asyncio
+@pytest.mark.asyncio()
 async def test_get_current_user_profile(client: AsyncClient, db_session: AsyncSession):
     """Test getting current user profile."""
     # Create user and login
@@ -212,7 +212,7 @@ async def test_get_current_user_profile(client: AsyncClient, db_session: AsyncSe
     assert data["full_name"] == "Test User"
 
 
-@pytest.mark.asyncio
+@pytest.mark.asyncio()
 async def test_get_current_user_profile_unauthorized(client: AsyncClient):
     """Test getting profile without token."""
     response = await client.get("/api/v1/users/me")
@@ -220,7 +220,7 @@ async def test_get_current_user_profile_unauthorized(client: AsyncClient):
     assert response.status_code == 401
 
 
-@pytest.mark.asyncio
+@pytest.mark.asyncio()
 async def test_update_current_user_profile(client: AsyncClient, db_session: AsyncSession):
     """Test updating current user profile."""
     # Create user and login
@@ -257,7 +257,7 @@ async def test_update_current_user_profile(client: AsyncClient, db_session: Asyn
     assert data["email"] == "updated@example.com"
 
 
-@pytest.mark.asyncio
+@pytest.mark.asyncio()
 async def test_update_user_password(client: AsyncClient, db_session: AsyncSession):
     """Test updating user password."""
     # Create user and login

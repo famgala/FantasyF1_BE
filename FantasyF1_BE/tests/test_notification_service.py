@@ -8,7 +8,7 @@ from app.services.notification_service import NotificationService
 class TestNotificationService:
     """Test cases for NotificationService."""
 
-    @pytest.mark.asyncio
+    @pytest.mark.asyncio()
     async def test_create_notification(self, db_session) -> None:
         """Test creating a notification."""
         user_id = 1
@@ -31,7 +31,7 @@ class TestNotificationService:
         assert notification.is_read is False or notification.is_read == 0
         assert notification.read_at is None
 
-    @pytest.mark.asyncio
+    @pytest.mark.asyncio()
     async def test_get_user_notifications(self, db_session) -> None:
         """Test getting notifications for a user."""
         user_id = 1
@@ -66,7 +66,7 @@ class TestNotificationService:
         assert len(notifications) == 2
         assert total == 2
 
-    @pytest.mark.asyncio
+    @pytest.mark.asyncio()
     async def test_get_unread_notifications(self, db_session) -> None:
         """Test getting unread notifications."""
         user_id = 1
@@ -97,7 +97,7 @@ class TestNotificationService:
         assert len(notifications) == 1
         assert total == 1
 
-    @pytest.mark.asyncio
+    @pytest.mark.asyncio()
     async def test_mark_as_read(self, db_session) -> None:
         """Test marking notification as read."""
         user_id = 1
@@ -119,7 +119,7 @@ class TestNotificationService:
         assert updated.is_read is True or updated.is_read == 1
         assert updated.read_at is not None
 
-    @pytest.mark.asyncio
+    @pytest.mark.asyncio()
     async def test_mark_all_as_read(self, db_session) -> None:
         """Test marking all notifications as read."""
         user_id = 1
@@ -144,7 +144,7 @@ class TestNotificationService:
 
         assert count == 2
 
-    @pytest.mark.asyncio
+    @pytest.mark.asyncio()
     async def test_delete_notification(self, db_session) -> None:
         """Test deleting a notification."""
         user_id = 1
@@ -167,7 +167,7 @@ class TestNotificationService:
         found = await NotificationService.get_notification(db_session, notification.id, user_id)
         assert found is None
 
-    @pytest.mark.asyncio
+    @pytest.mark.asyncio()
     async def test_count_unread(self, db_session) -> None:
         """Test counting unread notifications."""
         user_id = 1
@@ -192,7 +192,7 @@ class TestNotificationService:
 
         assert count == 2
 
-    @pytest.mark.asyncio
+    @pytest.mark.asyncio()
     async def test_get_by_id(self, db_session) -> None:
         """Test getting notification by ID."""
         user_id = 1
@@ -210,7 +210,7 @@ class TestNotificationService:
         assert found is not None
         assert found.id == notification.id
 
-    @pytest.mark.asyncio
+    @pytest.mark.asyncio()
     async def test_notification_types(self, db_session) -> None:
         """Test different notification types."""
         user_id = 1

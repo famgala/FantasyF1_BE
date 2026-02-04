@@ -75,7 +75,7 @@ async def login_and_get_token(client: AsyncClient, username: str, password: str)
     return response.json()["access_token"]
 
 
-@pytest.mark.asyncio
+@pytest.mark.asyncio()
 async def test_admin_health_check_success(client: AsyncClient, db: AsyncSession):
     """Test successful health check by superuser.
 
@@ -126,7 +126,7 @@ async def test_admin_health_check_success(client: AsyncClient, db: AsyncSession)
     assert data["celery_response_time_ms"] >= 0
 
 
-@pytest.mark.asyncio
+@pytest.mark.asyncio()
 async def test_admin_health_check_unauthorized_no_token(client: AsyncClient):
     """Test health check without authentication token.
 
@@ -139,7 +139,7 @@ async def test_admin_health_check_unauthorized_no_token(client: AsyncClient):
     assert response.status_code == 401
 
 
-@pytest.mark.asyncio
+@pytest.mark.asyncio()
 async def test_admin_health_check_forbidden_regular_user(client: AsyncClient, db: AsyncSession):
     """Test health check with regular user token (not superuser).
 
@@ -162,7 +162,7 @@ async def test_admin_health_check_forbidden_regular_user(client: AsyncClient, db
     assert response.status_code == 403
 
 
-@pytest.mark.asyncio
+@pytest.mark.asyncio()
 async def test_admin_health_check_invalid_token(client: AsyncClient):
     """Test health check with invalid token.
 
@@ -178,7 +178,7 @@ async def test_admin_health_check_invalid_token(client: AsyncClient):
     assert response.status_code == 401
 
 
-@pytest.mark.asyncio
+@pytest.mark.asyncio()
 async def test_admin_statistics_success(client: AsyncClient, db: AsyncSession):
     """Test successful admin statistics retrieval by superuser.
 
@@ -213,7 +213,7 @@ async def test_admin_statistics_success(client: AsyncClient, db: AsyncSession):
     assert "leagues_by_day" in data
 
 
-@pytest.mark.asyncio
+@pytest.mark.asyncio()
 async def test_admin_statistics_unauthorized(client: AsyncClient):
     """Test statistics endpoint without authentication."""
     response = await client.get("/api/v1/admin/stats")
@@ -221,7 +221,7 @@ async def test_admin_statistics_unauthorized(client: AsyncClient):
     assert response.status_code == 401
 
 
-@pytest.mark.asyncio
+@pytest.mark.asyncio()
 async def test_admin_statistics_forbidden_regular_user(client: AsyncClient, db: AsyncSession):
     """Test statistics endpoint with regular user token."""
     # Create regular user
@@ -240,7 +240,7 @@ async def test_admin_statistics_forbidden_regular_user(client: AsyncClient, db: 
     assert response.status_code == 403
 
 
-@pytest.mark.asyncio
+@pytest.mark.asyncio()
 async def test_admin_error_logs_success(client: AsyncClient, db: AsyncSession):
     """Test successful error logs retrieval by superuser.
 
@@ -278,7 +278,7 @@ async def test_admin_error_logs_success(client: AsyncClient, db: AsyncSession):
     assert isinstance(data["total"], int)
 
 
-@pytest.mark.asyncio
+@pytest.mark.asyncio()
 async def test_admin_error_logs_filtering(client: AsyncClient, db: AsyncSession):
     """Test error logs with filtering parameters.
 
@@ -308,7 +308,7 @@ async def test_admin_error_logs_filtering(client: AsyncClient, db: AsyncSession)
     assert data["page_size"] == 10
 
 
-@pytest.mark.asyncio
+@pytest.mark.asyncio()
 async def test_admin_error_logs_unauthorized(client: AsyncClient):
     """Test error logs endpoint without authentication."""
     response = await client.get("/api/v1/admin/logs")
@@ -316,7 +316,7 @@ async def test_admin_error_logs_unauthorized(client: AsyncClient):
     assert response.status_code == 401
 
 
-@pytest.mark.asyncio
+@pytest.mark.asyncio()
 async def test_admin_error_logs_forbidden_regular_user(client: AsyncClient, db: AsyncSession):
     """Test error logs endpoint with regular user token."""
     # Create regular user

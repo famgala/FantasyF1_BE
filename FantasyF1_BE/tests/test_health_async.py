@@ -3,7 +3,7 @@
 import pytest
 
 
-@pytest.mark.asyncio
+@pytest.mark.asyncio()
 async def test_health_check_async(client):
     """Test the health check endpoint with async client"""
     response = await client.get("/health")
@@ -14,7 +14,7 @@ async def test_health_check_async(client):
     assert "debug" in data
 
 
-@pytest.mark.asyncio
+@pytest.mark.asyncio()
 async def test_root_endpoint_async(client):
     """Test the root endpoint with async client"""
     response = await client.get("/")

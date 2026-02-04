@@ -94,7 +94,7 @@ async def test_teams(db_session, test_league: League, test_user: User) -> list[F
 class TestLeaderboardEndpoints:
     """Test suite for leaderboard endpoints."""
 
-    @pytest.mark.asyncio
+    @pytest.mark.asyncio()
     async def test_get_leaderboard_success(
         self,
         client: AsyncClient,
@@ -114,7 +114,7 @@ class TestLeaderboardEndpoints:
         assert data is not None
         assert "entries" in data
 
-    @pytest.mark.asyncio
+    @pytest.mark.asyncio()
     async def test_get_leaderboard_not_found(self, client: AsyncClient, test_user: User) -> None:
         """Test getting leaderboard for non-existent league."""
         token = await login_and_get_token(client, test_user.username, "TestPass123")
@@ -124,7 +124,7 @@ class TestLeaderboardEndpoints:
         )
         assert response.status_code == 404
 
-    @pytest.mark.asyncio
+    @pytest.mark.asyncio()
     async def test_get_leaderboard_for_race(
         self,
         client: AsyncClient,
@@ -143,7 +143,7 @@ class TestLeaderboardEndpoints:
         # Should return 200 or 400 if race doesn't have results yet
         assert response.status_code in [200, 400]
 
-    @pytest.mark.asyncio
+    @pytest.mark.asyncio()
     async def test_get_leaderboard_with_pagination(
         self,
         client: AsyncClient,
@@ -164,7 +164,7 @@ class TestLeaderboardEndpoints:
         if "entries" in data:
             assert len(data["entries"]) <= 3
 
-    @pytest.mark.asyncio
+    @pytest.mark.asyncio()
     async def test_empty_leaderboard(
         self,
         client: AsyncClient,
@@ -186,7 +186,7 @@ class TestLeaderboardEndpoints:
 class TestLeaderboardIntegration:
     """Integration tests for leaderboard workflows."""
 
-    @pytest.mark.asyncio
+    @pytest.mark.asyncio()
     async def test_leaderboard_ordering(
         self,
         client: AsyncClient,
@@ -212,7 +212,7 @@ class TestLeaderboardIntegration:
                     continue
                 assert entries[i]["total_points"] >= entries[i + 1]["total_points"]
 
-    @pytest.mark.asyncio
+    @pytest.mark.asyncio()
     async def test_leaderboard_response_structure(
         self,
         client: AsyncClient,
@@ -238,7 +238,7 @@ class TestLeaderboardIntegration:
             for field in expected_fields:
                 assert field in entry
 
-    @pytest.mark.asyncio
+    @pytest.mark.asyncio()
     async def test_leaderboard_pagination_workflow(
         self,
         client: AsyncClient,
