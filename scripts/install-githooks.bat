@@ -42,6 +42,19 @@ if exist ".githooks\pre-commit.bat" (
 echo.
 echo ============================================
 echo [OK] Git hooks installation complete!
+echo.
+echo The pre-commit hook will now run automatically
+echo before each commit to:
+echo   [x] Auto-format code with Black (backend)
+echo   [x] Auto-fix linter issues with Ruff (backend)
+echo   [x] Check type safety with MyPy (backend)
+echo   [x] Run tests pytest when needed (backend)
+echo   [x] Run ESLint and TypeScript checks (frontend)
+echo.
+echo Files will be automatically formatted when needed!
+echo.
+echo To skip the hook (not recommended):
+echo   git commit --no-verify
 echo ============================================
 
 endlocal
