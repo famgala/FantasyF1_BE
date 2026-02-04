@@ -4,7 +4,7 @@ import asyncio
 from collections.abc import AsyncGenerator, Generator
 
 import pytest_asyncio
-from httpx import AsyncClient
+from httpx import ASGITransport, AsyncClient
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_async_engine
 from sqlalchemy.sql import text
 
@@ -79,7 +79,7 @@ async def client(db: AsyncSession) -> AsyncGenerator[AsyncClient, None]:
     app.dependency_overrides[get_async_db] = override_get_async_db
 
     try:
-        async with AsyncClient(app=app, base_url="http://test") as ac:
+        async with AsyncClient(transport=ASGITransport(app=app), base_url="http://test") as ac:
             yield ac
     finally:
         # Clean up dependency override

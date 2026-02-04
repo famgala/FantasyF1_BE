@@ -62,7 +62,6 @@ export const SendInvitations: React.FC = () => {
 
   useEffect(() => {
     fetchLeagueAndInvitations();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [id]);
 
   // Search users when debounced query changes

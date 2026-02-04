@@ -125,7 +125,6 @@ export const ForgotPassword: React.FC = () => {
                 <ErrorDisplay
                   title="Request Failed"
                   message={error}
-                  variant="compact"
                 />
               )}
 

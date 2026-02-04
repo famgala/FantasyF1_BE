@@ -1,5 +1,5 @@
 import { useState, useEffect, useMemo } from 'react';
-import { useParams, useNavigate, Link } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
 import { getTeamDetail, getTeamPicks, addTeamPick, getAvailableDrivers } from '../services/teamService';
 import { MobileNav } from '../components/MobileNav';
 import type { TeamDetail, Driver, AddPickRequest } from '../types';
@@ -249,7 +249,7 @@ const AddPicks: React.FC<AddPicksProps> = () => {
               <div className="budget-info">
                 <div className="budget-item">
                   <span className="budget-label">Total Budget:</span>
-                  <span className="budget-value">${team.budget}M</span>
+                  <span className="budget-value">${team.total_budget}M</span>
                 </div>
                 <div className="budget-item">
                   <span className="budget-label">Remaining:</span>
@@ -266,7 +266,7 @@ const AddPicks: React.FC<AddPicksProps> = () => {
                 <div
                   className="budget-bar-fill"
                   style={{
-                    width: `${((team.budget - team.budget_remaining) / team.budget) * 100}%`,
+                    width: `${((team.total_budget - team.budget_remaining) / team.total_budget) * 100}%`,
                   }}
                 ></div>
               </div>

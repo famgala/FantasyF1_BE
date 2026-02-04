@@ -7,7 +7,7 @@ import { PageLoader } from '../components/PageLoader';
 import { ErrorDisplay } from '../components/ErrorDisplay';
 import { MobileNav } from '../components/MobileNav';
 import { LoadingSpinner } from '../components/LoadingSpinner';
-import type { AdminUser, AdminUserFilters, UserDetail, UserActivity } from '../types/admin';
+import type { AdminUser, AdminUserFilters, UserDetail } from '../types/admin';
 
 interface UserDetailModalProps {
   user: UserDetail | null;
@@ -142,7 +142,7 @@ const UserDetailModal: React.FC<UserDetailModalProps> = ({
                     disabled={isUpdating}
                     title="Activate this user account"
                   >
-                    {isUpdating ? <LoadingSpinner size="sm" light /> : 'Activate Account'}
+                    {isUpdating ? <LoadingSpinner size="sm" color="white" /> : 'Activate Account'}
                   </button>
                 )}
 
@@ -162,7 +162,7 @@ const UserDetailModal: React.FC<UserDetailModalProps> = ({
                     disabled={isUpdating}
                     title="Grant superuser privileges"
                   >
-                    {isUpdating ? <LoadingSpinner size="sm" light /> : 'Make Superuser'}
+                    {isUpdating ? <LoadingSpinner size="sm" color="white" /> : 'Make Superuser'}
                   </button>
                 )}
               </>
@@ -244,7 +244,7 @@ const ConfirmModal: React.FC<ConfirmModalProps> = ({
             onClick={onConfirm}
             disabled={isConfirming}
           >
-            {isConfirming ? <LoadingSpinner size="sm" light /> : confirmText}
+            {isConfirming ? <LoadingSpinner size="sm" color="white" /> : confirmText}
           </button>
         </div>
       </div>
@@ -254,7 +254,7 @@ const ConfirmModal: React.FC<ConfirmModalProps> = ({
 
 export const AdminUsers: React.FC = () => {
   const { user } = useAuth();
-  const { showToast } = useToast();
+  const { error: showError, success: showSuccess } = useToast();
   const navigate = useNavigate();
 
   const [users, setUsers] = useState<AdminUser[]>([]);
@@ -296,10 +296,10 @@ export const AdminUsers: React.FC = () => {
   // Check if user is superuser
   useEffect(() => {
     if (user && !user.is_superuser) {
-      showToast('You do not have permission to access this page', 'error');
+      showError('Access Denied', 'You do not have permission to access this page');
       navigate('/dashboard');
     }
-  }, [user, navigate, showToast]);
+  }, [user, navigate, showError]);
 
   const fetchUsers = useCallback(async () => {
     setLoading(true);
@@ -317,11 +317,11 @@ export const AdminUsers: React.FC = () => {
     } catch (err) {
       const message = 'Failed to load users';
       setError(message);
-      showToast(message, 'error');
+      showError('Error', message);
     } finally {
       setLoading(false);
     }
-  }, [filters, page, pageSize, showToast]);
+  }, [filters, page, pageSize, showError]);
 
   useEffect(() => {
     if (user?.is_superuser) {
@@ -335,7 +335,7 @@ export const AdminUsers: React.FC = () => {
       const userDetail = await adminService.getUserById(userId);
       setSelectedUser(userDetail);
     } catch (err) {
-      showToast('Failed to load user details', 'error');
+      showError('Error', 'Failed to load user details');
     } finally {
       setIsLoadingDetails(false);
     }
@@ -377,11 +377,11 @@ export const AdminUsers: React.FC = () => {
     setIsUpdating(true);
     try {
       await adminService.updateUser(selectedUser.id, { is_active: true });
-      showToast('User activated successfully', 'success');
+      showSuccess('Success', 'User activated successfully');
       setSelectedUser((prev) => prev ? { ...prev, is_active: true } : null);
       fetchUsers(); // Refresh the list
     } catch (err) {
-      showToast('Failed to activate user', 'error');
+      showError('Error', 'Failed to activate user');
     } finally {
       setIsUpdating(false);
       closeConfirmation();
@@ -394,11 +394,11 @@ export const AdminUsers: React.FC = () => {
     setIsUpdating(true);
     try {
       await adminService.updateUser(selectedUser.id, { is_active: false });
-      showToast('User deactivated successfully', 'success');
+      showSuccess('Success', 'User deactivated successfully');
       setSelectedUser((prev) => prev ? { ...prev, is_active: false } : null);
       fetchUsers(); // Refresh the list
     } catch (err) {
-      showToast('Failed to deactivate user', 'error');
+      showError('Error', 'Failed to deactivate user');
     } finally {
       setIsUpdating(false);
       closeConfirmation();
@@ -411,11 +411,11 @@ export const AdminUsers: React.FC = () => {
     setIsUpdating(true);
     try {
       await adminService.updateUser(selectedUser.id, { is_superuser: true });
-      showToast('Superuser privileges granted', 'success');
+      showSuccess('Success', 'Superuser privileges granted');
       setSelectedUser((prev) => prev ? { ...prev, is_superuser: true } : null);
       fetchUsers(); // Refresh the list
     } catch (err) {
-      showToast('Failed to grant superuser privileges', 'error');
+      showError('Error', 'Failed to grant superuser privileges');
     } finally {
       setIsUpdating(false);
       closeConfirmation();
@@ -428,11 +428,11 @@ export const AdminUsers: React.FC = () => {
     setIsUpdating(true);
     try {
       await adminService.updateUser(selectedUser.id, { is_superuser: false });
-      showToast('Superuser privileges removed', 'success');
+      showSuccess('Success', 'Superuser privileges removed');
       setSelectedUser((prev) => prev ? { ...prev, is_superuser: false } : null);
       fetchUsers(); // Refresh the list
     } catch (err) {
-      showToast('Failed to remove superuser privileges', 'error');
+      showError('Error', 'Failed to remove superuser privileges');
     } finally {
       setIsUpdating(false);
       closeConfirmation();

@@ -2,7 +2,7 @@
 
 from datetime import datetime
 
-from pydantic import BaseModel, Field, field_validator
+from pydantic import BaseModel, ConfigDict, Field, field_validator
 
 from app.models.league_invitation import InvitationStatus, InvitationType
 
@@ -76,10 +76,7 @@ class InvitationResponse(BaseModel):
             raise ValueError(f"Invalid invitation_type. Must be one of: {allowed_types}")
         return v
 
-    class Config:
-        """Pydantic config."""
-
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)
 
 
 class InvitationDetailResponse(InvitationResponse):

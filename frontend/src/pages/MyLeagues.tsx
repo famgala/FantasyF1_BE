@@ -3,7 +3,7 @@ import { useNavigate, Link } from 'react-router-dom';
 import type { MyLeague } from '../types';
 import { getMyLeagues } from '../services/leagueService';
 import { MobileNav } from '../components/MobileNav';
-import { PageLoader, ErrorDisplay, SkeletonCard } from '../components';
+import { ErrorDisplay, SkeletonCard } from '../components';
 
 type SortOption = 'alphabetical' | 'recent' | 'rank';
 

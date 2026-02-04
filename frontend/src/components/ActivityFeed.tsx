@@ -1,9 +1,9 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { Link } from 'react-router-dom';
-import { activityLogService, GetActivitiesParams } from '../services/activityLogService';
-import { ActivityLog, ActivityType } from '../types';
+import { activityLogService, type GetActivitiesParams } from '../services/activityLogService';
+import type { ActivityLog, ActivityType } from '../types';
 import LoadingSpinner from './LoadingSpinner';
-import EmptyState from './EmptyState';
+import { EmptyState } from './EmptyState';
 
 interface ActivityFeedProps {
   leagueId: string;
@@ -137,7 +137,7 @@ export const ActivityFeed: React.FC<ActivityFeedProps> = ({
   if (loading && activities.length === 0) {
     return (
       <div className="activity-feed-loading">
-        <LoadingSpinner size="medium" />
+        <LoadingSpinner size="md" />
       </div>
     );
   }
@@ -189,7 +189,7 @@ export const ActivityFeed: React.FC<ActivityFeedProps> = ({
           <EmptyState
             icon="📋"
             title="No Activities Yet"
-            message="Activities will appear here as members join, teams are created, and events happen in your league."
+            description="Activities will appear here as members join, teams are created, and events happen in your league."
           />
         ) : (
           <>
@@ -204,7 +204,7 @@ export const ActivityFeed: React.FC<ActivityFeedProps> = ({
                   disabled={loading}
                 >
                   {loading ? (
-                    <LoadingSpinner size="small" />
+                    <LoadingSpinner size="sm" />
                   ) : (
                     'Load More'
                   )}

@@ -118,7 +118,7 @@ const ErrorDetailModal: React.FC<ErrorDetailModalProps> = ({
                 onClick={() => onResolve(resolutionNotes)}
                 disabled={isUpdating}
               >
-                {isUpdating ? <LoadingSpinner size="sm" light /> : '✓ Mark as Resolved'}
+                {isUpdating ? <LoadingSpinner size="sm" color="white" /> : '✓ Mark as Resolved'}
               </button>
             </>
           ) : (
@@ -141,7 +141,7 @@ const ErrorDetailModal: React.FC<ErrorDetailModalProps> = ({
 
 export const AdminErrorLogs: React.FC = () => {
   const { user } = useAuth();
-  const { showToast } = useToast();
+  const { error: showError, success: showSuccess } = useToast();
   const navigate = useNavigate();
 
   const [logs, setLogs] = useState<ErrorLog[]>([]);
@@ -166,10 +166,10 @@ export const AdminErrorLogs: React.FC = () => {
   // Check if user is superuser
   useEffect(() => {
     if (user && !user.is_superuser) {
-      showToast('You do not have permission to access this page', 'error');
+      showError('Access Denied', 'You do not have permission to access this page');
       navigate('/dashboard');
     }
-  }, [user, navigate, showToast]);
+  }, [user, navigate, showError]);
 
   const fetchLogs = useCallback(async () => {
     setLoading(true);
@@ -187,11 +187,11 @@ export const AdminErrorLogs: React.FC = () => {
     } catch (err) {
       const message = 'Failed to load error logs';
       setError(message);
-      showToast(message, 'error');
+      showError('Error', message);
     } finally {
       setLoading(false);
     }
-  }, [filters, page, pageSize, showToast]);
+  }, [filters, page, pageSize, showError]);
 
   useEffect(() => {
     if (user?.is_superuser) {
@@ -210,11 +210,11 @@ export const AdminErrorLogs: React.FC = () => {
     setIsUpdating(true);
     try {
       await adminService.resolveError(selectedError.id, { resolution_notes: notes });
-      showToast('Error marked as resolved', 'success');
+      showSuccess('Success', 'Error marked as resolved');
       setSelectedError(null);
       fetchLogs();
     } catch (err) {
-      showToast('Failed to resolve error', 'error');
+      showError('Error', 'Failed to resolve error');
     } finally {
       setIsUpdating(false);
     }
@@ -226,11 +226,11 @@ export const AdminErrorLogs: React.FC = () => {
     setIsUpdating(true);
     try {
       await adminService.unresolveError(selectedError.id);
-      showToast('Error marked as unresolved', 'success');
+      showSuccess('Success', 'Error marked as unresolved');
       setSelectedError(null);
       fetchLogs();
     } catch (err) {
-      showToast('Failed to unresolve error', 'error');
+      showError('Error', 'Failed to unresolve error');
     } finally {
       setIsUpdating(false);
     }
@@ -274,9 +274,9 @@ export const AdminErrorLogs: React.FC = () => {
       document.body.removeChild(a);
       window.URL.revokeObjectURL(url);
 
-      showToast('Error logs exported successfully', 'success');
+      showSuccess('Success', 'Error logs exported successfully');
     } catch (err) {
-      showToast('Failed to export error logs', 'error');
+      showError('Error', 'Failed to export error logs');
     } finally {
       setIsExporting(false);
     }

@@ -132,7 +132,6 @@ export const ResetPassword: React.FC = () => {
             <ErrorDisplay
               title="Link Invalid or Expired"
               message="This password reset link is invalid or has expired. Please request a new password reset link."
-              variant="compact"
             />
             <div className="text-center">
               <Link
@@ -209,7 +208,6 @@ export const ResetPassword: React.FC = () => {
                 <ErrorDisplay
                   title="Reset Failed"
                   message={apiError}
-                  variant="compact"
                 />
               )}
 

@@ -3,7 +3,7 @@ import { useNavigate, Link } from 'react-router-dom';
 import type { MyTeam } from '../types';
 import { getMyTeams } from '../services/teamService';
 import { MobileNav } from '../components/MobileNav';
-import { PageLoader, ErrorDisplay, SkeletonCard } from '../components';
+import { ErrorDisplay, SkeletonCard } from '../components';
 
 type SortOption = 'alphabetical' | 'points' | 'league';
 

@@ -104,7 +104,7 @@ const SimpleBarChart: React.FC<{
 
 export const AdminDashboard: React.FC = () => {
   const { user } = useAuth();
-  const { showToast } = useToast();
+  const { error: showError, success: showSuccess } = useToast();
   const navigate = useNavigate();
   
   const [stats, setStats] = useState<AdminStats | null>(null);
@@ -116,10 +116,10 @@ export const AdminDashboard: React.FC = () => {
   // Check if user is superuser
   useEffect(() => {
     if (user && !user.is_superuser) {
-      showToast('You do not have permission to access the admin dashboard', 'error');
+      showError('Access Denied', 'You do not have permission to access this page');
       navigate('/dashboard');
     }
-  }, [user, navigate, showToast]);
+  }, [user, navigate, showError]);
 
   const fetchStats = useCallback(async (showLoading = true) => {
     if (showLoading) {
@@ -134,14 +134,14 @@ export const AdminDashboard: React.FC = () => {
       setStats(data);
       setLastUpdated(new Date());
     } catch (err) {
-      const message = adminService.getErrorMessage?.(err) || 'Failed to load admin statistics';
+      const message = (err as Error).message || 'Failed to load admin statistics';
       setError(message);
-      showToast(message, 'error');
+      showError('Error', message);
     } finally {
       setLoading(false);
       setIsRefreshing(false);
     }
-  }, [showToast]);
+  }, [showError]);
 
   // Initial load
   useEffect(() => {
@@ -163,7 +163,7 @@ export const AdminDashboard: React.FC = () => {
 
   const handleManualRefresh = () => {
     fetchStats(false);
-    showToast('Statistics refreshed', 'success');
+    showSuccess('Success', 'Statistics refreshed');
   };
 
   if (loading) {

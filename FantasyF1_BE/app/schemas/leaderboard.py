@@ -1,6 +1,6 @@
 """Schemas for leaderboard responses."""
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, ConfigDict, Field
 
 
 class LeaderboardEntry(BaseModel):
@@ -16,8 +16,7 @@ class LeaderboardEntry(BaseModel):
     podiums: int = Field(default=0, description="Number of podium finishes")
     is_tied: bool = Field(default=False, description="Whether this position is tied")
 
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)
 
 
 class LeaderboardResponse(BaseModel):
@@ -30,8 +29,7 @@ class LeaderboardResponse(BaseModel):
     entries: list[LeaderboardEntry] = Field(..., description="Leaderboard entries sorted by rank")
     total_entries: int = Field(..., description="Total number of entries")
 
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)
 
 
 class UserRankResponse(BaseModel):
@@ -44,5 +42,4 @@ class UserRankResponse(BaseModel):
     is_tied: bool = Field(..., description="Whether the user's position is tied")
     total_entries: int = Field(..., description="Total number of entries in leaderboard")
 
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)
