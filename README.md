@@ -296,11 +296,23 @@ npm run build
 - ✅ Isolated dev environment with Docker
 - ✅ Support for multiple concurrent dev environments
 
-## 🚀 Deployment
+## 🚀 Deployment Strategy
 
-See [CI/CD Setup](documentation/CI_CD_SETUP.md) for deployment instructions.
+This project uses a three-environment deployment strategy: Development, Test (Staging), and Production.
 
-## 📄 License
+- **Development**: Local development on `dev/*` branches (e.g., `dev/fix-frontend-registration`) with no CI builds
+- **Test**: Staging on `test/*` branches (e.g., `test/fix-frontend-registration`) with CI builds and test-tagged images
+- **Production**: Live on `main` branch with CI builds and latest-tagged images
+
+**Deployment Flow:**
+```
+dev/issue_or_feature_name → PR → test/issue_or_feature_name → PR → main
+```
+
+See [documentation/DEPLOYMENT_STRATEGY.md](documentation/DEPLOYMENT_STRATEGY.md) for complete details.
+See [documentation/DEPLOYMENT_QUICK_START.md](documentation/DEPLOYMENT_QUICK_START.md) for quick reference.
+
+## � License
 
 This project is licensed under the MIT License.
 
@@ -312,7 +324,7 @@ For issues or questions:
 3. Check container logs
 4. Open an issue on GitHub
 
-## 🙏 Acknowledgments
+## �🙏 Acknowledgments
 
 - [FastAPI](https://fastapi.tiangolo.com/) - Modern Python web framework
 - [Docker](https://www.docker.com/) - Container platform

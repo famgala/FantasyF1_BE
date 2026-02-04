@@ -24,7 +24,8 @@ async def get_league_activities(
     league_id: int,
     db: Annotated[AsyncSession, Depends(get_db)],
     current_user: Annotated[User, Depends(get_current_user)],
-    activity_type: ActivityType | None = Query(
+    activity_type: ActivityType
+    | None = Query(
         None,
         description="Filter by activity type",
     ),

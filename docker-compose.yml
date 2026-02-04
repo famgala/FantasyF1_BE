@@ -172,6 +172,29 @@ services:
     security_opt:
       - no-new-privileges:true
 
+  # Frontend Application (React + Vite + Nginx)
+  frontend:
+    image: ${FRONTEND_IMAGE:-famgala/fantasyf1-fe:latest}
+    container_name: fantasyf1_frontend
+    ports:
+      - "${FRONTEND_PORT:-3000}:80"
+    environment:
+      - VITE_API_BASE_URL=${VITE_API_BASE_URL:-http://localhost:8004}
+    depends_on:
+      backend:
+        condition: service_healthy
+    networks:
+      - fantasyf1_network
+    healthcheck:
+      test: ["CMD-SHELL", "wget --no-verbose --tries=1 --spider http://localhost/ || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
+    restart: unless-stopped
+    security_opt:
+      - no-new-privileges:true
+
 networks:
   fantasyf1_network:
     driver: bridge

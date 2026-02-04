@@ -33,10 +33,15 @@ class Settings(BaseSettings):
     REDIS_MAX_CONNECTIONS: int = 10
 
     # CORS
-    CORS_ORIGINS: list[str] = ["http://localhost:3000", "http://localhost:8000"]
+    CORS_ORIGINS: str = "http://localhost:3000,http://localhost:8000"
     CORS_ALLOW_CREDENTIALS: bool = True
     CORS_ALLOW_METHODS: list[str] = ["*"]
     CORS_ALLOW_HEADERS: list[str] = ["*"]
+
+    @property
+    def cors_origins_list(self) -> list[str]:
+        """Parse CORS_ORIGINS comma-separated string into list."""
+        return [origin.strip() for origin in self.CORS_ORIGINS.split(",")]
 
     # Celery
     CELERY_BROKER_URL: str = "redis://redis:6379/1"

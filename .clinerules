@@ -8,11 +8,28 @@ Follow phase instructions exactly. Never skip phases or steps.
 ##PRE-COMMIT REQUIREMENTS
 
 Before ANY git commit:
+1. Pre-commit hook runs automatically (~10-20 seconds)
+2. ALL checks must pass 100% - Black, Ruff, MyPy (static analysis)
+3. Fix failures, re-run until 100% pass
+4. Only then commit and push
+
+For FULL validation with tests (optional before commit, required before push):
 1. cd FantasyF1_BE
 2. Run scripts\run_ci_checks.bat (Windows) or ./scripts/run_ci_checks.sh (Linux/Mac)
 3. ALL checks must pass 100% - Black, Ruff, MyPy, pytest
-4. Fix failures, re-run until 100% pass
-5. Only then commit and push
+
+Pre-commit checks are FAST (static analysis only):
+- Black formatter (code formatting)
+- Ruff linter (code quality)
+- MyPy type checker (type safety)
+- ESLint (frontend linting)
+- TypeScript type check (frontend type safety)
+
+GitHub CI runs FULL validation:
+- All pre-commit checks
+- Pytest with coverage
+- Docker build tests
+- Security scans
 
 ##PHASE COMPLETION DEFINITION
 
@@ -90,7 +107,19 @@ Format: black app/ tests/
 Lint: ruff check app/ tests/ --fix
 Type check: mypy app/
 Test: pytest tests/ --cov=app
-CI check: scripts\run_ci_checks.bat (Windows) or ./scripts/run_ci_checks.sh (Linux/Mac)
+
+Pre-commit (fast, <30 sec):
+  Windows: scripts\install-precommit-hooks.bat
+  Linux/Mac/WSL: chmod +x scripts/install-precommit-hooks.sh && ./scripts/install-precommit-hooks.sh
+
+Fast pre-commit check (manual):
+  Windows: cd FantasyF1_BE && scripts\run_precommit_checks.bat
+  Linux/Mac/WSL: cd FantasyF1_BE && ./scripts/run_precommit_checks.sh
+
+Full CI check (with tests):
+  Windows: cd FantasyF1_BE && scripts\run_ci_checks.bat
+  Linux/Mac/WSL: cd FantasyF1_BE && ./scripts/run_ci_checks.sh
+
 DB up: docker-compose up postgres redis
 DB down: docker-compose down
 

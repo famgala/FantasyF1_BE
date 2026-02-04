@@ -16,7 +16,7 @@ from app.schemas.league import (
     LeagueResponse,
     LeagueUpdate,
 )
-from app.schemas.league_role import MyRoleResponse
+from app.schemas.league_role import MyRoleResponse, UserRole
 from app.schemas.team import TeamResponse as LeagueTeamResponse
 from app.services.fantasy_team_service import FantasyTeamService
 from app.services.invitation_service import InvitationService
@@ -280,7 +280,8 @@ async def join_league(
         max_length=100,
         description="Team name",
     ),
-    invite_code: str | None = Query(
+    invite_code: str
+    | None = Query(
         None,
         description="Invite code for private leagues",
     ),
@@ -484,8 +485,15 @@ async def get_my_role(
     # Get user's role
     user_role = await LeagueRoleService.get_user_role(db, league_id, current_user.id)
 
+    role_enum: UserRole | None = None
+    if user_role and user_role.role:
+        try:
+            role_enum = UserRole(user_role.role)
+        except ValueError:
+            role_enum = None
+
     return MyRoleResponse(
-        role=user_role.role if user_role else None,
+        role=role_enum,
         league_id=league_id,
         user_id=current_user.id,
     )

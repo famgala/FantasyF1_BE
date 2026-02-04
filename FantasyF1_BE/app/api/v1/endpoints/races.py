@@ -21,9 +21,8 @@ async def list_races(
     db: Annotated[AsyncSession, Depends(get_db)],
     skip: int = Query(default=0, ge=0),
     limit: int = Query(default=100, ge=1, le=100),
-    status: str | None = Query(
-        default=None, description="Filter by status (upcoming, completed, cancelled)"
-    ),
+    status: str
+    | None = Query(default=None, description="Filter by status (upcoming, completed, cancelled)"),
     country: str | None = Query(default=None, description="Filter by country"),
 ) -> RaceListResponse:
     """List all races with optional filtering."""
