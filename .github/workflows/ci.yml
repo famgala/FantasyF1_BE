@@ -104,6 +104,18 @@ jobs:
         
         echo "✅ Backend image built successfully"
     
+    - name: Build frontend image locally for testing
+      run: |
+        echo "🔨 Building frontend image locally for CI/CD testing..."
+        
+        # Build the image
+        docker build -t famgala/fantasyf1-fe:dev frontend/ || {
+          echo "❌ Build failed"
+          exit 1
+        }
+        
+        echo "✅ Frontend image built successfully"
+    
     - name: Create .env file for docker-compose
       run: |
         echo "🚀 Creating .env file for docker-compose.test.yml..."
@@ -126,6 +138,8 @@ jobs:
         echo "ENVIRONMENT=testing" >> .env
         echo "DEBUG=false" >> .env
         echo "CORS_ORIGINS=http://localhost:3000,http://localhost:8000" >> .env
+        echo "BACKEND_IMAGE=famgala/fantasyf1-be:dev" >> .env
+        echo "FRONTEND_IMAGE=famgala/fantasyf1-fe:dev" >> .env
         
         echo "✅ .env file created successfully"
     
