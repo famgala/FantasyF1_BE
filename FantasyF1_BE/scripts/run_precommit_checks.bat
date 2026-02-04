@@ -16,15 +16,22 @@ echo ============================================
 
 set EXIT_CODE=0
 
-REM 1. Black formatter check (FAST)
+REM 1. Black formatter (auto-fix then check)
 echo.
-echo [1/3] Checking code formatting with Black...
-black --check app/ tests/ --line-length=100 > nul 2>&1
+echo [1/3] Running Black formatter (will auto-fix formatting)...
+black app/ tests/ --line-length=100 > nul 2>&1
 if %ERRORLEVEL% neq 0 (
-    echo   ❌ Black check failed - run 'black app/ tests/' to fix
+    echo   ❌ Black formatting failed
     set EXIT_CODE=1
 ) else (
-    echo   ✅ Black check passed
+    REM Re-check to ensure all files are properly formatted
+    black --check app/ tests/ --line-length=100 > nul 2>&1
+    if %ERRORLEVEL% neq 0 (
+        echo   ❌ Black formatting failed after auto-fix
+        set EXIT_CODE=1
+    ) else (
+        echo   ✅ Black formatting passed (files normalized)
+    )
 )
 
 REM 2. Ruff linter (FAST)

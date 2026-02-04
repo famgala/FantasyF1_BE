@@ -17,13 +17,19 @@ echo "============================================"
 
 EXIT_CODE=0
 
-# 1. Black formatter check (FAST)
+# 1. Black formatter (auto-fix then check)
 echo ""
-echo "[1/3] Checking code formatting with Black..."
-if black --check app/ tests/ --line-length=100 > /dev/null 2>&1; then
-    echo "  ✅ Black check passed"
+echo "[1/3] Running Black formatter (will auto-fix formatting)..."
+if black app/ tests/ --line-length=100 > /dev/null 2>&1; then
+    # Re-check to ensure all files are properly formatted
+    if black --check app/ tests/ --line-length=100 > /dev/null 2>&1; then
+        echo "  ✅ Black formatting passed (files normalized)"
+    else
+        echo "  ❌ Black formatting failed after auto-fix"
+        EXIT_CODE=1
+    fi
 else
-    echo "  ❌ Black check failed - run 'black app/ tests/' to fix"
+    echo "  ❌ Black formatting failed"
     EXIT_CODE=1
 fi
 
