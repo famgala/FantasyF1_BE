@@ -1,22 +1,22 @@
 @echo off
 REM ============================================
-REM Pre-commit Hook for Windows
-REM Runs CI checks based on what files changed
+REM Pre-commit Hook for Windows (Auto-format version)
+REM Auto-formats files and runs CI checks
 REM ============================================
 
 echo ============================================
-echo Running Pre-commit Checks
+echo Running Pre-commit Checks (Auto-format Mode)
 echo ============================================
 
 SET EXIT_CODE=0
 
 REM Get the list of staged files
-FOR /F "delims=" %%i IN ('git diff --cached --name-only --diff-filter=ACM') DO (
+FOR /F "delims=" %%i IN ('git diff --cached --name-only --diff-filter=ACM 2^>nul') DO (
     SET STAGED_FILE=%%i
 )
 
 REM Check if there are any staged files
-git diff --cached --quiet
+git diff --cached --quiet >nul 2>&1
 IF %ERRORLEVEL% EQU 0 (
     echo No staged files. Skipping pre-commit checks.
     exit /b 0
@@ -26,7 +26,7 @@ REM Detect what changed
 SET BACKEND_CHANGED=false
 SET FRONTEND_CHANGED=false
 
-FOR /F "delims=" %%i IN ('git diff --cached --name-only --diff-filter=ACM') DO (
+FOR /F "delims=" %%i IN ('git diff --cached --name-only --diff-filter=ACM 2^>nul') DO (
     ECHO "%%i" | FINDSTR /C:"FantasyF1_BE" >nul
     IF NOT ERRORLEVEL 1 SET BACKEND_CHANGED=true
     
@@ -43,37 +43,54 @@ echo.
 REM Run backend checks if backend changed
 IF "%BACKEND_CHANGED%"=="true" (
     echo ============================================
-    echo Running Backend Checks
+    echo Running Backend Checks (Auto-formatting)
     echo ============================================
     
     REM Change to backend directory
     CD FantasyF1_BE
     
-    REM 1. Black formatter check
+    REM 1. Black formatter (auto-format, then verify)
     echo.
-    echo [1/4] Running Black formatter check...
-    black --check app/ tests/ >nul 2>&1
+    echo [1/5] Running Black formatter (auto-formatting)...
+    black app/ tests/ 2>&1 | FINDSTR /C:"reformatted" >nul
     IF NOT ERRORLEVEL 1 (
-        echo [OK] Black check passed
+        echo [WARN] Files were reformatted by Black
+        REM Stage the reformatted files
+        git add app/ tests/
+        REM Verify it passes check now
+        black --check app/ tests/ >nul 2>&1
+        IF NOT ERRORLEVEL 1 (
+            echo [OK] Black formatting applied and verified
+        ) ELSE (
+            echo [FAIL] Black check failed even after formatting
+            SET EXIT_CODE=1
+        )
     ) ELSE (
-        echo [FAIL] Black check failed - run 'black app/ tests/' to fix
-        SET EXIT_CODE=1
+        REM No files were reformatted, just check
+        black --check app/ tests/ >nul 2>&1
+        IF NOT ERRORLEVEL 1 (
+            echo [OK] Black check passed (no formatting needed)
+        ) ELSE (
+            echo [FAIL] Black check failed
+            SET EXIT_CODE=1
+        )
     )
     
-    REM 2. Ruff linter
+    REM 2. Ruff linter (auto-fix, then verify)
     echo.
-    echo [2/4] Running Ruff linter...
+    echo [2/5] Running Ruff linter (auto-fixing)...
+    ruff check app/ tests/ --fix >nul 2>&1
     ruff check app/ tests/ >nul 2>&1
     IF NOT ERRORLEVEL 1 (
         echo [OK] Ruff check passed
     ) ELSE (
-        echo [FAIL] Ruff check failed - run 'ruff check app/ tests/ --fix' to fix
+        echo [FAIL] Ruff check failed - some issues could not be auto-fixed
         SET EXIT_CODE=1
     )
     
     REM 3. mypy type checker
     echo.
-    echo [3/4] Running MyPy type checker...
+    echo [3/5] Running MyPy type checker...
     mypy app/ >nul 2>&1
     IF NOT ERRORLEVEL 1 (
         echo [OK] MyPy check passed
@@ -84,10 +101,10 @@ IF "%BACKEND_CHANGED%"=="true" (
     
     REM 4. pytest with coverage (only if tests directory changed or app directory changed)
     echo.
-    echo [4/4] Checking if tests need to be run...
+    echo [4/5] Checking if tests need to be run...
     SET TESTS_CHANGED=false
     
-    FOR /F "delims=" %%i IN ('git diff --cached --name-only --diff-filter=ACM') DO (
+    FOR /F "delims=" %%i IN ('git diff --cached --name-only --diff-filter=ACM 2^>nul') DO (
         ECHO "%%i" | FINDSTR /C:"FantasyF1_BE\\tests" >nul
         IF NOT ERRORLEVEL 1 SET TESTS_CHANGED=true
         
@@ -110,6 +127,12 @@ IF "%BACKEND_CHANGED%"=="true" (
     ) ELSE (
         echo Skipping pytest (no test files or service files changed)
     )
+    
+    REM 5. Stage any changes from auto-formatting/auto-fixing
+    echo.
+    echo [5/5] Staging auto-formatted files...
+    git add app/ tests/
+    echo [OK] Files staged
     
     REM Return to root directory
     CD ..
@@ -152,7 +175,7 @@ IF "%FRONTEND_CHANGED%"=="true" (
     echo [3/3] Checking if build needs to be run...
     SET SOURCE_CHANGED=false
     
-    FOR /F "delims=" %%i IN ('git diff --cached --name-only --diff-filter=ACM') DO (
+    FOR /F "delims=" %%i IN ('git diff --cached --name-only --diff-filter=ACM 2^>nul') DO (
         ECHO "%%i" | FINDSTR /C:"frontend\\src" >nul
         IF NOT ERRORLEVEL 1 SET SOURCE_CHANGED=true
         

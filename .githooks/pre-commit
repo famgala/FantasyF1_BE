@@ -1,13 +1,13 @@
 #!/bin/bash
 
 # ============================================
-# Pre-commit Hook
-# Runs CI checks based on what files changed
+# Pre-commit Hook (Auto-format version)
+# Auto-formats files and runs CI checks
 # Works on Unix/Linux/Mac and Windows (Git Bash)
 # ============================================
 
 echo "============================================"
-echo "Running Pre-commit Checks"
+echo "Running Pre-commit Checks (Auto-format Mode)"
 echo "============================================"
 
 # Get the list of staged files
@@ -46,35 +46,51 @@ echo ""
 # Run backend checks if backend changed
 if [ "$BACKEND_CHANGED" = true ]; then
     echo "============================================"
-    echo "Running Backend Checks"
+    echo "Running Backend Checks (Auto-formatting)"
     echo "============================================"
     
     # Change to backend directory
     cd FantasyF1_BE || exit 1
     
-    # 1. Black formatter check
+    # 1. Black formatter (auto-format, then verify)
     echo ""
-    echo "[1/4] Running Black formatter check..."
-    if black --check app/ tests/ > /dev/null 2>&1; then
-        echo "✅ Black check passed"
+    echo "[1/5] Running Black formatter (auto-formatting)..."
+    if black app/ tests/ 2>&1 | grep -q "reformatted"; then
+        echo "⚠️  Files were reformatted by Black"
+        # Stage the reformatted files
+        git add app/ tests/
+        # Verify it passes check now
+        if black --check app/ tests/ > /dev/null 2>&1; then
+            echo "✅ Black formatting applied and verified"
+        else
+            echo "❌ Black check failed even after formatting"
+            EXIT_CODE=1
+        fi
     else
-        echo "❌ Black check failed - run 'black app/ tests/' to fix"
-        EXIT_CODE=1
+        # No files were reformatted, just check
+        if black --check app/ tests/ > /dev/null 2>&1; then
+            echo "✅ Black check passed (no formatting needed)"
+        else
+            echo "❌ Black check failed"
+            EXIT_CODE=1
+        fi
     fi
     
-    # 2. Ruff linter
+    # 2. Ruff linter (auto-fix, then verify)
     echo ""
-    echo "[2/4] Running Ruff linter..."
+    echo "[2/5] Running Ruff linter (auto-fixing)..."
+    ruff check app/ tests/ --fix > /dev/null 2>&1
     if ruff check app/ tests/ > /dev/null 2>&1; then
         echo "✅ Ruff check passed"
     else
-        echo "❌ Ruff check failed - run 'ruff check app/ tests/ --fix' to fix"
+        echo "❌ Ruff check failed - some issues could not be auto-fixed"
+        ruff check app/ tests/ 2>&1 | head -20
         EXIT_CODE=1
     fi
     
     # 3. mypy type checker
     echo ""
-    echo "[3/4] Running MyPy type checker..."
+    echo "[3/5] Running MyPy type checker..."
     if mypy app/ > /dev/null 2>&1; then
         echo "✅ MyPy check passed"
     else
@@ -84,7 +100,7 @@ if [ "$BACKEND_CHANGED" = true ]; then
     
     # 4. pytest with coverage (only if tests directory changed or app directory changed)
     echo ""
-    echo "[4/4] Checking if tests need to be run..."
+    echo "[4/5] Checking if tests need to be run..."
     TESTS_CHANGED=false
     for FILE in $STAGED_FILES; do
         if [[ "$FILE" == FantasyF1_BE/tests/* ]] || [[ "$FILE" == FantasyF1_BE/app/services/* ]] || [[ "$FILE" == FantasyF1_BE/app/api/* ]]; then
@@ -104,6 +120,12 @@ if [ "$BACKEND_CHANGED" = true ]; then
     else
         echo "⏭️  Skipping pytest (no test files or service files changed)"
     fi
+    
+    # 5. Stage any changes from auto-formatting/auto-fixing
+    echo ""
+    echo "[5/5] Staging auto-formatted files..."
+    git add app/ tests/
+    echo "✅ Files staged"
     
     # Return to root directory
     cd ..
@@ -173,7 +195,7 @@ echo ""
 echo "============================================"
 if [ $EXIT_CODE -eq 0 ]; then
     echo "✅ All pre-commit checks passed!"
-    echo "You're ready to commit your changes."
+    echo "🚀 You're ready to commit your changes."
 else
     echo "❌ Some pre-commit checks failed."
     echo "Please fix the issues above before committing."
