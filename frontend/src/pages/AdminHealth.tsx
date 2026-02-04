@@ -61,7 +61,7 @@ const ComponentHealthCard: React.FC<{
 
 export const AdminHealth: React.FC = () => {
   const { user } = useAuth();
-  const { showToast } = useToast();
+  const { error: showError, success: showSuccess } = useToast();
   const navigate = useNavigate();
 
   const [health, setHealth] = useState<HealthStatus | null>(null);
@@ -72,10 +72,10 @@ export const AdminHealth: React.FC = () => {
   // Check if user is superuser
   useEffect(() => {
     if (user && !user.is_superuser) {
-      showToast('You do not have permission to access the admin health page', 'error');
+      showError('Access Denied', 'You do not have permission to access this page');
       navigate('/dashboard');
     }
-  }, [user, navigate, showToast]);
+  }, [user, navigate, showError]);
 
   const fetchHealth = useCallback(
     async (showLoading = true) => {
@@ -93,13 +93,13 @@ export const AdminHealth: React.FC = () => {
         const message =
           (err as Error).message || 'Failed to load system health status';
         setError(message);
-        showToast(message, 'error');
+        showError('Error', message);
       } finally {
         setLoading(false);
         setIsRefreshing(false);
       }
     },
-    [showToast]
+    [showError]
   );
 
   // Initial load
@@ -122,7 +122,7 @@ export const AdminHealth: React.FC = () => {
 
   const handleManualRefresh = () => {
     fetchHealth(false);
-    showToast('Health status refreshed', 'success');
+    showSuccess('Success', 'Health status refreshed');
   };
 
   const isAnyComponentUnhealthy = (healthData: HealthStatus): boolean => {

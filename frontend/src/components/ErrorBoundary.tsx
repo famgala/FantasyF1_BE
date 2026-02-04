@@ -1,4 +1,4 @@
-import React, { Component, ErrorInfo, ReactNode } from 'react';
+import { Component, type ErrorInfo, type ReactNode } from 'react';
 import ErrorDisplay from './ErrorDisplay';
 
 interface Props {
@@ -91,7 +91,7 @@ export class ErrorBoundary extends Component<Props, State> {
             onRetry={this.resetErrorBoundary}
             retryText="Reload"
           />
-          {process.env.NODE_ENV === 'development' && this.state.errorInfo && (
+          {import.meta.env.DEV && this.state.errorInfo && (
             <details className="mt-4 p-4 bg-gray-100 rounded text-left overflow-auto">
               <summary className="cursor-pointer font-medium">
                 Error Details (Development Only)

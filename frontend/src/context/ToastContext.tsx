@@ -1,10 +1,11 @@
-import React, { createContext, useContext, useCallback, useState } from 'react';
-import { Toast, ToastType } from '../components/Toast';
-import ToastContainer from '../components/Toast';
+import { createContext, useContext, useCallback, useState } from 'react';
+import type { Toast } from '../components/Toast';
+import { ToastContainer } from '../components/Toast';
 
 interface ToastContextType {
   addToast: (toast: Omit<Toast, 'id'>) => void;
   removeToast: (id: string) => void;
+  showToast: (toast: Omit<Toast, 'id'>) => void;
   success: (title: string, message: string, duration?: number) => void;
   error: (title: string, message: string, duration?: number) => void;
   warning: (title: string, message: string, duration?: number) => void;
@@ -57,7 +58,7 @@ export const ToastProvider: React.FC<{ children: React.ReactNode }> = ({
 
   return (
     <ToastContext.Provider
-      value={{ addToast, removeToast, success, error, warning, info }}
+      value={{ addToast, removeToast, showToast: addToast, success, error, warning, info }}
     >
       {children}
       <ToastContainer toasts={toasts} onRemove={removeToast} />

@@ -1,4 +1,5 @@
 @echo off
+cd /d "%~dp0.."
 REM ============================================
 REM Run All CI Checks Locally
 REM This script runs all the same tests that GitHub Actions will run
@@ -7,6 +8,7 @@ REM ============================================
 echo ============================================
 echo Running CI Checks Locally
 echo ============================================
+echo Working directory: %CD%
 
 REM Set error codes
 set EXIT_CODE=0

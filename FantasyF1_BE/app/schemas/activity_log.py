@@ -3,7 +3,7 @@
 from datetime import datetime
 from typing import Annotated
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, ConfigDict, Field
 
 from app.models.activity_log import ActivityType
 from app.schemas.user import UserResponse
@@ -36,10 +36,7 @@ class ActivityLogResponse(ActivityLogBase):
     user_id: int | None
     created_at: datetime
 
-    class Config:
-        """Pydantic config for ORM mode."""
-
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)
 
 
 class ActivityLogDetailResponse(ActivityLogResponse):

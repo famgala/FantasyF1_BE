@@ -113,7 +113,6 @@ export const Login: React.FC = () => {
             <ErrorDisplay
               title="Login Failed"
               message={apiError}
-              variant="compact"
             />
           )}
 

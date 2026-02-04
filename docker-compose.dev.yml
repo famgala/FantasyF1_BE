@@ -212,6 +212,33 @@ services:
         condition: service_healthy
     command: sleep infinity
 
+  # Frontend Application (React + Vite + Nginx) - Development mode
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    image: fantasyf1-fe-dev:latest
+    container_name: fantasyf1_dev_frontend
+    ports:
+      - "${FRONTEND_PORT:-3000}:80"
+    environment:
+      - VITE_API_BASE_URL=${VITE_API_BASE_URL:-http://localhost:8002}
+    depends_on:
+      backend:
+        condition: service_healthy
+    networks:
+      - fantasyf1_dev_network
+    healthcheck:
+      test: ["CMD-SHELL", "wget --no-verbose --tries=1 --spider http://localhost/ || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
+      - /app/dist
+
 volumes:
   postgres_data:
     driver: local

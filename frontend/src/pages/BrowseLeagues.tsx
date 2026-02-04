@@ -2,7 +2,7 @@ import { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { getLeagues, searchLeagues } from '../services/leagueService';
 import { MobileNav } from '../components/MobileNav';
-import { PageLoader, ErrorDisplay, SkeletonCard } from '../components';
+import { ErrorDisplay, SkeletonCard } from '../components';
 import type { LeagueWithTeamCount } from '../types';
 
 export default function BrowseLeagues() {

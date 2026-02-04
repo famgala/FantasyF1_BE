@@ -3,7 +3,7 @@
 from datetime import datetime
 from typing import Annotated
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, ConfigDict, Field
 
 from app.models.league import DraftCloseCondition
 from app.schemas.user import UserResponse
@@ -59,10 +59,7 @@ class LeagueResponse(LeagueBase):
     created_at: datetime
     updated_at: datetime
 
-    class Config:
-        """Pydantic config for ORM mode."""
-
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)
 
 
 class LeagueDetailResponse(LeagueResponse):

@@ -3,7 +3,7 @@
 from datetime import datetime
 from enum import Enum
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, ConfigDict, Field
 
 
 class UserRole(str, Enum):
@@ -41,10 +41,7 @@ class LeagueRoleResponse(LeagueRoleBase):
     created_at: datetime
     updated_at: datetime
 
-    class Config:
-        """Pydantic config."""
-
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)
 
 
 class CoManagerRequest(BaseModel):
@@ -63,6 +60,8 @@ class PromoteCoManagerRequest(BaseModel):
 class MyRoleResponse(BaseModel):
     """Schema for my role response."""
 
-    role: UserRole | None = Field(None, description="User's role in the league, or null if not a member")
+    role: UserRole | None = Field(
+        None, description="User's role in the league, or null if not a member"
+    )
     league_id: int = Field(..., description="League ID")
     user_id: int = Field(..., description="User ID")

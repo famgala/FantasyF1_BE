@@ -5,7 +5,7 @@ including draft order generation, pick management, and auto-picking.
 """
 
 import json
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from typing import Any
 
 from sqlalchemy import and_, func, select
@@ -488,7 +488,7 @@ class DraftService:
         )
         result = await session.execute(count_query)
         scalar_result = result.scalar()
-        pick_count = scalar_result if isinstance(scalar_result, int) else 0
+        pick_count = 0 if scalar_result is None else int(scalar_result)  # type: ignore[arg-type, call-overload]
 
         # Check if draft is complete
         total_teams = len(order_list)
@@ -595,15 +595,18 @@ class DraftService:
                 DraftPick.race_id == race_id,
             )
         )
-        result = await session.execute(count_query)
-        scalar_result = result.scalar()
-        pick_count = scalar_result if isinstance(scalar_result, int) else 0
+        count_result = await session.execute(count_query)
+        count_scalar = count_result.scalar()
+        if count_scalar is None or not isinstance(count_scalar, int):
+            current_pick_count = 0
+        else:
+            current_pick_count = count_scalar
 
         # Check if there are more picks to make
         total_teams = len(order_list)
         total_picks_possible = total_teams * 5  # 5 rounds
 
-        if pick_count >= total_picks_possible:
+        if current_pick_count >= total_picks_possible:
             return  # Draft is complete, no next pick
 
         # Find the most recent pick for this team (which will be the next pick)
@@ -623,14 +626,14 @@ class DraftService:
             .order_by(DraftPick.pick_number.desc())
             .limit(1)
         )
-        result = await session.execute(last_pick_query)
-        last_pick = result.scalar_one_or_none()
+        pick_result = await session.execute(last_pick_query)
+        last_draft_pick = pick_result.scalar_one_or_none()
 
-        if last_pick:
+        if last_draft_pick is not None:
             # Update the last pick to set pick_started_at for the next team
             # This is a workaround - we're storing the start time on the last pick
             # In a real implementation, you might want a separate table for tracking turn times
-            last_pick.pick_started_at = datetime.now(timezone.utc)
+            last_draft_pick.pick_started_at = datetime.now(UTC)
             await session.commit()
 
     @staticmethod
@@ -675,21 +678,21 @@ class DraftService:
             .order_by(DraftPick.pick_number.desc())
             .limit(1)
         )
-        result = await session.execute(last_pick_query)
-        last_pick = result.scalar_one_or_none()
+        pick_result = await session.execute(last_pick_query)
+        last_pick = pick_result.scalar_one_or_none()
 
         # Calculate time remaining
-        time_remaining = league.pick_timer_seconds
-        pick_started_at = None
+        time_remaining: int = league.pick_timer_seconds
+        pick_started_at: datetime | None = None
 
-        if last_pick and last_pick.pick_started_at:
+        if last_pick is not None and last_pick.pick_started_at is not None:
             pick_started_at = last_pick.pick_started_at
-            elapsed = (datetime.now(timezone.utc) - pick_started_at).total_seconds()
+            elapsed = (datetime.now(UTC) - pick_started_at).total_seconds()
             time_remaining = max(0, int(league.pick_timer_seconds - elapsed))
-        elif last_pick:
+        elif last_pick is not None and last_pick.picked_at is not None:
             # If no pick_started_at is set, use picked_at as fallback
             pick_started_at = last_pick.picked_at
-            elapsed = (datetime.now(timezone.utc) - pick_started_at).total_seconds()
+            elapsed = (datetime.now(UTC) - pick_started_at).total_seconds()
             time_remaining = max(0, int(league.pick_timer_seconds - elapsed))
 
         return {

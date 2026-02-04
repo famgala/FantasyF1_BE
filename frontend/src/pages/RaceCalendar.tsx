@@ -2,7 +2,6 @@ import { useState, useEffect, useCallback, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { getUpcomingRaces, getPastRaces } from '../services/raceService';
 import type { Race } from '../types';
-import { MobileNav } from '../components/MobileNav';
 import { ErrorDisplay, SkeletonCard } from '../components';
 
 // Helper function to format date

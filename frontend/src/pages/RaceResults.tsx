@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
-import { useParams, useNavigate, Link } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
 import { getRaceResults } from '../services/raceService';
 import type { RaceResultsResponse, RaceResult } from '../types';
 import { MobileNav } from '../components/MobileNav';
@@ -73,10 +73,9 @@ function FastestLapIndicator() {
 // Results Table Row Component
 interface ResultRowProps {
   result: RaceResult;
-  index: number;
 }
 
-function ResultRow({ result, index }: ResultRowProps) {
+function ResultRow({ result }: ResultRowProps) {
   const isPodium = result.position <= 3;
   const positionClasses = ['position-gold', 'position-silver', 'position-bronze'];
 
@@ -145,8 +144,8 @@ function ResultsTable({ results }: ResultsTableProps) {
           </tr>
         </thead>
         <tbody>
-          {results.map((result, index) => (
-            <ResultRow key={result.id} result={result} index={index} />
+          {results.map((result) => (
+            <ResultRow key={result.id} result={result} />
           ))}
         </tbody>
       </table>

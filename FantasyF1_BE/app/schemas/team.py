@@ -4,7 +4,7 @@ Pydantic schemas for Team operations.
 
 from datetime import datetime
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, ConfigDict, Field
 
 
 class TeamPickBase(BaseModel):
@@ -15,8 +15,7 @@ class TeamPickBase(BaseModel):
     pick_type: str = Field(..., description="Type of pick: 'driver' or 'constructor'")
     race_id: int | None = Field(None, description="Race ID if pick is race-specific")
 
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)
 
 
 class TeamPickCreate(BaseModel):
@@ -41,8 +40,7 @@ class TeamPickResponse(BaseModel):
     created_at: datetime
     updated_at: datetime
 
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)
 
 
 class TeamBase(BaseModel):
@@ -50,8 +48,7 @@ class TeamBase(BaseModel):
 
     name: str = Field(..., min_length=3, max_length=100, description="Team name")
 
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)
 
 
 class TeamCreate(BaseModel):
@@ -66,8 +63,7 @@ class TeamUpdate(BaseModel):
 
     team_name: str | None = Field(None, min_length=3, max_length=100, description="Team name")
 
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)
 
 
 class TeamResponse(BaseModel):
@@ -84,8 +80,7 @@ class TeamResponse(BaseModel):
     created_at: datetime
     updated_at: datetime
 
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)
 
 
 class TeamDetailResponse(TeamResponse):
