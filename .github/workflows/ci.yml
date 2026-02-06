@@ -495,6 +495,17 @@ jobs:
         username: ${{ secrets.DOCKER_HUB_USERNAME }}
         password: ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }}
     
+    - name: Extract metadata
+      id: meta
+      uses: docker/metadata-action@v5
+      with:
+        images: docker.io/${{ env.FRONTEND_IMAGE_NAME }}
+        tags: |
+          type=raw,value=${{ steps.version.outputs.version }}
+          type=raw,value=${{ steps.version.outputs.image_tag }}
+          type=sha,prefix=${{ steps.version.outputs.image_tag }}-
+          type=raw,value=latest,enable=${{ github.ref_name == 'main' }}
+    
     - name: Install dependencies
       run: |
         echo "📦 Installing frontend dependencies..."
@@ -519,15 +530,8 @@ jobs:
         context: frontend
         file: frontend/Dockerfile
         push: true
-        tags: |
-          docker.io/famgala/fantasyf1-fe:${{ steps.version.outputs.version }}
-          docker.io/famgala/fantasyf1-fe:${{ steps.version.outputs.image_tag }}
-          docker.io/famgala/fantasyf1-fe:${{ steps.version.outputs.image_tag }},enable=${{ github.ref_name == 'main' }}
-        labels: |
-          org.opencontainers.image.title=FantasyF1 Frontend
-          org.opencontainers.image.version=${{ steps.version.outputs.version }}
-          org.opencontainers.image.created=${{ github.event.head_commit.timestamp }}
-          org.opencontainers.image.revision=${{ github.sha }}
+        tags: ${{ steps.meta.outputs.tags }}
+        labels: ${{ steps.meta.outputs.labels }}
         cache-from: type=gha
         cache-to: type=gha,mode=max
         build-args: |
