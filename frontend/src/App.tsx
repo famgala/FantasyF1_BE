@@ -1,3 +1,4 @@
+// Trigger frontend CI build - ensuring frontend builds with latest changes
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider } from './context/AuthContext';
 import { ToastProvider } from './context/ToastContext';
